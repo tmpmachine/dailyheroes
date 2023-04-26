@@ -1,0 +1,21 @@
+{
+  "name": "Daily Heroes",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "description": "Time tracking app for heroes.",
+  "homepage_url": "https://pacolemon.blogspot.com",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["notifications", "alarms", "background", "storage"],
+  "background": {
+    "service_worker": "src/sw.js",
+    "type": "module"
+  },
+  "action" : {
+    "default_icon" : "icons/icon.webp",
+    "default_popup" : "src/popup.html"
+  }
+}

@@ -1,0 +1,242 @@
+* {
+  box-sizing: border-box;
+}
+/*body {*/
+  /*font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif!important ;*/
+/*}*/
+
+:root {
+  --live-progress-color: green;
+  --active-task-bg: lightblue;
+}
+/*@media (prefers-color-scheme: dark) {*/
+  
+/*  :root {*/
+/*    --live-progress-color: #00cc66;*/
+/*    --active-task-bg: #0099cc;*/
+/*  }*/
+
+  /* Dark theme styles go here */
+  /* Dark theme styles for all elements */
+/*  body {*/
+/*    background-color: #333333;*/
+/*    color: #ffffff;*/
+/*  }*/
+/*}*/
+
+
+.d-grid{display:grid}
+.d-inline-block{display:inline-block}
+
+body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
+body:not([data-state~="--timer-running"]) [data-obj="stop-timer"] {display:none}
+#tasklist:not([data-state~="--manage-mode"]) [data-role="manage"] {display:none}
+body:not([data-state~="--import-mode"]) [data-section="import"] {display:none}
+
+html,body{
+  height: max-content;
+}
+
+/* task item */
+[data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
+[data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
+[data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }
+[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] { display: none; }
+
+[data-obj="form-task"][data-state~="--edit-mode"] [data-role="btn-add"] {
+  display: none;
+}
+[data-obj="form-task"]:not([data-state~="--edit-mode"]) [data-role="btn-edit"] {
+  display: none;
+}
+
+[data-obj="live-progress"], #live-history {
+  color: var(--live-progress-color);
+}
+[data-slot="completionPercentage"] {
+  color: purple;
+  font-weight: bold;
+}
+
+
+/* Looks */
+button{
+  display:inline-block;
+  background-color:#f0f0f0;
+  color:#333;
+  padding: 0.2rem 1rem;
+  font-size: 0.9rem;
+  border:1px solid #ccc;
+  border-radius: 2px;
+  text-align:center;
+  text-decoration:none;
+  cursor:pointer;
+  outline:none;
+}
+button:hover{
+  background-color:#ccc;
+}
+button:focus{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(0,0,0,0.2);
+}
+
+
+input[type="text"] {
+  padding: 0.4rem 0.45rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #333;
+  outline: none;
+  width: 100%;
+}
+input[type="text"]:hover {
+  border-color: #666;
+}
+input[type="text"]:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+}
+
+.default-inline-flex-gap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+.default-gap {
+  padding-top: 0.5rem;
+}
+
+
+
+/* progress bar */
+  .progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+}
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #d1eaf2;
+  border-radius: 5px;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+
+.progress-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: #48a9e6;
+  border-radius: 5px;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+.progress-bar-fill--animated {
+  animation: progress-bar-stripes 1s linear infinite;
+}
+.progress-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 56px 0;
+  }
+}
+
+
+/* progress bar countdown NzE2ODYyNQ */
+.NzE2ODYyNQ-progress-bar-container {
+  width: 100%;
+  height: 15px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+}
+
+.NzE2ODYyNQ-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #d1eaf2;
+  border-radius: 5px;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+
+.NzE2ODYyNQ-progress-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: #48e6ca;
+  border-radius: 5px;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+.NzE2ODYyNQ-progress-bar-fill--animated {
+  animation: progress-bar-stripes 1s linear infinite;
+}
+.NzE2ODYyNQ-progress-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 0.7rem;
+}
+
+/* progress bar NzA5ODc1NQ */
+.NzA5ODc1NQ-progress-bar-container {
+  width: 100%;
+  align-items: center;
+  display: flex;
+}
+
+.NzA5ODc1NQ-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background-color: #d1eaf2;
+  overflow: hidden;
+  display: flex;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+
+.NzA5ODc1NQ-progress-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #48a9e6;
+  border-radius: 5px;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+.NzA5ODc1NQ-progress-bar-fill--animated {
+  animation: progress-bar-stripes 1s linear infinite;
+}

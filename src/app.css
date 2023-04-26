@@ -1,0 +1,7 @@
+[data-obj="task"] {
+  border: 1px solid #00000014;
+  /*border-radius: 0.6rem;*/
+  margin-bottom: 0.6rem;
+  box-shadow: 0 0 3px 2px #0000001a;
+  overflow: hidden;
+}
