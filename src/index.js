@@ -819,25 +819,30 @@ async function taskClickHandler(el) {
     case 'add':
       await increaseTaskDuration(id);
       break;
+    case 'set-target':
+      await setTaskTarget(id);
+      break;
     case 'finish':
-      await finishTask(id);
+      if (window.confirm('Finish this task?')) {
+        await finishTask(id);
+      }
       break;
     case 'start':
       await stopTimer();
-      switchActiveTask(parentEl, id);
+      await switchActiveTask(parentEl, id, true);
       await startCurrentTask(id)
       break;
   }
 }
 
-async function switchActiveTask(taskEl, id) {
+async function switchActiveTask(taskEl, id, persistent = false) {
   
   let activeTask = await getActiveTask();
   
   // switch task
   if (activeTask) {
     // switch task
-    if (id == activeTask.id) {
+    if (id == activeTask.id && !persistent) {
       await removeActiveTask();
       disableAllActive();
       window.ui.updateTaskProgressBar(id, false);
@@ -931,6 +936,17 @@ async function increaseTaskDuration(id) {
   
   let task = tasks.find(x => x.id == id);
   task.target = Math.max(0, task.target + parseHoursMinutesToMinutes(target));
+  await storeTask();
+  await listTask();  
+  await updateUI();
+}
+
+async function setTaskTarget(id) {
+  let target = window.prompt('set task target (hours minutes)');
+  if (!target) return;
+  
+  let task = tasks.find(x => x.id == id);
+  task.target = Math.max(0, parseHoursMinutesToMinutes(target));
   await storeTask();
   await listTask();  
   await updateUI();

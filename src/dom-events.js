@@ -3,7 +3,7 @@ window.DOMEvents = {
 	  'set-sleep-time': () => setSleepTime(),
 	  'export-tasks': () => exportTasks(),
 	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),
-	  'manage-tasks': () => $('#tasklist').stateList.toggle('--manage-mode'),
+	  'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
 	  'clear-history': async () => {
 		  await chrome.storage.local.set({ 'history': 0 });
 		  await chrome.storage.local.remove('rest');

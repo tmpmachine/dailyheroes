@@ -26,13 +26,28 @@
 /*  }*/
 /*}*/
 
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  src: url('fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2') format('woff');
+}
+.icon-mate {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
 
 
 
-body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
-body:not([data-state~="--timer-running"]) [data-obj="stop-timer"] {display:none}
-#tasklist:not([data-state~="--manage-mode"]) [data-role="manage"] {display:none}
-body:not([data-state~="--import-mode"]) [data-section="import"] {display:none}
+
 
 html,body{
   height: max-content;
