@@ -1,6 +1,31 @@
 window.ui = (function () {
   
-  let SELF = {};
+  let SELF = {
+    Init,
+  };
+  
+  function Init() {
+    initSimpleElementFilter();
+  }
+  
+  function initSimpleElementFilter() {
+    listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '#tasklist-container [data-obj="task"]')
+  }
+  
+  const listenAndToggleVisibility = (inputSelector, selector, visibleClass, containerSelector) => {
+    let element = document.querySelector(inputSelector);
+    element.addEventListener('input', () => {
+      const inputValue = element.value.toLowerCase();
+      for (let node of document.querySelectorAll(containerSelector)) {
+        const selectorValue = node.querySelector(selector).textContent.toLowerCase();
+        if (selectorValue.includes(inputValue)) {
+          node.classList.remove(visibleClass);
+        } else {
+          node.classList.add(visibleClass);
+        }
+      }
+    });
+  };
   
   SELF.updateProgressBar = function() {
     

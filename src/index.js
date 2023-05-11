@@ -1,6 +1,8 @@
-let $ = document.querySelector.bind(document)
-let qsa = document.querySelectorAll.bind(document)
-let asd = console.log
+
+
+let $ = document.querySelector.bind(document);
+let qsa = document.querySelectorAll.bind(document);
+let asd = console.log;
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 
@@ -231,6 +233,7 @@ async function initApp() {
   await loadRestTime();
   await calculateOverloadInfo();
   window.ui.loadSleepTime();
+  window.ui.Init();
   updateUI();
 }
 
@@ -336,14 +339,16 @@ async function loadRestTime() {
 async function stopTimer() {
   document.body.stateList.remove('--timer-running');
   await chrome.alarms.clearAll();
-  
+    
   let data = await chrome.storage.local.get(["history", "historyTime", "start"]);
-  let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
-  let distanceTime = new Date().getTime() - data.start;
-  await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
-  await chrome.storage.local.set({ 'historyTime': data.historyTime + distanceTime });
+  if (data.start) {
+    let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
+    let distanceTime = new Date().getTime() - data.start;
+    await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
+    await chrome.storage.local.set({ 'historyTime': data.historyTime + distanceTime });
+    await updateProgressActiveTask(distanceMinutes, distanceTime);
+  }
   await chrome.storage.local.remove(['start']);
-  await updateProgressActiveTask(distanceMinutes, distanceTime);
   // window.close();
   
   updateUI();
@@ -465,6 +470,7 @@ function attachListeners() {
 function detectKeyPressS() {
   let sKeyPressed = false;
   let tKeyPressed = false;
+  let slashKeyPressed = false;
 
   function detect(event) {
     // Check if the currently focused element is not an input element
@@ -478,6 +484,10 @@ function detectKeyPressS() {
     } else if (event.key === 't' && !tKeyPressed) {
       tKeyPressed = true;
       $('[data-callback="set-timer"] input').focus();
+      event.preventDefault();
+    } else if (event.key === '/' && !slashKeyPressed) {
+      slashKeyPressed = true;
+      $('#node-filter-box').focus();
       event.preventDefault();
     }
   }
@@ -809,6 +819,14 @@ async function taskClickHandler(el) {
     case 'add':
       await increaseTaskDuration(id);
       break;
+    case 'finish':
+      await finishTask(id);
+      break;
+    case 'start':
+      await stopTimer();
+      switchActiveTask(parentEl, id);
+      await startCurrentTask(id)
+      break;
   }
 }
 
@@ -870,6 +888,29 @@ async function renameTask(id) {
   task.title = title;
   await storeTask();
   listTask();  
+}
+
+async function finishTask(id) {
+  let task = tasks.find(x => x.id == id);
+  task.progress = task.target;
+  task.progressTime = task.target * 60 * 1000;
+  await storeTask();
+  listTask();  
+}
+
+async function startCurrentTask(id) {
+  let task = tasks.find(x => x.id == id);
+  if (task.progress >= task.target) return;
+  
+  setTimer(task.target - task.progress);
+}
+
+async function startTask(id) {
+  let task = tasks.find(x => x.id == id);
+  // task.progress = task.target;
+  // task.progressTime = task.target * 60 * 1000;
+  // await storeTask();
+  // listTask();  
 }
 
 async function reduceTaskDuration(id) {

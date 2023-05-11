@@ -1,3 +1,5 @@
+.d-flex{display:flex}.justify-content-between{justify-content:space-between}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}
+
 * {
   box-sizing: border-box;
 }
@@ -25,8 +27,7 @@
 /*}*/
 
 
-.d-grid{display:grid}
-.d-inline-block{display:inline-block}
+
 
 body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 body:not([data-state~="--timer-running"]) [data-obj="stop-timer"] {display:none}

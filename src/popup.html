@@ -28,6 +28,10 @@
           <button>import</button>
         </form>
       </div>
+      
+      <input id="node-filter-box" type="text" placeholder="Search"/>
+      <div style="padding-top:.3rem;"></div>
+      
       <div id="tasklist-container">
         <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
         <div style="padding-top:1rem;"></div>
@@ -153,7 +157,7 @@
   <template id='tmp-task'>
   	<div data-obj="task" data-id="?">
   	  <div style="padding:0.3rem 0.5rem;">
-    	  <div>
+    	  <div class="d-flex justify-content-between">
     	    <span data-slot='title'></span>
     	  </div>
     	  <div class="default-inline-flex-gap">
@@ -162,6 +166,8 @@
       	  <button data-role='reduce'>-</button>
       	  <button data-role='add'>+</button>
       	  <button data-role='rename'>Rename</button>
+      	  <button data-role='finish'>Finish</button>
+      	  <button data-role='start'>Start</button>
       	  <div style="padding-top:4px;"></div>
       	  <div data-role="manage">
       	    <button data-role='edit'>Edit</button>
