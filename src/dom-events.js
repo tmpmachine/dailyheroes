@@ -1,5 +1,6 @@
 window.DOMEvents = {
 	clickable: {
+	'show-modal-add-task': () => showModalAddTask(),
 	  'set-sleep-time': () => setSleepTime(),
 	  'export-tasks': () => exportTasks(),
 	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),
@@ -58,7 +59,9 @@ window.DOMEvents = {
 	    } else {
 	      addTask(ev.target)
 	    }
-    },
+		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+		modal.close();
+      },
 	  'import-tasks': async (ev) => {
 	    ev.preventDefault();
 	    let form = ev.target;

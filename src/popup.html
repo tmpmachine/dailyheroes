@@ -13,10 +13,11 @@
     <!-- left column -->
     <section>
       
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;">
+      <div style="display:flex;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;">
+        <button class="clickable icon-mate" data-callback='show-modal-add-task'>add</button>
         <button class="clickable" data-callback='export-tasks'>Export</button>
         <button class="clickable" data-callback='import-tasks'>Import</button>
-        <button class="clickable" data-callback='manage-tasks'>Manage</button>
+        <button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>
       </div>
       <div class="default-gap"></div>
       
@@ -129,19 +130,7 @@
       <!--<button class="clickable" data-callback='mode-day-off'>day off</button>-->
       
       <!--<div style="padding-top:1rem;"></div>-->
-      Add task :
-      <div class="default-gap"></div>
-      <form data-name='task' class='submittable default-inline-flex-gap' data-callback='add-task' data-obj="form-task">
-        <div>
-          Title <input type="text" name='title'/>
-        </div>
-        <div>
-          Target <input type="text" name='target'/>
-        </div>
-        <input type="hidden" name="id"/>
-        <button data-role='btn-add'>Add</button>
-        <button data-role="btn-edit">Update</button>
-      </form>
+      
       
       <div style="display:grid;gap:3px;margin-top:1rem;">
         <button class='clickable' data-callback='clear-history' style='background:#e8aba6'>Reset Progress</button>
@@ -196,7 +185,37 @@
       
   	</div>
   </template>
+
+  <modal-v2 id="projects-modal">
+    <div class="modal" slot="content">
+      <!-- modal content-->
+      <div class="ov-auto">
+        <div style="padding:1rem;">
+
+          Add task :
+          <div class="default-gap"></div>
+          <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='add-task' data-obj="form-task">
+            <input type="hidden" name="id"/>
+            <div>
+              Title <input type="text" name='title'/>
+            </div>
+            <div>
+              Target <input type="text" name='target'/>
+            </div>
+            <div>
+              <button data-role='btn-add'>Add</button>
+              <button data-role="btn-edit">Update</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
   
+  <link href="modal-v2.css" rel="stylesheet"/>
+  <script src='modal-v2.js'></script>
+
   <script src="lib/statelist@v1.0.2.min.js"></script>
   <script src='lib/templateslot@v1.0.0.min.js'></script>
   <script src='dom-events.js'></script>

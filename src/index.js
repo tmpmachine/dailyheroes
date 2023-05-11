@@ -237,6 +237,14 @@ async function initApp() {
   updateUI();
 }
 
+function showModalAddTask() {
+  let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+  modal.classList.toggle('modal--active', modal.isShown);
+  modal.addEventListener('onclose', function() {
+    modal.classList.toggle('modal--active', false);
+  });
+}
+
 async function migrate() {
   let data = await chrome.storage.local.get('history');
   await chrome.storage.local.set({'historyTime': data.history * 60 * 1000});
