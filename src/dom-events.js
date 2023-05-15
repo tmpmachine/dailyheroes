@@ -5,7 +5,7 @@ window.DOMEvents = {
 	  'export-tasks': () => exportTasks(),
 	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),
 	  'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
-	  'clear-history': async () => {
+	  'reset-progress': async () => {
 	    if (!window.confirm('Are you sure?')) return;
 	    
 		  await window.service.SetData({ 'history': 0 });
@@ -76,6 +76,13 @@ window.DOMEvents = {
 	      addTask(ev.target)
 	    }
 		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+		modal.close();
+      },
+	  'add-note': (ev) => {
+	    ev.preventDefault();
+		let form = ev.target;
+		addNote(form)
+		let modal = form.closest('.is-modal');
 		modal.close();
       },
 	  'import-tasks': async (ev) => {
