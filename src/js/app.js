@@ -905,7 +905,7 @@ async function taskClickHandler(el) {
       }
       break;
     case 'take-note':
-      showTakeNote(id);
+      showModalNote(id);
       break;
     case 'start':
       await stopTimer();
@@ -1019,6 +1019,7 @@ async function addNote(form) {
   }
   
   let note = {
+    id: generateUniqueId(),
     desc: title,
   };
   task.note.push(note);
@@ -1026,9 +1027,12 @@ async function addNote(form) {
   partialUpdateTask('notes', task);
 }
 
+async function showModalNote(id) {
+  let modal = document.querySelectorAll('#modal-note')[0].toggle();
+  let form = modal.querySelector('form');
+  form.reset();      
+  form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
 
-async function showTakeNote(id) {
-  let modal = document.querySelectorAll('#modal-note')[0].toggle();      
   modal.classList.toggle('modal--active', modal.isShown);
   modal.addEventListener('onclose', function() {
     modal.classList.toggle('modal--active', false);
@@ -1040,8 +1044,14 @@ async function showTakeNote(id) {
 async function deleteNote(id, el) {
   let parentEl = el.closest('.i-item');
   let noteIndex = parseInt(parentEl.querySelector('[data-slot="index"]').textContent);
+  let noteId = parentEl.querySelector('[data-slot="id"]').textContent;
   let task = tasks.find(x => x.id == id);
-  task.note.splice(noteIndex, 1);
+  if (noteId) {
+    let deleteIndex = task.note.findIndex(x => x.id == noteId);
+    task.note.splice(deleteIndex, 1);
+  } else {
+    task.note.splice(noteIndex, 1);
+  }
   await storeTask();
   parentEl.remove();
 }

@@ -164,22 +164,7 @@
     	    <span data-slot='title'></span>
     	  </div>
         <div style="margin-top:0.7rem"></div>
-    	  <div class="default-inline-flex-gap">
-      	  <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button>
-      	  <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
-      	  <button data-role='delete' class="icon-mate" title='Delete'>delete</button>
-      	  <!--<button data-role='reduce' class="icon-mate">remove</button>-->
-      	  <!--<button data-role='add' class="icon-mate">add</button>-->
-      	  <button data-role='set-target' class="icon-mate" title='Change target'>schedule</button>
-      	  <button data-role='rename' class="icon-mate" title='Rename'>edit</button>
-      	  <button data-role='finish' class="icon-mate" title='Finish'>check_small</button>
-      	  <button data-role='take-note' class="icon-mate" title='Take a note'>note_add</button>
-      	  <button data-role='start' class="icon-mate" title='Start'>play_arrow</button>
-      	  <div style="padding-top:4px;"></div>
-      	  <div data-role="manage" class="default-inline-flex-gap">
-      	    <button data-role='track'>Track</button>
-      	    <button data-role='untrack'>Untrack</button>
-      	  </div>
+    	  <div class="default-inline-flex-gap" data-slot="" data-template="#tmp-mission-buttons">
     	  </div>
     	 
     	  <!--task notes-->
@@ -208,9 +193,28 @@
       
   	</div>
   </template>
+
+  <template id="tmp-mission-buttons">
+    <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button>
+    <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
+    <button data-role='delete' class="icon-mate" title='Delete'>delete</button>
+    <!--<button data-role='reduce' class="icon-mate">remove</button>-->
+    <!--<button data-role='add' class="icon-mate">add</button>-->
+    <button data-role='set-target' class="icon-mate" title='Change target'>schedule</button>
+    <button data-role='rename' class="icon-mate" title='Rename'>edit</button>
+    <button data-role='finish' class="icon-mate" title='Finish'>check_small</button>
+    <button data-role='take-note' class="icon-mate" title='Take a note'>note_add</button>
+    <button data-role='start' class="icon-mate" title='Start'>play_arrow</button>
+    <div style="padding-top:4px;"></div>
+    <div data-role="manage" class="default-inline-flex-gap">
+      <button data-role='track'>Track</button>
+      <button data-role='untrack'>Untrack</button>
+    </div>
+  </template>
   
   <template id='tmp-notes'>
-    <div class="d-flex justify-content-between i-item">
+    <div data-kind="note" class="d-flex justify-content-between i-item">
+      <span class="d-none" data-slot='id'></span>
       <div class="d-none" data-slot='index'></div>
       <div data-slot='desc'></div>
       <button data-role='delete-note' style="padding:0 4px;">x</button>
