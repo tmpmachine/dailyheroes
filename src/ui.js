@@ -2,14 +2,34 @@ window.ui = (function () {
   
   let SELF = {
     Init,
+    SetFocusEl,
   };
   
   function Init() {
     initSimpleElementFilter();
+    attachKeyboardShortcuts();
+  }
+  
+  function SetFocusEl(el) {
+    let interval = window.setInterval(function() {
+      if (document.activeElement == el) {
+        clearInterval(interval);
+      } else {
+        document.activeElement.blur();
+        el.focus();
+      }
+    }, (4));
   }
   
   function initSimpleElementFilter() {
     listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '#tasklist-container [data-obj="task"]')
+  }
+  
+  function attachKeyboardShortcuts() {
+    Mousetrap.bind('alt+n', function(e) {
+      showModalAddTask()
+      return false;
+    });
   }
   
   const listenAndToggleVisibility = (inputSelector, selector, visibleClass, containerSelector) => {
@@ -32,7 +52,7 @@ window.ui = (function () {
   };
   
   SELF.loadSleepTime = async function() {
-    let data = await chrome.storage.local.get('sleepTime');
+    let data = await window.service.GetData('sleepTime');
     let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
     $('#txt-sleeptime').textContent = minutesToTimeString(initial);
   };

@@ -6,19 +6,24 @@ window.DOMEvents = {
 	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),
 	  'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
 	  'clear-history': async () => {
-		  await chrome.storage.local.set({ 'history': 0 });
-		  await chrome.storage.local.remove('rest');
+	    if (!window.confirm('Are you sure?')) return;
+	    
+		  await window.service.SetData({ 'history': 0 });
+		  await window.service.RemoveData('rest');
 	    clearTaskHistory();
-	    window.close();
+      if (window.modeChromeExtension) {
+	      window.close();
+      } else {
+        await listTask();
+        location.reload();
+      }
 	  },
 	  'mode-day-off': async () => {
-	    // 3h20m + 8h (work substutude)
-	    await chrome.storage.local.set({ 'target': (3+8)*60 + 20 });
+	    await window.service.SetData({ 'target': (3+8)*60 + 20 });
 	    updateUI();
 	  },
 	  'mode-work-day': async () => {
-	    // 3h20m
-	    await chrome.storage.local.set({ 'target': 3*60 + 20 });
+	    await window.service.SetData({ 'target': 3*60 + 20 });
 	    updateUI();
 	  },
 	  'task-click-handler': (ev) => taskClickHandler(ev.target),
@@ -27,6 +32,17 @@ window.DOMEvents = {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
 		  await setTimer(duration);
 	  },
+	},
+	inputable: {
+	  'save-word-template': (e) => {
+	    let val = e.target.value;
+	    window.clearTimeout(window.saveTimeout);
+	    window.saveTimeout = window.setTimeout(async function() {
+	      window.lsdb.data.search = val;
+	      window.lsdb.save();
+        // await window.service.SetData({'search': val});
+	    }, 250);
+	  }
 	},
 	submittable: {
 	  'set-timer': async (ev) => {

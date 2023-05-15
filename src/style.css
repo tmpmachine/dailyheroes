@@ -1,11 +1,12 @@
-.flex-column{flex-direction:column}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}
+.text-center{text-align:center}.flex-column{flex-direction:column}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}
 
 * {
   box-sizing: border-box;
 }
-/*body {*/
-  /*font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif!important ;*/
-/*}*/
+body {
+  background: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif!important ;
+}
 
 :root {
   --live-progress-color: green;

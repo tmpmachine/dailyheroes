@@ -16,6 +16,6 @@
   },
   "action" : {
     "default_icon" : "icons/icon.webp",
-    "default_popup" : "src/popup.html"
+    "default_popup" : "src/index.html"
   }
 }

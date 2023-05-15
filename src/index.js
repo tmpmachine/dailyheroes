@@ -1,20 +1,28 @@
-
-
 let $ = document.querySelector.bind(document);
 let qsa = document.querySelectorAll.bind(document);
 let asd = console.log;
+window.modeChromeExtension = false;
+try {
+  if (chrome.storage.local.get) {
+  }
+  window.modeChromeExtension = true;
+} catch (e) {}
+
+if (window.modeChromeExtension) {
+  window.service = window.serviceChrome;
+}
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 
 async function setSleepTime() {
-  let data = await chrome.storage.local.get('sleepTime');
+  let data = await window.service.GetData('sleepTime');
   let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
   
   let time = window.prompt('Sleep time', minutesToTimeString(initial));
   if (time) {
     let minutes = timeStringToMinutes(time);
     if (minutes) {
-      await chrome.storage.local.set({ 'sleepTime': minutes });
+      await window.service.SetData({ 'sleepTime': minutes });
       await calculateOverloadInfo();
       window.ui.loadSleepTime();
       await updateUI();
@@ -124,40 +132,45 @@ function timeStringToMinutes(timeStr) {
 }
 
 async function setTimer(duration) {
-  let data = await chrome.storage.local.get(["history", "start"]);
+  let data = await window.service.GetData(["history", "start"]);
   let distanceMinutes = 0;
   let distanceTime = 0;
   if (typeof(data.start) != 'undefined') {
     distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
     distanceTime = new Date().getTime() - data.start;
   }
-  await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
-  await chrome.storage.local.remove(['start']);
+  await window.service.SetData({ 'history': data.history + distanceMinutes });
+  await window.service.RemoveData(['start']);
   document.querySelector('#history').textContent = data.history + distanceMinutes;
   await updateProgressActiveTask(distanceMinutes, distanceTime);
   
-  await chrome.alarms.clearAll();
   
   let aMinute = 60;
   let miliseconds = 1000;
   let now = new Date().getTime();
   let triggerTime = now + duration * aMinute * miliseconds;
   
-  await chrome.storage.local.set({ 'start': now  });
-  await chrome.alarms.create('clock', {
-    // when: triggerTime
-    periodInMinutes: 1
-  });
+  await window.service.SetData({ 'start': now  });
   
-  await chrome.alarms.create('main', {
-      when: triggerTime,
-  });
-  if (triggerTime - 3 * aMinute * miliseconds > 0) {
-    await chrome.alarms.create('3m', {
-	      when: triggerTime - 3 * aMinute * miliseconds
+  lsdb.data.scheduledTime = triggerTime;
+  lsdb.save();
+  if (window.modeChromeExtension) {
+    await chrome.alarms.clearAll();
+    await chrome.alarms.create('clock', {
+      // when: triggerTime
+      periodInMinutes: 1
     });
+    await chrome.alarms.create('main', {
+      when: triggerTime,
+    });
+    if (triggerTime - 3 * aMinute * miliseconds > 0) {
+      await chrome.alarms.create('3m', {
+  	      when: triggerTime - 3 * aMinute * miliseconds
+      });
+    }
+    await chrome.runtime.sendMessage({message: 'start-timer'});
   }
-  await chrome.runtime.sendMessage({message: 'start-timer'});
+  
   updateUI();  
 }
 
@@ -219,14 +232,27 @@ async function addTaskData(inputData) {
 }
       
 async function storeTask() {
-  await chrome.storage.local.set({ 'tasks': tasks });
+  await window.service.SetData({ 'tasks': tasks });
 }
+      
+      
+let storageName = 'appdata-NzkwMTI0NA';
+window.lsdb = new Lsdb(storageName, {
+  root: {
+    start: null,
+    history: 0,
+    historyTime: 0,
+    activeTask: '',
+    search: '',
+    scheduledTime: 0,
+    tasks: [],
+  },
+});
       
 let tasks = [];
 async function initApp() {
   showCurrentTimeInAMPM();
   await initData();
-  await migrate();
   attachListeners();
   await loadTasks();
   await listTask();
@@ -235,6 +261,29 @@ async function initApp() {
   window.ui.loadSleepTime();
   window.ui.Init();
   updateUI();
+  loadSearch();
+}
+
+async function loadSearch() {
+  if (window.lsdb.data.search) {
+    $('#node-filter-box').value = lsdb.data.search;
+    let element = $('#node-filter-box');
+    
+    let selector = '[data-slot="title"]';
+    let visibleClass = 'd-none';
+    let containerSelector = '#tasklist-container [data-obj="task"]';
+    
+    const inputValue = element.value.toLowerCase();
+    for (let node of document.querySelectorAll(containerSelector)) {
+      const selectorValue = node.querySelector(selector).textContent.toLowerCase();
+      if (selectorValue.includes(inputValue)) {
+        node.classList.remove(visibleClass);
+      } else {
+        node.classList.add(visibleClass);
+      }
+    }
+    
+  }
 }
 
 function showModalAddTask() {
@@ -243,16 +292,13 @@ function showModalAddTask() {
   modal.addEventListener('onclose', function() {
     modal.classList.toggle('modal--active', false);
   });
+  window.ui.SetFocusEl(modal.querySelector('input[type="text"]'));
 }
 
-async function migrate() {
-  let data = await chrome.storage.local.get('history');
-  await chrome.storage.local.set({'historyTime': data.history * 60 * 1000});
-}
 
 async function getSleepTimeInMinutes() {
   let defaultSleepHours = 22;
-  let data = await chrome.storage.local.get('sleepTime');
+  let data = await window.service.GetData('sleepTime');
   let total = (data.sleepTime ? data.sleepTime : defaultSleepHours * 60);
   
   return total;
@@ -304,7 +350,7 @@ function deleteStorageItem(key) {
 async function loadRestTime() {
     
   // load progress and rest from storage
-  chrome.storage.local.get(['start', 'rest'], function(data) {
+  window.service.GetData(['start', 'rest'], function(data) {
     let liveProgress = 0;
     if (data.start) {
       liveProgress = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
@@ -336,7 +382,7 @@ async function loadRestTime() {
       restButton.addEventListener('click', function() {
         // increment rest value by 5 when button is clicked
         rest += 1;
-        chrome.storage.local.set({rest: rest});
+        window.service.SetData({rest: rest});
         restButton.remove();
       });
     }
@@ -344,23 +390,34 @@ async function loadRestTime() {
 
 }
 
+async function clearAlarms() {
+  if (window.modeChromeExtension) {
+    await chrome.alarms.clearAll();
+  } else {
+    window.lsdb.data.scheduledTime = 0;
+    window.lsdb.save();
+  }
+}
+
 async function stopTimer() {
   document.body.stateList.remove('--timer-running');
-  await chrome.alarms.clearAll();
+  await clearAlarms();
     
-  let data = await chrome.storage.local.get(["history", "historyTime", "start"]);
+  let data = await window.service.GetData(["history", "historyTime", "start"]);
   if (data.start) {
     let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
     let distanceTime = new Date().getTime() - data.start;
-    await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
-    await chrome.storage.local.set({ 'historyTime': data.historyTime + distanceTime });
+    await window.service.SetData({ 'history': data.history + distanceMinutes });
+    await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
     await updateProgressActiveTask(distanceMinutes, distanceTime);
   }
-  await chrome.storage.local.remove(['start']);
+  await window.service.RemoveData(['start']);
   // window.close();
   
   updateUI();
-  await chrome.runtime.sendMessage({message: 'stop'});
+  if (window.modeChromeExtension) {
+    await chrome.runtime.sendMessage({message: 'stop'});
+  }
 }
 
 let countdonwIntervalId;
@@ -368,16 +425,24 @@ let countdonwIntervalId;
 async function startCountdown() {
   
   clearInterval(countdonwIntervalId);
-  let alarm = await chrome.alarms.get('main');
-  if (!alarm) {
-    document.body.stateList.remove('--timer-running');
-    return;
+  let alarm;
+  if (window.modeChromeExtension) {
+    alarm = await chrome.alarms.get('main');
+    if (!alarm) {
+      document.body.stateList.remove('--timer-running');
+      return;
+    }
+  } else {
+    if (!lsdb.data.scheduledTime) {
+      document.body.stateList.remove('--timer-running');
+      return;
+    }
   }
   document.body.stateList.add('--timer-running');
   
-  let store = await chrome.storage.local.get('start');
+  let store = await window.service.GetData('start');
   let startTime = store.start;
-  let scheduledTime = alarm.scheduledTime;
+  let scheduledTime = window.modeChromeExtension ? alarm.scheduledTime : lsdb.data.scheduledTime;
   
   countdonwIntervalId = setInterval(() => {
     updateTime(scheduledTime, startTime);
@@ -463,15 +528,16 @@ function showCurrentTimeInAMPM() {
 
 
 async function initData() {
-  let result = chrome.storage.local.get(['history']);
+  let result = window.service.GetData(['history']);
   if (typeof(result.history) == 'undefined') {
-	  await chrome.storage.local.set({ 'history': 0 });
+	  await window.service.SetData({ 'history': 0 });
   }
 }
 
 function attachListeners() {
   window.listenOn('.clickable', 'click', window.DOMEvents.clickable);
   window.listenOn('.submittable', 'submit', window.DOMEvents.submittable);
+  window.listenOn('.inputable', 'input', window.DOMEvents.inputable);
 }
 
 
@@ -563,7 +629,7 @@ const buttons = document.querySelectorAll('#preset-button button');
 navigate2x2GridButtons(buttons);
 
 async function setActiveTask() {
-  let data = await chrome.storage.local.get(['activeTask', 'start']);
+  let data = await window.service.GetData(['activeTask', 'start']);
   if (data.activeTask) {
     let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
     if (el) {
@@ -575,7 +641,7 @@ async function setActiveTask() {
 }
 
 async function getActiveTimerDistance() {
-  let data = await chrome.storage.local.get(["history", "start"]);
+  let data = await window.service.GetData(["history", "start"]);
   if (data.start) {
 	  let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));  
 	  return distanceMinutes;
@@ -584,7 +650,7 @@ async function getActiveTimerDistance() {
 }
 
 async function getActiveTimerDistanceTime() {
-  let data = await chrome.storage.local.get(["history", "start"]);
+  let data = await window.service.GetData(["history", "start"]);
   if (data.start) {
 	  return new Date().getTime() - data.start;
   }
@@ -592,7 +658,7 @@ async function getActiveTimerDistanceTime() {
 }
 
 async function loadTasks() {
-  let data = await chrome.storage.local.get(['tasks']);
+  let data = await window.service.GetData(['tasks']);
   if (data.tasks) {
     tasks = data.tasks;
   }
@@ -655,6 +721,11 @@ async function listTask() {
       isCompleted = true;
     }
     
+    if (fillData.note) {
+      let index = 0
+      fillData.note = fillData.note.map(x => { x.index = index; index++; return x})
+    }
+    
   	let el = window.templateSlot.fill({
   	  data: fillData, 
   	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
@@ -685,10 +756,10 @@ async function listTask() {
 }
       
 function updateUI() {
-  chrome.storage.local.get(['start','target']).then(async (result) => {
+  window.service.GetData(['start','target']).then(async (result) => {
     let distanceMinutes = 0;
     let distanceTime = 0;
-    let isRunning = (typeof(result.start) != 'undefined');
+    let isRunning = (typeof(result.start) != 'undefined' && result.start > 0);
     if (isRunning) {
       distanceMinutes = Math.floor((new Date().getTime() - result.start) / (60 * 1000));
       distanceTime = new Date().getTime() - result.start;
@@ -831,17 +902,25 @@ async function taskClickHandler(el) {
       await setTaskTarget(id);
       break;
     case 'finish':
-      if (window.confirm('Finish this task?')) {
+      if (window.confirm('Finish this mission?')) {
         await finishTask(id);
       }
+      break;
+    case 'take-note':
+      showTakeNote(id);
       break;
     case 'start':
       await stopTimer();
       await switchActiveTask(parentEl, id, true);
-      await startCurrentTask(id)
+      await startCurrentTask(id);
+      break;
+      
+    // notes
+    case 'delete-note':
+      deleteNote(id, el);
       break;
   }
-}
+} 
 
 async function switchActiveTask(taskEl, id, persistent = false) {
   
@@ -856,12 +935,12 @@ async function switchActiveTask(taskEl, id, persistent = false) {
       window.ui.updateTaskProgressBar(id, false);
     } else {
       window.ui.updateTaskProgressBar(activeTask.id, false);
-      await chrome.storage.local.set({'activeTask': id});
+      await window.service.SetData({'activeTask': id});
       disableAllActive();
       taskEl.stateList.add('--active');
       await window.ui.updateTaskProgressBar(id);
       
-      let data = await chrome.storage.local.get('start');
+      let data = await window.service.GetData('start');
       if (data.start) {
         taskEl.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
         taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
@@ -870,9 +949,9 @@ async function switchActiveTask(taskEl, id, persistent = false) {
     // activeTask.lastUpdated = new Date().getTime();
   } else {
     taskEl.stateList.add('--active');
-    await chrome.storage.local.set({'activeTask': id});
-    await chrome.storage.local.set({'tasks': tasks});
-    let data = await chrome.storage.local.get('start');
+    await window.service.SetData({'activeTask': id});
+    await window.service.SetData({'tasks': tasks});
+    let data = await window.service.GetData('start');
     if (data.start) {
       taskEl.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
       taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
@@ -900,7 +979,29 @@ async function renameTask(id) {
   
   task.title = title;
   await storeTask();
-  listTask();  
+  partialUpdateTask('title', task);
+  // listTask();  
+}
+
+function partialUpdateTask(key, data) {
+  switch (key) {
+    case 'title':
+      $(`[data-id="${data.id}"] [data-slot="title"]`).textContent = data.title;
+      break;
+    case 'notes':
+      appendNotes(data);
+      break;
+  }
+}
+
+function appendNotes(data) {
+  let newData = Object.assign({}, data.note[data.note.length-1]);
+  newData.index = data.note.length - 1;
+  let el = window.templateSlot.fill({
+	  data: newData, 
+	  template: document.querySelector('#tmp-notes').content.cloneNode(true), 
+	});
+  $(`[data-id="${data.id}"] [data-slot="note"]`).append(el);
 }
 
 async function finishTask(id) {
@@ -909,6 +1010,33 @@ async function finishTask(id) {
   task.progressTime = task.target * 60 * 1000;
   await storeTask();
   listTask();  
+}
+
+
+async function showTakeNote(id) {
+  let desc = window.prompt('Take a note');
+  if (!desc) return;
+  
+  let task = tasks.find(x => x.id == id);
+  if (typeof(task.note) == 'undefined') {
+    task.note = [];
+  }
+  
+  let note = {
+    desc,
+  };
+  task.note.push(note);
+  await storeTask();
+  partialUpdateTask('notes', task);
+}
+
+async function deleteNote(id, el) {
+  let parentEl = el.closest('.i-item');
+  let noteIndex = parseInt(parentEl.querySelector('[data-slot="index"]').textContent);
+  let task = tasks.find(x => x.id == id);
+  task.note.splice(noteIndex, 1);
+  await storeTask();
+  parentEl.remove();
 }
 
 async function startCurrentTask(id) {
@@ -950,7 +1078,7 @@ async function increaseTaskDuration(id) {
 }
 
 async function setTaskTarget(id) {
-  let target = window.prompt('set task target (hours minutes)');
+  let target = window.prompt('Set mission target (example: 1h, 30m, or 1h30m)');
   if (!target) return;
   
   let task = tasks.find(x => x.id == id);
@@ -1012,11 +1140,11 @@ function getTaskById(id) {
 }
 
 async function removeActiveTask() {
-  await chrome.storage.local.remove(['activeTask']);
+  await window.service.RemoveData(['activeTask']);
 }
 
 async function getActiveTask() {
-  let data = await chrome.storage.local.get(['activeTask'])
+  let data = await window.service.GetData(['activeTask'])
   if (data.activeTask) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
@@ -1027,7 +1155,7 @@ async function getActiveTask() {
 }
 
 async function updateProgressActiveTask(addedProgress, distanceTime) {
-  let data = await chrome.storage.local.get(['activeTask']);
+  let data = await window.service.GetData(['activeTask']);
   if (data.activeTask) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {

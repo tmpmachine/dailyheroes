@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <link href="style.css" rel="stylesheet"/>
+  <link href="app.css" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width"/>
+
+</head>
+<body>
+  
+  <div style="min-width:360px;max-width:500px;margin:auto;">
+  
+    <!-- left column -->
+    <section>
+      
+      <div class="d-flex justify-content-between">
+        <button class="clickable icon-mate" data-callback='show-modal-add-task'>add</button>
+        <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
+        <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
+        <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
+        <h3 style="margin:0.5rem">Daily Heroes</h3>
+        <button class='clickable' data-callback='clear-history'>Reset Progress</button>
+      </div>
+      <div class="default-gap"></div>
+      
+      <!--progress bar-->
+      <div class="NzE2ODYyNQ-progress-bar-container">
+        <div class="NzE2ODYyNQ-progress-bar">
+          <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+          <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+        </div>
+      </div>
+      <div style="height:2px;"></div>
+      <div class="progress-bar-container">
+        <div class="progress-bar">
+          <div class="progress-bar-fill"></div>
+          <span class="progress-bar-text"><span id="percentage"></span></span>
+        </div>
+      </div>
+      <div class="default-gap"></div>
+      <div data-obj="stop-timer">
+        <div style="display:grid;">
+          <button class='clickable' data-callback='stop-timer'>Stop timer (S)</button>
+        </div>
+      </div>
+      <div class="default-gap"></div>
+      <div class="default-gap"></div>
+      
+      <!-- TASK LIST -->
+      <div data-section="import">
+        import goes here
+        <form class="submittable d-grid" data-callback='import-tasks'>
+          <textarea name='tasksString'></textarea>
+          <button>import</button>
+        </form>
+      </div>
+      
+      <input id="node-filter-box" type="text" placeholder="Search" class="inputable" data-callback="save-word-template"/>
+      <div style="padding-top:.3rem;"></div>
+      
+      <div id="tasklist-container">
+        <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
+        <div style="padding-top:1rem;"></div>
+        <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
+      </div>
+      
+      <p class="text-center">
+        <small>Click on "+" to create a new mission</small>
+      </p>
+      <div class="text-center">
+        <img src='img/192.png' width='48'></img>
+      </div>
+      
+    </section>
+    
+    <!-- right column -->
+    <section class="d-none">
+      
+      <div>
+        
+        <div class="d-none">
+          <div style="display:flex;align-items:center;">
+            <div id="txt-clock" style="flex-grow:1;font-weight:bold;"></div>
+            <div style="text-align:right;flex-grow:1">
+              Sleep : <span id="txt-sleeptime">not set</span>
+              <button class="clickable" data-callback='set-sleep-time' style="font-size:0.7rem;">Edit</button>
+            </div>
+          </div>
+          <div class="default-gap"></div>
+        
+          <div>Today's :</div>
+          <div class="default-gap"></div>
+        </div>
+        
+        <div class="d-none">
+          <div class="default-gap"></div>
+          <div style="font-weight:bold;text-align:center;">
+            <span id="history"></span><span id="live-history"></span> / <span id="target"></span>
+          </div>    
+            <div style="text-align:center;">
+              Time before sleep : <span id="txt-time-before-sleep"></span>
+            </div>
+            <div style="text-align:center;">
+              Unallocated time : <span id="txt-unallocated-time"></span>
+            </div>
+        
+          <div class="default-gap"></div>
+          <div style="text-align:center;">
+            <span id="txt-time-overload-info" style="color:red;"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="d-none">
+        Take a rest : <span id="txt-left-until-rest" style="font-weight:bold;"></span>
+        <div id="rest-time" class="default-inline-flex-gap"></div>
+        <div class="default-gap"></div>
+      </div>
+      
+      Set timer (T) :
+      <div>
+        <small>Duration or time. e.g. 1h30m or 04:30PM</small>
+      </div>
+      <div class="default-gap"></div>
+      <form class="submittable" data-callback='set-timer'>
+        <div style="display:flex;gap:0.3rem;">
+          <div>
+            <input type="text" name="target"/>
+          </div>
+          <button>Set</button>
+        </div>
+      </form>
+      <div class="default-gap"></div>
+      
+      Timer preset :
+      <div class="default-gap"></div>
+      <div id="preset-button" style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+        <button autofocus class='clickable' data-callback='set-alarm' data-time='12'>12m</button>
+        <button class='clickable' data-callback='set-alarm' data-time='20'>20m</button>
+        <button class='clickable' data-callback='set-alarm' data-time='25'>25m</button>
+        <button class='clickable' data-callback='set-alarm' data-time='30'>30m</button>
+      </div>
+      <div class="default-gap"></div>
+      
+      
+      <!--Set mode : -->
+      <!--<button class="clickable" data-callback='mode-work-day'>work day</button>-->
+      <!--<button class="clickable" data-callback='mode-day-off'>day off</button>-->
+      
+      <!--<div style="padding-top:1rem;"></div>-->
+      
+    </section>
+  
+  </div>
+  
+  
+  
+  <!-- TEMPLATES -->
+  <template id='tmp-task'>
+  	<div data-obj="task" data-id="?">
+  	  <div style="padding:0.3rem 0.5rem;">
+    	  <div class="d-flex justify-content-between">
+    	    <span data-slot='title'></span>
+    	  </div>
+        <div style="margin-top:0.7rem"></div>
+    	  <div class="default-inline-flex-gap">
+      	  <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button>
+      	  <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
+      	  <button data-role='delete' class="icon-mate" title='Delete'>delete</button>
+      	  <!--<button data-role='reduce' class="icon-mate">remove</button>-->
+      	  <!--<button data-role='add' class="icon-mate">add</button>-->
+      	  <button data-role='set-target' class="icon-mate" title='Change target'>schedule</button>
+      	  <button data-role='rename' class="icon-mate" title='Rename'>edit</button>
+      	  <button data-role='finish' class="icon-mate" title='Finish'>check_small</button>
+      	  <button data-role='take-note' class="icon-mate" title='Take a note'>note_add</button>
+      	  <button data-role='start' class="icon-mate" title='Start'>play_arrow</button>
+      	  <div style="padding-top:4px;"></div>
+      	  <div data-role="manage" class="default-inline-flex-gap">
+      	    <button data-role='track'>Track</button>
+      	    <button data-role='untrack'>Untrack</button>
+      	  </div>
+    	  </div>
+    	 
+    	  <!--task notes-->
+    	  <div style="margin-top:1rem;">
+    	    <div data-slot='note' data-template='#tmp-notes'></div>
+    	  </div>
+  	  
+  	  </div>
+  	  
+  	  <div data-obj="tracking-status" style="height:4px;"></div>
+    	
+    	
+    	<div style="padding:2px 4px;font-size:0.7rem;display:flex;">
+    	  <div style="flex:1;">
+      	  <span data-obj="progress" data-slot="progress"></span><span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+    	  </div>
+    	  <div>
+  	      <span data-slot="targetString"></span> <span data-slot="completionPercentage"></span>
+    	  </div>
+    	</div>
+    	<div class="NzA5ODc1NQ-progress-bar-container">
+        <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
+          <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+        </div>
+      </div>
+      
+  	</div>
+  </template>
+  
+  <template id='tmp-notes'>
+    <div class="d-flex justify-content-between i-item">
+      <div class="d-none" data-slot='index'></div>
+      <div data-slot='desc'></div>
+      <button data-role='delete-note' style="padding:0 4px;">x</button>
+    </div>
+  </template>
+
+  <modal-v2 id="projects-modal">
+    <div class="modal" slot="content">
+      <!-- modal content-->
+      <div class="ov-auto">
+        <div style="padding:1rem;">
+
+          New mission :
+          <div class="default-gap"></div>
+          <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='add-task' data-obj="form-task">
+            <input type="hidden" name="id"/>
+            <div>
+              Title <input type="text" name='title'/>
+            </div>
+            <div>
+              Target <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m'/>
+            </div>
+            <div>
+              <button data-role='btn-add'>Add</button>
+              <button data-role="btn-edit">Update</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
+  
+  <link href="modal-v2.css" rel="stylesheet"/>
+  <script src='modal-v2.js'></script>
+
+  <script src="service.js"></script>
+  <script src="service-chrome.js"></script>
+  <script src="lib/mousetrap.min.js"></script>
+  <script src="lib/statelist@v1.0.2.min.js"></script>
+  <script src='lib/templateslot.min.js'></script>
+  <script src='dom-events.js'></script>
+  <script src='ui.js'></script>
+  <script src='lsdb.js'></script>
+  <script src='index.js'></script>
+
+  
+</body>
+</html>
