@@ -179,6 +179,13 @@ async function clearTaskHistory() {
   await storeTask();
 }
 
+async function clearTaskTotalProgressTime() {
+  for (let task of tasks) {
+    task.totalProgressTime = 0;
+  }
+  await storeTask();
+}
+
 async function updateTask(form) {
   let task = tasks.find(x => x.id == form.id.value);
   task.title = form.title.value;
@@ -222,7 +229,7 @@ async function addTaskData(inputData) {
     id: generateUniqueId(),
     progress: 0,
     progressTime: 0,
-    historyTime: 0,
+    totalProgressTime: 0,
     lastUpdated: 0,
     untracked: false,
   }};
@@ -672,9 +679,6 @@ function minutesToHoursAndMinutes(minutes) {
   if (minutes > 0) {
     timeString +=  `${remainderMinutes}m`;
   }
-  if (timeString == '') {
-    timeString = '0'
-  }
   return timeString;
 }
 
@@ -698,14 +702,16 @@ async function listTask() {
       liveProgressTime = activeTimerDistanceTime;
     }
     
-    
+    let targetLabel = minutesToHoursAndMinutes(item.target - msToMinutes(item.progressTime) - liveProgress);
+    let progressLabel = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
-      targetString: `${minutesToHoursAndMinutes(item.target - msToMinutes(item.progressTime) - liveProgress)} left`,
-      progress: minutesToHoursAndMinutes(msToMinutes(item.progressTime)),
+      targetString: targetLabel ? `${targetLabel} left` : '',
+      progress: progressLabel ? progressLabel : '0m',
+      totalProgressLabel: minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)),
     }};
-    
+
     let isCompleted = false;
     let percentageProgress = 0;
     let percentageProgressTime = 0;
@@ -714,7 +720,7 @@ async function listTask() {
       percentageProgressTime = Math.min(100, Math.floor((item.progressTime + liveProgressTime) / minutesToMs(item.target) * 10000) / 100);
       fillData.completionPercentage = `(${percentageProgressTime}%)`;
     }
-    
+
     if (item.progressTime + liveProgressTime >= minutesToMs(item.target)) {
       isCompleted = true;
     }
@@ -723,7 +729,7 @@ async function listTask() {
       let index = 0
       fillData.note = fillData.note.map(x => { x.index = index; index++; return x})
     }
-    
+
   	let el = window.templateSlot.fill({
   	  data: fillData, 
   	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
@@ -1059,7 +1065,6 @@ async function deleteNote(id, el) {
 async function startCurrentTask(id) {
   let task = tasks.find(x => x.id == id);
   if (task.progress >= task.target) return;
-  
   setTimer(task.target - task.progress);
 }
 
@@ -1178,7 +1183,10 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
     if (activeTask) {
       activeTask.progress += addedProgress;
       activeTask.progressTime += distanceTime;
-      activeTask.historyTime += distanceTime;
+      if (typeof(activeTask.totalProgressTime) == 'undefined') {
+        activeTask.totalProgressTime = 0;  
+      }
+      activeTask.totalProgressTime += distanceTime;
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);

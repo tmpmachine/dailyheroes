@@ -36,11 +36,11 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
       activeTask.progress += addedProgress;
-      if (typeof(activeTask.progressTime) == 'undefined') {
-        activeTask.progressTime = activeTask.progress * 60 * 1000;
-      } else {
-        activeTask.progressTime += distanceTime;
+      activeTask.progressTime += distanceTime;
+      if (typeof(activeTask.totalProgressTime) == 'undefined') {
+        activeTask.totalProgressTime = 0;  
       }
+      activeTask.totalProgressTime += distanceTime;
       await storeTask(tasks);
     }
   }

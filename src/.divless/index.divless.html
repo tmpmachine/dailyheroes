@@ -71,6 +71,9 @@
       <div class="text-center">
         <img src='img/192.png' width='48'></img>
       </div>
+      [ .d-flex .justify-content-end
+        [btn 'Reset history' .clickable data-callback='reset-history']
+      ]
       
     </section>
     
@@ -158,10 +161,13 @@
   
   <!-- TEMPLATES -->
   <template id='tmp-task'>
-  	<div data-obj="task" data-id="?">
+  	<div data-obj="task" data-id="?" data-kind="task">
   	  <div style="padding:0.3rem 0.5rem;">
     	  <div class="d-flex justify-content-between">
     	    <span data-slot='title'></span>
+          [ {fs:0.7rem}
+            <span data-slot='totalProgressLabel'></span>
+          ]
     	  </div>
         <div style="margin-top:0.7rem"></div>
     	  <div class="default-inline-flex-gap" data-slot="" data-template="#tmp-mission-buttons">

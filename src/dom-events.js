@@ -8,15 +8,26 @@ window.DOMEvents = {
 	  'reset-progress': async () => {
 	    if (!window.confirm('Are you sure?')) return;
 	    
-		  await window.service.SetData({ 'history': 0 });
-		  await window.service.RemoveData('rest');
+		await window.service.SetData({ 'history': 0 });
+		await window.service.RemoveData('rest');
 	    clearTaskHistory();
-      if (window.modeChromeExtension) {
+      	if (window.modeChromeExtension) {
 	      window.close();
-      } else {
-        await listTask();
-        location.reload();
-      }
+      	} else {
+			await listTask();
+			location.reload();
+      	}
+	  },
+	  'reset-history': async () => {
+	    if (!window.confirm('Are you sure?')) return;
+
+		clearTaskTotalProgressTime();
+      	if (window.modeChromeExtension) {
+	      window.close();
+      	} else {
+			await listTask();
+			location.reload();
+      	}
 	  },
 	  'mode-day-off': async () => {
 	    await window.service.SetData({ 'target': (3+8)*60 + 20 });
