@@ -906,9 +906,10 @@ async function taskClickHandler(el) {
       await setTaskTarget(id);
       break;
     case 'finish':
-      if (window.confirm('Finish this mission?')) {
-        await finishTask(id);
-      }
+      await finishTask(id);
+      break;
+    case 'restart':
+      await restartTask(id);
       break;
     case 'take-note':
       showModalNote(id);
@@ -1012,6 +1013,14 @@ async function finishTask(id) {
   let task = tasks.find(x => x.id == id);
   task.progress = task.target;
   task.progressTime = task.target * 60 * 1000;
+  await storeTask();
+  listTask();  
+}
+
+async function restartTask(id) {
+  let task = tasks.find(x => x.id == id);
+  task.progress = 0;
+  task.progressTime = 0
   await storeTask();
   listTask();  
 }

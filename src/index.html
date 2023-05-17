@@ -56,6 +56,11 @@
         </form>
       </div>
       
+      <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
+        <button class="clickable" data-callback='show-active'>Active</button>
+        <button class="clickable" data-callback='show-completed'>Completed</button>
+      </div>
+
       <input id="node-filter-box" type="text" placeholder="Search" class="inputable" data-callback="save-word-template"/>
       <div style="padding-top:.3rem;"></div>
       
@@ -209,6 +214,7 @@
     <button data-role='set-target' class="icon-mate" title='Change target'>schedule</button>
     <button data-role='rename' class="icon-mate" title='Rename'>edit</button>
     <button data-role='finish' class="icon-mate" title='Finish'>check_small</button>
+    <button data-role='restart' class="icon-mate" title='Restart'>restart_alt</button>
     <button data-role='take-note' class="icon-mate" title='Take a note'>note_add</button>
     <button data-role='start' class="icon-mate" title='Start'>play_arrow</button>
     <div style="padding-top:4px;"></div>

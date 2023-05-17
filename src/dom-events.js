@@ -1,6 +1,8 @@
 window.DOMEvents = {
 	clickable: {
 	'show-modal-add-task': () => showModalAddTask(),
+		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
+		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
 	  'set-sleep-time': () => setSleepTime(),
 	  'export-tasks': () => exportTasks(),
 	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),

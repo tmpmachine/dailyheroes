@@ -18,8 +18,21 @@
 
 body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 
+[data-slot="note"] > div:hover {
+  background: #0000000d;
+}
+
+
+/* section: display none */
+
+/* mission tab menu */
+body[data-state~="--list-mission-archived"] #tasklist,
+body:not([data-state~="--list-mission-archived"]) #tasklist-completed,
+/* etc. */
 body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 body:not([data-state~="--import-mode"]) [data-section="import"],
-_ {display:none}
+_ {
+  display:none
+}
