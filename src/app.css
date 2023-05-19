@@ -9,6 +9,18 @@
 [data-obj="task"] button {
   padding: 4px;
 }
+[data-slot="note"] > div {
+  padding: 0px 5px;
+  border-radius: 0.4rem;
+}
+
+/* notes */
+[data-kind="note"]:hover {
+  background: #0000000d;
+}
+[data-kind="note"][data-state="--active"] {
+  background: #efefef;
+}
 
 /*#tasklist-completed {*/
 /*  outline: 2px solid #dbdbdb;*/
@@ -18,9 +30,6 @@
 
 body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 
-[data-slot="note"] > div:hover {
-  background: #0000000d;
-}
 
 
 /* section: display none */
@@ -29,7 +38,7 @@ body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 body[data-state~="--list-mission-archived"] #tasklist,
 body:not([data-state~="--list-mission-archived"]) #tasklist-completed,
 /* etc. */
-body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],
+/*body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],*/
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 body:not([data-state~="--import-mode"]) [data-section="import"],

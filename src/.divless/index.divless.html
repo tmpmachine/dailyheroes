@@ -225,11 +225,14 @@
   </template>
   
   <template id='tmp-notes'>
-    <div data-kind="note" class="d-flex justify-content-between i-item">
+    <div data-kind="note" class="d-flex justify-content-between i-item align-items-center">
       [s .d-none data-slot='id']
       <div class="d-none" data-slot='index'></div>
       <div data-slot='desc'></div>
-      <button data-role='delete-note' style="padding:0 4px;">x</button>
+      [
+        [btn data-role='start-sub-task' {p:0 4px} .icon-mate 'play_arrow']
+        [btn data-role='delete-note' {p:0 4px} .icon-mate 'close']
+      ]
     </div>
   </template>
 

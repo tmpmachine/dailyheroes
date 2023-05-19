@@ -232,6 +232,7 @@ async function addTaskData(inputData) {
     totalProgressTime: 0,
     lastUpdated: 0,
     untracked: false,
+    activeSubTaskId: null,
   }};
   tasks.push(data);
 }
@@ -251,6 +252,7 @@ window.lsdb = new Lsdb(storageName, {
     search: '',
     scheduledTime: 0,
     tasks: [],
+    isSortByTotalProgress: true,
   },
 });
       
@@ -686,12 +688,17 @@ function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
 }
 
+
 async function listTask() {
   let docFrag = document.createDocumentFragment();
   let docFragCompleted = document.createDocumentFragment();
   let activeTimerDistance = await getActiveTimerDistance();
   let activeTimerDistanceTime = await getActiveTimerDistanceTime();
   let activeTask = await getActiveTask();
+  
+  if (lsdb.data.isSortByTotalProgress) {
+    tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
+  }
   
   for (let item of tasks) {
     
@@ -726,7 +733,7 @@ async function listTask() {
     }
     
     if (fillData.note) {
-      let index = 0
+      let index = 0;
       fillData.note = fillData.note.map(x => { x.index = index; index++; return x})
     }
 
@@ -739,6 +746,7 @@ async function listTask() {
   // 	}
   	taskEl = el.querySelector('[data-obj="task"]');
   	taskEl.dataset.id = item.id;
+  	setActiveSubTaskItem(taskEl, item);
   	if (item.untracked) {
   	  taskEl.stateList.add('--untracked');
   	}
@@ -757,6 +765,16 @@ async function listTask() {
   $('#tasklist-completed').append(docFragCompleted);
   
   await setActiveTask();
+}
+
+function setActiveSubTaskItem(el, item) {
+  if (!item.activeSubTaskId) return;
+  for (let node of el.querySelectorAll('[data-kind="note"]')) {
+    if (node.querySelector('[data-slot="id"]').textContent == item.activeSubTaskId) {
+      // asd(node)
+      node.stateList.toggle('--active', true);
+    }
+  }
 }
       
 function updateUI() {
@@ -921,6 +939,10 @@ async function taskClickHandler(el) {
       break;
       
     // notes
+    case 'start-sub-task':
+      await fixMissingNoteId(id, el);
+      await setSubTask(id, el);
+      break;
     case 'delete-note':
       deleteNote(id, el);
       break;
@@ -1054,6 +1076,35 @@ async function showModalNote(id) {
   });
   window.ui.SetFocusEl(modal.querySelector('input[type="text"]'));
   modal.querySelector('form').id.value = id;
+}
+
+async function fixMissingNoteId(taskId, el) {
+  let parentEl = el.closest('.i-item');
+  let noteId = parentEl.querySelector('[data-slot="id"]').textContent;
+  if (noteId) return;
+  
+  let task = tasks.find(x => x.id == taskId);
+  let noteIndex = parseInt(parentEl.querySelector('[data-slot="index"]').textContent);
+  let newId = generateUniqueId();
+  task.note[noteIndex].id = newId;
+  parentEl.querySelector('[data-slot="id"]').textContent = newId
+  await storeTask();
+}
+
+async function setSubTask(id, el) {
+  let parentEl = el.closest('.i-item');
+  let noteId = parentEl.querySelector('[data-slot="id"]').textContent;
+  let task = tasks.find(x => x.id == id);
+  
+  if (!noteId) return;
+  let isActive = task.activeSubTaskId == noteId;
+  task.activeSubTaskId = (isActive ? null : noteId);
+  let activeSubTaskEl = $(`[data-kind="task"][data-id="${task.id}"] [data-kind="note"][data-state="--active"]`);
+  if (activeSubTaskEl) {
+    activeSubTaskEl.stateList.toggle('--active', false);
+  }
+  parentEl.stateList.toggle('--active', !isActive);
+  await storeTask();
 }
 
 async function deleteNote(id, el) {

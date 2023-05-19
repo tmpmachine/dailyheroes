@@ -14,7 +14,7 @@ window.DOMEvents = {
 		await window.service.RemoveData('rest');
 	    clearTaskHistory();
       	if (window.modeChromeExtension) {
-	      window.close();
+			await listTask();
       	} else {
 			await listTask();
 			location.reload();

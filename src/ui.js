@@ -72,7 +72,7 @@ window.ui = (function () {
     $('.NzE2ODYyNQ-progress-bar-fill').classList.toggle('progress-bar-fill--animated', isTimerRunning);
     
     
-    let activeTaskEl = $('#tasklist [data-state="--active"]');
+    let activeTaskEl = $('#tasklist [data-kind="task"][data-state="--active"]');
     if (activeTaskEl) {
       updateActiveTaskProgressBar(activeTaskEl, isTimerRunning);
     }
