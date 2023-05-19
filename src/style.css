@@ -54,12 +54,6 @@ html,body{
   height: max-content;
 }
 
-/* task item */
-[data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
-[data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
-[data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }
-[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] { display: none; }
-
 [data-obj="form-task"][data-state~="--edit-mode"] [data-role="btn-add"] {
   display: none;
 }

@@ -41,9 +41,30 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
         activeTask.totalProgressTime = 0;  
       }
       activeTask.totalProgressTime += distanceTime;
+      
+      // update sub task total progress time
+      updateSubTaskProgress(activeTask, distanceTime);
+
       await storeTask(tasks);
     }
   }
+}
+
+function updateSubTaskProgress(task, distanceTime) {
+  if (!task.activeSubTaskId) return;
+
+  let note = getSubMissionById(task, task.activeSubTaskId);
+  if (!note) return;
+
+  if (typeof(note.totalProgressTime) == 'undefined') {
+    note.totalProgressTime = 0;
+  }
+
+  note.totalProgressTime += distanceTime;
+}
+
+function getSubMissionById(task, subId) {
+  return task.note.find(x => x.id == subId)
 }
 
 async function storeTask(tasks) {

@@ -1,6 +1,6 @@
 window.$ = document.querySelector.bind(document);
 window.qsa = document.querySelectorAll.bind(document);
-window.asd = console.log;
+window.asd = window.qwe = console.log;
 
 window.componentLoader.load([
   {

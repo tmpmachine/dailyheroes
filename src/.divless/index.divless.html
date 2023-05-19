@@ -56,9 +56,11 @@
         </form>
       </div>
       
-      [ {d:grid} {cols:1fr 1fr} {pb:1rem}
-        [btn 'Active' .clickable data-callback='show-active']
-        [btn 'Completed' .clickable data-callback='show-completed']
+      [ .d-none
+        [ {d:grid} {cols:1fr 1fr} {pb:1rem}
+          [btn 'Active' .clickable data-callback='show-active']
+          [btn 'Completed' .clickable data-callback='show-completed']
+        ]
       ]
 
       <input id="node-filter-box" type="text" placeholder="Search" class="inputable" data-callback="save-word-template"/>
@@ -76,7 +78,8 @@
       <div class="text-center">
         <img src='img/192.png' width='48'></img>
       </div>
-      [ .d-flex .justify-content-end
+      [ .d-flex .justify-content-between
+        [btn 'Get Report' .clickable data-callback='get-report']
         [btn 'Reset history' .clickable data-callback='reset-history']
       ]
       
@@ -172,6 +175,7 @@
     	    <span data-slot='title'></span>
           [ {fs:0.7rem}
             <span data-slot='totalProgressLabel'></span>
+            <span data-slot='rankLabel'></span>
           ]
     	  </div>
         <div style="margin-top:0.7rem"></div>
@@ -225,13 +229,23 @@
   </template>
   
   <template id='tmp-notes'>
-    <div data-kind="note" class="d-flex justify-content-between i-item align-items-center">
+    <div data-kind="note" class="i-item align-items-center">
       [s .d-none data-slot='id']
       <div class="d-none" data-slot='index'></div>
-      <div data-slot='desc'></div>
-      [
-        [btn data-role='start-sub-task' {p:0 4px} .icon-mate 'play_arrow']
-        [btn data-role='delete-note' {p:0 4px} .icon-mate 'close']
+
+      [ .d-flex .justify-content-between
+        [
+          <div data-kind='note.desc' data-slot='desc'></div>
+          [ {fs:.7em} {op:0.8;fw:bold}
+            [s '' data-slot='progressTimeLabel'][s data-kind='progress']
+          ]
+        ]
+        [ 
+          [ {pt:.3rem}]
+          [btn data-role='rename-sub-task' {p:0 4px} .icon-mate 'edit']
+          [btn data-role='start-sub-task' {p:0 4px} .icon-mate 'play_arrow']
+          [btn data-role='delete-note' {p:0 4px} .icon-mate 'close']
+        ]
       ]
     </div>
   </template>

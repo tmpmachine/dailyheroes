@@ -182,6 +182,11 @@ async function clearTaskHistory() {
 async function clearTaskTotalProgressTime() {
   for (let task of tasks) {
     task.totalProgressTime = 0;
+    if (task.note) {
+      for (let note of task.note) {
+        note.totalProgressTime = 0;
+      }
+    }
   }
   await storeTask();
 }
@@ -643,8 +648,20 @@ async function setActiveTask() {
       el.stateList.toggle('--active');
       let activeTimerDistance = await getActiveTimerDistance();
       el.querySelector('[data-obj="live-progress"]').textContent = `(+${activeTimerDistance}m)`;
+      
+      // set live progress note
+      let activeNoteEl = $kind({kind:'note', state:'--active'}, el);
+      if (activeNoteEl) {
+        let noteProgressEl = $kind({kind:'progress'}, activeNoteEl);
+        noteProgressEl.textContent = `(+${activeTimerDistance}m)`;
+      }
     }
   }
+}
+
+window.$kind = function(obj, parent) {
+  let state = obj.state ? `[data-state~="${obj.state}"]` : '';
+  return parent.querySelector(`[data-kind="${obj.kind}"]${state}`)
 }
 
 async function getActiveTimerDistance() {
@@ -700,6 +717,7 @@ async function listTask() {
     tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
   }
   
+  let rankLabel = 1;
   for (let item of tasks) {
     
     let liveProgress = 0;
@@ -713,11 +731,22 @@ async function listTask() {
     let progressLabel = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
-      allocatedTimeString: minutesToHoursAndMinutes(item.target),
+      rankLabel: ` | Rank #${rankLabel}`,
       targetString: targetLabel ? `${targetLabel} left` : '',
+      allocatedTimeString: minutesToHoursAndMinutes(item.target),
       progress: progressLabel ? progressLabel : '0m',
       totalProgressLabel: minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)),
     }};
+
+    // set note progress time label
+    if (fillData.note) {
+      fillData.note.map(item => {
+        if (item.totalProgressTime) {
+          item.progressTimeLabel = minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime))
+        }
+        return item;
+      })
+    }
 
     let isCompleted = false;
     let percentageProgress = 0;
@@ -758,6 +787,8 @@ async function listTask() {
   	} else {
   	  docFrag.append(el);
   	}
+
+    rankLabel++;
   }
   $('#tasklist').innerHTML = '';
   $('#tasklist').append(docFrag);
@@ -939,6 +970,9 @@ async function taskClickHandler(el) {
       break;
       
     // notes
+    case 'rename-sub-task':
+      renameNote(id, el);
+      break;
     case 'start-sub-task':
       await fixMissingNoteId(id, el);
       await setSubTask(id, el);
@@ -955,7 +989,6 @@ async function switchActiveTask(taskEl, id, persistent = false) {
   
   // switch task
   if (activeTask) {
-    // switch task
     if (id == activeTask.id && !persistent) {
       await removeActiveTask();
       disableAllActive();
@@ -973,7 +1006,6 @@ async function switchActiveTask(taskEl, id, persistent = false) {
         taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
       }
     }
-    // activeTask.lastUpdated = new Date().getTime();
   } else {
     taskEl.stateList.add('--active');
     await window.service.SetData({'activeTask': id});
@@ -984,18 +1016,6 @@ async function switchActiveTask(taskEl, id, persistent = false) {
       taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
     }
   }
-  
-  // let currentState = el.stateList.contains('--active');
-  // disableAllActive();
-  // let isActive = el.stateList.toggle('--active', !currentState);
-  // if (isActive) {
-  //   let activeTimerDistance = await getActiveTimerDistance();
-  //   el.querySelector('[data-obj="live-progress"]').textContent = `(+${activeTimerDistance})`;
-  // } else {
-  //   removeActiveTask();
-  // }
-  
-  // await toggleActiveTask(parentEl, id);
 }
 
 async function renameTask(id) {
@@ -1007,7 +1027,6 @@ async function renameTask(id) {
   task.title = title;
   await storeTask();
   partialUpdateTask('title', task);
-  // listTask();  
 }
 
 function partialUpdateTask(key, data) {
@@ -1118,8 +1137,45 @@ async function deleteNote(id, el) {
   } else {
     task.note.splice(noteIndex, 1);
   }
+  if (task.activeSubTaskId == noteId) {
+    task.activeSubTaskId = null;
+  }
   await storeTask();
   parentEl.remove();
+}
+
+async function renameNote(id, el) {
+  let parentEl = el.closest('.i-item');
+  let noteIndex = parseInt(parentEl.querySelector('[data-slot="index"]').textContent);
+  let noteId = parentEl.querySelector('[data-slot="id"]').textContent;
+  let task = tasks.find(x => x.id == id);
+
+  let newDesc
+  if (noteId) {
+    let note = task.note.find(x => x.id == noteId);
+    let desc = window.prompt('rename', note.desc);
+    if (!desc) return;
+
+    note.desc = desc;
+    newDesc = desc;
+  } else {
+    let desc = window.prompt('rename', task.note[noteIdex].desc);
+    if (!desc) return;
+    
+    task.note[noteIndex].desc = desc;
+    newDesc = desc;
+  }
+  await storeTask();
+  if (noteId) {
+    partialUpdateNoteName(parentEl, newDesc)
+  }
+}
+
+function partialUpdateNoteName(noteEl, desc) {
+  let descEl = $kind({kind:'note.desc'}, noteEl);
+  if (descEl) {
+    descEl.textContent = desc;
+  }
 }
 
 async function startCurrentTask(id) {
@@ -1247,6 +1303,8 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
         activeTask.totalProgressTime = 0;  
       }
       activeTask.totalProgressTime += distanceTime;
+      // update sub task total progress time
+      updateSubTaskProgress(activeTask, distanceTime);
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
@@ -1256,6 +1314,23 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
   }
 }
 
+function updateSubTaskProgress(task, distanceTime) {
+  if (!task.activeSubTaskId) return;
+
+  let note = getSubMissionById(task, task.activeSubTaskId);
+  if (!note) return;
+
+  if (typeof(note.totalProgressTime) == 'undefined') {
+    note.totalProgressTime = 0;
+  }
+
+  note.totalProgressTime += distanceTime;
+}
+
+function getSubMissionById(task, subId) {
+  return task.note.find(x => x.id == subId)
+}
+
 function disableAllActive() {
   let taskEls = qsa('#tasklist-container [data-obj="task"]');
   for (let node of taskEls) {
@@ -1263,6 +1338,14 @@ function disableAllActive() {
     node.querySelector('[data-obj="live-progress"]').textContent = ``;
     node.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', false);
     node.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', false);
+
+    // update sub task live progress label
+    let el = node;
+    let activeNoteEl = $kind({kind:'note', state:'--active'}, el);
+    if (activeNoteEl) {
+      let noteProgressEl = $kind({kind:'progress'}, activeNoteEl);
+      noteProgressEl.textContent = ``;
+    }
   }
 }
 
@@ -1315,6 +1398,12 @@ function parseHoursMinutesToMinutes(timeString) {
   return (hours * 60) + minutes;
 }
 
+function GetTotalProgressString() {
+  let totalProgressTime = tasks.reduce((total, item) => {
+    return total += item.totalProgressTime;
+  }, 0)
+  return minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
+}
 
 
 initApp();

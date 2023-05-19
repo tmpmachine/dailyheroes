@@ -56,9 +56,11 @@
         </form>
       </div>
       
-      <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
-        <button class="clickable" data-callback='show-active'>Active</button>
-        <button class="clickable" data-callback='show-completed'>Completed</button>
+      <div class="d-none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
+          <button class="clickable" data-callback='show-active'>Active</button>
+          <button class="clickable" data-callback='show-completed'>Completed</button>
+        </div>
       </div>
 
       <input id="node-filter-box" type="text" placeholder="Search" class="inputable" data-callback="save-word-template"/>
@@ -76,7 +78,8 @@
       <div class="text-center">
         <img src='img/192.png' width='48'></img>
       </div>
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-between">
+        <button class="clickable" data-callback='get-report'>Get Report</button>
         <button class="clickable" data-callback='reset-history'>Reset history</button>
       </div>
       
@@ -172,6 +175,7 @@
     	    <span data-slot='title'></span>
           <div style="font-size:0.7rem;">
             <span data-slot='totalProgressLabel'></span>
+            <span data-slot='rankLabel'></span>
           </div>
     	  </div>
         <div style="margin-top:0.7rem"></div>
@@ -225,13 +229,23 @@
   </template>
   
   <template id='tmp-notes'>
-    <div data-kind="note" class="d-flex justify-content-between i-item align-items-center">
+    <div data-kind="note" class="i-item align-items-center">
       <span class="d-none" data-slot='id'></span>
       <div class="d-none" data-slot='index'></div>
-      <div data-slot='desc'></div>
-      <div>
-        <button class="icon-mate" data-role='start-sub-task' style="padding:0 4px;">play_arrow</button>
-        <button class="icon-mate" data-role='delete-note' style="padding:0 4px;">close</button>
+
+      <div class="d-flex justify-content-between">
+        <div>
+          <div data-kind='note.desc' data-slot='desc'></div>
+          <div style="font-size:.7em;opacity:0.8;font-weight:bold;">
+            <span data-slot='progressTimeLabel'></span><span data-kind='progress'></span>
+          </div>
+        </div>
+        <div>
+          <div style="padding-top:.3rem;"></div>
+          <button class="icon-mate" data-role='rename-sub-task' style="padding:0 4px;">edit</button>
+          <button class="icon-mate" data-role='start-sub-task' style="padding:0 4px;">play_arrow</button>
+          <button class="icon-mate" data-role='delete-note' style="padding:0 4px;">close</button>
+        </div>
       </div>
     </div>
   </template>

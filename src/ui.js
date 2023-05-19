@@ -81,6 +81,13 @@ window.ui = (function () {
   function updateActiveTaskProgressBar(activeTaskEl, isTimerRunning) {
     if (!isTimerRunning) {
       activeTaskEl.querySelector('[data-obj="live-progress"]').textContent = ``;
+      
+      // update sub task live progress
+      let activeNoteEl = $kind({kind:'note', state:'--active'}, activeTaskEl);
+      if (activeNoteEl) {
+        let noteProgressEl = $kind({kind:'progress'}, activeNoteEl);
+        noteProgressEl.textContent = ``;
+      }
     }
     activeTaskEl.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', isTimerRunning);
     activeTaskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', isTimerRunning);
@@ -114,6 +121,13 @@ window.ui = (function () {
     // isCompleted = (percentageProgressTime >= minutesToMs(task.target));
   	taskEl.querySelector('[data-slot="completionPercentage"]').textContent = `(${percentageProgressTime}%)`;
     taskEl.querySelector('[data-obj="live-progress"]').textContent = `(+${msToMinutes(liveProgressTime)}m)`;
+
+    // update sub task note live progress
+    let activeNoteEl = $kind({kind:'note', state:'--active'}, taskEl);
+    if (activeNoteEl) {
+      let noteProgressEl = $kind({kind:'progress'}, activeNoteEl);
+      noteProgressEl.textContent =  `(+${msToMinutes(liveProgressTime)}m)`;
+    }
       
   	taskEl.querySelector('[data-slot="targetString"]').textContent = `${minutesToHoursAndMinutes(task.target - msToMinutes(task.progressTime) - liveProgress)} left`;
   	taskEl.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';

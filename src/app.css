@@ -14,7 +14,37 @@
   border-radius: 0.4rem;
 }
 
-/* notes */
+/* --------------------------- */
+/* # list mission */
+
+[data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
+[data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
+#tasklist [data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }
+[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] { display: none; }
+
+#tasklist-completed [data-kind="task"]::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #cacaca63;
+  z-index: 5;
+}
+
+#tasklist-completed [data-kind="task"] {
+  position: relative;
+  filter: grayscale(1);
+}
+
+#tasklist-completed [data-kind="task"]:hover::after {
+  display: none;
+}
+
+/* --------------------------- */
+/* # list sub-mission */
+
 [data-kind="note"]:hover {
   background: #0000000d;
 }
@@ -32,11 +62,12 @@ body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 
 
 
+
 /* section: display none */
 
 /* mission tab menu */
-body[data-state~="--list-mission-archived"] #tasklist,
-body:not([data-state~="--list-mission-archived"]) #tasklist-completed,
+/* body[data-state~="--list-mission-archived"] #tasklist, */
+/* body:not([data-state~="--list-mission-archived"]) #tasklist-completed, */
 /* etc. */
 /*body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],*/
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
