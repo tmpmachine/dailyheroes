@@ -2,32 +2,32 @@ chrome.runtime.onInstalled.addListener(() => { });
 
 chrome.alarms.onAlarm.addListener(alarmHandler);
 
-self.addEventListener(
-  "notificationclick",
-  async (event) => {
-    event.notification.close();
-    
-    switch (event.action) {
-      case 'stop':
-        await stopByNotification();
-        await stopAlarm();
-        break;
-      case '3m':
-        startNewAlarm(3);
-        break;
-      case '7m':
-        startNewAlarm(7);
-        break;
-      case '12m':
-        startNewAlarm(12);
-        break;
-      case '20m':
-        startNewAlarm(20);
-        break;
-    }
-  },
-  false
-);
+self.addEventListener("notificationclick", handleNotificationClick, false);
+
+async function handleNotificationClick(event) {
+  event.notification.close();
+  switch (event.action) {
+    case 'stop':
+      await stopByNotification();
+      await setStopAlarmIcon();
+      break;
+    case 'restart':
+      await restartTask();
+      break;
+    case '3m':
+      startNewAlarm(3);
+      break;
+    case '7m':
+      startNewAlarm(7);
+      break;
+    case '12m':
+      startNewAlarm(12);
+      break;
+    case '20m':
+      startNewAlarm(20);
+      break;
+  }
+}
 
 async function updateProgressActiveTask(addedProgress, distanceTime) {
   let data = await chrome.storage.local.get(['activeTask']);
@@ -89,7 +89,7 @@ async function stopByNotification() {
   await updateProgressActiveTask(distanceMinutes, distanceTime);
 }
 
-async function stopAlarm() {
+async function setStopAlarmIcon() {
   chrome.action.setIcon({ path: icon3 });
 }
 
@@ -114,14 +114,11 @@ async function alarmHandler(alarm) {
       await chrome.storage.local.remove(['start']);
       await updateProgressActiveTask(distanceMinutes, distanceTime);
       
-      spawnNotification(`Times up! (total : ${data.history + distanceMinutes}m)`, 'limegreen', icon3, true, [
+      spawnNotification(`Times up!`, 'limegreen', icon3, true, [
+      // spawnNotification(`Times up! (total : ${data.history + distanceMinutes}m)`, 'limegreen', icon3, true, [
         {
-          action: "3m",
-          title: "Start 3m",
-        },
-        {
-          action: "7m",
-          title: "Start 7m",
+          action: "restart",
+          title: "Restart task",
         },
       ]);
       chrome.alarms.clearAll();
@@ -133,10 +130,10 @@ async function alarmHandler(alarm) {
           action: "stop",
           title: "Stop",
         },
-        {
-          action: "7m",
-          title: "Start 7m",
-        },
+        // {
+        //   action: "7m",
+        //   title: "Start 7m",
+        // },
       ]);
       break;
   }
@@ -217,6 +214,20 @@ async function startNewAlarm(minutes) {
   }
   updateTime();
   
+}
+
+async function restartTask() {
+  let tasks = await getTask();
+  let data = await chrome.storage.local.get(['activeTask']);
+  if (!data.activeTask) return;
+
+  let activeTask = tasks.find(x => x.id == data.activeTask);
+  if (!activeTask) return;
+
+  activeTask.progress = 0;
+  activeTask.progressTime = 0;
+  await storeTask(tasks);
+  startNewAlarm(activeTask.target);
 }
 
 // window.asd = console.log;

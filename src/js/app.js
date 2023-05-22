@@ -920,9 +920,7 @@ async function taskClickHandler(el) {
   let parentEl = el.closest('[data-obj="task"]');
   let id = parentEl.dataset.id;
   switch (actionRole) {
-    case 'edit':
-      editTask(id);
-      break;
+    case 'edit': editTask(id); break;
     case 'delete':
       let deleteIndex = tasks.findIndex(x => x.id == id);
       tasks.splice(deleteIndex, 1);
@@ -930,39 +928,17 @@ async function taskClickHandler(el) {
       await removeActiveTaskIfExists(id);
       parentEl.remove();
       break;
-    case 'track':
-      trackProgress(id);
-      break;
-    case 'untrack':
-      untrackProgress(id);
-      break;
-    case 'set-active':
-      switchActiveTask(parentEl, id);
-      break;
-    case 'split-task':
-      await splitTask(id);
-      break;
-    case 'rename':
-      await renameTask(id);
-      break;
-    case 'reduce':
-      await reduceTaskDuration(id);
-      break;
-    case 'add':
-      await increaseTaskDuration(id);
-      break;
-    case 'set-target':
-      await setTaskTarget(id);
-      break;
-    case 'finish':
-      await finishTask(id);
-      break;
-    case 'restart':
-      await restartTask(id);
-      break;
-    case 'take-note':
-      showModalNote(id);
-      break;
+    case 'track': trackProgress(id); break;
+    case 'untrack': untrackProgress(id); break;
+    case 'set-active': switchActiveTask(parentEl, id); break;
+    case 'split-task': await splitTask(id); break;
+    case 'rename': await renameTask(id); break;
+    case 'reduce': await reduceTaskDuration(id); break;
+    case 'add': await increaseTaskDuration(id); break;
+    case 'set-target': await setTaskTarget(id); break;
+    case 'finish': await finishTask(id); break;
+    case 'restart': await restartTask(id); break;
+    case 'take-note': showModalNote(id); break;
     case 'start':
       await stopTimer();
       await switchActiveTask(parentEl, id, true);
@@ -970,16 +946,10 @@ async function taskClickHandler(el) {
       break;
       
     // notes
-    case 'rename-sub-task':
-      renameNote(id, el);
-      break;
+    case 'rename-sub-task': renameNote(id, el); break;
     case 'start-sub-task':
-      await fixMissingNoteId(id, el);
-      await setSubTask(id, el);
-      break;
-    case 'delete-note':
-      deleteNote(id, el);
-      break;
+      await fixMissingNoteId(id, el); await setSubTask(id, el); break;
+    case 'delete-note': deleteNote(id, el); break;
   }
 } 
 
@@ -1055,7 +1025,8 @@ async function finishTask(id) {
   task.progress = task.target;
   task.progressTime = task.target * 60 * 1000;
   await storeTask();
-  listTask();  
+  let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
+  $('#tasklist-completed').append(taskEl)
 }
 
 async function restartTask(id) {
