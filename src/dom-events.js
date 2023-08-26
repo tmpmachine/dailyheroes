@@ -1,6 +1,6 @@
 window.DOMEvents = {
 	clickable: {
-	'show-modal-add-task': () => showModalAddTask(),
+	  'show-modal-add-task': () => showModalAddTask(),
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
 	  'set-sleep-time': () => setSleepTime(),
@@ -8,8 +8,8 @@ window.DOMEvents = {
 	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),
 	  'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
 	  'get-report': () => {
-		let totalProgessString = GetTotalProgressString();
-		alert(`Today's progress: ${totalProgessString}`) 
+		  let totalProgessString = GetTotalProgressString();
+		  alert(`Today's progress: ${totalProgessString}`) ;
 	  },
 	  'reset-progress': async () => {
 	    // if (!window.confirm('Are you sure?')) return;
@@ -45,6 +45,7 @@ window.DOMEvents = {
 	  },
 	  'task-click-handler': (ev) => taskClickHandler(ev.target),
 		'stop-timer': () => stopTimer(),
+		'start-or-restart-timer': () => startOrRestartTask(),
 		'set-alarm': async (ev) => {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
 		  await setTimer(duration);
