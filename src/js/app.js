@@ -729,11 +729,11 @@ async function listTask() {
   let activeTimerDistanceTime = await getActiveTimerDistanceTime();
   let activeTask = await getActiveTask();
   
-  if (lsdb.data.isSortByTotalProgress) {
-    tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
-  }
+  // if (lsdb.data.isSortByTotalProgress) {
+  //   tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
+  // }
   
-  let rankLabel = 1;
+  // let rankLabel = 1;
   for (let item of tasks) {
     
     let liveProgress = 0;
@@ -747,7 +747,7 @@ async function listTask() {
     let progressLabel = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
-      rankLabel: ` | Rank #${rankLabel}`,
+      // rankLabel: ` | Rank #${rankLabel}`,
       targetString: targetLabel ? `${targetLabel} left` : '',
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
       progress: progressLabel ? progressLabel : '0m',
@@ -786,7 +786,13 @@ async function listTask() {
   	  data: fillData, 
   	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
   	});
-  // 	if (!item.target) {
+
+    // set finish count label
+    if (fillData.finishCount) {
+      el.querySelector('.label-finish-count').textContent = `(${fillData.finishCount} left)`
+    }
+    
+    // 	if (!item.target) {
   	 // el.querySelector('.__target-string').style.display = 'none';
   // 	}
   	taskEl = el.querySelector('[data-obj="task"]');
@@ -804,7 +810,7 @@ async function listTask() {
   	  docFrag.append(el);
   	}
 
-    rankLabel++;
+    // rankLabel++;
   }
   $('#tasklist').innerHTML = '';
   $('#tasklist').append(docFrag);
@@ -1048,7 +1054,7 @@ async function finishTask(id) {
 async function restartTask(id) {
   let task = tasks.find(x => x.id == id);
   task.progress = 0;
-  task.progressTime = 0
+  task.progressTime = 0;
   await storeTask();
   listTask();  
 }

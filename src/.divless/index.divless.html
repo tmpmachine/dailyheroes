@@ -42,6 +42,7 @@
       <div data-obj="stop-timer">
         <div style="display:grid;">
           <button class='clickable' data-callback='stop-timer'>Stop timer (S)</button>
+          <button class='clickable' data-callback='start-or-restart-timer'>Start or restart (R)</button>
         </div>
       </div>
       <div class="default-gap"></div>
@@ -176,6 +177,7 @@
           [ {fs:0.7rem}
             <span data-slot='totalProgressLabel'></span>
             <span data-slot='rankLabel'></span>
+            [s .label-finish-count]
           ]
     	  </div>
         <div style="margin-top:0.7rem"></div>

@@ -11,7 +11,7 @@
   },
   "permissions": ["notifications", "alarms", "background", "storage"],
   "background": {
-    "service_worker": "src/sw.js",
+    "service_worker": "src/background.js",
     "type": "module"
   },
   "action" : {

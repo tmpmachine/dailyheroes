@@ -36,6 +36,8 @@ async function reduceCountActiveTask() {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
       activeTask.finishCount -= 1;
+      activeTask.progress = 0;
+      activeTask.progressTime = 0;
       await storeTask(tasks);
     }
   }
