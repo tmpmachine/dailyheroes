@@ -195,6 +195,8 @@ async function updateTask(form) {
   let task = tasks.find(x => x.id == form.id.value);
   task.title = form.title.value;
   task.target = parseHoursMinutesToMinutes(form.target.value);
+  task.finishCount = parseInt(form['finish-count'].value);
+
   await storeTask();
   partialUpdateUITask(task.id, task);
   form.reset();
@@ -215,6 +217,7 @@ async function addTask(form)  {
     addTaskData({
       title: form.title.value,
       target: parseHoursMinutesToMinutes(form.target.value),
+      finishCount: form['finish-count'] ? parseInt(form['finish-count'].value) : null,
     });
   } catch (e) {
     console.error(e);

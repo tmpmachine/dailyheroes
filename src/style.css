@@ -1,5 +1,7 @@
 .align-items-center{align-items:center}.justify-content-end{justify-content:end}.text-center{text-align:center}.flex-column{flex-direction:column}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}
 
+.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
+
 * {
   box-sizing: border-box;
 }
@@ -93,7 +95,7 @@ button:focus{
 }
 
 
-input[type="text"] {
+.input-style-default {
   padding: 0.4rem 0.45rem;
   font-size: 1rem;
   border: 1px solid #ccc;
@@ -102,10 +104,10 @@ input[type="text"] {
   outline: none;
   width: 100%;
 }
-input[type="text"]:hover {
+.input-style-default:hover {
   border-color: #666;
 }
-input[type="text"]:focus {
+.input-style-default:focus {
   border-color: #4CAF50;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
 }

@@ -63,7 +63,7 @@
         ]
       ]
 
-      <input id="node-filter-box" type="text" placeholder="Search" class="inputable" data-callback="save-word-template"/>
+      <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
       <div style="padding-top:.3rem;"></div>
       
       <div id="tasklist-container">
@@ -137,7 +137,7 @@
       <form class="submittable" data-callback='set-timer'>
         <div style="display:flex;gap:0.3rem;">
           <div>
-            <input type="text" name="target"/>
+            <input type="text" name="target" class="input-style-default"/>
           </div>
           <button>Set</button>
         </div>
@@ -261,11 +261,15 @@
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='add-task' data-obj="form-task">
             <input type="hidden" name="id"/>
             <div>
-              Title <input type="text" name='title'/>
+              Title <input type="text" name='title' class="input-style-default"/>
             </div>
             <div>
-              Target <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m'/>
+              Target <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
             </div>
+            <div>
+              Finish count <input type="number" min="1" name='finish-count' class="input-style-default"/>
+            </div>
+            [ .mb-m]
             <div>
               <button data-role='btn-add'>Add</button>
               <button data-role="btn-edit">Update</button>
@@ -288,7 +292,7 @@
           <form class='submittable default-inline-flex-gap flex-column' data-callback='add-note'>
             <input type="hidden" name="id"/>
             <div>
-              <input type="text" name='title'/>
+              <input type="text" name='title' class="input-style-default"/>
             </div>
             <div>
               <button data-role='btn-add'>Add</button>

@@ -29,6 +29,18 @@ async function handleNotificationClick(event) {
   }
 }
 
+async function reduceCountActiveTask() {
+  let data = await chrome.storage.local.get(['activeTask']);
+  if (data.activeTask) {
+    let tasks = await getTask();
+    let activeTask = tasks.find(x => x.id == data.activeTask);
+    if (activeTask) {
+      activeTask.finishCount -= 1;
+      await storeTask(tasks);
+    }
+  }
+}
+
 async function updateProgressActiveTask(addedProgress, distanceTime) {
   let data = await chrome.storage.local.get(['activeTask']);
   if (data.activeTask) {
@@ -103,7 +115,7 @@ async function alarmHandler(alarm) {
       break;
     case 'main':
       
-      let data = await chrome.storage.local.get(["history", "start"]);
+      let data = await chrome.storage.local.get(["history", "start", "activeTask"]);
 		  let distanceMinutes = 0;
 		  let distanceTime = 0;
       if (typeof(data.start) != 'undefined') {
@@ -114,11 +126,22 @@ async function alarmHandler(alarm) {
       await chrome.storage.local.remove(['start']);
       await updateProgressActiveTask(distanceMinutes, distanceTime);
       
+      // get task
+      let finishCountLeftTxt = '';
+      if (data.activeTask) {
+        let tasks = await getTask();
+        let activeTask = tasks.find(x => x.id == data.activeTask);
+        if (activeTask && activeTask.finishCount && activeTask.finishCount > 0) {
+          finishCountLeftTxt = `(${activeTask.finishCount-1} times left)`
+          await reduceCountActiveTask();
+        }
+      }
+
       spawnNotification(`Times up!`, 'limegreen', icon3, true, [
       // spawnNotification(`Times up! (total : ${data.history + distanceMinutes}m)`, 'limegreen', icon3, true, [
         {
           action: "restart",
-          title: "Restart task",
+          title: `Restart task ${finishCountLeftTxt}`.replace(/ +/g,' ').trim(),
         },
       ]);
       chrome.alarms.clearAll();
