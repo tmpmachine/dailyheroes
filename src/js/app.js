@@ -213,10 +213,16 @@ async function addTask(form)  {
     return;
   }
   
+  let targetVal = form.target.value;
+  if (isNumber(targetVal)) {
+    // set default to minutes
+    targetVal = `${targetVal}m`;
+  }
+
   try {
     addTaskData({
       title: form.title.value,
-      target: parseHoursMinutesToMinutes(form.target.value),
+      target: parseHoursMinutesToMinutes(targetVal),
       finishCount: form['finish-count'] ? parseInt(form['finish-count'].value) : null,
     });
   } catch (e) {
@@ -230,6 +236,10 @@ async function addTask(form)  {
   await listTask();
   
   updateUI();
+}
+
+function isNumber(input) {
+  return /^[0-9]+$/.test(input);
 }
 
 async function addTaskData(inputData) {
