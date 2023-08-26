@@ -252,7 +252,7 @@ async function addTaskData(inputData) {
     untracked: false,
     activeSubTaskId: null,
   }};
-  tasks.push(data);
+  tasks.splice(0, 0, data);
 }
       
 async function storeTask() {

@@ -36,8 +36,10 @@ async function reduceCountActiveTask() {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
       activeTask.finishCount -= 1;
-      activeTask.progress = 0;
-      activeTask.progressTime = 0;
+      if (activeTask.finishCount > 0) {
+        activeTask.progress = 0;
+        activeTask.progressTime = 0;
+      }
       await storeTask(tasks);
     }
   }
@@ -134,7 +136,11 @@ async function alarmHandler(alarm) {
         let tasks = await getTask();
         let activeTask = tasks.find(x => x.id == data.activeTask);
         if (activeTask && activeTask.finishCount && activeTask.finishCount > 0) {
-          finishCountLeftTxt = `(${activeTask.finishCount-1} times left)`
+          if (activeTask.finishCount-1 == 0) {
+            finishCountLeftTxt = `(last one)`
+          } else {
+            finishCountLeftTxt = `(${activeTask.finishCount-1} times left)`
+          }
           await reduceCountActiveTask();
         }
       }
