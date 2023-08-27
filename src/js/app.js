@@ -470,6 +470,7 @@ async function finishTimer() {
 
   await stopTimer();
   await finishTask(task.id); 
+  updateUI()
 }
 
 let countdonwIntervalId;
@@ -983,6 +984,7 @@ async function taskClickHandler(el) {
       await storeTask();
       await removeActiveTaskIfExists(id);
       parentEl.remove();
+      updateUI();
       break;
     case 'track': trackProgress(id); break;
     case 'untrack': untrackProgress(id); break;
@@ -999,7 +1001,8 @@ async function taskClickHandler(el) {
       if (activeTask && activeTask.id == id) {
         await stopTimer();
       }
-      await finishTask(id); 
+      await finishTask(id);
+      updateUI();
     break;
     case 'restart': await restartTask(id); break;
     case 'take-note': showModalNote(id); break;
