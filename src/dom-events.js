@@ -46,6 +46,7 @@ window.DOMEvents = {
 	  	'task-click-handler': (ev) => taskClickHandler(ev.target),
 		'stop-timer': () => stopTimer(),
 		'start-or-restart-timer': () => startOrRestartTask(),
+		'finish-timer': () => finishTimer(),
 		'set-alarm': async (ev) => {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
 		  await setTimer(duration);

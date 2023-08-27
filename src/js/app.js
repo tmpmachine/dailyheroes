@@ -464,6 +464,14 @@ async function startOrRestartTask() {
   await startCurrentTask(task.id);
 }
 
+async function finishTimer() {
+  let task = await getActiveTask();
+  if (!task) return;
+
+  await stopTimer();
+  await finishTask(task.id); 
+}
+
 let countdonwIntervalId;
 
 async function startCountdown() {
@@ -589,6 +597,7 @@ function detectKeyPressS() {
   let sKeyPressed = false;
   let tKeyPressed = false;
   let rKeyPressed = false;
+  let fKeyPressed = false;
   let slashKeyPressed = false;
 
   function detect(event) {
@@ -603,6 +612,9 @@ function detectKeyPressS() {
     } else if (event.key === 'r' && !tKeyPressed) {
       rKeyPressed = true;
       $('[data-callback="start-or-restart-timer"]').focus();
+    } else if (event.key === 'f' && !tKeyPressed) {
+      fKeyPressed = true;
+      $('[data-callback="finish-timer"]').focus();
     } else if (event.key === 't' && !tKeyPressed) {
       tKeyPressed = true;
       $('[data-callback="set-timer"] input').focus();
@@ -618,6 +630,7 @@ function detectKeyPressS() {
     sKeyPressed = false;
     tKeyPressed = false;
     rKeyPressed = false;
+    fKeyPressed = false;
   }
 
   document.addEventListener('keypress', detect);

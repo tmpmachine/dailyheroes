@@ -41,10 +41,14 @@
       </div>
       <div class="default-gap"></div>
       <div data-obj="stop-timer">
-        <div style="display:grid;">
-          <button class='clickable' data-callback='stop-timer'>Stop timer (S)</button>
-          <button class='clickable' data-callback='start-or-restart-timer'>Start timer (R)</button>
-        </div>
+        [
+          Timer
+        ]
+        [ .d-grid {gap:0.35rem} {cols:1fr 1fr 1fr}
+          <button class='clickable' data-callback='stop-timer'>Stop (S)</button>
+          <button class='clickable' data-callback='start-or-restart-timer'>Start (R)</button>
+          <button class='clickable' data-callback='finish-timer'>Finish (F)</button>
+        ]
       </div>
       <div class="default-gap"></div>
       <div class="default-gap"></div>
