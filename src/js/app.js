@@ -219,8 +219,9 @@ async function addTask(form)  {
     targetVal = `${targetVal}m`;
   }
 
+  let taskId;
   try {
-    addTaskData({
+    taskId = addTaskData({
       title: form.title.value,
       target: parseHoursMinutesToMinutes(targetVal),
       finishCount: form['finish-count'] ? parseInt(form['finish-count'].value) : null,
@@ -232,6 +233,13 @@ async function addTask(form)  {
   }
   
   form.reset();
+
+  // set as active task if none is active
+  let data = await window.service.GetData('start');
+  if (!data.start && taskId) {
+    await window.service.SetData({'activeTask': taskId});
+  }
+
   await storeTask();
   await listTask();
   
@@ -242,9 +250,10 @@ function isNumber(input) {
   return /^[0-9]+$/.test(input);
 }
 
-async function addTaskData(inputData) {
+function addTaskData(inputData) {
+  let id = generateUniqueId();
   let data = {...inputData, ...{
-    id: generateUniqueId(),
+    id,
     progress: 0,
     progressTime: 0,
     totalProgressTime: 0,
@@ -253,6 +262,8 @@ async function addTaskData(inputData) {
     activeSubTaskId: null,
   }};
   tasks.splice(0, 0, data);
+  
+  return id;
 }
       
 async function storeTask() {
