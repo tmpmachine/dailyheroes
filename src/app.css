@@ -71,6 +71,8 @@ body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 /* body:not([data-state~="--list-mission-archived"]) #tasklist-completed, */
 /* etc. */
 /*body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],*/
+.container-task [data-state="--active"] [data-group~="not-started"],
+.container-task #tasklist-completed [data-group~="active"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 body:not([data-state~="--import-mode"]) [data-section="import"],

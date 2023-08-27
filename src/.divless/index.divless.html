@@ -67,7 +67,7 @@
       <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
       <div style="padding-top:.3rem;"></div>
       
-      <div id="tasklist-container">
+      <div id="tasklist-container" class="container-task">
         <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
         <div style="padding-top:1rem;"></div>
         <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
@@ -214,15 +214,15 @@
   <template id="tmp-mission-buttons">
     <!-- <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button> -->
     <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
-    <button data-role='delete' class="icon-mate" title='Delete'>delete</button>
+    <button data-role='delete' class="icon-mate" data-group="not-started" title='Delete'>delete</button>
     <!--<button data-role='reduce' class="icon-mate">remove</button>-->
     <!--<button data-role='add' class="icon-mate">add</button>-->
-    <button data-role='set-target' class="icon-mate" title='Change target'>schedule</button>
+    <button data-role='set-target' class="icon-mate" data-group="active" title='Change target'>schedule</button>
     <button data-role='rename' class="icon-mate" title='Rename'>edit</button>
-    <button data-role='finish' class="icon-mate" title='Finish'>check_small</button>
+    <button data-role='finish' class="icon-mate" data-group="active" title='Finish'>check_small</button>
     <button data-role='restart' class="icon-mate" title='Restart'>restart_alt</button>
-    <button data-role='take-note' class="icon-mate" title='Take a note'>note_add</button>
-    <button data-role='start' class="icon-mate" title='Start'>play_arrow</button>
+    <button data-role='take-note' class="icon-mate" data-group="active" title='Take a note'>note_add</button>
+    <button data-role='start' class="icon-mate" data-group="active not-started" title='Start'>play_arrow</button>
     <div style="padding-top:4px;"></div>
     <div data-role="manage" class="default-inline-flex-gap">
       <button data-role='track'>Track</button>
