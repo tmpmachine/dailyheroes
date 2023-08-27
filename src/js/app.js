@@ -978,8 +978,16 @@ async function taskClickHandler(el) {
     case 'rename': await renameTask(id); break;
     case 'reduce': await reduceTaskDuration(id); break;
     case 'add': await increaseTaskDuration(id); break;
-    case 'set-target': await setTaskTarget(id); break;
-    case 'finish': await finishTask(id); break;
+    case 'set-target': 
+      await setTaskTarget(id); 
+      break;
+    case 'finish':
+      let activeTask = await getActiveTask();
+      if (activeTask && activeTask.id == id) {
+        await stopTimer();
+      }
+      await finishTask(id); 
+    break;
     case 'restart': await restartTask(id); break;
     case 'take-note': showModalNote(id); break;
     case 'start':

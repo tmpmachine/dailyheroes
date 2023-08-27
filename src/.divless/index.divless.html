@@ -5,6 +5,7 @@
   <link href="style.css" rel="stylesheet"/>
   <link href="app.css" rel="stylesheet"/>
   <meta name="viewport" content="width=device-width"/>
+  <title>Daily Heroes Timer</title>
 
 </head>
 <body>
@@ -15,12 +16,12 @@
     <section>
       
       <div class="d-flex justify-content-between">
-        <button class="clickable icon-mate" data-callback='show-modal-add-task'>add</button>
+        <button class="clickable" data-callback='show-modal-add-task'>New Timer (Alt + N)</button>
         <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
         <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
         <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
-        <h3 style="margin:0.5rem">Daily Heroes</h3>
-        <button class='clickable' data-callback='reset-progress'>Reset Progress</button>
+        <h3 style="margin:0.5rem">Daily Heroes Timer</h3>
+        <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
       </div>
       <div class="default-gap"></div>
       
@@ -42,7 +43,7 @@
       <div data-obj="stop-timer">
         <div style="display:grid;">
           <button class='clickable' data-callback='stop-timer'>Stop timer (S)</button>
-          <button class='clickable' data-callback='start-or-restart-timer'>Start or restart (R)</button>
+          <button class='clickable' data-callback='start-or-restart-timer'>Start timer (R)</button>
         </div>
       </div>
       <div class="default-gap"></div>
@@ -73,15 +74,9 @@
         <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
       </div>
       
-      <p class="text-center">
-        <small>Click on "+" to create a new mission</small>
-      </p>
-      <div class="text-center">
-        <img src='img/192.png' width='48'></img>
-      </div>
       [ .d-flex .justify-content-between
         [btn 'Get Report' .clickable data-callback='get-report']
-        [btn 'Reset history' .clickable data-callback='reset-history']
+        [btn 'Reset history' .clickable data-callback='reset-history' .d-none]
       ]
       
     </section>
@@ -214,15 +209,15 @@
   <template id="tmp-mission-buttons">
     <!-- <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button> -->
     <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
-    <button data-role='delete' class="icon-mate" data-group="not-started" title='Delete'>delete</button>
+    <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
     <!--<button data-role='reduce' class="icon-mate">remove</button>-->
     <!--<button data-role='add' class="icon-mate">add</button>-->
     <button data-role='set-target' class="icon-mate" data-group="active" title='Change target'>schedule</button>
     <button data-role='rename' class="icon-mate" title='Rename'>edit</button>
     <button data-role='finish' class="icon-mate" data-group="active" title='Finish'>check_small</button>
-    <button data-role='restart' class="icon-mate" title='Restart'>restart_alt</button>
-    <button data-role='take-note' class="icon-mate" data-group="active" title='Take a note'>note_add</button>
-    <button data-role='start' class="icon-mate" data-group="active not-started" title='Start'>play_arrow</button>
+    <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
+    <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
+    <button data-role='start' class="icon-mate" data-group="active not-running" title='Start'>play_arrow</button>
     <div style="padding-top:4px;"></div>
     <div data-role="manage" class="default-inline-flex-gap">
       <button data-role='track'>Track</button>
@@ -258,7 +253,7 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          New mission :
+          New timer :
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='add-task' data-obj="form-task">
             <input type="hidden" name="id"/>
@@ -266,10 +261,10 @@
               Title <input type="text" name='title' class="input-style-default"/>
             </div>
             <div>
-              Target <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
+              Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
             </div>
             <div>
-              Finish count <input type="number" min="1" name='finish-count' class="input-style-default"/>
+              Repeat count (leave blank for none) <input type="number" min="1" name='finish-count' class="input-style-default"/>
             </div>
             [ .mb-m]
             <div>

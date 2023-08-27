@@ -1,49 +1,49 @@
 window.DOMEvents = {
 	clickable: {
-	  'show-modal-add-task': () => showModalAddTask(),
+	  	'show-modal-add-task': () => showModalAddTask(),
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
-	  'set-sleep-time': () => setSleepTime(),
-	  'export-tasks': () => exportTasks(),
-	  'import-tasks': () => document.body.stateList.toggle('--import-mode'),
-	  'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
-	  'get-report': () => {
-		  let totalProgessString = GetTotalProgressString();
-		  alert(`Today's progress: ${totalProgessString}`) ;
-	  },
-	  'reset-progress': async () => {
-	    // if (!window.confirm('Are you sure?')) return;
-	    
-		await window.service.SetData({ 'history': 0 });
-		await window.service.RemoveData('rest');
-	    clearTaskHistory();
-      	if (window.modeChromeExtension) {
-			await listTask();
-      	} else {
-			await listTask();
-			location.reload();
-      	}
-	  },
-	  'reset-history': async () => {
-	    if (!window.confirm('Are you sure?')) return;
+		'set-sleep-time': () => setSleepTime(),
+		'export-tasks': () => exportTasks(),
+		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
+		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
+		'get-report': () => {
+			let totalProgessString = GetTotalProgressString();
+			alert(`Total timer progress : ${totalProgessString}`) ;
+		},
+		'reset-progress': async () => {
+			// if (!window.confirm('Are you sure?')) return;
+			
+			await window.service.SetData({ 'history': 0 });
+			await window.service.RemoveData('rest');
+			clearTaskHistory();
+			if (window.modeChromeExtension) {
+				await listTask();
+			} else {
+				await listTask();
+				location.reload();
+			}
+		},
+		'reset-history': async () => {
+			if (!window.confirm('Are you sure?')) return;
 
-		clearTaskTotalProgressTime();
-      	if (window.modeChromeExtension) {
-	      window.close();
-      	} else {
-			await listTask();
-			location.reload();
-      	}
-	  },
-	  'mode-day-off': async () => {
-	    await window.service.SetData({ 'target': (3+8)*60 + 20 });
-	    updateUI();
-	  },
-	  'mode-work-day': async () => {
-	    await window.service.SetData({ 'target': 3*60 + 20 });
-	    updateUI();
-	  },
-	  'task-click-handler': (ev) => taskClickHandler(ev.target),
+			clearTaskTotalProgressTime();
+			if (window.modeChromeExtension) {
+			window.close();
+			} else {
+				await listTask();
+				location.reload();
+			}
+		},
+		'mode-day-off': async () => {
+			await window.service.SetData({ 'target': (3+8)*60 + 20 });
+			updateUI();
+		},
+		'mode-work-day': async () => {
+			await window.service.SetData({ 'target': 3*60 + 20 });
+			updateUI();
+		},
+	  	'task-click-handler': (ev) => taskClickHandler(ev.target),
 		'stop-timer': () => stopTimer(),
 		'start-or-restart-timer': () => startOrRestartTask(),
 		'set-alarm': async (ev) => {

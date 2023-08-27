@@ -131,13 +131,14 @@ async function alarmHandler(alarm) {
       await updateProgressActiveTask(distanceMinutes, distanceTime);
       
       // get task
+      let isRepeatCountFinished = false;
       let finishCountLeftTxt = '';
       if (data.activeTask) {
         let tasks = await getTask();
         let activeTask = tasks.find(x => x.id == data.activeTask);
         if (activeTask && activeTask.finishCount && activeTask.finishCount > 0) {
           if (activeTask.finishCount-1 == 0) {
-            finishCountLeftTxt = `(last one)`
+            isRepeatCountFinished = true;
           } else {
             finishCountLeftTxt = `(${activeTask.finishCount-1} times left)`
           }
@@ -145,13 +146,16 @@ async function alarmHandler(alarm) {
         }
       }
 
-      spawnNotification(`Times up!`, 'limegreen', icon3, true, [
-      // spawnNotification(`Times up! (total : ${data.history + distanceMinutes}m)`, 'limegreen', icon3, true, [
-        {
+      let actions = [];
+      if (!isRepeatCountFinished) {
+        actions.push({
           action: "restart",
           title: `Restart task ${finishCountLeftTxt}`.replace(/ +/g,' ').trim(),
-        },
-      ]);
+        });
+      }
+
+      spawnNotification(`Times up!`, 'limegreen', icon3, true, actions);
+
       chrome.alarms.clearAll();
       chrome.action.setIcon({ path: icon3 });
       break;
