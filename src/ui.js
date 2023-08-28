@@ -137,7 +137,11 @@ let uiComponent = (function () {
       liveProgress = await getActiveTimerDistance();
       liveProgressTime = await getActiveTimerDistanceTime();
     }
-    let percentageProgressTime = Math.min(100, Math.floor((task.progressTime + liveProgressTime) / minutesToMs(task.target) * 10000) / 100);
+
+    // accumulates child task progress
+    let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
+
+    let percentageProgressTime = Math.min(100, Math.floor((task.progressTime + liveProgressTime + totalMsProgressChildTask) / minutesToMs(task.target) * 10000) / 100);
     // isCompleted = (percentageProgressTime >= minutesToMs(task.target));
   	taskEl.querySelector('[data-slot="completionPercentage"]').textContent = `(${percentageProgressTime}%)`;
     taskEl.querySelector('[data-obj="live-progress"]').textContent = `(+${msToMinutes(liveProgressTime)}m)`;

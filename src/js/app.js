@@ -1235,7 +1235,10 @@ async function startCurrentTask(id) {
   let task = tasks.find(x => x.id == id);
   if (task.progress >= task.target) return;
   
-  setTimer(task.target * 60 * 1000 - task.progressTime);
+  // accumulates child task progress
+  let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
+
+  setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
 }
 
 async function startTask(id) {
