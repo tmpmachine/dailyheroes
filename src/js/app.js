@@ -21,7 +21,7 @@ async function setSleepTime() {
     if (minutes) {
       await window.service.SetData({ 'sleepTime': minutes });
       await calculateOverloadInfo();
-      window.ui.loadSleepTime();
+      uiComponent.loadSleepTime();
       await updateUI();
     }
   }
@@ -224,7 +224,8 @@ async function addTask(form)  {
     taskId = addTaskData({
       title: form.title.value,
       target: parseHoursMinutesToMinutes(targetVal),
-      finishCount: form['finish-count'] ? parseInt(form['finish-count'].value) : null,
+      finishCount: form['finish-count'].value ? parseInt(form['finish-count'].value) : null,
+      parentId: form['parent-id'].value ? form['parent-id'].value : null,
     });
   } catch (e) {
     console.error(e);
@@ -294,8 +295,8 @@ async function initApp() {
   await listTask();
   await loadRestTime();
   await calculateOverloadInfo();
-  window.ui.loadSleepTime();
-  window.ui.Init();
+  uiComponent.loadSleepTime();
+  uiComponent.Init();
   updateUI();
   loadSearch();
 }
@@ -320,15 +321,6 @@ async function loadSearch() {
     }
     
   }
-}
-
-function showModalAddTask() {
-  let modal = document.querySelectorAll('#projects-modal')[0].toggle();
-  modal.classList.toggle('modal--active', modal.isShown);
-  modal.addEventListener('onclose', function() {
-    modal.classList.toggle('modal--active', false);
-  });
-  window.ui.SetFocusEl(modal.querySelector('input[type="text"]'));
 }
 
 
@@ -499,7 +491,7 @@ async function startCountdown() {
   
   countdonwIntervalId = setInterval(() => {
     updateTime(scheduledTime, startTime);
-    // window.ui.updateProgressBar();
+    // uiComponent.updateProgressBar();
   }, 1000);
   
   // Execute the function immediately before waiting for 1 second
@@ -528,7 +520,7 @@ async function updateTime(scheduledTime, startTime) {
   
   let activeTask = await getActiveTask();
   if (activeTask) {
-    window.ui.updateTaskProgressBar(activeTask.id);
+    uiComponent.updateTaskProgressBar(activeTask.id);
   }
 }
 
@@ -880,7 +872,7 @@ function updateUI() {
       }
     }
     
-    window.ui.updateUI(isRunning);
+    uiComponent.updateUI(isRunning);
     await startCountdown();
     
     let history = getSumTaskProgress();
@@ -986,6 +978,7 @@ async function taskClickHandler(el) {
       parentEl.remove();
       updateUI();
       break;
+    case 'add-sub-timer': addSubTimer(id); break;
     case 'track': trackProgress(id); break;
     case 'untrack': untrackProgress(id); break;
     case 'set-active': switchActiveTask(parentEl, id); break;
@@ -1006,11 +999,7 @@ async function taskClickHandler(el) {
     break;
     case 'restart': await restartTask(id); break;
     case 'take-note': showModalNote(id); break;
-    case 'start':
-      await stopTimer();
-      await switchActiveTask(parentEl, id, true);
-      await startCurrentTask(id);
-      break;
+    case 'start': await startTaskTimer(parentEl, id); break;
       
     // notes
     case 'rename-sub-task': renameNote(id, el); break;
@@ -1019,6 +1008,12 @@ async function taskClickHandler(el) {
     case 'delete-note': deleteNote(id, el); break;
   }
 } 
+
+async function startTaskTimer(parentEl, id) {
+  await stopTimer();
+  await switchActiveTask(parentEl, id, true);
+  await startCurrentTask(id);
+}
 
 async function switchActiveTask(taskEl, id, persistent = false) {
   
@@ -1029,13 +1024,13 @@ async function switchActiveTask(taskEl, id, persistent = false) {
     if (id == activeTask.id && !persistent) {
       await removeActiveTask();
       disableAllActive();
-      window.ui.updateTaskProgressBar(id, false);
+      uiComponent.updateTaskProgressBar(id, false);
     } else {
-      window.ui.updateTaskProgressBar(activeTask.id, false);
+      uiComponent.updateTaskProgressBar(activeTask.id, false);
       await window.service.SetData({'activeTask': id});
       disableAllActive();
       taskEl.stateList.add('--active');
-      await window.ui.updateTaskProgressBar(id);
+      await uiComponent.updateTaskProgressBar(id);
       
       let data = await window.service.GetData('start');
       if (data.start) {
@@ -1053,6 +1048,13 @@ async function switchActiveTask(taskEl, id, persistent = false) {
       taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
     }
   }
+}
+
+function addSubTimer(taskId) {
+  let defaultVal = {
+    parentId: taskId,
+  }
+  uiComponent.ShowModalAddTask(defaultVal);
 }
 
 async function renameTask(id) {
@@ -1124,14 +1126,14 @@ async function addNote(form) {
 async function showModalNote(id) {
   let modal = document.querySelectorAll('#modal-note')[0].toggle();
   let form = modal.querySelector('form');
-  form.reset();      
+  form.reset();
   form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
 
   modal.classList.toggle('modal--active', modal.isShown);
   modal.addEventListener('onclose', function() {
     modal.classList.toggle('modal--active', false);
   });
-  window.ui.SetFocusEl(modal.querySelector('input[type="text"]'));
+  uiComponent.SetFocusEl(modal.querySelector('input[type="text"]'));
   modal.querySelector('form').id.value = id;
 }
 

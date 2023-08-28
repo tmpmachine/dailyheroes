@@ -1,6 +1,6 @@
 window.DOMEvents = {
 	clickable: {
-	  	'show-modal-add-task': () => showModalAddTask(),
+	  	'show-modal-add-task': () => uiComponent.ShowModalAddTask(),
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
 		'set-sleep-time': () => setSleepTime(),
@@ -88,7 +88,7 @@ window.DOMEvents = {
 	    }
 	  },
 	  'add-task': (ev) => {
-	    ev.preventDefault();
+		ev.preventDefault();
 	    if (ev.target.id.value.length > 0) {
 	      updateTask(ev.target);
 	    } else {
@@ -96,7 +96,7 @@ window.DOMEvents = {
 	    }
 		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
 		modal.close();
-      },
+	  },
 	  'add-note': (ev) => {
 	    ev.preventDefault();
 		let form = ev.target;

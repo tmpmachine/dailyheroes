@@ -1,10 +1,12 @@
-window.ui = (function () {
+let uiComponent = (function () {
   
   let SELF = {
+    ShowModalAddTask,
+
     Init,
     SetFocusEl,
   };
-  
+
   function Init() {
     initSimpleElementFilter();
     attachKeyboardShortcuts();
@@ -27,9 +29,27 @@ window.ui = (function () {
   
   function attachKeyboardShortcuts() {
     Mousetrap.bind('alt+n', function(e) {
-      showModalAddTask()
+      ShowModalAddTask()
       return false;
     });
+  }
+
+  function ShowModalAddTask(defaultValue = {}) {
+    let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+    let form = modal.querySelector('form');
+    form.reset();
+    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+
+    modal.classList.toggle('modal--active', modal.isShown);
+    modal.addEventListener('onclose', function() {
+      modal.classList.toggle('modal--active', false);
+    });
+    uiComponent.SetFocusEl(modal.querySelector('input[type="text"]'));
+
+    // set default value
+    if (typeof(defaultValue.parentId) == 'string') {
+      modal.querySelector('[name="parent-id"]').value = defaultValue.parentId;
+    }
   }
   
   const listenAndToggleVisibility = (inputSelector, selector, visibleClass, containerSelector) => {

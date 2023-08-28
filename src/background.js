@@ -29,6 +29,7 @@ async function handleNotificationClick(event) {
   }
 }
 
+
 async function reduceCountActiveTask() {
   let data = await chrome.storage.local.get(['activeTask']);
   if (data.activeTask) {
@@ -133,28 +134,49 @@ async function alarmHandler(alarm) {
       // get task
       let isRepeatCountFinished = false;
       let finishCountLeftTxt = '';
+      
       if (data.activeTask) {
         let tasks = await getTask();
         let activeTask = tasks.find(x => x.id == data.activeTask);
-        if (activeTask && activeTask.finishCount && activeTask.finishCount > 0) {
-          if (activeTask.finishCount-1 == 0) {
-            isRepeatCountFinished = true;
-          } else {
-            finishCountLeftTxt = `(${activeTask.finishCount-1} times left)`
+        if (activeTask) {
+
+          // set finish count text
+          if (activeTask.finishCount && activeTask.finishCount > 0) {
+            if (activeTask.finishCount-1 == 0) {
+              isRepeatCountFinished = true;
+            } else {
+              finishCountLeftTxt = `(${activeTask.finishCount-1})`
+            }
+            await reduceCountActiveTask();
           }
-          await reduceCountActiveTask();
+
+          // calculate miutes left if has parent task
+          if (activeTask.parentId) {
+            // let childTask = tasks.filter(x => x.parentId == activeTask.parentId);
+            let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
+            let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
+            
+            let parentTask = tasks.find(x => x.id == activeTask.parentId);
+            let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
+            finishCountLeftTxt += ` [${accumulatedMinutesLeft}m left total]`
+            debugger
+          }
+          // let total = 
+          
+
         }
       }
+
+
 
       let actions = [];
       if (!isRepeatCountFinished) {
         actions.push({
           action: "restart",
-          title: `Restart task ${finishCountLeftTxt}`.replace(/ +/g,' ').trim(),
+          title: 'Restart task',
         });
       }
-
-      spawnNotification(`Times up!`, 'limegreen', icon3, true, actions);
+      spawnNotification(`Times up! ${finishCountLeftTxt}`.replace(/ +/g,' ').trim(), 'limegreen', icon3, true, actions);
 
       chrome.alarms.clearAll();
       chrome.action.setIcon({ path: icon3 });
@@ -208,6 +230,10 @@ let asd = console.log
 let icon5 = 'data:image/webp;base64,UklGRiIBAABXRUJQVlA4TBUBAAAvH8AHAH/AJgDAJNMo6/8vjbsb8FHDSCQp675/ETKhUCgKoCaSFGlsIB5JaCCnyN7Lbv4D4P/flT5lC5QSUOHABniGRfBybZ80y3YB3GrblidVBviti2eYtPrEPQE2YIPICqwQrdA3UlH9tFRU7u5u3/viA0T0fwK0f9Jz/pVzzfO59ZfTkxXnJ9bzKBRgO6URWFtYz3CzTm50XQBwXYDNrGfGjwDGj1jmCOKsUxnCEQbgCANSSAkBa0ywDHU6EOeaU6g1gfpMfJWpx2FpwMQUmBGAWhPqJ8RtZfyVc2SkWaXQIoEIbk17fV0iZZbaD2m3pmlaf4nUdsv9ypy3WkTUbh1o4mu/1Wq1DtySdv56enLi1v5HAA=='
 
   let icon4 = 'data:image/webp;base64,UklGRr4BAABXRUJQVlA4TLIBAAAvHUAHEHfCKJJsJ7v/7SeH60cCd/ybwUKGH2w4iCRJkfL2mBn+X8X718UUriPZVqLGXf4JgDDIPxrWF2f+A9iOviCLp8xBThB8URAEFEBOiHJMIQjGCAeG58P+ZL0MECfkIieC/5NPIyaC+ISQe358USCHG+OKi4GIgXbut5k/i+/38s+jLBS6QolzMQVyEYsFCiSH2yz/LxEJUUIhUn++ih1/FCGLF3hy2tl1EuQGiwawiGgQn8CfEC3wxADLtm3DVVVQim3btu30vz+q5OF/74j+T4Dwb3oAOD/jswFMAciLn/BVazaBHZLtj7j784QlsSR5kHXZ3cDlxfkgk+/ZN33yMsfDeTkkI+p72T7J+8N5+QEYlUAPF0614wios0THe4DCQFwDwhyhXqJJ1AMoWhyUybAJEN7PIaCwd4lTkynoz3SxBk6zmHqLQqbhIyfE1NntGgWKTR3wdtcnPOC6AIo06ID3tEZFjc1wxQJNfY7dGCGpvOLgwkGrIOoRd+OQ9MRKihB0SyQeklYmReGzUhlIWgUWXJ+BGYAASI1g4yOv2dimMfkcJO7J9OcAP4n/HQ==';
+
+function msToMinutes(milliseconds) {
+  return Math.floor(milliseconds / 60000);
+}
 
 async function startNewAlarm(minutes) {
   // await chrome.runtime.sendMessage({message: 'hello'});
