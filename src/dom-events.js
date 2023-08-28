@@ -107,29 +107,27 @@ window.DOMEvents = {
 	  'import-tasks': async (ev) => {
 	    ev.preventDefault();
 	    let form = ev.target;
-      const formData = new FormData(form);
-      let taskString = formData.get('tasksString')
-      let tasksList = taskString.trim().split('\n')
-      .map(x => x.trim().split('- [ ] ')[1]);
-      let data = parseList(tasksList)
-      
-      for (let d of data) {
-        addTaskData({
-          title: d.title,
-          target: parseHoursMinutesToMinutes(d.duration),
-        });
-        // asd();
-      }
-      
-      form.reset();
-      await storeTask();
-      listTask();
-      // const data = {};
-      // data.title = formData.get('title') || null;
-      // data.ratio = parseFloat(formData.get('ratio')) || null;
-      // data.duration = parseInt(formData.get('duration')) || null;
-      // return data;
-      // asd(data)
-    },
+		const formData = new FormData(form);
+		let taskString = formData.get('tasksString')
+		let tasksList = taskString.trim().split('\n')
+		.map(x => x.trim().split('- [ ] ')[1]);
+		let data = parseList(tasksList)
+		
+		for (let d of data) {
+			addTaskData({
+			title: d.title,
+			target: parseHoursMinutesToMinutes(d.duration),
+			});
+		}
+		
+		form.reset();
+		await storeTask();
+		listTask();
+		// const data = {};
+		// data.title = formData.get('title') || null;
+		// data.ratio = parseFloat(formData.get('ratio')) || null;
+		// data.duration = parseInt(formData.get('duration')) || null;
+		// return data;
+	    },
 	}
 };
