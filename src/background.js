@@ -152,17 +152,13 @@ async function alarmHandler(alarm) {
 
           // calculate miutes left if has parent task
           if (activeTask.parentId) {
-            // let childTask = tasks.filter(x => x.parentId == activeTask.parentId);
             let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
             let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
             
             let parentTask = tasks.find(x => x.id == activeTask.parentId);
             let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
-            finishCountLeftTxt += ` [${accumulatedMinutesLeft}m left total]`
-            debugger
+            finishCountLeftTxt += ` (${accumulatedMinutesLeft}m left)`
           }
-          // let total = 
-          
 
         }
       }
@@ -172,7 +168,7 @@ async function alarmHandler(alarm) {
       let actions = [];
       if (!isRepeatCountFinished) {
         actions.push({
-          action: "restart",
+          action: 'restart',
           title: 'Restart task',
         });
       }
@@ -184,8 +180,8 @@ async function alarmHandler(alarm) {
     case '3m':
       spawnNotification('3 minutes left!', '#EB455F', icon4, false, [
         {
-          action: "stop",
-          title: "Stop",
+          action: 'stop',
+          title: 'Stop',
         },
         // {
         //   action: "7m",

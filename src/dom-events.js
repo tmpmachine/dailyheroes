@@ -49,7 +49,7 @@ window.DOMEvents = {
 		'finish-timer': () => finishTimer(),
 		'set-alarm': async (ev) => {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
-		  await setTimer(duration);
+		  await setTimerByMinutes(duration);
 	  },
 	},
 	inputable: {
@@ -82,7 +82,7 @@ window.DOMEvents = {
 	    } catch(e) {}
 	    
 	    if (isValidFormat) {
-  		  await setTimer(duration);
+  		  await setTimerByMinutes(duration);
       } else {
 	      alert('Time format not recognized. Try: 10m, 1h, 1h20m, 1AM, 1:30PM');
 	    }
