@@ -134,11 +134,15 @@ async function alarmHandler(alarm) {
       // get task
       let isRepeatCountFinished = false;
       let finishCountLeftTxt = '';
+      let targetMinutesTxt = ''
       
       if (data.activeTask) {
         let tasks = await getTask();
         let activeTask = tasks.find(x => x.id == data.activeTask);
         if (activeTask) {
+
+          // set target minutes on restart button
+          targetMinutesTxt = ` (${activeTask.target}m)`;
 
           // set finish count text
           if (activeTask.finishCount && activeTask.finishCount > 0) {
@@ -163,16 +167,14 @@ async function alarmHandler(alarm) {
         }
       }
 
-
-
       let actions = [];
       if (!isRepeatCountFinished) {
         actions.push({
           action: 'restart',
-          title: 'Restart task',
+          title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
         });
       }
-      spawnNotification(`Times up! ${finishCountLeftTxt}`.replace(/ +/g,' ').trim(), 'limegreen', icon3, true, actions);
+      spawnNotification(`Times up! ${finishCountLeftTxt}`, 'limegreen', icon3, true, actions);
 
       chrome.alarms.clearAll();
       chrome.action.setIcon({ path: icon3 });

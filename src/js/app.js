@@ -1,8 +1,8 @@
 window.modeChromeExtension = false;
 try {
   if (chrome.storage.local.get) {
+    window.modeChromeExtension = true;
   }
-  window.modeChromeExtension = true;
 } catch (e) {}
 
 if (window.modeChromeExtension) {
@@ -266,7 +266,12 @@ function addTaskData(inputData) {
     untracked: false,
     activeSubTaskId: null,
   }};
-  tasks.splice(0, 0, data);
+  if (data.parentId) {
+    let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
+    tasks.splice(parentTaskIndex + 1, 0, data);
+  } else {
+    tasks.splice(0, 0, data);
+  }
   
   return id;
 }
@@ -448,6 +453,13 @@ async function stopTimer() {
   
   updateUI();
   if (window.modeChromeExtension) {
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      // 2. A page requested user data, respond with a copy of `user`
+      // if (message === 'get-user-data') {
+        // sendResponse(user);
+      // }
+      asd('ysy')
+    });
     await chrome.runtime.sendMessage({message: 'stop'});
   }
 }
@@ -783,8 +795,9 @@ async function listTask() {
       totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
       let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
       targetMinutesLeft -= totalChildTaskProgressMinutes;
-      progressMinutesLeft += totalChildTaskProgressMinutes;
+      // progressMinutesLeft += totalChildTaskProgressMinutes;
     }
+
 
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
@@ -792,8 +805,9 @@ async function listTask() {
       targetString: targetMinutesLeft ? `${minutesToHoursAndMinutes(targetMinutesLeft)} left` : '',
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
       progress: progressMinutesLeft ? minutesToHoursAndMinutes(progressMinutesLeft) : '0m',
-      totalProgressLabel: minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)),
+      totalProgressLabel: item.totalProgressTime ? 'Total : ' + minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)) : '',
     }};
+
 
     // set note progress time label
     if (fillData.note) {
@@ -823,19 +837,19 @@ async function listTask() {
       fillData.note = fillData.note.map(x => { x.index = index; index++; return x})
     }
 
+    // generate task element
   	let el = window.templateSlot.fill({
   	  data: fillData, 
   	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
   	});
+
+    el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
 
     // set finish count label
     if (fillData.finishCount) {
       el.querySelector('.label-finish-count').textContent = `(${fillData.finishCount} left)`
     }
     
-    // 	if (!item.target) {
-  	 // el.querySelector('.__target-string').style.display = 'none';
-  // 	}
   	taskEl = el.querySelector('[data-obj="task"]');
   	taskEl.dataset.id = item.id;
   	setActiveSubTaskItem(taskEl, item);
@@ -1459,8 +1473,8 @@ function GetTotalProgressString() {
   let totalProgressTime = tasks.reduce((total, item) => {
     return total += item.totalProgressTime;
   }, 0)
-  return minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
+  let totalProgessString = minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
+  alert(`Total timer progress : ${totalProgessString}`) ;
 }
-
 
 initApp();

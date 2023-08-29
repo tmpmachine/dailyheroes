@@ -62,9 +62,13 @@
 body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 
 
+/* # container task */
+#tasklist-container .is-child-task {
+  margin-left: 1rem;
+}
 
 
-/* section: display none */
+/* # section: display none */
 
 /* mission tab menu */
 /* body[data-state~="--list-mission-archived"] #tasklist, */

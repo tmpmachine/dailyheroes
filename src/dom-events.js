@@ -7,10 +7,7 @@ window.DOMEvents = {
 		'export-tasks': () => exportTasks(),
 		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
 		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
-		'get-report': () => {
-			let totalProgessString = GetTotalProgressString();
-			alert(`Total timer progress : ${totalProgessString}`) ;
-		},
+		'get-report': () => GetTotalProgressString(),
 		'reset-progress': async () => {
 			// if (!window.confirm('Are you sure?')) return;
 			
