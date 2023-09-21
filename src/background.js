@@ -361,6 +361,7 @@ function OneTime() {
 }
 
 async function updateTime() {
+
   let alarms = await chrome.alarms.getAll()
   if (alarms.length === 0) {
     return;
@@ -371,13 +372,25 @@ async function updateTime() {
     return;
   }
   
+  // get task
+  let data = await chrome.storage.local.get(["history", "start", "activeTask"]);
+  let finishCount = 0;
+  if (data.activeTask) {
+    let tasks = await getTask();
+    let activeTask = tasks.find(x => x.id == data.activeTask);
+    if (activeTask.finishCount && activeTask.finishCount > 0) {
+      finishCount = activeTask.finishCount;
+    }
+  }
+
+
   let distance = mainAlarm.scheduledTime - new Date().getTime();
   let minutesLeft = Math.min(60, Math.floor(distance / (1000 * 60)));
   
-  drawMinutesLeft(minutesLeft)
+  drawMinutesLeft(minutesLeft, finishCount)
 }
 
-function drawMinutesLeft(minutesLeft) {
+function drawMinutesLeft(minutesLeft, finishCount = 0) {
   let x = new OffscreenCanvas(32,32)
   let c=x.getContext('2d')
   x.width = 32
@@ -396,6 +409,12 @@ function drawMinutesLeft(minutesLeft) {
     c.fillStyle ='#CCFFBD'
   }
   c.fillText(`${('00'+minutesLeft).slice(-2)}`,2,26)
+  
+  c.fillStyle = 'white';
+  for (let i=0; i<finishCount; i++) {
+    c.fillRect(i*12, 0, 10, 4);
+  }
+  
   c.getImageData(0,0,32,32,{willReadFrequently:true})
   chrome.action.setIcon({imageData:c.getImageData(0,0,32,32,{willReadFrequently:true})})
 }
