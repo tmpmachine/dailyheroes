@@ -195,11 +195,12 @@ async function clearTaskTotalProgressTime() {
   await storeTask();
 }
 
-async function updateTask(form) {
+async function TaskUpdateTask(form) {
   let task = tasks.find(x => x.id == form.id.value);
   task.title = form.title.value;
   task.target = parseHoursMinutesToMinutes(form.target.value);
-  task.finishCount = parseInt(form['finish-count'].value);
+  task.finishCount = parseInt(form['finishCount'].value);
+  task.finishCountProgress = parseInt(form['finishCount'].value);
 
   await storeTask();
   partialUpdateUITask(task.id, task);
@@ -212,7 +213,7 @@ function partialUpdateUITask(id, task) {
   el.querySelector('[data-slot="title"]').textContent = task.title;
 }
 
-async function addTask(form)  {
+async function TaskAddTask(form)  {
   if (form.title.value.trim().length == 0) {
     return;
   }
@@ -224,11 +225,13 @@ async function addTask(form)  {
   }
 
   let taskId;
+  let finishCount = form['finishCount'].value ? parseInt(form['finishCount'].value) : null;
   try {
     taskId = addTaskData({
+      finishCount,
+      finishCountProgress: finishCount,
       title: form.title.value,
       target: parseHoursMinutesToMinutes(targetVal),
-      finishCount: form['finish-count'].value ? parseInt(form['finish-count'].value) : null,
       parentId: form['parent-id'].value ? form['parent-id'].value : null,
     });
   } catch (e) {
@@ -847,7 +850,7 @@ async function listTask() {
 
     // set finish count label
     if (fillData.finishCount) {
-      el.querySelector('.label-finish-count').textContent = `(${fillData.finishCount} left)`
+      el.querySelector('.label-finish-count').textContent = `(${fillData.finishCountProgress} left)`;
     }
     
   	taskEl = el.querySelector('[data-obj="task"]');
@@ -1010,7 +1013,7 @@ async function taskClickHandler(el) {
     case 'untrack': untrackProgress(id); break;
     case 'set-active': switchActiveTask(parentEl, id); break;
     case 'split-task': await splitTask(id); break;
-    case 'rename': await renameTask(id); break;
+    // case 'rename': await renameTask(id); break;
     case 'reduce': await reduceTaskDuration(id); break;
     case 'add': await increaseTaskDuration(id); break;
     case 'set-target': 
@@ -1080,7 +1083,7 @@ async function switchActiveTask(taskEl, id, persistent = false) {
 function addSubTimer(taskId) {
   let defaultVal = {
     parentId: taskId,
-  }
+  };
   uiComponent.ShowModalAddTask(defaultVal);
 }
 
@@ -1122,13 +1125,14 @@ async function finishTask(id) {
   task.progressTime = task.target * 60 * 1000;
   await storeTask();
   let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
-  $('#tasklist-completed').append(taskEl)
+  $('#tasklist-completed').append(taskEl);
 }
 
 async function restartTask(id) {
   let task = tasks.find(x => x.id == id);
   task.progress = 0;
   task.progressTime = 0;
+  task.finishCountProgress = task.finishCount;
   await storeTask();
   listTask();  
 }
@@ -1335,13 +1339,16 @@ function trackProgress(id) {
   storeTask();
 }
 
-async function editTask(id) {
-  let task = await getTaskById(id);
-  let form = getObjEl('form-task');
-  form.id.value = task.id;
-  form.title.value = task.title;
-  form.target.value = minutesToHoursAndMinutes(task.target);
-  form.stateList.add('--edit-mode');
+async function editTask(taskId) {
+  let task = await getTaskById(taskId);
+  let {id, title, target, finishCount} = task;
+  let defaultVal = {
+    id,
+    title,
+    target: minutesToHoursAndMinutes(target),
+    finishCount,
+  };
+  uiComponent.ShowModalAddTask(defaultVal);
 }
 
 function getTaskById(id) {
@@ -1353,11 +1360,11 @@ async function removeActiveTask() {
 }
 
 async function getActiveTask() {
-  let data = await window.service.GetData(['activeTask'])
+  let data = await window.service.GetData(['activeTask']);
   if (data.activeTask) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      return activeTask
+      return activeTask;
     }  
   }
   return null;

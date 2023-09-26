@@ -24,12 +24,12 @@ let uiComponent = (function () {
   }
   
   function initSimpleElementFilter() {
-    listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '#tasklist-container [data-obj="task"]')
+    listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '#tasklist-container [data-obj="task"]');
   }
   
   function attachKeyboardShortcuts() {
     Mousetrap.bind('alt+n', function(e) {
-      ShowModalAddTask()
+      ShowModalAddTask();
       return false;
     });
   }
@@ -49,6 +49,13 @@ let uiComponent = (function () {
     // set default value
     if (typeof(defaultValue.parentId) == 'string') {
       modal.querySelector('[name="parent-id"]').value = defaultValue.parentId;
+    }
+    
+    for (let key in defaultValue) {
+      let inputEl = form.querySelector(`[name="${key}"]`);
+      if (!inputEl) continue;
+      
+      inputEl.value = defaultValue[key];
     }
   }
   

@@ -36,8 +36,8 @@ async function reduceCountActiveTask() {
     let tasks = await getTask();
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      activeTask.finishCount -= 1;
-      if (activeTask.finishCount > 0) {
+      activeTask.finishCountProgress -= 1;
+      if (activeTask.finishCountProgress > 0) {
         activeTask.progress = 0;
         activeTask.progressTime = 0;
       }
@@ -145,11 +145,11 @@ async function alarmHandler(alarm) {
           targetMinutesTxt = ` (${activeTask.target}m)`;
 
           // set finish count text
-          if (activeTask.finishCount && activeTask.finishCount > 0) {
-            if (activeTask.finishCount-1 == 0) {
+          if (activeTask.finishCount && activeTask.finishCountProgress > 0) {
+            if (activeTask.finishCountProgress-1 == 0) {
               isRepeatCountFinished = true;
             } else {
-              finishCountLeftTxt = `(${activeTask.finishCount-1})`
+              finishCountLeftTxt = `(${activeTask.finishCountProgress-1})`
             }
             await reduceCountActiveTask();
           }
@@ -374,12 +374,12 @@ async function updateTime() {
   
   // get task
   let data = await chrome.storage.local.get(["history", "start", "activeTask"]);
-  let finishCount = 0;
+  let finishCountProgress = 0;
   if (data.activeTask) {
     let tasks = await getTask();
     let activeTask = tasks.find(x => x.id == data.activeTask);
-    if (activeTask.finishCount && activeTask.finishCount > 0) {
-      finishCount = activeTask.finishCount;
+    if (activeTask.finishCount && activeTask.finishCountProgress > 0) {
+      finishCountProgress = activeTask.finishCountProgress;
     }
   }
 
@@ -387,10 +387,10 @@ async function updateTime() {
   let distance = mainAlarm.scheduledTime - new Date().getTime();
   let minutesLeft = Math.min(60, Math.floor(distance / (1000 * 60)));
   
-  drawMinutesLeft(minutesLeft, finishCount)
+  drawMinutesLeft(minutesLeft, finishCountProgress)
 }
 
-function drawMinutesLeft(minutesLeft, finishCount = 0) {
+function drawMinutesLeft(minutesLeft, finishCountProgress = 0) {
   let x = new OffscreenCanvas(32,32)
   let c=x.getContext('2d')
   x.width = 32
@@ -411,7 +411,7 @@ function drawMinutesLeft(minutesLeft, finishCount = 0) {
   c.fillText(`${('00'+minutesLeft).slice(-2)}`,2,26)
   
   c.fillStyle = 'white';
-  for (let i=0; i<finishCount; i++) {
+  for (let i=0; i<finishCountProgress; i++) {
     c.fillRect(i*12, 0, 10, 4);
   }
   

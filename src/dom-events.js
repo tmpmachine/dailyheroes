@@ -1,6 +1,6 @@
 window.DOMEvents = {
 	clickable: {
-	  	'show-modal-add-task': () => uiComponent.ShowModalAddTask(),
+	  'show-modal-add-task': () => uiComponent.ShowModalAddTask(),
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
 		'set-sleep-time': () => setSleepTime(),
@@ -84,20 +84,20 @@ window.DOMEvents = {
 	      alert('Time format not recognized. Try: 10m, 1h, 1h20m, 1AM, 1:30PM');
 	    }
 	  },
-	  'add-task': (ev) => {
-		ev.preventDefault();
+	  'submit-task': (ev) => {
+  		ev.preventDefault();
 	    if (ev.target.id.value.length > 0) {
-	      updateTask(ev.target);
+	      TaskUpdateTask(ev.target);
 	    } else {
-	      addTask(ev.target)
+	      TaskAddTask(ev.target);
 	    }
-		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
-		modal.close();
+  		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+  		modal.close();
 	  },
 	  'add-note': (ev) => {
 	    ev.preventDefault();
 		let form = ev.target;
-		addNote(form)
+		addNote(form);
 		let modal = form.closest('.is-modal');
 		modal.close();
       },
