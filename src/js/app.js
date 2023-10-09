@@ -1121,7 +1121,7 @@ async function TaskAddProgressManually(id) {
     
     task.progress = Math.max(0, task.progress);
     task.progressTime = Math.max(0, task.progressTime);
-    task.totalProgressTime = Math.max(0, task.progressTime);
+    task.totalProgressTime = Math.max(0, task.totalProgressTime);
     
   } catch (e) {
     console.error(e);
