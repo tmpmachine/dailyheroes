@@ -7,7 +7,18 @@ window.DOMEvents = {
 		'export-tasks': () => exportTasks(),
 		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
 		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
+		
+		// bottom buttons
 		'get-report': () => GetTotalProgressString(),
+		'ratio-settings': () => RatioSettings(),
+		'ratio-config': () => {
+		  $('.container-ratio-config').classList.toggle('d-none');
+		},
+		'save-ratio': () => {
+		  let settingsJSON = $('#in-ratio-settings').value.trim();
+		  localStorage.setItem('ratio-settings', settingsJSON);
+		},
+		
 		'reset-progress': async () => {
 			// if (!window.confirm('Are you sure?')) return;
 			
@@ -41,7 +52,7 @@ window.DOMEvents = {
 			updateUI();
 		},
 	  	'task-click-handler': (ev) => taskClickHandler(ev.target),
-		'stop-timer': () => stopTimer(),
+		'stop-timer': () => TaskStopActiveTask(),
 		'start-or-restart-timer': () => startOrRestartTask(),
 		'finish-timer': () => finishTimer(),
 		'set-alarm': async (ev) => {
@@ -58,7 +69,16 @@ window.DOMEvents = {
 	      window.lsdb.save();
         // await window.service.SetData({'search': val});
 	    }, 250);
-	  }
+	  },
+	  'save-label-filter': (e) => {
+	    let val = e.target.value;
+	    window.clearTimeout(window.saveTimeout);
+	    window.saveTimeout = window.setTimeout(async function() {
+	      window.lsdb.data.labelFilter = val;
+	      window.lsdb.save();
+	      loadSearch()
+	    }, 250);
+	  },
 	},
 	submittable: {
 	  'set-timer': async (ev) => {

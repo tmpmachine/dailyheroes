@@ -59,18 +59,39 @@ let uiComponent = (function () {
     }
   }
   
+  // search input
   const listenAndToggleVisibility = (inputSelector, selector, visibleClass, containerSelector) => {
     let element = document.querySelector(inputSelector);
+    let classDisplayNone = 'd-none';
+    
     element.addEventListener('input', () => {
       const inputValue = element.value.toLowerCase();
-      for (let node of document.querySelectorAll(containerSelector)) {
-        const selectorValue = node.querySelector(selector).textContent.toLowerCase();
-        if (selectorValue.includes(inputValue)) {
-          node.classList.remove(visibleClass);
-        } else {
-          node.classList.add(visibleClass);
+      let labelFilterValue = $('#in-filter-search-label').value;
+      let nodes = document.querySelectorAll(containerSelector);
+      let filteredNodes = nodes;
+      
+      if (labelFilterValue) {
+        filteredNodes = [];
+        for (let node of nodes) {
+          const selectorValue = node.querySelector('[data-slot="label"]').textContent.toLowerCase().split(',');
+          if (selectorValue.includes(labelFilterValue)) {
+            node.classList.remove(classDisplayNone);
+            filteredNodes.push(node);
+          } else {
+            node.classList.add(classDisplayNone);
+          }
         }
       }
+      
+      for (let node of filteredNodes) {
+        const selectorValue = node.querySelector(selector).textContent.toLowerCase();
+        if (selectorValue.includes(inputValue)) {
+          node.classList.remove(classDisplayNone);
+        } else {
+          node.classList.add(classDisplayNone);
+        }
+      }
+      
     });
   };
   

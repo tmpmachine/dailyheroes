@@ -11,6 +11,8 @@ if (window.modeChromeExtension) {
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 
+let tasks = [];
+
 async function setSleepTime() {
   let data = await window.service.GetData('sleepTime');
   let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
@@ -292,13 +294,13 @@ window.lsdb = new Lsdb(storageName, {
     historyTime: 0,
     activeTask: '',
     search: '',
+    labelFilter: '',
     scheduledTime: 0,
     tasks: [],
     isSortByTotalProgress: true,
   },
 });
       
-let tasks = [];
 async function initApp() {
   showCurrentTimeInAMPM();
   await initData();
@@ -307,28 +309,73 @@ async function initApp() {
   await listTask();
   await loadRestTime();
   await calculateOverloadInfo();
+  TaskSetActiveTaskInfo();
   uiComponent.loadSleepTime();
   uiComponent.Init();
   updateUI();
+  
+  $('#in-filter-search-label').value = window.lsdb.data.labelFilter;
   loadSearch();
+  
+  // todo: move
+  // ratio settings
+  try {
+    $('#txt-calculate-result').textContent = '';
+    $('#in-ratio-settings').value = localStorage.getItem('ratio-settings');
+    if (localStorage.getItem('ratio-label-settings')) {
+      for (let label of localStorage.getItem('ratio-label-settings').split(',')) {
+        await CalculateRatio(label);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
-async function loadSearch() {
-  if (window.lsdb.data.search) {
+async function TaskSetActiveTaskInfo() {
+  $('#txt-active-task-label').textContent = '';
+  $('#txt-active-task-name').textContent = '';
+  
+  let activeTask = await getActiveTask();
+  if (activeTask) {
+    $('#txt-active-task-name').textContent = activeTask.title;
+    $('#txt-active-task-label').textContent = activeTask.label;
+  }
+}
+
+function loadSearch() {
+  if (window.lsdb.data.search || window.lsdb.data.labelFilter) {
     $('#node-filter-box').value = lsdb.data.search;
     let element = $('#node-filter-box');
     
     let selector = '[data-slot="title"]';
-    let visibleClass = 'd-none';
+    let classDisplayNone = 'd-none';
     let containerSelector = '#tasklist-container [data-obj="task"]';
-    
+    let labelFilterValue = $('#in-filter-search-label').value;
+
     const inputValue = element.value.toLowerCase();
-    for (let node of document.querySelectorAll(containerSelector)) {
+    let nodes = document.querySelectorAll(containerSelector);
+    let filteredNodes = nodes;
+    
+    if (labelFilterValue) {
+      filteredNodes = [];
+      for (let node of nodes) {
+        const selectorValue = node.querySelector('[data-slot="label"]').textContent.toLowerCase().split(',');
+        if (selectorValue.includes(labelFilterValue)) {
+          node.classList.remove(classDisplayNone);
+          filteredNodes.push(node);
+        } else {
+          node.classList.add(classDisplayNone);
+        }
+      }
+    }
+
+    for (let node of filteredNodes) {
       const selectorValue = node.querySelector(selector).textContent.toLowerCase();
       if (selectorValue.includes(inputValue)) {
-        node.classList.remove(visibleClass);
+        node.classList.remove(classDisplayNone);
       } else {
-        node.classList.add(visibleClass);
+        node.classList.add(classDisplayNone);
       }
     }
     
@@ -439,6 +486,10 @@ async function clearAlarms() {
   }
 }
 
+async function TaskStopActiveTask() {
+  await stopTimer();
+}
+
 async function stopTimer() {
   document.body.stateList.remove('--timer-running');
   await clearAlarms();
@@ -461,7 +512,6 @@ async function stopTimer() {
       // if (message === 'get-user-data') {
         // sendResponse(user);
       // }
-      asd('ysy')
     });
     await chrome.runtime.sendMessage({message: 'stop'});
   }
@@ -481,7 +531,7 @@ async function finishTimer() {
 
   await stopTimer();
   await finishTask(task.id); 
-  updateUI()
+  updateUI();
 }
 
 let countdonwIntervalId;
@@ -614,7 +664,7 @@ function detectKeyPressS() {
 
   function detect(event) {
     // Check if the currently focused element is not an input element
-    if (document.activeElement.tagName.toLowerCase() == 'input') {
+    if (document.activeElement.tagName.toLowerCase() == 'input' || document.activeElement.tagName.toLowerCase() == 'textarea') {
       // Do something
       return;
     }
@@ -767,6 +817,9 @@ function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
 }
 
+async function TaskListTask() {
+  await listTask();
+}
 
 async function listTask() {
   let docFrag = document.createDocumentFragment();
@@ -1008,7 +1061,12 @@ async function taskClickHandler(el) {
       parentEl.remove();
       updateUI();
       break;
+    case 'add-label': TaskAddLabel(id); break;
     case 'add-sub-timer': addSubTimer(id); break;
+    case 'add-progress-minutes': 
+      await TaskAddProgressManually(id); 
+      CalculateRatio();
+      break;
     case 'track': trackProgress(id); break;
     case 'untrack': untrackProgress(id); break;
     case 'set-active': switchActiveTask(parentEl, id); break;
@@ -1025,6 +1083,7 @@ async function taskClickHandler(el) {
         await stopTimer();
       }
       await finishTask(id);
+      await removeActiveTaskIfExists(id);
       updateUI();
     break;
     case 'restart': await restartTask(id); break;
@@ -1038,6 +1097,51 @@ async function taskClickHandler(el) {
     case 'delete-note': deleteNote(id, el); break;
   }
 } 
+
+async function TaskAddProgressManually(id) {
+  let task = tasks.find(x => x.id == id);
+  if (!task) return;
+  
+  let userVal = window.prompt('Progress in minutes');
+  if (!userVal) return;
+  
+  try {
+    let minutes = parseInt(userVal);
+    task.progress += minutes;
+    task.progressTime += minutes * 60 * 1000;
+    task.totalProgressTime += minutes * 60 * 1000;
+    
+    if (!
+      (typeof(task.progress) == 'number' &&
+      typeof(task.progressTime) == 'number' &&
+      typeof(task.totalProgressTime) == 'number')
+    ) {
+      throw 'Failed, task data not valid';
+    }
+    
+    task.progress = Math.max(0, task.progress);
+    task.progressTime = Math.max(0, task.progressTime);
+    task.totalProgressTime = Math.max(0, task.progressTime);
+    
+  } catch (e) {
+    console.error(e);
+    alert('Failed');
+    return;
+  }
+  
+  await storeTask();  
+}
+
+async function TaskAddLabel(id) {
+  let task = tasks.find(x => x.id == id);
+  if (!task) return;
+  
+  let label = window.prompt('Label', task.label);
+  if (!label) return;
+  
+  task.label = label;
+  await storeTask();  
+}
 
 async function startTaskTimer(parentEl, id) {
   await stopTimer();
@@ -1134,7 +1238,8 @@ async function restartTask(id) {
   task.progressTime = 0;
   task.finishCountProgress = task.finishCount;
   await storeTask();
-  listTask();  
+  await TaskListTask();  
+  loadSearch();
 }
 
 async function addNote(form) {
@@ -1297,8 +1402,9 @@ async function setTaskTarget(id) {
   let task = tasks.find(x => x.id == id);
   task.target = Math.max(0, parseHoursMinutesToMinutes(target));
   await storeTask();
-  await listTask();  
+  await TaskListTask();  
   await updateUI();
+  loadSearch();
 }
 
 async function splitTask(id) {
@@ -1479,9 +1585,170 @@ function parseHoursMinutesToMinutes(timeString) {
 function GetTotalProgressString() {
   let totalProgressTime = tasks.reduce((total, item) => {
     return total += item.totalProgressTime;
-  }, 0)
+  }, 0);
   let totalProgessString = minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
   alert(`Total timer progress : ${totalProgessString}`) ;
 }
+
+let asd = console.log;
+
+function RatioSettings() {
+  let currentSettings = localStorage.getItem('ratio-label-settings') || main;
+  let label = window.prompt('Labels to check', currentSettings);
+  if (!label) return;
+  
+  localStorage.setItem('ratio-label-settings', label);
+}
+
+async function CalculateRatio(labelToCheck) {
+  
+  let keys = {};
+  let ratios = {};
+  let sumProgress = {};
+  
+  try {
+    keys = JSON.parse(localStorage.getItem('ratio-settings'));
+    ratios = keys[labelToCheck];
+    
+    for (let key in ratios) {
+      sumProgress[key] = 0;
+    }
+  } catch (e) {
+    console.log(e);
+    alert('error parsing JSON');
+    return;
+  }
+  
+  let total = 0;
+  
+  
+  let activeTimerDistanceTime = await getActiveTimerDistanceTime();
+  let activeTask = await getActiveTask();
+  
+  let listTask = tasks.filter(x => x.label && x.label.split(',').includes(labelToCheck));
+  if (listTask.length < 1) return;
+
+  for (let item of listTask) {
+    // if (sumProgress[item.label] === undefined) {
+      // continue;
+    // }
+    
+    let labels = item.label.split(',');
+    let labelKey = '';
+    for (let key in sumProgress) {
+      labelKey = labels.find(x => x == key);
+      if (labelKey) break;
+    }
+    
+    if (labelKey == '') continue;
+    
+    let liveProgressTime = 0;
+    if (activeTask && item.id == activeTask.id) {
+      liveProgressTime = activeTimerDistanceTime;
+    }
+    
+    sumProgress[labelKey] += item.totalProgressTime + liveProgressTime;
+    total += item.totalProgressTime + liveProgressTime;
+  }
+    
+  let progress = [];
+  for (let key in sumProgress) {
+    progress.push(sumProgress[key])
+  }
+
+  let ratio = [];
+  for (let key in ratios) {
+    ratio.push(ratios[key]/100)
+  }
+  
+  
+  let result = balanceNumbersByHigherRatio(progress, ratio)
+
+  let i = 0;
+  let html = `<div><b>#${labelToCheck}</b>\n`;
+  let activeTaskLabels = (activeTask && activeTask.label ? activeTask.label.split(',') : [] );
+  for (let key in sumProgress) {
+    let isMarkedActive = activeTaskLabels.includes(key) && activeTaskLabels.includes(labelToCheck);
+    if (isMarkedActive) {
+      html += '<mark>';    
+    }
+    html += `${key} : ${Math.floor(result[i] / 60000) - Math.floor(sumProgress[key]/60000)}m\n`;
+    if (isMarkedActive) {
+      html += '</mark>';    
+    }
+    
+    i++;
+  }
+  html += '</div>';
+  $('#txt-calculate-result').innerHTML += html;
+    
+}
+
+function balanceNumbersByHigherRatio(numbers, ratios, safeGuardCount = 0) {
+    
+  // Check if the input arrays are of the same length
+  if (numbers.length !== ratios.length) {
+    throw new Error('Input arrays must have the same length.');
+  }
+
+  // Calculate the optimal ratios for each number
+  let sum = numbers.reduce((a, b) => {
+    return a + b;
+  }, 0)
+  
+  if (sum == 0) return []
+  
+    let currentRatios = []
+    for (let num of numbers) {
+      currentRatios.push(num/sum)
+    }
+    
+    let maxI = 0;
+    for (let i=0; i<numbers.length; i++) {
+      if (currentRatios[i] >= ratios[i]) {
+        maxI = i;
+      }
+    }
+    
+    let sumRatio = ratios.reduce((a, b, index) => {
+      if (index == maxI) return a;
+      
+      return a + b;
+    }, 0)
+    
+    let stock = numbers[maxI] * (1 - ratios[maxI]) / ratios[maxI]
+    
+    let optimal = [];
+    for (let i=0; i<numbers.length; i++) {
+      if (i == maxI) {
+        optimal.push(numbers[i])
+        continue;
+      }
+      
+      optimal.push(stock * ratios[i] / sumRatio)
+    }
+    
+  // check final
+  let hasReduced = false;
+  let final = [];
+  for (let i=0; i<numbers.length; i++) {
+    if (numbers[i] > optimal[i]) {
+      hasReduced = true;
+    }
+    final.push(Math.max(optimal[i], numbers[i]));
+  }
+  
+  if (hasReduced) {
+    if (safeGuardCount > 10) {
+      console.log('safeguard reached max');
+      return optimal;
+    }
+    optimal = balanceNumbersByHigherRatio(final, ratios, safeGuardCount + 1);
+  }
+  
+    
+  return optimal;
+}
+
 
 initApp();
