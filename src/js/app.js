@@ -1593,7 +1593,7 @@ function GetTotalProgressString() {
 let asd = console.log;
 
 function RatioSettings() {
-  let currentSettings = localStorage.getItem('ratio-label-settings') || main;
+  let currentSettings = localStorage.getItem('ratio-label-settings') || 'main';
   let label = window.prompt('Labels to check', currentSettings);
   if (!label) return;
   
