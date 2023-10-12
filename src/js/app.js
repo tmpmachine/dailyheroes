@@ -883,6 +883,13 @@ async function listTask() {
   } else {
     filteredTasks = tasks.filter(x => x.parentId == lsdb.data.activeGroupId);
   }
+
+  // sort by last starred
+  filteredTasks.sort((a,b)=>{
+    if (typeof(b.lastStarredDate) == 'undefined') return -1
+
+    return a.lastStarredDate > b.lastStarredDate ? -1 : 1
+  });
   
   // let rankLabel = 1;
   for (let item of filteredTasks) {
@@ -966,6 +973,10 @@ async function listTask() {
     if (fillData.finishCount) {
       el.querySelector('.label-finish-count').textContent = `(${fillData.finishCountProgress} left)`;
     }
+
+    // star button
+    let isStarred = (typeof(item.lastStarredDate) != 'undefined');
+    el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
     
     if (lsdb.data.groups.find(x => x.id == item.id)) {
       el.querySelector('.container-navigate').classList.remove('d-none');
@@ -1135,6 +1146,7 @@ async function taskClickHandler(el) {
       listTask();
       break;
     case 'edit': editTask(id); break;
+    case 'star-task': taskStarTask(id); break;
     case 'delete':
       let deleteIndex = tasks.findIndex(x => x.id == id);
       tasks.splice(deleteIndex, 1);
@@ -1194,6 +1206,17 @@ async function taskClickHandler(el) {
     case 'delete-note': deleteNote(id, el); break;
   }
 } 
+
+async function taskStarTask(id) {
+  let task = tasks.find(x => x.id == id);
+  if (typeof(task.lastStarredDate) == 'undefined') {
+    task.lastStarredDate = new Date().getTime();
+  } else {
+    delete task.lastStarredDate;
+  }
+  await storeTask();
+  TaskListTask();
+}
 
 async function TaskAddProgressManually(id) {
   let task = tasks.find(x => x.id == id);
@@ -1335,8 +1358,6 @@ function appendNotes(data) {
 async function taskArchiveTask(id) {
   let task = tasks.find(x => x.id == id);
   task.isArchived = true;
-  // task.progress = task.target;
-  // task.progressTime = task.target * 60 * 1000;
   await storeTask();
   let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
   $('#tasklist-completed').append(taskEl);

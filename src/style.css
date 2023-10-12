@@ -255,3 +255,8 @@ button:focus{
 .NzA5ODc1NQ-progress-bar-fill--animated {
   animation: progress-bar-stripes 1s linear infinite;
 }
+
+.btn-star.is-starred {
+  color: #3a48b7;
+  font-weight: bold;
+}

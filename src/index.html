@@ -83,9 +83,10 @@
 
       Search :
       <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
-      Filter by label :
-      <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
-      <div class="default-gap"></div>
+      <div class="d-none">
+        Filter by label :
+        <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+      </div>
       <div class="default-gap"></div>
       
       <div id="container-breadcrumbs"></div>
@@ -204,10 +205,13 @@
     
   	<div class="container-item" data-obj="task" data-id="?" data-kind="task">
   	  
-  	  <div class="container-navigate d-none">
-        <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-between">
+        <div>
+          <button class="btn-star icon-mate" data-role='star-task' title="Star this task" style="background:none;border:none">star</button>
+        </div>
+        <div class="container-navigate d-none">
           <button data-role='navigate-sub' style="padding:0.2rem 1rem;font-size:12px;">
-            &rarr;
+          &rarr;
           </button>
         </div>
       </div>
@@ -239,11 +243,11 @@
   	  
   	  </div>
   	  
-  	  <div data-obj="tracking-status" style="height:4px;"></div>
+      <div data-obj="tracking-status" style="height:4px;"></div>
     	
     	
     	<div style="padding:2px 4px;font-size:0.7rem;display:flex;">
-    	  <div style="flex:1;">
+        <div style="flex:1;">
       	  <span data-obj="progress" data-slot="progress"></span><span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
     	  </div>
     	  <div>
@@ -261,7 +265,7 @@
   </template>
 
   <template id="tmp-mission-buttons">
-    <!-- <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button> -->
+    <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button>
     <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
     <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
     <!--<button data-role='reduce' class="icon-mate">remove</button>-->
