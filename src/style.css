@@ -257,6 +257,6 @@ button:focus{
 }
 
 .btn-star.is-starred {
-  color: #3a48b7;
-  font-weight: bold;
+  background: #fff900;
+  border-color: #fff900;
 }
