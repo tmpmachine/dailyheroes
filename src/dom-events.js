@@ -1,6 +1,10 @@
 window.DOMEvents = {
 	clickable: {
-	  'show-modal-add-task': () => uiComponent.ShowModalAddTask(),
+	  'show-modal-add-task': () => {
+	    uiComponent.ShowModalAddTask({
+	      parentId: lsdb.data.activeGroupId,
+	    });
+    },
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
 		'set-sleep-time': () => setSleepTime(),

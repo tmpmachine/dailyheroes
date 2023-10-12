@@ -2,6 +2,10 @@ let uiComponent = (function () {
   
   let SELF = {
     ShowModalAddTask,
+    
+    // groups
+    Navigate,
+    BuildBreadcrumbs,
 
     Init,
     SetFocusEl,
@@ -10,6 +14,18 @@ let uiComponent = (function () {
   function Init() {
     initSimpleElementFilter();
     attachKeyboardShortcuts();
+    
+    initBreadcrumbListener();
+    BuildBreadcrumbs();
+  }
+  
+  function initBreadcrumbListener() {
+    $('#container-breadcrumbs').addEventListener('click', (evt) => {
+      if (evt.target.tagName == 'BUTTON') {
+        Navigate(evt.target.dataset.id);
+        TaskListTask();
+      }
+    })
   }
   
   function SetFocusEl(el) {
@@ -29,7 +45,9 @@ let uiComponent = (function () {
   
   function attachKeyboardShortcuts() {
     Mousetrap.bind('alt+n', function(e) {
-      ShowModalAddTask();
+      ShowModalAddTask({
+	      parentId: lsdb.data.activeGroupId,
+      });
       return false;
     });
   }
@@ -185,6 +203,57 @@ let uiComponent = (function () {
   	taskEl.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
     
   };
+  
+  function BuildBreadcrumbs() {
+    
+    let breadcrumbs = [
+      {
+        id: '',
+        name: 'Home',
+        parentId: '',
+      }
+    ]
+    
+    let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId)
+    if (activeGroup) {
+      breadcrumbs.push(activeGroup);
+      
+      let safeLoopCount = 10;
+      let parentId = activeGroup.parentId;
+      while (parentId != '') {
+        
+        activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+        breadcrumbs.splice(1, 0, activeGroup);
+        parentId = activeGroup.parentId;
+        
+        // safe loop leaking
+        safeLoopCount -= 1;
+        if (safeLoopCount < 0) {
+          break;
+        }
+      }
+      
+    }
+    
+    $('#container-breadcrumbs').innerHTML = ''
+    for (let item of breadcrumbs) {
+      if (item.id == lsdb.data.activeGroupId) {
+        $('#container-breadcrumbs').innerHTML += `
+          <small> / ${item.name}</small>
+        `
+      } else {
+        $('#container-breadcrumbs').innerHTML += `
+          <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
+        `
+      }
+    }
+  }
+  
+  function Navigate(id) {
+    lsdb.data.activeGroupId = id;
+    lsdb.save();
+    BuildBreadcrumbs();
+  }
   
   return SELF;
   

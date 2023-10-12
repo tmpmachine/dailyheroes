@@ -203,11 +203,14 @@ async function TaskUpdateTask(form) {
   task.target = parseHoursMinutesToMinutes(form.target.value);
   task.finishCount = parseInt(form['finishCount'].value);
   task.finishCountProgress = parseInt(form['finishCount'].value);
+  task.parentId = form['parent-id'].value;
 
   await storeTask();
   partialUpdateUITask(task.id, task);
   form.reset();
   form.stateList.remove('--edit-mode');
+  
+  taskCalculateRatio();
 }
 
 function partialUpdateUITask(id, task) {
@@ -229,13 +232,19 @@ async function TaskAddTask(form)  {
   let taskId;
   let finishCount = form['finishCount'].value ? parseInt(form['finishCount'].value) : null;
   try {
+    let parentId = form['parent-id'].value;
     taskId = addTaskData({
       finishCount,
       finishCountProgress: finishCount,
       title: form.title.value,
       target: parseHoursMinutesToMinutes(targetVal),
-      parentId: form['parent-id'].value ? form['parent-id'].value : null,
+      parentId: parentId ? parentId : null,
     });
+    
+    if (parentId) {
+      let parentTask = await getTaskById(parentId);
+      await CheckAndCreateGroups(parentTask.title, parentId);
+    }
   } catch (e) {
     console.error(e);
     alert('Failed.');    
@@ -256,6 +265,21 @@ async function TaskAddTask(form)  {
   updateUI();
 }
 
+function CheckAndCreateGroups(title, id) {
+  let data = lsdb.data.groups.find(x => x.id == id);
+  if (!data) {
+    let group = lsdb.new('groups', {
+      id,
+      name: title,
+      parentId: lsdb.data.activeGroupId,
+    });
+    lsdb.data.groups.push(group);
+    lsdb.save();
+  } else {
+    asd('exists')
+  }
+}
+
 function isNumber(input) {
   return /^[0-9]+$/.test(input);
 }
@@ -271,12 +295,12 @@ function addTaskData(inputData) {
     untracked: false,
     activeSubTaskId: null,
   }};
-  if (data.parentId) {
-    let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
-    tasks.splice(parentTaskIndex + 1, 0, data);
-  } else {
+  // if (data.parentId) {
+    // let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
+    // tasks.splice(parentTaskIndex + 1, 0, data);
+  // } else {
     tasks.splice(0, 0, data);
-  }
+  // }
   
   return id;
 }
@@ -293,12 +317,19 @@ window.lsdb = new Lsdb(storageName, {
     history: 0,
     historyTime: 0,
     activeTask: '',
+    activeGroupId: '',
     search: '',
     labelFilter: '',
     scheduledTime: 0,
     tasks: [],
+    groups: [],
     isSortByTotalProgress: true,
   },
+  groups: {
+    id: '',
+    name: '',
+    parentId: '',
+  }
 });
       
 async function initApp() {
@@ -319,27 +350,33 @@ async function initApp() {
   
   // todo: move
   // ratio settings
-  try {
-    $('#txt-calculate-result').textContent = '';
-    $('#in-ratio-settings').value = localStorage.getItem('ratio-settings');
-    if (localStorage.getItem('ratio-label-settings')) {
-      for (let label of localStorage.getItem('ratio-label-settings').split(',')) {
-        await CalculateRatio(label);
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
+  // try {
+  //   $('#txt-calculate-result').textContent = '';
+  //   $('#in-ratio-settings').value = localStorage.getItem('ratio-settings');
+  //   if (localStorage.getItem('ratio-label-settings')) {
+  //     for (let label of localStorage.getItem('ratio-label-settings').split(',')) {
+  //       await CalculateRatio(label);
+  //     }
+  //   }
+    
+  // } catch (e) {
+  //   console.error(e);
+  // }
 }
 
 async function TaskSetActiveTaskInfo() {
-  $('#txt-active-task-label').textContent = '';
   $('#txt-active-task-name').textContent = '';
   
   let activeTask = await getActiveTask();
   if (activeTask) {
-    $('#txt-active-task-name').textContent = activeTask.title;
-    $('#txt-active-task-label').textContent = activeTask.label;
+    
+    let ratioTimeLeftStr = '';
+    let ratioTimeLeft = timeLeftRatio.find(x => x.id == activeTask.id);
+    if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+      ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+    }
+    
+    $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
   }
 }
 
@@ -822,6 +859,13 @@ async function TaskListTask() {
 }
 
 async function listTask() {
+  
+  try {
+    await taskCalculateRatio();
+  } catch (e) {
+    console.error(e);
+  }
+  
   let docFrag = document.createDocumentFragment();
   let docFragCompleted = document.createDocumentFragment();
   let activeTimerDistance = await getActiveTimerDistance();
@@ -832,8 +876,16 @@ async function listTask() {
   //   tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
   // }
   
+  // todo: set to filtered tasks
+  let filteredTasks = tasks;
+  if (lsdb.data.activeGroupId === '') {
+    filteredTasks = tasks.filter(x => x.parentId == '' || !x.parentId);
+  } else {
+    filteredTasks = tasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+  }
+  
   // let rankLabel = 1;
-  for (let item of tasks) {
+  for (let item of filteredTasks) {
     
     let liveProgress = 0;
     let liveProgressTime = 0;
@@ -848,17 +900,25 @@ async function listTask() {
 
     // accumulates child task progress
     {
-      totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
-      let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
-      targetMinutesLeft -= totalChildTaskProgressMinutes;
+      // totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
+      // let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
+      // targetMinutesLeft -= totalChildTaskProgressMinutes;
       // progressMinutesLeft += totalChildTaskProgressMinutes;
     }
+    
+    let ratioTimeLeftStr = '';
+    let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
+    if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+      ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+    }
 
-
+    let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
       // rankLabel: ` | Rank #${rankLabel}`,
-      targetString: targetMinutesLeft ? `${minutesToHoursAndMinutes(targetMinutesLeft)} left` : '',
+      ratio: item.ratio ? `${item.ratio}%` : '',
+      ratioTimeLeftStr,
+      targetString: (targetMinutesLeftStr.trim().length > 0 ? `${targetMinutesLeftStr} left` : ''),
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
       progress: progressMinutesLeft ? minutesToHoursAndMinutes(progressMinutesLeft) : '0m',
       totalProgressLabel: item.totalProgressTime ? 'Total : ' + minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)) : '',
@@ -875,18 +935,19 @@ async function listTask() {
       })
     }
 
-    let isCompleted = false;
     let percentageProgress = 0;
     let percentageProgressTime = 0;
     if (item.target) {
       percentageProgress = Math.min(100, Math.floor((msToMinutes(item.progressTime + totalMsProgressChildTask) + liveProgress)/item.target*10000)/100);
       percentageProgressTime = Math.min(100, Math.floor((item.progressTime + liveProgressTime + totalMsProgressChildTask) / minutesToMs(item.target) * 10000) / 100);
-      fillData.completionPercentage = `(${percentageProgressTime}%)`;
+      // fillData.completionPercentage = `(${percentageProgressTime}%)`;
+      if (percentageProgressTime == 100) {
+        fillData.completionPercentage = `(completed)`;
+      }
     }
 
-    if (item.progressTime + liveProgressTime >= minutesToMs(item.target)) {
-      isCompleted = true;
-    }
+
+    
     
     if (fillData.note) {
       let index = 0;
@@ -899,11 +960,15 @@ async function listTask() {
   	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
   	});
 
-    el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
+    // el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
 
     // set finish count label
     if (fillData.finishCount) {
       el.querySelector('.label-finish-count').textContent = `(${fillData.finishCountProgress} left)`;
+    }
+    
+    if (lsdb.data.groups.find(x => x.id == item.id)) {
+      el.querySelector('.container-navigate').classList.remove('d-none');
     }
     
   	taskEl = el.querySelector('[data-obj="task"]');
@@ -915,8 +980,21 @@ async function listTask() {
   	
   	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
   	
+  	
+  	/* obsolete feature
+  	
+  	// handle completed task
+  	let isCompleted = false;
+    if (item.progressTime + liveProgressTime >= minutesToMs(item.target)) {
+      isCompleted = true;
+    }
   	if (isCompleted) {
   	  docFragCompleted.append(el);
+  	}
+  	*/
+  	
+  	if (item.isArchived) {
+    	docFragCompleted.append(el);
   	} else {
   	  docFrag.append(el);
   	}
@@ -1052,6 +1130,10 @@ async function taskClickHandler(el) {
   let parentEl = el.closest('[data-obj="task"]');
   let id = parentEl.dataset.id;
   switch (actionRole) {
+    case 'navigate-sub': 
+      uiComponent.Navigate(id);
+      listTask();
+      break;
     case 'edit': editTask(id); break;
     case 'delete':
       let deleteIndex = tasks.findIndex(x => x.id == id);
@@ -1060,12 +1142,25 @@ async function taskClickHandler(el) {
       await removeActiveTaskIfExists(id);
       parentEl.remove();
       updateUI();
+      
+      // delete group
+      {
+        let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
+        if (deleteIndex >= 0) {
+          lsdb.data.groups.splice(deleteIndex, 1);
+          lsdb.save();
+        }
+      }
+      
+      // todo: delete child task recurisively
+      
       break;
+    case 'set-ratio': taskSetTaskRatio(id); break;
     case 'add-label': TaskAddLabel(id); break;
     case 'add-sub-timer': addSubTimer(id); break;
     case 'add-progress-minutes': 
       await TaskAddProgressManually(id); 
-      CalculateRatio();
+      taskCalculateRatio();
       break;
     case 'track': trackProgress(id); break;
     case 'untrack': untrackProgress(id); break;
@@ -1077,15 +1172,17 @@ async function taskClickHandler(el) {
     case 'set-target': 
       await setTaskTarget(id); 
       break;
-    case 'finish':
+    case 'archive':
       let activeTask = await getActiveTask();
       if (activeTask && activeTask.id == id) {
         await stopTimer();
       }
-      await finishTask(id);
+      // await finishTask(id);
+      await taskArchiveTask(id);
       await removeActiveTaskIfExists(id);
       updateUI();
     break;
+    case 'unarchive': await taskUnarchive(id); break;
     case 'restart': await restartTask(id); break;
     case 'take-note': showModalNote(id); break;
     case 'start': await startTaskTimer(parentEl, id); break;
@@ -1130,6 +1227,18 @@ async function TaskAddProgressManually(id) {
   }
   
   await storeTask();  
+}
+
+async function taskSetTaskRatio(id) {
+  let task = tasks.find(x => x.id == id);
+  if (!task) return;
+  
+  let value = window.prompt('Ratio', task.ratio);
+  if (!value) return;
+  
+  task.ratio = parseFloat(value);
+  await storeTask();
+  TaskListTask();
 }
 
 async function TaskAddLabel(id) {
@@ -1223,6 +1332,28 @@ function appendNotes(data) {
   $(`[data-id="${data.id}"] [data-slot="note"]`).append(el);
 }
 
+async function taskArchiveTask(id) {
+  let task = tasks.find(x => x.id == id);
+  task.isArchived = true;
+  // task.progress = task.target;
+  // task.progressTime = task.target * 60 * 1000;
+  await storeTask();
+  let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
+  $('#tasklist-completed').append(taskEl);
+}
+
+async function taskUnarchive(id) {
+  let task = tasks.find(x => x.id == id);
+  task.isArchived = false;
+  // task.progress = 0;
+  // task.progressTime = 0;
+  // task.finishCountProgress = task.finishCount;
+  await storeTask();
+  await TaskListTask();  
+  loadSearch();
+}
+
+// todo: rename to archive
 async function finishTask(id) {
   let task = tasks.find(x => x.id == id);
   task.progress = task.target;
@@ -1359,9 +1490,10 @@ async function startCurrentTask(id) {
   if (task.progress >= task.target) return;
   
   // accumulates child task progress
-  let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
+  // let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
 
-  setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
+  // setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
+  setTimer(task.target * 60 * 1000 - task.progressTime);
 }
 
 async function startTask(id) {
@@ -1447,12 +1579,13 @@ function trackProgress(id) {
 
 async function editTask(taskId) {
   let task = await getTaskById(taskId);
-  let {id, title, target, finishCount} = task;
+  let {id, parentId, title, target, finishCount} = task;
   let defaultVal = {
     id,
     title,
     target: minutesToHoursAndMinutes(target),
     finishCount,
+    parentId,
   };
   uiComponent.ShowModalAddTask(defaultVal);
 }
@@ -1492,8 +1625,10 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
-      el.querySelector('[data-obj="live-progress"]').textContent = '(+0m)';
-      el.querySelector('[data-obj="progress"]').textContent = minutesToHoursAndMinutes(msToMinutes(activeTask.progressTime));
+      if (el) {
+        el.querySelector('[data-obj="live-progress"]').textContent = '(+0m)';
+        el.querySelector('[data-obj="progress"]').textContent = minutesToHoursAndMinutes(msToMinutes(activeTask.progressTime));
+      }
     }
   }
 }
@@ -1600,6 +1735,184 @@ function RatioSettings() {
   localStorage.setItem('ratio-label-settings', label);
 }
 
+let timeLeftRatio = [];
+
+async function taskCalculateRatio() {
+  
+  if (tasks.length == 0) return;
+  
+  let groups = [];
+  let parentId = ''
+  let activeTaskId;
+  let activeTimerDistanceTime;
+  
+  let activeTask = await getActiveTask();
+
+  let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId);
+  
+  if (activeTask) {
+    activeTaskId = activeTask.id
+    activeTimerDistanceTime = await getActiveTimerDistanceTime();
+    activeGroup = lsdb.data.groups.find(x => x.id == activeTask.parentId)
+  }
+
+  if (activeGroup) {
+    groups.push({
+      id: activeGroup.id,
+      title: activeGroup.name,
+      activeTaskId,
+    });
+    
+    let safeLoopCount = 10;
+    parentId = activeGroup.parentId;
+    if (activeTask) {
+      activeTaskId = activeTask.parentId;
+    }
+
+    while (parentId != '') {
+      
+      activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+      if (!activeGroup) {
+        break;
+      };
+      
+      groups.splice(0, 0, {
+        activeTaskId, // store active task id before updating parent id
+        id: activeGroup.id,
+        title: activeGroup.name,
+      });
+      
+      // update the parent id
+      if (activeGroup.parentId == '') {
+        break;
+      } else {
+        parentId = activeGroup.parentId;
+        activeTaskId = activeGroup.id;
+      }
+      
+      // safe loop leaking
+      safeLoopCount -= 1;
+      if (safeLoopCount < 0) {
+        break;
+      }
+    }
+    
+    // append root group
+    groups.splice(0, 0, {
+      id: '',
+      title: 'Home',
+      activeTaskId: parentId,
+    });
+  } else {
+    // append root group
+    groups.splice(0, 0, {
+      id: '',
+      title: 'Home',
+      activeTaskId,
+    });
+  }
+  
+  
+  timeLeftRatio.length = 0;
+  $('#txt-calculate-result-v2').innerHTML = '';
+  
+  for (let group of groups) {
+    await CalculateRatioV2(group, activeTimerDistanceTime);
+  }
+}
+
+async function CalculateRatioV2(group, activeTimerDistanceTime) {
+  
+  let total = 0;
+  let listTask = [];
+  if (group.id == '') {
+    listTask = tasks.filter(x => x.parentId == '' || x.parentId == null);
+  } else {
+    listTask = tasks.filter(x => x.parentId == group.id);
+  }
+  
+  if (listTask.length < 1) return;
+  
+  let ids = []
+  let name = []
+  let progress = []
+  let ratio = [];
+  
+  
+  
+  for (let item of listTask) {
+    let liveProgressTime = 0;
+    if (item.id == group.activeTaskId) {
+      liveProgressTime = activeTimerDistanceTime;
+    }
+    
+    // sumProgress[item.id] += item.totalProgressTime + liveProgressTime;
+    if (!item.ratio) continue;
+  
+    ids.push(item.id)
+    name.push(item.title)
+    progress.push(item.totalProgressTime + liveProgressTime + getTotalProgressTimeByParentId(item.id));
+    ratio.push(item.ratio/100);
+    // total += item.totalProgressTime + liveProgressTime;
+    total += item.totalProgressTime ;
+  }
+  
+  let result = balanceNumbersByHigherRatio(progress, ratio)
+  
+  // set global variable time left ratio
+
+  
+  let i = 0;
+  let html = `<div><b>#${group.title}</b>\n`;
+  // let activeTaskLabels = (activeTask && activeTask.label ? activeTask.label.split(',') : [] );
+  for (let key in progress) {
+    let isMarkedActive = (ids[i] == group.activeTaskId);
+    if (isMarkedActive) {
+      html += '<mark>';    
+    }
+    let timeLeft = Math.floor(result[i] / 60000) - Math.floor(progress[key]/60000);
+    if (isNaN(timeLeft)) {
+      timeLeft = 0;
+    }
+    
+    html += `${name[i]} : ${timeLeft}m\n`;
+    
+    if (isMarkedActive) {
+      html += '</mark>';    
+    }
+    
+    timeLeftRatio.push({
+      timeLeft,
+      id: ids[i],
+    })
+    
+    i++;
+  }
+  html += '</div>';
+  $('#txt-calculate-result-v2').innerHTML += html;
+  
+  
+}
+
+function getTotalProgressTimeByParentId(parentId) {
+  
+  let taskIds = [];
+  let total = tasks.reduce((a, b) => {
+    if (b.parentId == parentId) {
+      taskIds.push(b.id);
+      return a + b.totalProgressTime;
+    }
+    return a;
+  }, 0)
+  
+  // count until last child
+  for (let id of taskIds) {
+    total += getTotalProgressTimeByParentId(id);    
+  }
+  
+  return total;
+}
+  
 async function CalculateRatio(labelToCheck) {
   
   let keys = {};

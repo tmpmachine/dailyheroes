@@ -10,11 +10,13 @@
 </head>
 <body>
   
-  [ {min-width:420px;max-width:500px;margin:auto;} .d-grid {cols:auto 1fr} {gap:1rem}
+  [ {min-width:430px;max-width:500px;margin:auto;} .d-grid {cols:auto 1fr} {gap:1rem}
   
-    <!-- left column -->
+    <!-- left column, ratio viewer -->
     <section>
       [ {pr:0.5rem} {mw:90px}
+        [ #txt-calculate-result-v2 .d-grid {gap:1rem} {white-space:pre}]
+        [ .mb-1rem]
         [ #txt-calculate-result .d-grid {gap:1rem} {white-space:pre}]
       ]
     </section>
@@ -34,9 +36,6 @@
       
       [
         Task : [s @txt-active-task-name] 
-      ]
-      [
-        Label : [s @txt-active-task-label] 
       ]
       
       <!-- # progress bar -->
@@ -89,6 +88,11 @@
       <div class="default-gap"></div>
       <div class="default-gap"></div>
       
+      [ #container-breadcrumbs]
+            
+      <div class="default-gap"></div>
+      <div class="default-gap"></div>
+      
       <div id="tasklist-container" class="container-task">
         <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
         <div style="padding-top:1rem;"></div>
@@ -99,7 +103,7 @@
         [
           [btn 'Get Report' .clickable data-callback='get-report' .d-none]
         ]
-        [
+        [ .d-none
           [btn 'Settings' .clickable data-callback='ratio-settings']
           [btn 'Ratio' .clickable data-callback='ratio-config']
         ]
@@ -197,7 +201,17 @@
   
   <!-- TEMPLATES -->
   <template id="tmp-task">
+    
   	[ .container-item data-obj="task" data-id="?" data-kind="task"
+  	  
+  	  [ .container-navigate .d-none
+        [ .d-flex .justify-content-end
+          [btn data-role='navigate-sub' {p:0.2rem 1rem} {fs:12px}
+            &rarr;
+          ]
+        ]
+      ]
+  	  
   	  <div style="padding:0.3rem 0.5rem;">
     	  <div class="d-flex justify-content-between">
     	    <span data-slot="title"></span>
@@ -205,7 +219,11 @@
     	      <span data-slot="label"></span>
     	    ]
           [ {fs:0.7rem}
-            <span data-slot="totalProgressLabel"></span>
+            <span data-slot="ratio"></span>
+            <span data-slot="ratioTimeLeftStr" data-slot-html></span>
+            [ .d-none
+              <span data-slot="totalProgressLabel"></span>
+            ]
             <span data-slot="rankLabel"></span>
             [s .label-finish-count]
           ]
@@ -228,9 +246,10 @@
     	  <div style="flex:1;">
       	  <span data-obj="progress" data-slot="progress"></span><span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
     	  </div>
-    	  <div>
-  	      <span data-slot="targetString"></span> <span data-slot="completionPercentage"></span>
-    	  </div>
+    	  [
+  	      <span data-slot="targetString"></span> 
+  	      <span class="d-none" data-slot="completionPercentage"></span>
+    	  ]
     	</div>
     	<div class="NzA5ODc1NQ-progress-bar-container">
         <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
@@ -250,11 +269,13 @@
     <button data-role='set-target' class="icon-mate" data-group="active" title='Change target'>schedule</button>
     <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
     <button data-role='edit' class="icon-mate" title='Setting'>edit</button>
-    <button data-role='finish' class="icon-mate" data-group="active" title='Finish'>check_small</button>
+    <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
+    <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
     <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
     <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
     <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>timer</button>
-    <button data-role='add-progress-minutes' class="icon-mate" data-group="active" title='Add progress manually'>add</button>
+    <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
+    <button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>
     <button data-role='add-label' class="icon-mate">label</button>
     <button data-role='start' class="icon-mate" data-group="active not-running" title='Start'>play_arrow</button>
     <div style="padding-top:4px;"></div>
