@@ -1817,12 +1817,12 @@ async function taskCalculateRatio() {
         break;
       }
     }
-    
+  
     // append root group
     groups.splice(0, 0, {
       id: '',
       title: 'Home',
-      activeTaskId: parentId,
+      activeTaskId: activeTaskId,
     });
   } else {
     // append root group
