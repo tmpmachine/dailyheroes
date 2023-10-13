@@ -14,7 +14,7 @@
   
     <!-- left column, ratio viewer -->
     <section>
-      [ {pr:0.5rem} {mw:90px}
+      [ {pr:0.5rem} {w:100px} {ov:auto}
         [ #txt-calculate-result-v2 .d-grid {gap:1rem} {white-space:pre}]
         [ .mb-1rem]
         [ #txt-calculate-result .d-grid {gap:1rem} {white-space:pre}]
@@ -34,9 +34,18 @@
       </div>
       <div class="default-gap"></div>
       
-      [
-        Task : [s @txt-active-task-name] 
+      <!-- # active task name -->
+      [ .d-flex .justify-content-between
+        [
+          Task : [s @txt-active-task-name] 
+        ]
+        [
+          [button .clickable data-callback='highlight-task'
+            [small 'Open task']
+          ]
+        ]
       ]
+      [ .mb-xs]
       
       <!-- # progress bar -->
       <div class="NzE2ODYyNQ-progress-bar-container">
@@ -45,13 +54,15 @@
           <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
         </div>
       </div>
-      <div style="height:2px;"></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar">
-          <div class="progress-bar-fill"></div>
-          <span class="progress-bar-text"><span id="percentage"></span></span>
+      [ .d-none
+        <div style="height:2px;"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-bar-fill"></div>
+            <span class="progress-bar-text"><span id="percentage"></span></span>
+          </div>
         </div>
-      </div>
+      ]
       <div class="default-gap"></div>
       <div data-obj="stop-timer">
         [
@@ -60,7 +71,7 @@
         [ .d-grid {gap:0.35rem} {cols:1fr 1fr}
           <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>Stop (S)</button>
           <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>Start (R)</button>
-          <button class='clickable' data-callback='finish-timer'>Finish (F)</button>
+          <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
         ]
       </div>
       <div class="default-gap"></div>
@@ -89,7 +100,10 @@
       ]
       <div class="default-gap"></div>
       
-      [ #container-breadcrumbs]
+      [ .d-flex .justify-content-between
+        [ #container-breadcrumbs]
+        [ #txt-total-ratio]
+      ]
             
       <div class="default-gap"></div>
       <div class="default-gap"></div>

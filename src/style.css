@@ -2,7 +2,7 @@
 .d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}
 .w-100{width:100%}
 
-.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
+.mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
 * {
   box-sizing: border-box;

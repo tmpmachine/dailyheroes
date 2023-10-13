@@ -210,7 +210,17 @@ async function TaskUpdateTask(form) {
   form.reset();
   form.stateList.remove('--edit-mode');
   
+  syncGroupName(task.id, task.title);
+  
   taskCalculateRatio();
+}
+
+function syncGroupName(id, newTitle) {
+  let group = lsdb.data.groups.find(x => x.id == id);
+  if (!group) return;
+  
+  group.name = newTitle;
+  lsdb.save();
 }
 
 function partialUpdateUITask(id, task) {
@@ -847,6 +857,10 @@ function minutesToHoursAndMinutes(minutes) {
   if (minutes > 0) {
     timeString +=  `${remainderMinutes}m`;
   }
+  if (minutes == 0) {
+    timeString = '0m';
+  }
+  
   return timeString;
 }
 
@@ -865,6 +879,8 @@ async function listTask() {
   } catch (e) {
     console.error(e);
   }
+  
+  let totalRatio = 0;
   
   let docFrag = document.createDocumentFragment();
   let docFragCompleted = document.createDocumentFragment();
@@ -904,7 +920,12 @@ async function listTask() {
     let targetMinutesLeft = item.target - msToMinutes(item.progressTime) - liveProgress;
     let progressMinutesLeft = msToMinutes(item.progressTime);
     let totalMsProgressChildTask = 0;
-
+  
+    // get total ratio
+    if (typeof(item.ratio) == 'number') {
+      totalRatio += item.ratio;
+    }
+    
     // accumulates child task progress
     {
       // totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
@@ -1012,6 +1033,9 @@ async function listTask() {
 
     // rankLabel++;
   }
+  
+  $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
+  
   $('#tasklist').innerHTML = '';
   $('#tasklist').append(docFrag);
   $('#tasklist-completed').innerHTML = '';
@@ -1278,6 +1302,7 @@ async function TaskAddLabel(id) {
 async function startTaskTimer(parentEl, id) {
   await stopTimer();
   await switchActiveTask(parentEl, id, true);
+  await restartTask(id);
   await startCurrentTask(id);
 }
 
@@ -1805,6 +1830,7 @@ async function taskCalculateRatio() {
       
       // update the parent id
       if (activeGroup.parentId == '') {
+        activeTaskId = activeGroup.id;
         break;
       } else {
         parentId = activeGroup.parentId;
@@ -1896,7 +1922,7 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
       timeLeft = 0;
     }
     
-    html += `${name[i]} : ${timeLeft}m\n`;
+    html += `${name[i]} : ${minutesToHoursAndMinutes(timeLeft)}\n`;
     
     if (isMarkedActive) {
       html += '</mark>';    
@@ -1932,6 +1958,14 @@ function getTotalProgressTimeByParentId(parentId) {
   }
   
   return total;
+}
+
+async function taskNavigateToActiveTask() {
+  let activeTask = await getActiveTask();
+  if (!activeTask) return;
+  
+  uiComponent.Navigate(activeTask.parentId);
+  await TaskListTask();
 }
   
 async function CalculateRatio(labelToCheck) {

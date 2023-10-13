@@ -14,7 +14,7 @@
   
     <!-- left column, ratio viewer -->
     <section>
-      <div style="padding-right:0.5rem;min-width:90px;">
+      <div style="padding-right:0.5rem;width:100px;overflow:auto;">
         <div id="txt-calculate-result-v2" class="d-grid" style="gap:1rem;white-space:pre;"></div>
         <div class="mb-1rem"></div>
         <div id="txt-calculate-result" class="d-grid" style="gap:1rem;white-space:pre;"></div>
@@ -34,9 +34,18 @@
       </div>
       <div class="default-gap"></div>
       
-      <div>
-        Task : <span id="txt-active-task-name"></span> 
+      <!-- # active task name -->
+      <div class="d-flex justify-content-between">
+        <div>
+          Task : <span id="txt-active-task-name"></span> 
+        </div>
+        <div>
+          <button class="clickable" data-callback='highlight-task'>
+            <small>Open task</small>
+          </button>
+        </div>
       </div>
+      <div class="mb-xs"></div>
       
       <!-- # progress bar -->
       <div class="NzE2ODYyNQ-progress-bar-container">
@@ -45,11 +54,13 @@
           <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
         </div>
       </div>
-      <div style="height:2px;"></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar">
-          <div class="progress-bar-fill"></div>
-          <span class="progress-bar-text"><span id="percentage"></span></span>
+      <div class="d-none">
+        <div style="height:2px;"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-bar-fill"></div>
+            <span class="progress-bar-text"><span id="percentage"></span></span>
+          </div>
         </div>
       </div>
       <div class="default-gap"></div>
@@ -60,7 +71,7 @@
         <div class="d-grid" style="gap:0.35rem;grid-template-columns:1fr 1fr;">
           <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>Stop (S)</button>
           <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>Start (R)</button>
-          <button class='clickable' data-callback='finish-timer'>Finish (F)</button>
+          <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
         </div>
       </div>
       <div class="default-gap"></div>
@@ -89,7 +100,10 @@
       </div>
       <div class="default-gap"></div>
       
-      <div id="container-breadcrumbs"></div>
+      <div class="d-flex justify-content-between">
+        <div id="container-breadcrumbs"></div>
+        <div id="txt-total-ratio"></div>
+      </div>
             
       <div class="default-gap"></div>
       <div class="default-gap"></div>
