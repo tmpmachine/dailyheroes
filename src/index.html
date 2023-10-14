@@ -25,7 +25,7 @@
     <section>
       
       <div class="d-flex justify-content-between">
-        <button class="clickable" data-callback='show-modal-add-task'>New Timer (Alt + N)</button>
+        <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
         <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
         <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
         <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
@@ -40,7 +40,7 @@
           Task : <span id="txt-active-task-name"></span> 
         </div>
         <div>
-          <button class="clickable" data-callback='highlight-task'>
+          <button class="clickable" data-callback='open-task-into-view'>
             <small>Open task</small>
           </button>
         </div>
@@ -69,8 +69,12 @@
           Timer
         </div>
         <div class="d-grid" style="gap:0.35rem;grid-template-columns:1fr 1fr;">
-          <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>Stop (S)</button>
-          <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>Start (R)</button>
+          <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
+            Stop <small>(Alt + S)</small>
+          </button>
+          <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
+            Start <small>(Alt + S)</small>
+          </button>
           <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
         </div>
       </div>
@@ -97,6 +101,11 @@
       <div class="d-none">
         Filter by label :
         <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+      </div>
+      <div class="default-gap"></div>
+      <div class="d-grid" style="grid-template-columns:1fr 1fr;">
+        <button class="clickable" data-callback='view-tasks'>All Tasks</button>
+        <button class="clickable" data-callback='view-mission'>Missions</button>
       </div>
       <div class="default-gap"></div>
       
@@ -222,20 +231,30 @@
       <div class="d-flex justify-content-between">
         <div class="d-flex">
           <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
+          <button data-role='remove-mission' class="icon-mate" title='Remove from mission'>close</button>
+          <button data-role='add-to-mission' class="icon-mate" title='Add to mission'>add</button>
           <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>timer</button>
           <div class="d-flex align-items-center" style="padding:0 0.5rem;gap:0.3rem;font-size:10px;">
             <span data-slot="ratio"></span>
             <span data-slot="ratioTimeLeftStr" data-slot-html></span>
           </div>
         </div>
-        <div class="container-navigate d-none d-flex">
-          <button data-role='navigate-sub' style="padding:0.2rem 1rem;">&rarr;</button>
+        <div class="d-flex">
+          <div class="container-navigate-mission d-none">
+            <button class="icon-mate" data-role='navigate-mission' title='Open mission into view'>open_in_new</button>
+          </div>
+          <div class="container-navigate d-none d-flex">
+            <button class="icon-mate" data-role='navigate-sub' title='View sub missions'>chevron_right</button>
+          </div>
         </div>
       </div>
   	  
   	  <div style="padding:0.3rem 0.5rem;">
     	  <div class="d-flex justify-content-between">
-    	    <span data-slot="title"></span>
+    	    <div>
+      	    <div data-slot="missionPath" data-slot-html></div>
+      	    <span data-slot="title"></span>
+    	    </div>
     	    <div class="d-none">
     	      <span data-slot="label"></span>
     	    </div>
@@ -253,7 +272,7 @@
     	 
     	  <!--task notes-->
     	  <div style="margin-top:1rem;">
-    	    <div data-slot='note' data-template='#tmp-notes'></div>
+    	    <div data-slot="note" data-template='#tmp-notes'></div>
     	  </div>
   	  
   	  </div>
@@ -270,11 +289,13 @@
   	      <span class="d-none" data-slot="completionPercentage"></span>
     	  </div>
     	</div>
-    	<div class="NzA5ODc1NQ-progress-bar-container">
-        <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
-          <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+    	<div class="d-none">
+      	<div class="NzA5ODc1NQ-progress-bar-container">
+          <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
+            <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+          </div>
         </div>
-      </div>
+    	</div>
       
   	</div>
   </template>
@@ -331,7 +352,7 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          New timer :
+          New task :
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             <input type="hidden" name="id"/>

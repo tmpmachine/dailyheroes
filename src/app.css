@@ -20,7 +20,15 @@
 [data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
 [data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
 #tasklist [data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }
-[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] { display: none; }
+[data-obj="task"][data-state~="--is-mission"] [data-role="remove-mission"] {
+  background: #ffcece;
+  border-color: #e59f9f;
+}
+
+[data-obj="task"]:not([data-state~="--is-mission"]) [data-role="remove-mission"],
+[data-obj="task"][data-state~="--is-mission"] [data-role="add-to-mission"],
+[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] 
+  { display: none; }
 
 #tasklist-completed [data-kind="task"]::after {
   content: '';

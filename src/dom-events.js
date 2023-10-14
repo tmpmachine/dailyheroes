@@ -5,7 +5,21 @@ window.DOMEvents = {
 	      parentId: lsdb.data.activeGroupId,
 	    });
     },
-    'highlight-task': () => taskNavigateToActiveTask(),
+    
+    'view-mission': () => {
+      lsdb.data.viewMode = 'mission';
+      lsdb.save();
+      uiComponent.BuildBreadcrumbs();
+      listTask();
+    },
+    'view-tasks': () => {
+      lsdb.data.viewMode = 'tasks';
+      lsdb.save();
+      uiComponent.BuildBreadcrumbs();
+      listTask();
+    },
+    
+    'open-task-into-view': () => taskOpenTaskIntoView(),
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
 		'set-sleep-time': () => setSleepTime(),
@@ -57,8 +71,10 @@ window.DOMEvents = {
 			updateUI();
 		},
 	  	'task-click-handler': (ev) => taskClickHandler(ev.target),
+		
 		'stop-timer': () => TaskStopActiveTask(),
 		'start-or-restart-timer': () => startOrRestartTask(),
+		
 		'finish-timer': () => finishTimer(),
 		'set-alarm': async (ev) => {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
@@ -153,3 +169,53 @@ window.DOMEvents = {
 	    },
 	}
 };
+
+
+function OnePress() {
+
+    let pressed = {}
+    
+    function watch(type, key) {
+      if (type == 'keydown') {
+        if (pressed[key]) {
+          
+        } else {
+          pressed[key] = true
+          return true
+        }
+      } else {
+        pressed[key] = false;
+      }
+      
+      return false
+    }
+    
+    function blur() {
+      pressed = {};
+    }
+    
+    return {
+      watch,
+      blur,
+    };
+
+}
+
+let onePress = OnePress();
+
+
+;(() => {
+ 
+  function keyHandler(event) {
+    if (event.key == 's') {
+      if (onePress.watch(event.type, event.key)) {
+        if (event.altKey) {
+          toggleStartTimer();
+        }
+      }
+    }
+  }
+  window.addEventListener('keydown', keyHandler);
+  window.addEventListener('keyup', keyHandler);
+  
+})();

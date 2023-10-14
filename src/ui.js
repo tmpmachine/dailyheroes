@@ -206,6 +206,11 @@ let uiComponent = (function () {
   
   function BuildBreadcrumbs() {
     
+    if (lsdb.data.viewMode == 'mission') {
+      $('#container-breadcrumbs').innerHTML = '';
+      return;
+    }
+    
     let breadcrumbs = [
       {
         id: '',
@@ -235,16 +240,16 @@ let uiComponent = (function () {
       
     }
     
-    $('#container-breadcrumbs').innerHTML = ''
+    $('#container-breadcrumbs').innerHTML = '';
     for (let item of breadcrumbs) {
       if (item.id == lsdb.data.activeGroupId) {
         $('#container-breadcrumbs').innerHTML += `
           <small> / ${item.name}</small>
-        `
+        `;
       } else {
         $('#container-breadcrumbs').innerHTML += `
           <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
-        `
+        `;
       }
     }
   }

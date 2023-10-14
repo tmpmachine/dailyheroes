@@ -1,3 +1,32 @@
+let tasks = [];
+
+let storageName = 'appdata-NzkwMTI0NA';
+window.lsdb = new Lsdb(storageName, {
+  root: {
+    viewMode: 'tasks',
+    
+    start: null,
+    history: 0,
+    historyTime: 0,
+    activeTask: '',
+    activeGroupId: '',
+    search: '',
+    labelFilter: '',
+    scheduledTime: 0,
+    tasks: [],
+    missionIds: [],
+    groups: [],
+    isSortByTotalProgress: true,
+  },
+  groups: {
+    id: '',
+    name: '',
+    parentId: '',
+  }
+});
+
+
+
 window.modeChromeExtension = false;
 try {
   if (chrome.storage.local.get) {
@@ -11,7 +40,6 @@ if (window.modeChromeExtension) {
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 
-let tasks = [];
 
 async function setSleepTime() {
   let data = await window.service.GetData('sleepTime');
@@ -286,7 +314,7 @@ function CheckAndCreateGroups(title, id) {
     lsdb.data.groups.push(group);
     lsdb.save();
   } else {
-    asd('exists')
+    asd('exists');
   }
 }
 
@@ -320,27 +348,7 @@ async function storeTask() {
 }
       
       
-let storageName = 'appdata-NzkwMTI0NA';
-window.lsdb = new Lsdb(storageName, {
-  root: {
-    start: null,
-    history: 0,
-    historyTime: 0,
-    activeTask: '',
-    activeGroupId: '',
-    search: '',
-    labelFilter: '',
-    scheduledTime: 0,
-    tasks: [],
-    groups: [],
-    isSortByTotalProgress: true,
-  },
-  groups: {
-    id: '',
-    name: '',
-    parentId: '',
-  }
-});
+
       
 async function initApp() {
   showCurrentTimeInAMPM();
@@ -354,6 +362,10 @@ async function initApp() {
   uiComponent.loadSleepTime();
   uiComponent.Init();
   updateUI();
+  
+  if (lsdb.data.viewMode == 'mission') {
+    $('#tasklist-container').stateList.add('--view-mission');
+  }
   
   $('#in-filter-search-label').value = window.lsdb.data.labelFilter;
   loadSearch();
@@ -564,6 +576,15 @@ async function stopTimer() {
   }
 }
 
+function toggleStartTimer() {
+  let isTimerRunning = document.body.stateList.contains('--timer-running');
+  if (isTimerRunning) {
+    TaskStopActiveTask();
+  } else {
+    startOrRestartTask();
+  }
+}
+
 async function startOrRestartTask() {
   let task = await getActiveTask();
   if (!task) return;
@@ -703,10 +724,6 @@ function attachListeners() {
 
 
 function detectKeyPressS() {
-  let sKeyPressed = false;
-  let tKeyPressed = false;
-  let rKeyPressed = false;
-  let fKeyPressed = false;
   let slashKeyPressed = false;
 
   function detect(event) {
@@ -715,20 +732,8 @@ function detectKeyPressS() {
       // Do something
       return;
     }
-    if (event.key === 's' && !sKeyPressed) {
-      sKeyPressed = true;
-      $('[data-callback="stop-timer"]').focus();
-    } else if (event.key === 'r' && !tKeyPressed) {
-      rKeyPressed = true;
-      $('[data-callback="start-or-restart-timer"]').focus();
-    } else if (event.key === 'f' && !tKeyPressed) {
-      fKeyPressed = true;
-      $('[data-callback="finish-timer"]').focus();
-    } else if (event.key === 't' && !tKeyPressed) {
-      tKeyPressed = true;
-      $('[data-callback="set-timer"] input').focus();
-      event.preventDefault();
-    } else if (event.key === '/' && !slashKeyPressed) {
+  
+    if (event.key === '/' && !slashKeyPressed) {
       slashKeyPressed = true;
       $('#node-filter-box').focus();
       event.preventDefault();
@@ -736,10 +741,7 @@ function detectKeyPressS() {
   }
 
   function reset() {
-    sKeyPressed = false;
-    tKeyPressed = false;
-    rKeyPressed = false;
-    fKeyPressed = false;
+    slashKeyPressed = false;
   }
 
   document.addEventListener('keypress', detect);
@@ -874,6 +876,8 @@ async function TaskListTask() {
 
 async function listTask() {
   
+  let isMissionView = (lsdb.data.viewMode == 'mission');
+  
   try {
     await taskCalculateRatio();
   } catch (e) {
@@ -894,18 +898,46 @@ async function listTask() {
   
   // todo: set to filtered tasks
   let filteredTasks = tasks;
-  if (lsdb.data.activeGroupId === '') {
-    filteredTasks = tasks.filter(x => x.parentId == '' || !x.parentId);
-  } else {
-    filteredTasks = tasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+  
+  if (isMissionView) {
+    // sort by last starred
+    lsdb.data.missionIds.sort((a,b) => {
+      return a.createdDate > b.createdDate ? 1 : -1;
+    });
+    lsdb.data.missionIds.sort((a,b) => {
+      let order = a.lastUpdatedDate > b.lastUpdatedDate ? -1 : 1;
+      
+      if (typeof(a.lastStarredDate) != 'number' && typeof(b.lastStarredDate) == 'number') {
+        return 1;
+      } else if (typeof(a.lastStarredDate) == 'number' && typeof(b.lastStarredDate) != 'number') {
+        return -1;
+      }
+      
+      return order;
+    });
+    // lsdb.data.missionIds.sort((a,b) => {
+    //   if (typeof(b.lastStarredDate) != 'number') return 1;
+      
+    //   return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
+    // });
+    
+    filteredTasks = lsdb.data.missionIds.map(x => {
+      return tasks.find(task => task.id == x.id);
+    })
+  } else { 
+    if (lsdb.data.activeGroupId === '') {
+      filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
+    } else {
+      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+    }
+    // sort by last starred
+    filteredTasks.sort((a,b) => {
+      if (typeof(b.lastStarredDate) == 'undefined') return -1;
+  
+      return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
+    });
   }
 
-  // sort by last starred
-  filteredTasks.sort((a,b)=>{
-    if (typeof(b.lastStarredDate) == 'undefined') return -1
-
-    return a.lastStarredDate > b.lastStarredDate ? -1 : 1
-  });
   
   // let rankLabel = 1;
   for (let item of filteredTasks) {
@@ -939,12 +971,21 @@ async function listTask() {
     if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
       ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
     }
+    
+    // show mission path
+    let missionPath = '';
+    let ratioStr = item.ratio ? `${item.ratio}%` : '';
+    if (isMissionView) {
+      ratioStr = '',
+      missionPath = getAndComputeMissionPath(item.parentId);
+    }
 
     let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
       // rankLabel: ` | Rank #${rankLabel}`,
-      ratio: item.ratio ? `${item.ratio}%` : '',
+      missionPath,
+      ratio: ratioStr,
       ratioTimeLeftStr,
       targetString: (targetMinutesLeftStr.trim().length > 0 ? `${targetMinutesLeftStr} left` : ''),
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
@@ -996,11 +1037,13 @@ async function listTask() {
     }
 
     // star button
-    let isStarred = (typeof(item.lastStarredDate) != 'undefined');
-    el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
-    
-    if (lsdb.data.groups.find(x => x.id == item.id)) {
-      el.querySelector('.container-navigate').classList.remove('d-none');
+    if (isMissionView) {
+      let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+      let isStarred = (typeof(mission.lastStarredDate) == 'number');
+      el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
+    } else {
+      let isStarred = (typeof(item.lastStarredDate) != 'undefined');
+      el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
     }
     
   	taskEl = el.querySelector('[data-obj="task"]');
@@ -1010,6 +1053,18 @@ async function listTask() {
   	  taskEl.stateList.add('--untracked');
   	}
   	
+    if (isMissionView) {
+  	  taskEl.stateList.add('--is-mission');
+      el.querySelector('.container-navigate-mission').classList.remove('d-none');
+    } else {
+      let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+      if (mission) {
+  	    taskEl.stateList.add('--is-mission');
+      }
+    }
+    if (lsdb.data.groups.find(x => x.id == item.id)) {
+      el.querySelector('.container-navigate').classList.remove('d-none');
+    }
   	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
   	
   	
@@ -1032,9 +1087,14 @@ async function listTask() {
   	}
 
     // rankLabel++;
+    
   }
   
-  $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
+  if (isMissionView) {
+    $('#txt-total-ratio').textContent = '';
+  } else {
+    $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
+  }
   
   $('#tasklist').innerHTML = '';
   $('#tasklist').append(docFrag);
@@ -1043,6 +1103,54 @@ async function listTask() {
   
   await setActiveTask();
 }
+
+function getAndComputeMissionPath(groupId) {
+    
+    let breadcrumbs = []
+    
+    let activeGroup = lsdb.data.groups.find(x => x.id == groupId)
+    if (activeGroup) {
+      breadcrumbs.push(activeGroup);
+      
+      let safeLoopCount = 10;
+      let parentId = activeGroup.parentId;
+      while (parentId != '') {
+        
+        activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+        breadcrumbs.splice(0, 0, activeGroup);
+        parentId = activeGroup.parentId;
+        
+        // safe loop leaking
+        safeLoopCount -= 1;
+        if (safeLoopCount < 0) {
+          break;
+        }
+      }
+      
+    }
+    
+    let html = ''
+    for (let item of breadcrumbs) {
+      // if (item.id == lsdb.data.activeGroupId) {
+      
+      let ratioTimeLeftStr = '';
+      let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
+      if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+      }
+      
+        html += `
+          <small>${item.name} <mark>${ratioTimeLeftStr}</mark> /</small>
+        `
+      // } else {
+      //   html += `
+      //     <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
+      //   `
+      // }
+    }
+    
+    return html;
+  }
 
 function setActiveSubTaskItem(el, item) {
   if (!item.activeSubTaskId) return;
@@ -1160,12 +1268,23 @@ async function removeActiveTaskIfExists(id) {
   }
 }
 
+function changeViewModeConfig(mode) {
+  lsdb.data.viewMode = mode;
+}
+
+function saveConfig() {
+  lsdb.save();
+}
+
 async function taskClickHandler(el) {
   let actionRole = getActionRole(el);
   let parentEl = el.closest('[data-obj="task"]');
   let id = parentEl.dataset.id;
   switch (actionRole) {
+    case 'navigate-mission': taskNavigateToMission(id); break;
     case 'navigate-sub': 
+      changeViewModeConfig('tasks');
+      saveConfig();
       uiComponent.Navigate(id);
       listTask();
       break;
@@ -1174,22 +1293,23 @@ async function taskClickHandler(el) {
     case 'delete':
       let deleteIndex = tasks.findIndex(x => x.id == id);
       tasks.splice(deleteIndex, 1);
-      await storeTask();
-      await removeActiveTaskIfExists(id);
-      parentEl.remove();
-      updateUI();
-      
       // delete group
       {
         let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
         if (deleteIndex >= 0) {
           lsdb.data.groups.splice(deleteIndex, 1);
-          lsdb.save();
         }
       }
-      
+
       // todo: delete child task recurisively
+      deleteAllChildTasksByParentId(id);
       
+      await storeTask();
+      lsdb.save();
+      
+      await removeActiveTaskIfExists(id);
+      parentEl.remove();
+      updateUI();
       break;
     case 'set-ratio': taskSetTaskRatio(id); break;
     case 'add-label': TaskAddLabel(id); break;
@@ -1202,9 +1322,10 @@ async function taskClickHandler(el) {
     case 'untrack': untrackProgress(id); break;
     case 'set-active': switchActiveTask(parentEl, id); break;
     case 'split-task': await splitTask(id); break;
-    // case 'rename': await renameTask(id); break;
     case 'reduce': await reduceTaskDuration(id); break;
     case 'add': await increaseTaskDuration(id); break;
+    case 'remove-mission': taskAddToMission(id, parentEl); break;
+    case 'add-to-mission': taskAddToMission(id, parentEl); break;
     case 'set-target': 
       await setTaskTarget(id); 
       break;
@@ -1231,14 +1352,83 @@ async function taskClickHandler(el) {
   }
 } 
 
-async function taskStarTask(id) {
-  let task = tasks.find(x => x.id == id);
-  if (typeof(task.lastStarredDate) == 'undefined') {
-    task.lastStarredDate = new Date().getTime();
+async function taskNavigateToMission(id) {
+  let task = await getTaskById(id);
+  if (!task) return;
+  
+  changeViewModeConfig('tasks');
+  saveConfig();
+  uiComponent.Navigate(task.parentId);
+  listTask();
+}
+
+function taskAddToMission(id, parentEl) {
+  let idx = lsdb.data.missionIds.findIndex(x => x.id == id);
+  if (idx < 0) {
+    lsdb.data.missionIds.push({
+      id,
+      lastStarredDate: null,
+      lastUpdatedDate: new Date().getTime(),
+      createdDate: new Date().getTime(),
+    });
+    parentEl.stateList.add('--is-mission')
   } else {
-    delete task.lastStarredDate;
+    lsdb.data.missionIds.splice(idx, 1);
+    parentEl.stateList.remove('--is-mission')
+    if (isViewModeMission()) {
+      parentEl.remove();
+    }
   }
-  await storeTask();
+  
+  lsdb.save();
+}
+
+function isViewModeMission() {
+  return lsdb.data.viewMode == 'mission';
+}
+
+function deleteAllChildTasksByParentId(id) {
+  let ids =  tasks.map(x => {
+    if (x.parentId == id) {
+      return x.id
+    } 
+    return null;
+  }).filter(x => x !== null);
+  for (let id of ids) {
+    let deleteIndex = tasks.findIndex(x => x.id == id);
+    tasks.splice(deleteIndex, 1);
+    
+    // delete group
+    {
+      let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
+      if (deleteIndex >= 0) {
+        lsdb.data.groups.splice(deleteIndex, 1);
+      }
+    }
+    
+    deleteAllChildTasksByParentId(id);
+  }
+}
+
+async function taskStarTask(id) {
+  if (lsdb.data.viewMode == 'mission') {
+    let mission = lsdb.data.missionIds.find(x => x.id == id);
+    if (typeof(mission.lastStarredDate) == 'number') {
+      delete mission.lastStarredDate;
+    } else {
+      mission.lastStarredDate = new Date().getTime();
+    }
+    mission.lastUpdatedDate = new Date().getTime();
+    lsdb.save();
+  } else {
+    let task = tasks.find(x => x.id == id);
+    if (typeof(task.lastStarredDate) == 'number') {
+      delete task.lastStarredDate;
+    } else {
+      task.lastStarredDate = new Date().getTime();
+    }
+    await storeTask();
+  }
   TaskListTask();
 }
 
@@ -1348,16 +1538,6 @@ function addSubTimer(taskId) {
   uiComponent.ShowModalAddTask(defaultVal);
 }
 
-async function renameTask(id) {
-  let task = tasks.find(x => x.id == id);
-  
-  let title = window.prompt('rename', task.title);
-  if (!title) return;
-  
-  task.title = title;
-  await storeTask();
-  partialUpdateTask('title', task);
-}
 
 function partialUpdateTask(key, data) {
   switch (key) {
@@ -1790,16 +1970,18 @@ async function taskCalculateRatio() {
   let groups = [];
   let parentId = ''
   let activeTaskId;
-  let activeTimerDistanceTime;
+  let activeTimerDistanceTime = 0;
   
   let activeTask = await getActiveTask();
 
   let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId);
   
-  if (activeTask) {
-    activeTaskId = activeTask.id
-    activeTimerDistanceTime = await getActiveTimerDistanceTime();
-    activeGroup = lsdb.data.groups.find(x => x.id == activeTask.parentId)
+  if (lsdb.data.viewMode == 'tasks') {
+    // if (activeTask) {
+    //   activeTaskId = activeTask.id
+    //   activeTimerDistanceTime = await getActiveTimerDistanceTime();
+    //   activeGroup = lsdb.data.groups.find(x => x.id == activeTask.parentId)
+    // }
   }
 
   if (activeGroup) {
@@ -1868,6 +2050,10 @@ async function taskCalculateRatio() {
   }
 }
 
+function getGroupById(id) {
+  return lsdb.data.groups.find(x => x.id == id)
+}
+
 async function CalculateRatioV2(group, activeTimerDistanceTime) {
   
   let total = 0;
@@ -1880,12 +2066,10 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
   
   if (listTask.length < 1) return;
   
-  let ids = []
-  let name = []
-  let progress = []
+  let ids = [];
+  let name = [];
+  let progress = [];
   let ratio = [];
-  
-  
   
   for (let item of listTask) {
     let liveProgressTime = 0;
@@ -1896,16 +2080,15 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
     // sumProgress[item.id] += item.totalProgressTime + liveProgressTime;
     if (!item.ratio) continue;
   
-    ids.push(item.id)
-    name.push(item.title)
+    ids.push(item.id);
+    name.push(item.title);
     progress.push(item.totalProgressTime + liveProgressTime + getTotalProgressTimeByParentId(item.id));
     ratio.push(item.ratio/100);
     // total += item.totalProgressTime + liveProgressTime;
     total += item.totalProgressTime ;
   }
   
-  let result = balanceNumbersByHigherRatio(progress, ratio)
-  
+  let result = balanceNumbersByHigherRatio(progress, ratio);
   // set global variable time left ratio
 
   
@@ -1950,7 +2133,7 @@ function getTotalProgressTimeByParentId(parentId) {
       return a + b.totalProgressTime;
     }
     return a;
-  }, 0)
+  }, 0);
   
   // count until last child
   for (let id of taskIds) {
@@ -1960,97 +2143,16 @@ function getTotalProgressTimeByParentId(parentId) {
   return total;
 }
 
-async function taskNavigateToActiveTask() {
+async function taskOpenTaskIntoView() {
   let activeTask = await getActiveTask();
   if (!activeTask) return;
   
+  lsdb.data.viewMode = 'tasks';
+  lsdb.save();
   uiComponent.Navigate(activeTask.parentId);
   await TaskListTask();
 }
   
-async function CalculateRatio(labelToCheck) {
-  
-  let keys = {};
-  let ratios = {};
-  let sumProgress = {};
-  
-  try {
-    keys = JSON.parse(localStorage.getItem('ratio-settings'));
-    ratios = keys[labelToCheck];
-    
-    for (let key in ratios) {
-      sumProgress[key] = 0;
-    }
-  } catch (e) {
-    console.log(e);
-    alert('error parsing JSON');
-    return;
-  }
-  
-  let total = 0;
-  
-  
-  let activeTimerDistanceTime = await getActiveTimerDistanceTime();
-  let activeTask = await getActiveTask();
-  
-  let listTask = tasks.filter(x => x.label && x.label.split(',').includes(labelToCheck));
-  if (listTask.length < 1) return;
-
-  for (let item of listTask) {
-    // if (sumProgress[item.label] === undefined) {
-      // continue;
-    // }
-    
-    let labels = item.label.split(',');
-    let labelKey = '';
-    for (let key in sumProgress) {
-      labelKey = labels.find(x => x == key);
-      if (labelKey) break;
-    }
-    
-    if (labelKey == '') continue;
-    
-    let liveProgressTime = 0;
-    if (activeTask && item.id == activeTask.id) {
-      liveProgressTime = activeTimerDistanceTime;
-    }
-    
-    sumProgress[labelKey] += item.totalProgressTime + liveProgressTime;
-    total += item.totalProgressTime + liveProgressTime;
-  }
-    
-  let progress = [];
-  for (let key in sumProgress) {
-    progress.push(sumProgress[key])
-  }
-
-  let ratio = [];
-  for (let key in ratios) {
-    ratio.push(ratios[key]/100)
-  }
-  
-  
-  let result = balanceNumbersByHigherRatio(progress, ratio)
-
-  let i = 0;
-  let html = `<div><b>#${labelToCheck}</b>\n`;
-  let activeTaskLabels = (activeTask && activeTask.label ? activeTask.label.split(',') : [] );
-  for (let key in sumProgress) {
-    let isMarkedActive = activeTaskLabels.includes(key) && activeTaskLabels.includes(labelToCheck);
-    if (isMarkedActive) {
-      html += '<mark>';    
-    }
-    html += `${key} : ${Math.floor(result[i] / 60000) - Math.floor(sumProgress[key]/60000)}m\n`;
-    if (isMarkedActive) {
-      html += '</mark>';    
-    }
-    
-    i++;
-  }
-  html += '</div>';
-  $('#txt-calculate-result').innerHTML += html;
-    
-}
 
 function balanceNumbersByHigherRatio(numbers, ratios, safeGuardCount = 0) {
     
@@ -2114,7 +2216,6 @@ function balanceNumbersByHigherRatio(numbers, ratios, safeGuardCount = 0) {
     optimal = balanceNumbersByHigherRatio(final, ratios, safeGuardCount + 1);
   }
   
-    
   return optimal;
 }
 
