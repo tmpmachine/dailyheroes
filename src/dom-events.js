@@ -8,12 +8,14 @@ window.DOMEvents = {
     
     'view-mission': () => {
       lsdb.data.viewMode = 'mission';
+      resetActiveGroupId();
       lsdb.save();
       uiComponent.BuildBreadcrumbs();
       listTask();
     },
     'view-tasks': () => {
       lsdb.data.viewMode = 'tasks';
+      resetActiveGroupId();
       lsdb.save();
       uiComponent.BuildBreadcrumbs();
       listTask();
@@ -70,7 +72,7 @@ window.DOMEvents = {
 			await window.service.SetData({ 'target': 3*60 + 20 });
 			updateUI();
 		},
-	  	'task-click-handler': (ev) => taskClickHandler(ev.target),
+  	'task-click-handler': (ev) => app.TaskClickHandler(ev.target),
 		
 		'stop-timer': () => TaskStopActiveTask(),
 		'start-or-restart-timer': () => startOrRestartTask(),
@@ -128,9 +130,9 @@ window.DOMEvents = {
 	  'submit-task': (ev) => {
   		ev.preventDefault();
 	    if (ev.target.id.value.length > 0) {
-	      TaskUpdateTask(ev.target);
+	      app.TaskUpdateTask(ev.target);
 	    } else {
-	      TaskAddTask(ev.target);
+	      app.TaskAddTask(ev.target);
 	    }
   		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
   		modal.close();

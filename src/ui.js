@@ -25,7 +25,7 @@ let uiComponent = (function () {
         Navigate(evt.target.dataset.id);
         TaskListTask();
       }
-    })
+    });
   }
   
   function SetFocusEl(el) {
@@ -206,35 +206,63 @@ let uiComponent = (function () {
   
   function BuildBreadcrumbs() {
     
-    if (lsdb.data.viewMode == 'mission') {
-      $('#container-breadcrumbs').innerHTML = '';
-      return;
-    }
+    let breadcrumbs = [];
     
-    let breadcrumbs = [
-      {
+    // push the root path
+    if (isViewModeMission()) {
+      $('#container-breadcrumbs').innerHTML = '';
+      breadcrumbs.push({
+        id: '',
+        name: 'Mission',
+        parentId: '',
+      });
+      let missionParentIds = lsdb.data.missionIds.map(x => x.id);
+      
+      let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId);
+      if (activeGroup) {
+        breadcrumbs.push(activeGroup);
+        
+        let safeLoopCount = 10;
+        let parentId = activeGroup.parentId;
+        while (!missionParentIds.includes(parentId)) {
+          
+          activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+          break;
+          // breadcrumbs.splice(1, 0, activeGroup);
+          // parentId = activeGroup.parentId;
+          
+          // safe loop leaking
+          safeLoopCount -= 1;
+          if (safeLoopCount < 0) {
+            break;
+          }
+        }
+      }
+      
+    } else {
+      breadcrumbs.push({
         id: '',
         name: 'Home',
         parentId: '',
-      }
-    ]
-    
-    let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId)
-    if (activeGroup) {
-      breadcrumbs.push(activeGroup);
+      });
       
-      let safeLoopCount = 10;
-      let parentId = activeGroup.parentId;
-      while (parentId != '') {
+      let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId)
+      if (activeGroup) {
+        breadcrumbs.push(activeGroup);
         
-        activeGroup = lsdb.data.groups.find(x => x.id == parentId);
-        breadcrumbs.splice(1, 0, activeGroup);
-        parentId = activeGroup.parentId;
-        
-        // safe loop leaking
-        safeLoopCount -= 1;
-        if (safeLoopCount < 0) {
-          break;
+        let safeLoopCount = 10;
+        let parentId = activeGroup.parentId;
+        while (parentId != '') {
+          
+          activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+          breadcrumbs.splice(1, 0, activeGroup);
+          parentId = activeGroup.parentId;
+          
+          // safe loop leaking
+          safeLoopCount -= 1;
+          if (safeLoopCount < 0) {
+            break;
+          }
         }
       }
       
@@ -252,6 +280,7 @@ let uiComponent = (function () {
         `;
       }
     }
+
   }
   
   function Navigate(id) {

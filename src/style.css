@@ -223,7 +223,7 @@ button:focus{
 }
 
 /* progress bar NzA5ODc1NQ */
-.NzA5ODc1NQ-progress-bar-container {
+.NzA5ODc1NQ-progress-bar-container, .task-progress-bar {
   width: 100%;
   align-items: center;
   display: flex;
@@ -250,6 +250,21 @@ button:focus{
   border-radius: 5px;
   background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
   background-size: 56px 40px;
+}
+
+.task-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background-color: #48a9e6;
+  overflow: hidden;
+  display: flex;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+body[data-state~="--timer-running"] .task-progress-bar {
+  animation: progress-bar-stripes 1s linear infinite;
 }
 
 .NzA5ODc1NQ-progress-bar-fill--animated {

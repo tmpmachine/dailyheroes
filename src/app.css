@@ -27,7 +27,8 @@
 
 [data-obj="task"]:not([data-state~="--is-mission"]) [data-role="remove-mission"],
 [data-obj="task"][data-state~="--is-mission"] [data-role="add-to-mission"],
-[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] 
+[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"],
+[data-obj="task"]:not([data-state~="--active"]) .task-progress-bar-container
   { display: none; }
 
 #tasklist-completed [data-kind="task"]::after {
