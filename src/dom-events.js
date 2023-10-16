@@ -7,14 +7,14 @@ window.DOMEvents = {
     },
     
     'view-mission': () => {
-      lsdb.data.viewMode = 'mission';
+      changeViewModeConfig('mission');
       resetActiveGroupId();
       lsdb.save();
       uiComponent.BuildBreadcrumbs();
       listTask();
     },
     'view-tasks': () => {
-      lsdb.data.viewMode = 'tasks';
+      changeViewModeConfig('tasks');
       resetActiveGroupId();
       lsdb.save();
       uiComponent.BuildBreadcrumbs();

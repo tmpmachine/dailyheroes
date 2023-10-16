@@ -9,7 +9,11 @@ window.lsdb = new Lsdb(storageName, {
     history: 0,
     historyTime: 0,
     activeTask: '',
+    
+    // navigation
     activeGroupId: '',
+    topMostMissionPath: '',
+    
     search: '',
     labelFilter: '',
     scheduledTime: 0,
@@ -892,11 +896,10 @@ async function listTask() {
     // show mission path
     let missionPath = '';
     let ratioStr = item.ratio ? `${item.ratio}%` : '';
-    if (isMissionView) {
+    let isTopPath = isTopMissionPath(item.id);
+    if (isMissionView && isTopPath) {
       ratioStr = '';
-      if (isTopMissionPath(item.id)) {
-        missionPath = getAndComputeMissionPath(item.parentId);
-      }
+      missionPath = getAndComputeMissionPath(item.parentId);
     }
 
     let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
@@ -953,7 +956,7 @@ async function listTask() {
     }
 
     // star button
-    if (isMissionView) {
+    if (isMissionView && isTopPath) {
       let mission = lsdb.data.missionIds.find(x => x.id == item.id);
       if (mission) {
         let isStarred = (typeof(mission.lastStarredDate) == 'number');
@@ -979,8 +982,15 @@ async function listTask() {
   	}
   	
     if (isMissionView) {
-  	  taskEl.stateList.add('--is-mission');
-      el.querySelector('.container-navigate-mission').classList.remove('d-none');
+  	  if (isTopPath) {
+  	    taskEl.stateList.add('--is-mission');
+        el.querySelector('.container-navigate-mission').classList.remove('d-none');
+  	  } else {
+  	    let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+        if (mission) {
+    	    taskEl.stateList.add('--is-mission');
+        }  
+  	  }
     } else {
       let mission = lsdb.data.missionIds.find(x => x.id == item.id);
       if (mission) {
@@ -1016,7 +1026,7 @@ async function listTask() {
     
   }
   
-  if (isMissionView) {
+  if (isMissionView && lsdb.data.groupId == '') {
     $('#txt-total-ratio').textContent = '';
   } else {
     $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
@@ -1202,6 +1212,7 @@ async function removeActiveTaskIfExists(id) {
 }
 
 function changeViewModeConfig(mode) {
+  lsdb.data.topMostMissionPath = '';
   lsdb.data.viewMode = mode;
 }
 
@@ -1311,7 +1322,7 @@ function deleteAllChildTasksByParentId(id) {
 }
 
 async function taskStarTask(id) {
-  if (lsdb.data.viewMode == 'mission') {
+  if (isViewModeMission() && isTopMissionPath(id)) {
     let mission = lsdb.data.missionIds.find(x => x.id == id);
     if (typeof(mission.lastStarredDate) == 'number') {
       delete mission.lastStarredDate;

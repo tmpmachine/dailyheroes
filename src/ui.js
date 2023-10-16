@@ -19,6 +19,70 @@ let uiComponent = (function () {
     BuildBreadcrumbs();
   }
   
+  function BuildBreadcrumbs() {
+    
+    let breadcrumbs = [];
+    
+    // push the root path
+    breadcrumbs.push({
+      id: '',
+      name: (isViewModeMission() ? 'Mission' : 'Home'),
+      parentId: '',
+    });
+    
+    try {
+      let safeLoopCount = 0;
+      let subPaths = [];
+      foobar(subPaths, lsdb.data.activeGroupId, safeLoopCount);
+      breadcrumbs = [...breadcrumbs, ...subPaths];
+    } catch (err) {
+      console.error(err)
+    }
+      
+    $('#container-breadcrumbs').innerHTML = '';
+    for (let item of breadcrumbs) {
+      if (item.id == lsdb.data.activeGroupId) {
+        $('#container-breadcrumbs').innerHTML += `
+          <small> / ${item.name}</small>
+        `;
+      } else {
+        $('#container-breadcrumbs').innerHTML += `
+          <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
+        `;
+      }
+    }
+
+  }
+  
+  function foobar(breadcrumbs, parentId, safeLoopCount) {
+    let activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+    if (activeGroup) {
+      breadcrumbs.splice(0, 0, activeGroup);
+      let safeLoopCount = 10;
+      let parentId = activeGroup.parentId;
+      if (parentId != '') {
+        // safe loop leaking
+        if (safeLoopCount > 10) {
+          throw 'overflow';
+        }
+        foobar(breadcrumbs, parentId, safeLoopCount + 1);
+      }
+    }
+  }
+  
+  function Navigate(id) {
+    if (isViewModeMission()) {
+      if (lsdb.data.topMostMissionPath == '' && isTopMissionPath(id)) {
+        lsdb.data.topMostMissionPath = id;
+      } else if (id == '') {
+        lsdb.data.topMostMissionPath = '';
+      }
+    }
+    lsdb.data.activeGroupId = id;
+    lsdb.save();
+    BuildBreadcrumbs();
+  }
+  
   function initBreadcrumbListener() {
     $('#container-breadcrumbs').addEventListener('click', (evt) => {
       if (evt.target.tagName == 'BUTTON') {
@@ -203,91 +267,6 @@ let uiComponent = (function () {
   	taskEl.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
     
   };
-  
-  function BuildBreadcrumbs() {
-    
-    let breadcrumbs = [];
-    
-    // push the root path
-    if (isViewModeMission()) {
-      $('#container-breadcrumbs').innerHTML = '';
-      breadcrumbs.push({
-        id: '',
-        name: 'Mission',
-        parentId: '',
-      });
-      let missionParentIds = lsdb.data.missionIds.map(x => x.id);
-      
-      let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId);
-      if (activeGroup) {
-        breadcrumbs.push(activeGroup);
-        
-        let safeLoopCount = 10;
-        let parentId = activeGroup.parentId;
-        while (!missionParentIds.includes(parentId)) {
-          
-          activeGroup = lsdb.data.groups.find(x => x.id == parentId);
-          break;
-          // breadcrumbs.splice(1, 0, activeGroup);
-          // parentId = activeGroup.parentId;
-          
-          // safe loop leaking
-          safeLoopCount -= 1;
-          if (safeLoopCount < 0) {
-            break;
-          }
-        }
-      }
-      
-    } else {
-      breadcrumbs.push({
-        id: '',
-        name: 'Home',
-        parentId: '',
-      });
-      
-      let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId)
-      if (activeGroup) {
-        breadcrumbs.push(activeGroup);
-        
-        let safeLoopCount = 10;
-        let parentId = activeGroup.parentId;
-        while (parentId != '') {
-          
-          activeGroup = lsdb.data.groups.find(x => x.id == parentId);
-          breadcrumbs.splice(1, 0, activeGroup);
-          parentId = activeGroup.parentId;
-          
-          // safe loop leaking
-          safeLoopCount -= 1;
-          if (safeLoopCount < 0) {
-            break;
-          }
-        }
-      }
-      
-    }
-    
-    $('#container-breadcrumbs').innerHTML = '';
-    for (let item of breadcrumbs) {
-      if (item.id == lsdb.data.activeGroupId) {
-        $('#container-breadcrumbs').innerHTML += `
-          <small> / ${item.name}</small>
-        `;
-      } else {
-        $('#container-breadcrumbs').innerHTML += `
-          <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
-        `;
-      }
-    }
-
-  }
-  
-  function Navigate(id) {
-    lsdb.data.activeGroupId = id;
-    lsdb.save();
-    BuildBreadcrumbs();
-  }
   
   return SELF;
   
