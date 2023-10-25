@@ -46,25 +46,69 @@ async function reduceCountActiveTask() {
   }
 }
 
-async function updateProgressActiveTask(addedProgress, distanceTime) {
+async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let data = await chrome.storage.local.get(['activeTask']);
   if (data.activeTask) {
     let tasks = await getTask();
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      activeTask.progress += addedProgress;
+      activeTask.progress += addedMinutes;
       activeTask.progressTime += distanceTime;
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
       }
       activeTask.totalProgressTime += distanceTime;
       
+      // apply target time balancing
+      await TaskApplyTargetTimeBalanceInGroup(activeTask, distanceTime, tasks)
+          
       // update sub task total progress time
       updateSubTaskProgress(activeTask, distanceTime);
 
       await storeTask(tasks);
     }
   }
+}
+
+async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, tasks) {
+  try {
+      let excessTime = task.targetTime - addedTime;
+      if (excessTime < 0) {
+        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
+      }
+      task.targetTime = Math.max(0, task.targetTime - addedTime);
+    } catch (e) {
+      console.error(e);
+  }
+}
+
+async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes}, addedTime, tasks) {
+
+  if (typeof(ratio) != 'number') return;
+  
+  let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
+
+  let remainingRatio = 100 - ratio;
+  let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+
+  for (let task of filteredTasks) {
+    let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+  }
+
+}
+
+function addOrInitNumber(variable, numberToAdd) {
+  if (variable === null || typeof variable === "undefined") {
+    variable = 0;
+  }
+  if (typeof variable !== "number") {
+    variable = parseFloat(variable);
+  }
+  if (!isNaN(variable)) {
+    variable += numberToAdd;
+  }
+  return variable;
 }
 
 function updateSubTaskProgress(task, distanceTime) {

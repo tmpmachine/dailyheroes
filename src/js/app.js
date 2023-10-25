@@ -181,7 +181,7 @@ async function setTimer(duration) {
   
   
   let aMinute = 60;
-  let miliseconds = 1000;
+  let milliseconds = 1000;
   let now = new Date().getTime();
   let triggerTime = now + duration;
   
@@ -198,9 +198,9 @@ async function setTimer(duration) {
     await chrome.alarms.create('main', {
       when: triggerTime,
     });
-    if (triggerTime - 3 * aMinute * miliseconds > 0) {
+    if (triggerTime - 3 * aMinute * milliseconds > 0) {
       await chrome.alarms.create('3m', {
-  	      when: triggerTime - 3 * aMinute * miliseconds
+  	      when: triggerTime - 3 * aMinute * milliseconds
       });
     }
     await chrome.runtime.sendMessage({message: 'start-timer'});
@@ -208,6 +208,31 @@ async function setTimer(duration) {
   
   updateUI();  
 }
+
+let androidClient = (() => {
+  
+  let SELF = {
+    StartTimer,
+    StopTimer,
+  };
+  
+  function StartTimer(seconds, title) {
+    if (typeof(MyApp) == 'undefined') return;
+    
+    let isPersistent = true;
+    let desc = '';
+    MyApp.StartTask(seconds, title, desc, isPersistent);
+  }
+  
+  function StopTimer() {
+    if (typeof(MyApp) == 'undefined') return;
+    
+    MyApp.StopTask();
+  }
+  
+  return SELF;
+  
+})();
 
 async function clearTaskHistory() {
   for (let task of tasks) {
@@ -245,7 +270,7 @@ function CheckAndCreateGroups(title, id) {
     lsdb.data.groups.push(group);
     lsdb.save();
   } else {
-    asd('exists');
+    console.log('exists');
   }
 }
 
@@ -260,6 +285,13 @@ function addTaskData(inputData) {
     progress: 0,
     progressTime: 0,
     totalProgressTime: 0,
+    parentId: '',
+    
+    // used by time balancing
+    initialDelta: 0,
+    targetMinutes: 0,
+    targetTime: 0,
+
     lastUpdated: 0,
     untracked: false,
     activeSubTaskId: null,
@@ -444,6 +476,7 @@ async function clearAlarms() {
 
 async function TaskStopActiveTask() {
   await stopTimer();
+  androidClient.StopTimer();
 }
 
 async function stopTimer() {
@@ -463,14 +496,15 @@ async function stopTimer() {
   
   updateUI();
   if (window.modeChromeExtension) {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // 2. A page requested user data, respond with a copy of `user`
       // if (message === 'get-user-data') {
         // sendResponse(user);
       // }
-    });
+    // });
     await chrome.runtime.sendMessage({message: 'stop'});
   }
+  
 }
 
 function toggleStartTimer() {
@@ -775,18 +809,18 @@ async function listTask() {
   
   let isMissionView = (lsdb.data.viewMode == 'mission');
   
-  try {
-    await taskCalculateRatio();
-  } catch (e) {
-    console.error(e);
-  }
+  // try {
+  //   await taskCalculateRatio();
+  // } catch (e) {
+  //   console.error(e);
+  // }
   
   let totalRatio = 0;
   
   let docFrag = document.createDocumentFragment();
   let docFragCompleted = document.createDocumentFragment();
-  let activeTimerDistance = await getActiveTimerDistance();
-  let activeTimerDistanceTime = await getActiveTimerDistanceTime();
+  let activeTimerDistance = await getActiveTimerDistance(); // minutes
+  let activeTimerDistanceTime = await getActiveTimerDistanceTime(); // milliseconds
   let activeTask = await getActiveTask();
   let activeTaskPath = [];
   
@@ -840,7 +874,6 @@ async function listTask() {
         return tasks.find(task => task.id == x.id);
       })
     } else {
-      // asd(123)
       filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
       // filteredTasks = task;
     }
@@ -887,11 +920,58 @@ async function listTask() {
       // progressMinutesLeft += totalChildTaskProgressMinutes;
     }
     
+    // # set ratio time left string
     let ratioTimeLeftStr = '';
-    let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
-    if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
-      ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+    // let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
+    // if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+    //   ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+    // }
+    
+    // ## handle if self task
+    // if (activeTask ||.id == item.id && typeof(activeTask.ratio) == 'number' && typeof(item.ratio) == 'number' && typeof(item.targetMinutes) == 'number') {
+    {
+      let targetTime = item.targetTime;
+      if (activeTask && activeTask.id == item.id) {
+        targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
+      }
+      if (targetTime > 0) {
+        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+      }
     }
+      // ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(targetMinutes)}</mark>`;
+    // }
+    
+    // ## handle if other task
+    if (activeTask && activeTask.id != item.id && typeof(activeTask.ratio) == 'number' && typeof(item.ratio) == 'number' && typeof(item.targetTime) == 'number') {
+      
+      let targetTime = item.targetTime;
+      
+      // calculate active task progress and target difference
+      try {
+
+          let addedTime = activeTimerDistanceTime;
+          let ratio = activeTask.ratio;
+          
+          let excessTime = activeTask.targetTime - addedTime;
+          if (excessTime < 0) {
+            
+            let remainingRatio = 100 - ratio;
+            let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+          
+            let addedTargetTime = Math.round(timeToDistribute * (item.ratio / remainingRatio));
+            targetTime = addOrInitNumber(targetTime, addedTargetTime);
+          }
+          
+        } catch (e) {
+          console.error(e);
+      }
+      
+      if (targetTime > 0) {
+        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+      }
+      
+    }
+    
     
     // show mission path
     let missionPath = '';
@@ -986,6 +1066,7 @@ async function listTask() {
   	    taskEl.stateList.add('--is-mission');
         el.querySelector('.container-navigate-mission').classList.remove('d-none');
   	  } else {
+        el.querySelector('.container-create-sub').classList.remove('d-none');
   	    let mission = lsdb.data.missionIds.find(x => x.id == item.id);
         if (mission) {
     	    taskEl.stateList.add('--is-mission');
@@ -999,6 +1080,8 @@ async function listTask() {
     }
     if (lsdb.data.groups.find(x => x.id == item.id)) {
       el.querySelector('.container-navigate').classList.remove('d-none');
+    } else {
+      el.querySelector('.container-create-sub').classList.remove('d-none');
     }
   	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
   	
@@ -1347,14 +1430,25 @@ async function TaskAddProgressManually(id) {
   let task = tasks.find(x => x.id == id);
   if (!task) return;
   
-  let userVal = window.prompt('Progress in minutes');
+  const { value: userVal } = await Swal.fire({
+      title: 'Progress in minutes',
+      input: 'text',
+      inputLabel: 'example: 10, 15, 30',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+  });
+  
   if (!userVal) return;
   
   try {
-    let minutes = parseInt(userVal);
-    task.progress += minutes;
-    task.progressTime += minutes * 60 * 1000;
-    task.totalProgressTime += minutes * 60 * 1000;
+    let addedMinutes = parseInt(userVal);
+    task.progress += addedMinutes;
+    task.progressTime += addedMinutes * 60 * 1000;
+    task.totalProgressTime += addedMinutes * 60 * 1000;
     
     if (!
       (typeof(task.progress) == 'number' &&
@@ -1368,20 +1462,78 @@ async function TaskAddProgressManually(id) {
     task.progressTime = Math.max(0, task.progressTime);
     task.totalProgressTime = Math.max(0, task.totalProgressTime);
     
+    // apply target time balancing
+    await TaskApplyTargetTimeBalanceInGroup(task, addedMinutes * 60 * 1000);
+    
+    await storeTask();  
+    TaskListTask();
+    
   } catch (e) {
     console.error(e);
     alert('Failed');
     return;
   }
   
-  await storeTask();  
+}
+
+async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
+  try {
+      let excessTime = task.targetTime - addedTime;
+      if (excessTime < 0) {
+        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
+      }
+      task.targetTime = Math.max(0, task.targetTime - addedTime);
+    } catch (e) {
+      console.error(e);
+  }
+}
+
+async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes}, addedTime) {
+
+  if (typeof(ratio) != 'number') return;
+  
+  let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
+
+  let remainingRatio = 100 - ratio;
+  let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+
+  for (let task of filteredTasks) {
+    let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+  }
+
+}
+
+function addOrInitNumber(variable, numberToAdd) {
+  if (variable === null || typeof variable === "undefined") {
+    variable = 0;
+  }
+  if (typeof variable !== "number") {
+    variable = parseFloat(variable);
+  }
+  if (!isNaN(variable)) {
+    variable += numberToAdd;
+  }
+  return variable;
 }
 
 async function taskSetTaskRatio(id) {
   let task = tasks.find(x => x.id == id);
   if (!task) return;
   
-  let value = window.prompt('Ratio', task.ratio);
+  const { value } = await Swal.fire({
+      title: 'Priority Ratio',
+      input: 'text',
+      inputLabel: 'example: 10, 25, 50',
+      inputValue: task.ratio,
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+  });
+  
   if (!value) return;
   
   task.ratio = parseFloat(value);
@@ -1630,11 +1782,13 @@ async function startCurrentTask(id) {
   // let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
 
   // setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
+  let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
+  androidClient.StartTimer(seconds, task.title);
   setTimer(task.target * 60 * 1000 - task.progressTime);
 }
 
 async function startTask(id) {
-  let task = tasks.find(x => x.id == id);
+  // let task = tasks.find(x => x.id == id);
   // task.progress = task.target;
   // task.progressTime = task.target * 60 * 1000;
   // await storeTask();
@@ -1665,11 +1819,25 @@ async function increaseTaskDuration(id) {
 }
 
 async function setTaskTarget(id) {
-  let target = window.prompt('Set mission target (example: 1h, 30m, or 1h30m)');
-  if (!target) return;
   
   let task = tasks.find(x => x.id == id);
-  task.target = Math.max(0, parseHoursMinutesToMinutes(target));
+  
+  const { value: userVal } = await Swal.fire({
+      title: 'Set mission target',
+      input: 'text',
+      inputLabel: 'example: 1h, 30m, or 1h30m',
+      inputValue: minutesToHoursAndMinutes(task.target),
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+  });
+  
+  if (!userVal) return;
+  
+  task.target = Math.max(0, parseHoursMinutesToMinutes(userVal));
   await storeTask();
   await TaskListTask();  
   await updateUI();
@@ -1742,12 +1910,12 @@ async function getActiveTask() {
   return null;
 }
 
-async function updateProgressActiveTask(addedProgress, distanceTime) {
+async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let data = await window.service.GetData(['activeTask']);
   if (data.activeTask) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      activeTask.progress += addedProgress;
+      activeTask.progress += addedMinutes;
       activeTask.progressTime += distanceTime;
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
@@ -1755,6 +1923,10 @@ async function updateProgressActiveTask(addedProgress, distanceTime) {
       activeTask.totalProgressTime += distanceTime;
       // update sub task total progress time
       updateSubTaskProgress(activeTask, distanceTime);
+      
+      // apply target time balancing
+      await TaskApplyTargetTimeBalanceInGroup(activeTask, distanceTime)
+      
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
@@ -1857,8 +2029,6 @@ function GetTotalProgressString() {
   let totalProgessString = minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
   alert(`Total timer progress : ${totalProgessString}`) ;
 }
-
-let asd = console.log;
 
 function RatioSettings() {
   let currentSettings = localStorage.getItem('ratio-label-settings') || 'main';
@@ -1963,7 +2133,6 @@ function getGroupById(id) {
 
 async function CalculateRatioV2(group, activeTimerDistanceTime) {
   
-  let total = 0;
   let listTask = [];
   if (group.id == '') {
     listTask = tasks.filter(x => x.parentId == '' || x.parentId == null);
@@ -1973,19 +2142,23 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
   
   if (listTask.length < 1) return;
   
+  let total = 0;
   let ids = [];
   let name = [];
   let progress = [];
   let ratio = [];
   
+  // # 1. sum total progress time from task with ratio and in the same group or level
+  // store its id, name, and progress+live progress+sum child progress
   for (let item of listTask) {
+    
+    // sumProgress[item.id] += item.totalProgressTime + liveProgressTime;
+    if (!item.ratio) continue;
+    
     let liveProgressTime = 0;
     if (item.id == group.activeTaskId) {
       liveProgressTime = activeTimerDistanceTime;
     }
-    
-    // sumProgress[item.id] += item.totalProgressTime + liveProgressTime;
-    if (!item.ratio) continue;
   
     ids.push(item.id);
     name.push(item.title);
@@ -1993,11 +2166,13 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
     ratio.push(item.ratio/100);
     // total += item.totalProgressTime + liveProgressTime;
     total += item.totalProgressTime ;
+    
   }
   
+  // # 2. do target time balancing based on progress and ratio of each items
   let result = balanceNumbersByHigherRatio(progress, ratio);
-  // set global variable time left ratio
 
+  // # 3. display on sidebar, and set the balancing result into global variable for later use
   
   let i = 0;
   let html = `<div><b>#${group.title}</b>\n`;
@@ -2007,7 +2182,9 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
     if (isMarkedActive) {
       html += '<mark>';    
     }
-    let timeLeft = Math.floor(result[i] / 60000) - Math.floor(progress[key]/60000);
+    
+    // # 4. calculate time target (in form of time left) of each items after balancing in minutes (60_000 ms)
+    let timeLeft = Math.floor(result[i] / 60000) - Math.floor(progress[key] / 60000);
     if (isNaN(timeLeft)) {
       timeLeft = 0;
     }
@@ -2021,13 +2198,12 @@ async function CalculateRatioV2(group, activeTimerDistanceTime) {
     timeLeftRatio.push({
       timeLeft,
       id: ids[i],
-    })
+    });
     
     i++;
   }
   html += '</div>';
   $('#txt-calculate-result-v2').innerHTML += html;
-  
   
 }
 
@@ -2063,49 +2239,59 @@ async function taskOpenTaskIntoView() {
 
 function balanceNumbersByHigherRatio(numbers, ratios, safeGuardCount = 0) {
     
-  // Check if the input arrays are of the same length
+  // # Check if the input arrays are of the same length
   if (numbers.length !== ratios.length) {
     throw new Error('Input arrays must have the same length.');
   }
 
-  // Calculate the optimal ratios for each number
+  // # Calculate the optimal ratios for each number
+  
+  // # 1. get sum progress
   let sum = numbers.reduce((a, b) => {
     return a + b;
-  }, 0)
+  }, 0);
   
-  if (sum == 0) return []
+  if (sum == 0) return [];
   
-    let currentRatios = []
-    for (let num of numbers) {
-      currentRatios.push(num/sum)
+  // # 2. calculate item's progress ratio = item's progress / total progress
+  let currentRatios = [];
+  for (let num of numbers) {
+    currentRatios.push(num / sum);
+  }
+  
+  // # 3. item's progress ratio > item's target ratio
+  let maxI = 0;
+  for (let i=0; i<numbers.length; i++) {
+    if (currentRatios[i] >= ratios[i]) {
+      maxI = i;
+    }
+  }
+  
+  // # sum the total ratio but omit the current overflow one  
+  let sumRatio = ratios.reduce((a, b, index) => {
+    if (index == maxI) return a;
+    
+    return a + b;
+  }, 0);
+  
+  // # calculate the inverted side of current task progress, e.g. if current progress is 40%, then get progress of the rest (60%)
+  let stock = numbers[maxI] * (1 - ratios[maxI]) / ratios[maxI];
+  
+  // # keep current overflow ratio item and distribute the rest value to everything else based on their ratio
+  let optimal = [];
+  for (let i=0; i<numbers.length; i++) {
+    if (i == maxI) {
+      optimal.push(numbers[i]);
+      continue;
     }
     
-    let maxI = 0;
-    for (let i=0; i<numbers.length; i++) {
-      if (currentRatios[i] >= ratios[i]) {
-        maxI = i;
-      }
-    }
-    
-    let sumRatio = ratios.reduce((a, b, index) => {
-      if (index == maxI) return a;
-      
-      return a + b;
-    }, 0)
-    
-    let stock = numbers[maxI] * (1 - ratios[maxI]) / ratios[maxI]
-    
-    let optimal = [];
-    for (let i=0; i<numbers.length; i++) {
-      if (i == maxI) {
-        optimal.push(numbers[i])
-        continue;
-      }
-      
-      optimal.push(stock * ratios[i] / sumRatio)
-    }
-    
-  // check final
+    optimal.push(stock * ratios[i] / sumRatio);
+  }
+  
+  
+  // # Keep the maximum value from either the optimal progress or the original progress.
+  //   If any of the optimal value is lower than current progress, redo the calculation with the new set.
+  
   let hasReduced = false;
   let final = [];
   for (let i=0; i<numbers.length; i++) {
@@ -2124,6 +2310,7 @@ function balanceNumbersByHigherRatio(numbers, ratios, safeGuardCount = 0) {
   }
   
   return optimal;
+  
 }
 
 
@@ -2179,7 +2366,7 @@ let app = (function () {
       case 'add-sub-timer': addSubTimer(id); break;
       case 'add-progress-minutes': 
         await TaskAddProgressManually(id); 
-        taskCalculateRatio();
+        // taskCalculateRatio();
         break;
       case 'track': trackProgress(id); break;
       case 'untrack': untrackProgress(id); break;
@@ -2234,7 +2421,7 @@ let app = (function () {
     
     syncGroupName(task.id, task.title, task.parentId);
     
-    taskCalculateRatio();
+    // taskCalculateRatio();
   }
   
   function syncGroupName(id, newTitle, parentId) {
@@ -2266,7 +2453,7 @@ let app = (function () {
         finishCountProgress: finishCount,
         title: form.title.value,
         target: parseHoursMinutesToMinutes(targetVal),
-        parentId: parentId ? parentId : null,
+        parentId: parentId ? parentId : '',
       });
       
       if (parentId) {

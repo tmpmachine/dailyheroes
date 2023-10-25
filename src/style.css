@@ -31,11 +31,11 @@ body {
 /*  }*/
 /*}*/
 
-@font-face {
-  font-family: 'Material Symbols Outlined';
-  font-style: normal;
-  src: url('fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2') format('woff');
-}
+/*@font-face {*/
+/*  font-family: 'Material Symbols Outlined';*/
+/*  font-style: normal;*/
+/*  src: url('fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2') format('woff');*/
+/*}*/
 .icon-mate {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -274,4 +274,19 @@ body[data-state~="--timer-running"] .task-progress-bar {
 .btn-star.is-starred {
   background: #fff900;
   border-color: #fff900;
+}
+
+
+/* # task body */
+.btn-start {
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fdff47;
+    border: 0;
+    color: white;
+    font-size: 1.7rem;
 }
