@@ -44,24 +44,6 @@ if (window.modeChromeExtension) {
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 
-
-async function setSleepTime() {
-  let data = await window.service.GetData('sleepTime');
-  let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
-  
-  let time = window.prompt('Sleep time', minutesToTimeString(initial));
-  if (time) {
-    let minutes = timeStringToMinutes(time);
-    if (minutes) {
-      await window.service.SetData({ 'sleepTime': minutes });
-      await calculateOverloadInfo();
-      uiComponent.loadSleepTime();
-      await updateUI();
-    }
-  }
-}
-
-
 function copyToClipboard(text) {
   var node  = document.createElement('textarea');
   node.value = text;
@@ -176,7 +158,6 @@ async function setTimer(duration) {
   }
   await window.service.SetData({ 'history': data.history + distanceMinutes });
   await window.service.RemoveData(['start']);
-  document.querySelector('#history').textContent = data.history + distanceMinutes;
   await updateProgressActiveTask(distanceMinutes, distanceTime);
   
   
@@ -285,11 +266,8 @@ function addTaskData(inputData) {
     progress: 0,
     progressTime: 0,
     totalProgressTime: 0,
-    parentId: '',
     
     // used by time balancing
-    initialDelta: 0,
-    targetMinutes: 0,
     targetTime: 0,
 
     lastUpdated: 0,
@@ -371,98 +349,10 @@ function loadSearch() {
 }
 
 
-async function getSleepTimeInMinutes() {
-  let defaultSleepHours = 22;
-  let data = await window.service.GetData('sleepTime');
-  let total = (data.sleepTime ? data.sleepTime : defaultSleepHours * 60);
-  
-  return total;
-}
-
-async function calculateOverloadInfo() {
-  let totalUnfinishedProgress = getSumUnfinishedProgress();
-  let sleepHoursInMinutes = await getSleepTimeInMinutes();
-  
-  let overloadWarningTxt = calculateOverload(totalUnfinishedProgress, sleepHoursInMinutes);
-  $('#txt-time-overload-info').innerHTML = '';
-  if (overloadWarningTxt) {
-    $('#txt-time-overload-info').innerHTML = overloadWarningTxt;
-  }
-}
-
-function getHoursAndMinutes(totalMinutes) {
-  const sleepHours = Math.floor(totalMinutes / 60);
-  const sleepMinutes = totalMinutes % 60;
-  return { sleepHours, sleepMinutes };
-}
-
-
-function calculateOverload(progress, sleepHoursInMinutes) {
-  
-  const { sleepHours, sleepMinutes } = getHoursAndMinutes(sleepHoursInMinutes);
-  
-  const sleepTime = new Date();
-  sleepTime.setHours(sleepHours, sleepMinutes, 0, 0); // set sleep time to today at 23:00
-  
-  const currentTime = new Date();
-  const totalTime = currentTime.getTime() + progress * 60000; // convert progress to milliseconds and add to current time
-  
-  if (totalTime > sleepTime.getTime()) {
-    const overload = Math.round((totalTime - sleepTime.getTime()) / 60000); // convert overload to minutes and round to nearest integer
-    return `There will be <b>${minutesToHoursAndMinutes(overload)}</b> of unfinished work after sleep time. Try readjusting tasks target or sleep time.`;
-  }
-  
-  return null; // return null if not overloaded
-}
-
-
 function deleteStorageItem(key) {
   chrome.storage.sync.remove(key, function() {
     console.log(`Key "${key}" removed from storage`);
   });
-}
-
-async function loadRestTime() {
-    
-  // load progress and rest from storage
-  window.service.GetData(['start', 'rest'], function(data) {
-    let liveProgress = 0;
-    if (data.start) {
-      liveProgress = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
-    }
-    let progress = getSumTaskProgress() + liveProgress;
-    let rest = data.rest || 0;
-    
-    let restAfterThresholdMinutes = 35;
-    
-    // calculate number of rest times
-    let numOfRestTimes = Math.floor(progress / restAfterThresholdMinutes) - rest;
-    let timeUntilRest = restAfterThresholdMinutes - progress % restAfterThresholdMinutes;
-    $('#txt-left-until-rest').textContent = `${minutesToHoursAndMinutes(timeUntilRest)} until next rest time`;
-  
-    // get container to append buttons to
-    let restTimeContainer = document.getElementById('rest-time');
-  
-    if (numOfRestTimes === 0) {
-      let restButton = document.createElement('span');
-      restButton.innerText = `No rest time available. Progress for ${restAfterThresholdMinutes}m to get 1 rest time.`;
-      restTimeContainer.appendChild(restButton);
-    }
-  
-    // append rest time buttons to container
-    for (let i = 1; i <= numOfRestTimes; i++) {
-      let restButton = document.createElement('button');
-      restButton.innerText = 'Take';
-      restTimeContainer.appendChild(restButton);
-      restButton.addEventListener('click', function() {
-        // increment rest value by 5 when button is clicked
-        rest += 1;
-        window.service.SetData({rest: rest});
-        restButton.remove();
-      });
-    }
-  });
-
 }
 
 async function clearAlarms() {
@@ -492,16 +382,9 @@ async function stopTimer() {
     await updateProgressActiveTask(distanceMinutes, distanceTime);
   }
   await window.service.RemoveData(['start']);
-  // window.close();
   
   updateUI();
   if (window.modeChromeExtension) {
-    // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      // 2. A page requested user data, respond with a copy of `user`
-      // if (message === 'get-user-data') {
-        // sendResponse(user);
-      // }
-    // });
     await chrome.runtime.sendMessage({message: 'stop'});
   }
   
@@ -596,11 +479,6 @@ async function updateTime(scheduledTime, startTime) {
 function updateProgressPercentage(startTime) {
   let distanceMinutes = Math.floor((new Date().getTime() - startTime) / (60 * 1000));
   let distanceTime = new Date().getTime() - startTime;
-  if (distanceMinutes > 0) {
-    $('#live-history').textContent = `(+${distanceMinutes}m)`;
-  } else {
-    $('#live-history').textContent = '(+0m)';
-  }
   
   // let history = getSumTaskProgress();
   let historyTime = getSumTaskProgressTime();
@@ -613,32 +491,6 @@ function updateProgressPercentage(startTime) {
   $('#percentage').textContent = `(${percentage}%)`;
   $('.progress-bar-fill').style.width = `${percentage}%`;
 }
-
-
-function calculateTimeDifferenceInMinutes(timeInMinutes) {
-  const currentTimeInMinutes = (new Date()).getHours() * 60 + (new Date()).getMinutes();
-  return timeInMinutes > currentTimeInMinutes ? timeInMinutes - currentTimeInMinutes : (24 * 60 - currentTimeInMinutes) + timeInMinutes;
-}
-
-
-async function getTimeBeforeSleep() {
-  let sleepHours = await getSleepTimeInMinutes();
-  let diffTime = calculateTimeDifferenceInMinutes(sleepHours);
-  return diffTime;
-}
-
-function showCurrentTimeInAMPM() {
-  const date = new Date();
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours %= 12;
-  hours = hours || 12;
-  const strTime = hours + ':' + (minutes < 10 ? '0' + minutes : minutes) + ' ' + ampm;
-  $('#txt-clock').textContent = strTime;
-  // console.log(strTime);
-}
-
 
 async function initData() {
   let result = window.service.GetData(['history']);
@@ -778,6 +630,18 @@ async function loadTasks() {
   if (data.tasks) {
     tasks = data.tasks;
   }
+  await integrityCheck(tasks);
+}
+
+async function integrityCheck(tasks) {
+  for (let task of tasks) {
+    if (typeof(task.targetTime) == 'undefined')
+      task.targetTime = 0;
+    if (typeof(task.ratio) == 'undefined')
+      task.ratio = 0;
+    if (task.parentId === null)
+      task.parentId = '';
+  }
 }
 
 function minutesToHoursAndMinutes(minutes) {
@@ -808,12 +672,6 @@ async function TaskListTask() {
 async function listTask() {
   
   let isMissionView = (lsdb.data.viewMode == 'mission');
-  
-  // try {
-  //   await taskCalculateRatio();
-  // } catch (e) {
-  //   console.error(e);
-  // }
   
   let totalRatio = 0;
   
@@ -928,50 +786,55 @@ async function listTask() {
     // }
     
     // ## handle if self task
-    // if (activeTask ||.id == item.id && typeof(activeTask.ratio) == 'number' && typeof(item.ratio) == 'number' && typeof(item.targetMinutes) == 'number') {
+    if (item.ratio > 0)
     {
-      let targetTime = item.targetTime;
-      if (activeTask && activeTask.id == item.id) {
-        targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
+      {
+        let targetTime = item.targetTime;
+        if (activeTask && activeTask.id == item.id) {
+          targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
+        }
+        if (targetTime > 0) {
+          ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+        }
       }
-      if (targetTime > 0) {
-        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
-      }
-    }
-      // ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(targetMinutes)}</mark>`;
-    // }
-    
-    // ## handle if other task
-    if (activeTask && activeTask.id != item.id && typeof(activeTask.ratio) == 'number' && typeof(item.ratio) == 'number' && typeof(item.targetTime) == 'number') {
       
-      let targetTime = item.targetTime;
-      
-      // calculate active task progress and target difference
-      try {
-
+      // ## handle if other task
+      if (activeTask && activeTask.id != item.id && item.ratio > 0 && item.targetTime > 0) {
+        
+        let targetTime = item.targetTime;
+        
+        // calculate active task progress and target difference
+        try {
+  
           let addedTime = activeTimerDistanceTime;
           let ratio = activeTask.ratio;
-          
-          let excessTime = activeTask.targetTime - addedTime;
-          if (excessTime < 0) {
+          if (ratio > 0) {
+            let excessTime = activeTask.targetTime - addedTime;
+            if (excessTime < 0) {
+              
+              let remainingRatio = 100 - ratio;
+              let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
             
-            let remainingRatio = 100 - ratio;
-            let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+              let addedTargetTime = Math.round(timeToDistribute * (item.ratio / remainingRatio));
+              targetTime = addOrInitNumber(targetTime, addedTargetTime);
+            }
+          }
           
-            let addedTargetTime = Math.round(timeToDistribute * (item.ratio / remainingRatio));
-            targetTime = addOrInitNumber(targetTime, addedTargetTime);
+          if (isSubTaskOf(activeTask.parentId, item.id)) {
+            targetTime -= activeTimerDistanceTime;
           }
           
         } catch (e) {
           console.error(e);
+        }
+        
+        if (targetTime > 0) {
+          ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+        }
+        
       }
-      
-      if (targetTime > 0) {
-        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
-      }
-      
-    }
     
+    }
     
     // show mission path
     let missionPath = '';
@@ -1123,6 +986,17 @@ async function listTask() {
   await setActiveTask();
 }
 
+function isSubTaskOf(parentId, findId) {
+  let group = getGroupById(parentId);
+  while (group) {
+    if (group.id == findId) {
+      return true;
+    }
+    group = getGroupById(group.parentId);
+  }
+  return false;
+}
+
 function isTopMissionPath(id) {
   for (let item of lsdb.data.missionIds) {
     if (item.id == id) return true;
@@ -1195,11 +1069,6 @@ function updateUI() {
     if (isRunning) {
       distanceMinutes = Math.floor((new Date().getTime() - result.start) / (60 * 1000));
       distanceTime = new Date().getTime() - result.start;
-      if (distanceMinutes > 0) {
-        $('#live-history').textContent = `(+${distanceMinutes}m)`;
-      } else {
-        $('#live-history').textContent = '(+0m)';
-      }
     }
     
     uiComponent.updateUI(isRunning);
@@ -1207,13 +1076,8 @@ function updateUI() {
     
     let history = getSumTaskProgress();
     let historyTime = getSumTaskProgressTime();
-    // let target = result.target;
     let target = getSumTaskTarget();
-    $('#history').textContent = minutesToHoursAndMinutes(history);
-    // $('#target').textContent = minutesToHoursAndMinutes(target);
-    $('#target').textContent = minutesToHoursAndMinutes(target);
-    $('#txt-time-before-sleep').textContent = minutesToHoursAndMinutes(await getTimeBeforeSleep());
-    $('#txt-unallocated-time').textContent = minutesToHoursAndMinutes(await getUnallocatedTime());
+    
     
     // $('#percentage').textContent = Math.max(100, Math.floor(history/target*100)/100);
     let percentage = Math.min(100, Math.floor((historyTime+distanceTime)/minutesToMs(target)*10000)/100);
@@ -1252,18 +1116,6 @@ function getSumTaskProgressTime() {
   return total;
 }
 
-function getSumUnfinishedProgress() {
-  let total = 0;
-  for (let item of tasks) {
-    if (item.untracked) {
-      continue;
-    }
-    total += Math.max(0, item.target - msToMinutes(item.progressTime));
-  }
-  
-  return total;
-}
-
 function getSumTaskTarget() {
   let total = 0;
   for (let item of tasks) {
@@ -1273,17 +1125,6 @@ function getSumTaskTarget() {
     total += Math.max(0, item.target);
   }
   
-  return total;
-}
-
-async function getUnallocatedTime() {
-  let total = 0;
-  try {
-    // let totalTarget = getSumTaskTarget();
-    let totalUnfinished = getSumUnfinishedProgress();
-    let timeBeforSleep = await getTimeBeforeSleep();
-    total = timeBeforSleep - totalUnfinished;
-  } catch (e) {}
   return total;
 }
 
@@ -1313,7 +1154,7 @@ async function taskDeleteTask(id, taskEl) {
   let totalDeletedProgressTime = 0;
   
   let deleteIndex = tasks.findIndex(x => x.id == id);
-  let parentTask = app.getTaskById(tasks[deleteIndex].parentId);
+  let parentTask = app.GetTaskById(tasks[deleteIndex].parentId);
   totalDeletedProgressTime += tasks[deleteIndex].progressTime;
   tasks.splice(deleteIndex, 1);
   
@@ -1322,6 +1163,14 @@ async function taskDeleteTask(id, taskEl) {
     let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
     if (deleteIndex >= 0) {
       lsdb.data.groups.splice(deleteIndex, 1);
+    }
+  }
+  
+  // delete mission
+  {
+    let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
+    if (deleteIndex >= 0) {
+      lsdb.data.missionIds.splice(deleteIndex, 1);
     }
   }
 
@@ -1343,7 +1192,7 @@ async function taskDeleteTask(id, taskEl) {
 }
 
 async function taskNavigateToMission(id) {
-  let task = await app.getTaskById(id);
+  let task = await app.GetTaskById(id);
   if (!task) return;
   
   changeViewModeConfig('tasks');
@@ -1396,6 +1245,13 @@ function deleteAllChildTasksByParentId(id) {
       let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
       if (deleteIndex >= 0) {
         lsdb.data.groups.splice(deleteIndex, 1);
+      }
+    }
+    // delete mission
+    {
+      let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
+      if (deleteIndex >= 0) {
+        lsdb.data.missionIds.splice(deleteIndex, 1);
       }
     }
     
@@ -1462,9 +1318,7 @@ async function TaskAddProgressManually(id) {
     task.progressTime = Math.max(0, task.progressTime);
     task.totalProgressTime = Math.max(0, task.totalProgressTime);
     
-    // apply target time balancing
-    await TaskApplyTargetTimeBalanceInGroup(task, addedMinutes * 60 * 1000);
-    
+    await taskApplyNecessaryTaskUpdates(task, addedMinutes * 60 * 1000);
     await storeTask();  
     TaskListTask();
     
@@ -1474,6 +1328,16 @@ async function TaskAddProgressManually(id) {
     return;
   }
   
+}
+
+async function taskApplyAllParentTargetTime(parentId, distanceTime) {
+  let task = app.GetTaskById(parentId);
+  while (task) {
+    if (task.ratio > 0) {
+      await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
+    }
+    task = app.GetTaskById(task.parentId);
+  }
 }
 
 async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
@@ -1801,7 +1665,6 @@ async function reduceTaskDuration(id) {
   
   let task = tasks.find(x => x.id == id);
   task.target = Math.max(0, task.target - parseHoursMinutesToMinutes(target));
-  calculateOverloadInfo();
   await storeTask();
   await listTask();  
   await updateUI();
@@ -1921,12 +1784,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
         activeTask.totalProgressTime = 0;  
       }
       activeTask.totalProgressTime += distanceTime;
-      // update sub task total progress time
-      updateSubTaskProgress(activeTask, distanceTime);
       
-      // apply target time balancing
-      await TaskApplyTargetTimeBalanceInGroup(activeTask, distanceTime)
-      
+      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime);
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
@@ -1935,6 +1794,16 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
         el.querySelector('[data-obj="progress"]').textContent = minutesToHoursAndMinutes(msToMinutes(activeTask.progressTime));
       }
     }
+  }
+}
+
+async function taskApplyNecessaryTaskUpdates(task, distanceTime) {
+  // update all parent target time
+  await taskApplyAllParentTargetTime(task.parentId, distanceTime);
+  
+  // apply target time balancing
+  if (task.ratio > 0) {
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
   }
 }
 
@@ -2040,172 +1909,12 @@ function RatioSettings() {
 
 let timeLeftRatio = [];
 
-async function taskCalculateRatio() {
-  
-  if (tasks.length == 0) return;
-  
-  let groups = [];
-  let parentId = ''
-  let activeTaskId;
-  let activeTimerDistanceTime = 0;
-  
-  let activeTask = await getActiveTask();
 
-  let activeGroup = lsdb.data.groups.find(x => x.id == lsdb.data.activeGroupId);
-  
-  if (lsdb.data.viewMode == 'tasks') {
-    // if (activeTask) {
-    //   activeTaskId = activeTask.id
-    //   activeTimerDistanceTime = await getActiveTimerDistanceTime();
-    //   activeGroup = lsdb.data.groups.find(x => x.id == activeTask.parentId)
-    // }
-  }
-
-  if (activeGroup) {
-    groups.push({
-      id: activeGroup.id,
-      title: activeGroup.name,
-      activeTaskId,
-    });
-    
-    let safeLoopCount = 10;
-    parentId = activeGroup.parentId;
-    if (activeTask) {
-      activeTaskId = activeTask.parentId;
-    }
-
-    while (parentId != '') {
-      
-      activeGroup = lsdb.data.groups.find(x => x.id == parentId);
-      if (!activeGroup) {
-        break;
-      };
-      
-      groups.splice(0, 0, {
-        activeTaskId, // store active task id before updating parent id
-        id: activeGroup.id,
-        title: activeGroup.name,
-      });
-      
-      // update the parent id
-      if (activeGroup.parentId == '') {
-        activeTaskId = activeGroup.id;
-        break;
-      } else {
-        parentId = activeGroup.parentId;
-        activeTaskId = activeGroup.id;
-      }
-      
-      // safe loop leaking
-      safeLoopCount -= 1;
-      if (safeLoopCount < 0) {
-        break;
-      }
-    }
-  
-    // append root group
-    groups.splice(0, 0, {
-      id: '',
-      title: 'Home',
-      activeTaskId: activeTaskId,
-    });
-  } else {
-    // append root group
-    groups.splice(0, 0, {
-      id: '',
-      title: 'Home',
-      activeTaskId,
-    });
-  }
-  
-  
-  timeLeftRatio.length = 0;
-  $('#txt-calculate-result-v2').innerHTML = '';
-  
-  for (let group of groups) {
-    await CalculateRatioV2(group, activeTimerDistanceTime);
-  }
-}
 
 function getGroupById(id) {
   return lsdb.data.groups.find(x => x.id == id)
 }
 
-async function CalculateRatioV2(group, activeTimerDistanceTime) {
-  
-  let listTask = [];
-  if (group.id == '') {
-    listTask = tasks.filter(x => x.parentId == '' || x.parentId == null);
-  } else {
-    listTask = tasks.filter(x => x.parentId == group.id);
-  }
-  
-  if (listTask.length < 1) return;
-  
-  let total = 0;
-  let ids = [];
-  let name = [];
-  let progress = [];
-  let ratio = [];
-  
-  // # 1. sum total progress time from task with ratio and in the same group or level
-  // store its id, name, and progress+live progress+sum child progress
-  for (let item of listTask) {
-    
-    // sumProgress[item.id] += item.totalProgressTime + liveProgressTime;
-    if (!item.ratio) continue;
-    
-    let liveProgressTime = 0;
-    if (item.id == group.activeTaskId) {
-      liveProgressTime = activeTimerDistanceTime;
-    }
-  
-    ids.push(item.id);
-    name.push(item.title);
-    progress.push(item.totalProgressTime + liveProgressTime + getTotalProgressTimeByParentId(item.id));
-    ratio.push(item.ratio/100);
-    // total += item.totalProgressTime + liveProgressTime;
-    total += item.totalProgressTime ;
-    
-  }
-  
-  // # 2. do target time balancing based on progress and ratio of each items
-  let result = balanceNumbersByHigherRatio(progress, ratio);
-
-  // # 3. display on sidebar, and set the balancing result into global variable for later use
-  
-  let i = 0;
-  let html = `<div><b>#${group.title}</b>\n`;
-  // let activeTaskLabels = (activeTask && activeTask.label ? activeTask.label.split(',') : [] );
-  for (let key in progress) {
-    let isMarkedActive = (ids[i] == group.activeTaskId);
-    if (isMarkedActive) {
-      html += '<mark>';    
-    }
-    
-    // # 4. calculate time target (in form of time left) of each items after balancing in minutes (60_000 ms)
-    let timeLeft = Math.floor(result[i] / 60000) - Math.floor(progress[key] / 60000);
-    if (isNaN(timeLeft)) {
-      timeLeft = 0;
-    }
-    
-    html += `${name[i]} : ${minutesToHoursAndMinutes(timeLeft)}\n`;
-    
-    if (isMarkedActive) {
-      html += '</mark>';    
-    }
-    
-    timeLeftRatio.push({
-      timeLeft,
-      id: ids[i],
-    });
-    
-    i++;
-  }
-  html += '</div>';
-  $('#txt-calculate-result-v2').innerHTML += html;
-  
-}
 
 function getTotalProgressTimeByParentId(parentId) {
   
@@ -2237,81 +1946,6 @@ async function taskOpenTaskIntoView() {
 }
   
 
-function balanceNumbersByHigherRatio(numbers, ratios, safeGuardCount = 0) {
-    
-  // # Check if the input arrays are of the same length
-  if (numbers.length !== ratios.length) {
-    throw new Error('Input arrays must have the same length.');
-  }
-
-  // # Calculate the optimal ratios for each number
-  
-  // # 1. get sum progress
-  let sum = numbers.reduce((a, b) => {
-    return a + b;
-  }, 0);
-  
-  if (sum == 0) return [];
-  
-  // # 2. calculate item's progress ratio = item's progress / total progress
-  let currentRatios = [];
-  for (let num of numbers) {
-    currentRatios.push(num / sum);
-  }
-  
-  // # 3. item's progress ratio > item's target ratio
-  let maxI = 0;
-  for (let i=0; i<numbers.length; i++) {
-    if (currentRatios[i] >= ratios[i]) {
-      maxI = i;
-    }
-  }
-  
-  // # sum the total ratio but omit the current overflow one  
-  let sumRatio = ratios.reduce((a, b, index) => {
-    if (index == maxI) return a;
-    
-    return a + b;
-  }, 0);
-  
-  // # calculate the inverted side of current task progress, e.g. if current progress is 40%, then get progress of the rest (60%)
-  let stock = numbers[maxI] * (1 - ratios[maxI]) / ratios[maxI];
-  
-  // # keep current overflow ratio item and distribute the rest value to everything else based on their ratio
-  let optimal = [];
-  for (let i=0; i<numbers.length; i++) {
-    if (i == maxI) {
-      optimal.push(numbers[i]);
-      continue;
-    }
-    
-    optimal.push(stock * ratios[i] / sumRatio);
-  }
-  
-  
-  // # Keep the maximum value from either the optimal progress or the original progress.
-  //   If any of the optimal value is lower than current progress, redo the calculation with the new set.
-  
-  let hasReduced = false;
-  let final = [];
-  for (let i=0; i<numbers.length; i++) {
-    if (numbers[i] > optimal[i]) {
-      hasReduced = true;
-    }
-    final.push(Math.max(optimal[i], numbers[i]));
-  }
-  
-  if (hasReduced) {
-    if (safeGuardCount > 10) {
-      console.log('safeguard reached max');
-      return optimal;
-    }
-    optimal = balanceNumbersByHigherRatio(final, ratios, safeGuardCount + 1);
-  }
-  
-  return optimal;
-  
-}
 
 
 let app = (function () {
@@ -2320,21 +1954,18 @@ let app = (function () {
     InitApp,
     TaskClickHandler,
     
+    GetTaskById,
     getTaskById: GetTaskById,
     TaskAddTask,
     TaskUpdateTask,
   };
   
   async function InitApp() {
-    showCurrentTimeInAMPM();
     await initData();
     attachListeners();
     await loadTasks();
     await listTask();
-    await loadRestTime();
-    await calculateOverloadInfo();
     TaskSetActiveTaskInfo();
-    uiComponent.loadSleepTime();
     uiComponent.Init();
     updateUI();
     
@@ -2366,7 +1997,6 @@ let app = (function () {
       case 'add-sub-timer': addSubTimer(id); break;
       case 'add-progress-minutes': 
         await TaskAddProgressManually(id); 
-        // taskCalculateRatio();
         break;
       case 'track': trackProgress(id); break;
       case 'untrack': untrackProgress(id); break;
@@ -2420,8 +2050,6 @@ let app = (function () {
     form.stateList.remove('--edit-mode');
     
     syncGroupName(task.id, task.title, task.parentId);
-    
-    // taskCalculateRatio();
   }
   
   function syncGroupName(id, newTitle, parentId) {
@@ -2457,7 +2085,7 @@ let app = (function () {
       });
       
       if (parentId) {
-        let parentTask = await app.getTaskById(parentId);
+        let parentTask = await app.GetTaskById(parentId);
         await CheckAndCreateGroups(parentTask.title, parentId);
       }
     } catch (e) {

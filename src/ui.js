@@ -181,15 +181,8 @@ let uiComponent = (function () {
     
   };
   
-  SELF.loadSleepTime = async function() {
-    let data = await window.service.GetData('sleepTime');
-    let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
-    $('#txt-sleeptime').textContent = minutesToTimeString(initial);
-  };
-  
   SELF.updateUI = function(isTimerRunning) {
     if (!isTimerRunning) {
-      $('#live-history').textContent = '';
       // countdown
       $('#txt-countdown').textContent = '00:00:00';
       $('.NzE2ODYyNQ-progress-bar-fill').style.width = '0%';

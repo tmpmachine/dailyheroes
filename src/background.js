@@ -60,13 +60,33 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
       activeTask.totalProgressTime += distanceTime;
       
       // apply target time balancing
-      await TaskApplyTargetTimeBalanceInGroup(activeTask, distanceTime, tasks)
-          
-      // update sub task total progress time
-      updateSubTaskProgress(activeTask, distanceTime);
-
+      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks)
       await storeTask(tasks);
     }
+  }
+}
+
+async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
+  // update all parent target time
+  await taskApplyAllParentTargetTime(task.parentId, distanceTime, tasks);
+  
+  // apply target time balancing
+  if (task.ratio > 0) {
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
+  }
+}
+
+function GetTaskById(tasks, id) {
+  return tasks.find(x => x.id == id);
+}
+
+async function taskApplyAllParentTargetTime(parentId, distanceTime, tasks) {
+  let task = GetTaskById(tasks, parentId);
+  while (task) {
+    if (task.ratio > 0) {
+      await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
+    }
+    task = GetTaskById(tasks, task.parentId);
   }
 }
 
@@ -74,7 +94,7 @@ async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, tasks) {
   try {
       let excessTime = task.targetTime - addedTime;
       if (excessTime < 0) {
-        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
+        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime), tasks);
       }
       task.targetTime = Math.max(0, task.targetTime - addedTime);
     } catch (e) {
@@ -109,19 +129,6 @@ function addOrInitNumber(variable, numberToAdd) {
     variable += numberToAdd;
   }
   return variable;
-}
-
-function updateSubTaskProgress(task, distanceTime) {
-  if (!task.activeSubTaskId) return;
-
-  let note = getSubMissionById(task, task.activeSubTaskId);
-  if (!note) return;
-
-  if (typeof(note.totalProgressTime) == 'undefined') {
-    note.totalProgressTime = 0;
-  }
-
-  note.totalProgressTime += distanceTime;
 }
 
 function getSubMissionById(task, subId) {
