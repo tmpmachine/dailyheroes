@@ -118,9 +118,6 @@
         </div>
         
         [ .d-flex .justify-content-between
-          [
-            [btn 'Get Report' .clickable data-callback='get-report' .d-none]
-          ]
           [ .d-none
             [btn 'Settings' .clickable data-callback='ratio-settings']
             [btn 'Ratio' .clickable data-callback='ratio-config']
@@ -189,33 +186,13 @@
     
   	[ .container-item data-obj="task" data-id="?" data-kind="task"
   	  
-      [ .d-flex .justify-content-between
-        [ .d-flex
-          <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
-          <button data-role='remove-mission' class="icon-mate" title='Remove from mission'>playlist_remove</button>
-          <button data-role='add-to-mission' class="icon-mate" title='Add to mission'>playlist_add</button>
-          [ .d-flex .align-items-center {p:0 0.5rem} {gap:0.3rem} {fs:10px}
-            <span data-slot="ratio"></span>
-            <span data-slot="ratioTimeLeftStr" data-slot-html></span>
-          ]
-        ]
-        [ .d-flex
-          [ .container-navigate-mission .d-none
-            [btn data-role='navigate-mission' title='Open mission into view' .icon-mate 'open_in_new']
-          ]
-          [ .container-create-sub .d-none .d-flex
-            <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>account_tree</button>
-          ]
-          [ .container-navigate .d-none .d-flex
-            [btn data-role='navigate-sub' title='View sub missions' .icon-mate 'chevron_right']
-          ]
-        ]
-      ]
-  	  
   	  <!-- # task body -->
-  	  [ {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto}
+  	  [ {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
   	  
+  	    <!-- ## task top info -->
   	    [
+  	    
+  	      <!-- ### task info (title) -->
       	  <div class="d-flex justify-content-between">
       	    [
         	    [ data-slot="missionPath" data-slot-html]
@@ -225,81 +202,126 @@
       	      <span data-slot="label"></span>
       	    ]
             [ {fs:0.7rem}
-              [ .d-none
-                <span data-slot="totalProgressLabel"></span>
-              ]
               <span data-slot="rankLabel"></span>
               [s .label-finish-count]
             ]
       	  </div>
       	  
-          <div style="margin-top:0.7rem"></div>
-      	  <div class="default-inline-flex-gap" data-slot="" data-template="#tmp-mission-buttons">
-      	  </div>
-      	 
-      	  <!--task notes-->
+      	  [ .mb-m]
+      	  
+      	  <!-- ### time progress info -->
+        	<div style="font-size:0.7rem;display:flex;">
+            [ {flex:1} 
+          	  <span data-obj="progress" data-slot="progress"></span>
+          	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+          	  <span data-slot="totalProgressStr"></span>
+          	  --
+      	      <span data-slot="targetString"></span> 
+      	      <span class="d-none" data-slot="completionPercentage"></span>
+        	  ]
+        	  [
+              <span data-slot="ratio"></span>
+              <span data-slot="ratioTimeLeftStr" data-slot-html></span>
+        	  ]
+        	</div>
+        
+      	  <!-- ### task notes -->
       	  <div style="margin-top:1rem;">
       	    <div data-slot="note" data-template='#tmp-notes'></div>
       	  </div>
+      	  
     	  ]
+    	  <!-- ### play button -->
     	  [ .d-flex .align-items-center
           [btn .btn-start data-role='start' data-group="active not-running" title='Start' .icon-mate
             play_arrow
           ]
+          [btn .btn-stop data-role='stop' data-group="active" title='Stop' .icon-mate
+            stop
+          ]
     	  ]
   	  
   	  ]
+	    <!-- ## -->
   	  
-      <div data-obj="tracking-status" style="height:4px;"></div>
-    	
-    	
-    	<div style="padding:2px 4px;font-size:0.7rem;display:flex;">
-        [ {flex:1} 
-      	  <span data-obj="progress" data-slot="progress"></span><span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
-    	  ]
-    	  [
-  	      <span data-slot="targetString"></span> 
-  	      <span class="d-none" data-slot="completionPercentage"></span>
-    	  ]
-    	</div>
-    	<!-- # running task indicator -->
+  	  
+  	  <!-- # task footer information -->
+  	  
+  	  <!-- # task toolbar -->
+  	  [ .container-task-toolbar {p:0.5rem}
+    	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons"]
+    	  
+        <div data-obj="tracking-status" style="height:4px;"></div>
+      	
+      	[ .d-none
+        	<div class="NzA5ODc1NQ-progress-bar-container">
+            <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
+              <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+            </div>
+          </div>
+      	]
+  	  ]
+  	  
+  	  <!-- ## running task indicator -->
     	<div class="task-progress-bar-container">
         <div class="task-progress-bar"></div>
       </div>
-    	[ .d-none
-      	<div class="NzA5ODc1NQ-progress-bar-container">
-          <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
-            <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
-          </div>
-        </div>
-    	]
+      
+    	<!-- # -->
       
   	]
   </template>
 
   <template id="tmp-mission-buttons">
-    <button data-role='set-active' class="icon-mate" title='Focus on this task' data-group="not-running unarchived">track_changes</button>
-    <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
-    <!--<button data-role='reduce' class="icon-mate">remove</button>-->
-    <!--<button data-role='add' class="icon-mate">add</button>-->
-    <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
-    <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>[ {pr:0.3rem}]
-    <button data-role='set-target' class="icon-mate" data-group="active" title='Change target'>schedule</button>
-    <button data-role='edit' class="icon-mate" title='Setting'>edit</button>
-    [ .d-none
-      <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
-      <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
+
+    [ .d-inline-flex {gap:0.2rem}
+      <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
+      [ .d-flex
+        <button data-role='remove-mission' class="icon-mate" title='Remove from mission'>playlist_remove</button>
+        <button data-role='add-to-mission' class="icon-mate" title='Add to mission'>playlist_add</button>
+      ]
+      
+      [ .d-none
+        <button data-role='set-active' class="icon-mate" title='Focus on this task' data-group="not-running unarchived">track_changes</button>
+      ]
+      <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
+      <!--<button data-role='reduce' class="icon-mate">remove</button>-->
+      <!--<button data-role='add' class="icon-mate">add</button>-->
+      <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
+      <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Change target'>schedule</button>
+      <button data-role='edit' class="icon-mate" data-group="not-running" title='Setting'>edit</button>
+      [ .d-none
+        <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
+        <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
+      ]
+      <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
+      <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
+      <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
+      <button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>
+      <!-- <button data-role='add-label' class="icon-mate">label</button> -->
+      <div style="padding-top:4px;"></div>
+      <div data-role="manage" class="default-inline-flex-gap">
+        <button data-role='track'>Track</button>
+        <button data-role='untrack'>Untrack</button>
+      </div>
+      [ {pr:0.3rem} data-group="not-running"]
+      <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
     ]
-    <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
-    <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
-    <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
-    <button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>
-    <!-- <button data-role='add-label' class="icon-mate">label</button> -->
-    <div style="padding-top:4px;"></div>
-    <div data-role="manage" class="default-inline-flex-gap">
-      <button data-role='track'>Track</button>
-      <button data-role='untrack'>Untrack</button>
-    </div>
+    
+    <!-- # sub task buttons -->
+    [ .d-flex {gap:0.2rem}
+      [ .container-navigate-mission .d-none
+        [btn data-role='navigate-mission' title='Open mission into view' .icon-mate 'open_in_new']
+      ]
+      [ .container-create-sub .d-none .d-flex
+        <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>account_tree</button>
+      ]
+      [ .container-navigate .d-none .d-flex
+        [btn data-role='navigate-sub' title='View sub missions' .icon-mate 'chevron_right']
+      ]
+    ]
+	  
+    
   </template>
   
   <template id='tmp-notes'>

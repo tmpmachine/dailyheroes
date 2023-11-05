@@ -31,8 +31,9 @@
 [data-obj="task"]:not([data-state~="--is-mission"]) [data-role="remove-mission"],
 [data-obj="task"][data-state~="--is-mission"] [data-role="add-to-mission"],
 [data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"],
-[data-obj="task"]:not([data-state~="--active"]) .task-progress-bar-container
-  { display: none; }
+[data-obj="task"]:not([data-state~="--active"]) .task-progress-bar-container { 
+  display: none; 
+}
 
 #tasklist-completed [data-kind="task"]::after {
   content: '';
@@ -98,4 +99,10 @@ body[data-state~="--timer-running"] .container-task [data-state="--active"] [dat
 body:not([data-state~="--import-mode"]) [data-section="import"],
 _ {
   display:none
+}
+
+/* # timer is running */
+[data-obj="task"]:not([data-state~="--active"]) .btn-stop,
+body:not([data-state~="--timer-running"]) [data-obj="task"][data-state~="--active"] .btn-stop {
+  display: none;
 }

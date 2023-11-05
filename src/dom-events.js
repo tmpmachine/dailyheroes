@@ -53,7 +53,6 @@ window.DOMEvents = {
 		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
 		
 		// bottom buttons
-		'get-report': () => GetTotalProgressString(),
 		'ratio-settings': () => RatioSettings(),
 		'ratio-config': () => {
 		  $('.container-ratio-config').classList.toggle('d-none');

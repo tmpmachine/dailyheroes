@@ -844,6 +844,15 @@ async function listTask() {
       ratioStr = '';
       missionPath = getAndComputeMissionPath(item.parentId);
     }
+    
+    // show total task progress (self + child tasks)
+    let totalProgressStr = '';
+    let totalProgressMinutes = msToMinutes(item.totalProgressTime);
+    {
+      let totalMsProgressChildTask = sumAllChildProgress(item.id);
+      totalProgressStr = `(${minutesToHoursAndMinutes( totalProgressMinutes + msToMinutes(totalMsProgressChildTask) )} total)`;
+    }
+
 
     let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
     let fillData = {...item, ...{
@@ -852,10 +861,10 @@ async function listTask() {
       missionPath,
       ratio: ratioStr,
       ratioTimeLeftStr,
+      totalProgressStr,
       targetString: (targetMinutesLeftStr.trim().length > 0 ? `${targetMinutesLeftStr} left` : ''),
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
       progress: progressMinutesLeft ? minutesToHoursAndMinutes(progressMinutesLeft) : '0m',
-      totalProgressLabel: item.totalProgressTime ? 'Total : ' + minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)) : '',
     }};
 
 
@@ -984,6 +993,10 @@ async function listTask() {
   $('#tasklist-completed').append(docFragCompleted);
   
   await setActiveTask();
+}
+
+function sumAllChildProgress(parentId) {
+  return tasks.filter(x => x.parentId == parentId).reduce((total, item) => total + item.totalProgressTime + sumAllChildProgress(item.id), 0); 
 }
 
 function isSubTaskOf(parentId, findId) {
@@ -1151,6 +1164,10 @@ function resetActiveGroupId() {
 
 
 async function taskDeleteTask(id, taskEl) {
+  
+  let isConfirm = window.confirm('Are you sure?');
+  if (!isConfirm) return; 
+  
   let totalDeletedProgressTime = 0;
   
   let deleteIndex = tasks.findIndex(x => x.id == id);
@@ -1176,11 +1193,12 @@ async function taskDeleteTask(id, taskEl) {
 
   // delete child task recurisively
   totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
+  console.log(totalDeletedProgressTime)
   
   // put total progress time of deleted tasks into the parent progress
   if (parentTask) {
-    parentTask.progressTime += totalDeletedProgressTime;
-    parentTask.progress += Math.floor(totalDeletedProgressTime/60000);
+    parentTask.totalProgressTime += totalDeletedProgressTime;
+    // parentTask.progress += Math.floor(totalDeletedProgressTime/60000);
   }
   
   await storeTask();
@@ -1210,10 +1228,10 @@ function taskAddToMission(id, parentEl) {
       lastUpdatedDate: new Date().getTime(),
       createdDate: new Date().getTime(),
     });
-    parentEl.stateList.add('--is-mission')
+    parentEl.stateList.add('--is-mission');
   } else {
     lsdb.data.missionIds.splice(idx, 1);
-    parentEl.stateList.remove('--is-mission')
+    parentEl.stateList.remove('--is-mission');
     if (isViewModeMission()) {
       parentEl.remove();
     }
@@ -1891,14 +1909,6 @@ function parseHoursMinutesToMinutes(timeString) {
   return (hours * 60) + minutes;
 }
 
-function GetTotalProgressString() {
-  let totalProgressTime = tasks.reduce((total, item) => {
-    return total += item.totalProgressTime;
-  }, 0);
-  let totalProgessString = minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
-  alert(`Total timer progress : ${totalProgessString}`) ;
-}
-
 function RatioSettings() {
   let currentSettings = localStorage.getItem('ratio-label-settings') || 'main';
   let label = window.prompt('Labels to check', currentSettings);
@@ -2023,6 +2033,7 @@ let app = (function () {
       case 'restart': await restartTask(id); break;
       case 'take-note': showModalNote(id); break;
       case 'start': await startTaskTimer(parentEl, id); break;
+      case 'stop': await stopTimer(); break;
         
       // notes
       case 'rename-sub-task': renameNote(id, el); break;
