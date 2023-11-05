@@ -1,13 +1,67 @@
 window.DOMEvents = {
 	clickable: {
-	  'show-modal-add-task': () => uiComponent.ShowModalAddTask(),
+	  'reset-data': async () => {
+	    
+	    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire(
+            'Deleted!',
+            'Your file has been deleted.',
+            'success'
+          )
+          lsdb.reset();
+    	    tasks.length = 0;
+    	    await storeTask();
+        }
+      })
+	 
+	  },
+	  'show-modal-add-task': () => {
+	    uiComponent.ShowModalAddTask({
+	      parentId: lsdb.data.activeGroupId,
+	    });
+    },
+    
+    'view-mission': () => {
+      changeViewModeConfig('mission');
+      resetActiveGroupId();
+      lsdb.save();
+      uiComponent.BuildBreadcrumbs();
+      listTask();
+    },
+    'view-tasks': () => {
+      changeViewModeConfig('tasks');
+      resetActiveGroupId();
+      lsdb.save();
+      uiComponent.BuildBreadcrumbs();
+      listTask();
+    },
+    
+    'open-task-into-view': () => taskOpenTaskIntoView(),
 		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
 		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
-		'set-sleep-time': () => setSleepTime(),
 		'export-tasks': () => exportTasks(),
 		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
 		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
-		'get-report': () => GetTotalProgressString(),
+		
+		// bottom buttons
+		'ratio-settings': () => RatioSettings(),
+		'ratio-config': () => {
+		  $('.container-ratio-config').classList.toggle('d-none');
+		},
+		'save-ratio': () => {
+		  let settingsJSON = $('#in-ratio-settings').value.trim();
+		  localStorage.setItem('ratio-settings', settingsJSON);
+		},
+		
 		'reset-progress': async () => {
 			// if (!window.confirm('Are you sure?')) return;
 			
@@ -40,9 +94,11 @@ window.DOMEvents = {
 			await window.service.SetData({ 'target': 3*60 + 20 });
 			updateUI();
 		},
-	  	'task-click-handler': (ev) => taskClickHandler(ev.target),
-		'stop-timer': () => stopTimer(),
+  	'task-click-handler': (ev) => app.TaskClickHandler(ev.target),
+		
+		'stop-timer': () => TaskStopActiveTask(),
 		'start-or-restart-timer': () => startOrRestartTask(),
+		
 		'finish-timer': () => finishTimer(),
 		'set-alarm': async (ev) => {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
@@ -58,7 +114,16 @@ window.DOMEvents = {
 	      window.lsdb.save();
         // await window.service.SetData({'search': val});
 	    }, 250);
-	  }
+	  },
+	  'save-label-filter': (e) => {
+	    let val = e.target.value;
+	    window.clearTimeout(window.saveTimeout);
+	    window.saveTimeout = window.setTimeout(async function() {
+	      window.lsdb.data.labelFilter = val;
+	      window.lsdb.save();
+	      loadSearch()
+	    }, 250);
+	  },
 	},
 	submittable: {
 	  'set-timer': async (ev) => {
@@ -87,9 +152,9 @@ window.DOMEvents = {
 	  'submit-task': (ev) => {
   		ev.preventDefault();
 	    if (ev.target.id.value.length > 0) {
-	      TaskUpdateTask(ev.target);
+	      app.TaskUpdateTask(ev.target);
 	    } else {
-	      TaskAddTask(ev.target);
+	      app.TaskAddTask(ev.target);
 	    }
   		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
   		modal.close();
@@ -128,3 +193,53 @@ window.DOMEvents = {
 	    },
 	}
 };
+
+
+function OnePress() {
+
+    let pressed = {}
+    
+    function watch(type, key) {
+      if (type == 'keydown') {
+        if (pressed[key]) {
+          
+        } else {
+          pressed[key] = true
+          return true
+        }
+      } else {
+        pressed[key] = false;
+      }
+      
+      return false
+    }
+    
+    function blur() {
+      pressed = {};
+    }
+    
+    return {
+      watch,
+      blur,
+    };
+
+}
+
+let onePress = OnePress();
+
+
+;(() => {
+ 
+  function keyHandler(event) {
+    if (event.key == 's') {
+      if (onePress.watch(event.type, event.key)) {
+        if (event.altKey) {
+          toggleStartTimer();
+        }
+      }
+    }
+  }
+  window.addEventListener('keydown', keyHandler);
+  window.addEventListener('keyup', keyHandler);
+  
+})();

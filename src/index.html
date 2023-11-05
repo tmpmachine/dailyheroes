@@ -4,232 +4,324 @@
 
   <link href="style.css" rel="stylesheet"/>
   <link href="app.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
   <meta name="viewport" content="width=device-width"/>
-  <title>Daily Heroes Timer</title>
+  <title>Daily Heroes</title>
 
 </head>
 <body>
   
-  <div style="min-width:360px;max-width:500px;margin:auto;">
-  
-    <!-- left column -->
-    <section>
-      
-      <div class="d-flex justify-content-between">
-        <button class="clickable" data-callback='show-modal-add-task'>New Timer (Alt + N)</button>
-        <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
-        <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
-        <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
-        <h3 style="margin:0.5rem">Daily Heroes Timer</h3>
-        <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
-      </div>
-      <div class="default-gap"></div>
-      
-      <!--progress bar-->
-      <div class="NzE2ODYyNQ-progress-bar-container">
-        <div class="NzE2ODYyNQ-progress-bar">
-          <div class="NzE2ODYyNQ-progress-bar-fill"></div>
-          <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
-        </div>
-      </div>
-      <div style="height:2px;"></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar">
-          <div class="progress-bar-fill"></div>
-          <span class="progress-bar-text"><span id="percentage"></span></span>
-        </div>
-      </div>
-      <div class="default-gap"></div>
-      <div data-obj="stop-timer">
-        <div>
-          Timer
-        </div>
-        <div class="d-grid" style="gap:0.35rem;grid-template-columns:1fr 1fr;">
-          <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>Stop (S)</button>
-          <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>Start (R)</button>
-          <button class='clickable' data-callback='finish-timer'>Finish (F)</button>
-        </div>
-      </div>
-      <div class="default-gap"></div>
-      <div class="default-gap"></div>
-      
-      <!-- TASK LIST -->
-      <div data-section="import">
-        import goes here
-        <form class="submittable d-grid" data-callback='import-tasks'>
-          <textarea name='tasksString'></textarea>
-          <button>import</button>
-        </form>
-      </div>
-      
-      <div class="d-none">
-        <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
-          <button class="clickable" data-callback='show-active'>Active</button>
-          <button class="clickable" data-callback='show-completed'>Completed</button>
-        </div>
-      </div>
+  <div style="max-width:500px;margin:auto;">
 
-      <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
-      <div style="padding-top:.3rem;"></div>
-      
-      <div id="tasklist-container" class="container-task">
-        <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
-        <div style="padding-top:1rem;"></div>
-        <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
-      </div>
-      
-      <div class="d-flex justify-content-between">
-        <button class="clickable" data-callback='get-report'>Get Report</button>
-        <button class="clickable d-none" data-callback='reset-history'>Reset history</button>
-      </div>
-      
-    </section>
+    <div class="d-grid" style="max-width:100%;min-width:330px;margin:auto;gap:1rem;">
     
-    <!-- right column -->
-    <section class="d-none">
-      
-      <div>
+      <!-- right column -->
+      <section>
         
-        <div class="d-none">
-          <div style="display:flex;align-items:center;">
-            <div id="txt-clock" style="flex-grow:1;font-weight:bold;"></div>
-            <div style="text-align:right;flex-grow:1">
-              Sleep : <span id="txt-sleeptime">not set</span>
-              <button class="clickable" data-callback='set-sleep-time' style="font-size:0.7rem;">Edit</button>
-            </div>
-          </div>
-          <div class="default-gap"></div>
-        
-          <div>Today's :</div>
-          <div class="default-gap"></div>
+        <div class="d-flex justify-content-between">
+          <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
+          <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
+          <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
+          <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
+          <h3 style="margin:0.5rem">Daily Heroes</h3>
+          <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
         </div>
-        
-        <div class="d-none">
-          <div class="default-gap"></div>
-          <div style="font-weight:bold;text-align:center;">
-            <span id="history"></span><span id="live-history"></span> / <span id="target"></span>
-          </div>    
-            <div style="text-align:center;">
-              Time before sleep : <span id="txt-time-before-sleep"></span>
-            </div>
-            <div style="text-align:center;">
-              Unallocated time : <span id="txt-unallocated-time"></span>
-            </div>
-        
-          <div class="default-gap"></div>
-          <div style="text-align:center;">
-            <span id="txt-time-overload-info" style="color:red;"></span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="d-none">
-        Take a rest : <span id="txt-left-until-rest" style="font-weight:bold;"></span>
-        <div id="rest-time" class="default-inline-flex-gap"></div>
         <div class="default-gap"></div>
-      </div>
-      
-      Set timer (T) :
-      <div>
-        <small>Duration or time. e.g. 1h30m or 04:30PM</small>
-      </div>
-      <div class="default-gap"></div>
-      <form class="submittable" data-callback='set-timer'>
-        <div style="display:flex;gap:0.3rem;">
+        
+        <!-- # active task name -->
+        <div class="d-flex justify-content-between">
           <div>
-            <input type="text" name="target" class="input-style-default"/>
+            Task : <span id="txt-active-task-name"></span> 
           </div>
-          <button>Set</button>
+          <div>
+            <button class="clickable" data-callback='open-task-into-view'>
+              <small>Open task</small>
+            </button>
+          </div>
         </div>
-      </form>
-      <div class="default-gap"></div>
+        <div class="mb-xs"></div>
+        
+        <!-- # progress bar -->
+        <div class="NzE2ODYyNQ-progress-bar-container">
+          <div class="NzE2ODYyNQ-progress-bar">
+            <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+            <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+          </div>
+        </div>
+        <div class="d-none">
+          <div style="height:2px;"></div>
+          <div class="progress-bar-container">
+            <div class="progress-bar">
+              <div class="progress-bar-fill"></div>
+              <span class="progress-bar-text"><span id="percentage"></span></span>
+            </div>
+          </div>
+        </div>
+        <div class="default-gap"></div>
+        <div data-obj="stop-timer">
+          <div>
+            Timer
+          </div>
+          <div class="d-grid" style="gap:0.35rem;grid-template-columns:1fr 1fr;">
+            <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
+              Stop <small>(Alt + S)</small>
+            </button>
+            <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
+              Start <small>(Alt + S)</small>
+            </button>
+            <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
+          </div>
+        </div>
+        <div class="default-gap"></div>
+        
+        <!-- TASK LIST -->
+        <div data-section="import">
+          import goes here
+          <form class="submittable d-grid" data-callback='import-tasks'>
+            <textarea name='tasksString'></textarea>
+            <button>import</button>
+          </form>
+        </div>
+        
+        <div class="d-none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
+            <button class="clickable" data-callback='show-active'>Active</button>
+            <button class="clickable" data-callback='show-completed'>Completed</button>
+          </div>
+        </div>
+
+        Search :
+        <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
+        <div class="d-none">
+          Filter by label :
+          <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+        </div>
+        <div class="default-gap"></div>
+        <div class="d-grid" style="grid-template-columns:1fr 1fr;">
+          <button class="clickable" data-callback='view-tasks'>All Tasks</button>
+          <button class="clickable" data-callback='view-mission'>Missions</button>
+        </div>
+        <div class="default-gap"></div>
+        
+        <div class="d-flex justify-content-between">
+          <div id="container-breadcrumbs"></div>
+          <div id="txt-total-ratio"></div>
+        </div>
+              
+        <div class="default-gap"></div>
+        <div class="default-gap"></div>
+        
+        <div id="tasklist-container" class="container-task">
+          <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
+          <div style="padding-top:1rem;"></div>
+          <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+          <div class="d-none">
+            <button class="clickable" data-callback='ratio-settings'>Settings</button>
+            <button class="clickable" data-callback='ratio-config'>Ratio</button>
+          </div>
+          <button class="clickable d-none" data-callback='reset-history'>Reset history</button>
+        </div>
+        
+        <!-- # ratio config -->
+        <div class="d-grid container-ratio-config d-none" style="gap:0.2rem;margin-top:1rem;">
+          <small>Ratio config</small>
+          <textarea id="in-ratio-settings" style="height:200px;"></textarea>
+          <button class="clickable" data-callback='save-ratio'>Save</button>
+        </div>
+        
+      </section>
+      <section class="d-none">
+        
+        Set timer (T) :
+        <div>
+          <small>Duration or time. e.g. 1h30m or 04:30PM</small>
+        </div>
+        <div class="default-gap"></div>
+        <form class="submittable" data-callback='set-timer'>
+          <div style="display:flex;gap:0.3rem;">
+            <div>
+              <input type="text" name="target" class="input-style-default"/>
+            </div>
+            <button>Set</button>
+          </div>
+        </form>
+        <div class="default-gap"></div>
+        
+        Timer preset :
+        <div class="default-gap"></div>
+        <div id="preset-button" style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+          <button autofocus class='clickable' data-callback='set-alarm' data-time='12'>12m</button>
+          <button class='clickable' data-callback='set-alarm' data-time='20'>20m</button>
+          <button class='clickable' data-callback='set-alarm' data-time='25'>25m</button>
+          <button class='clickable' data-callback='set-alarm' data-time='30'>30m</button>
+        </div>
+        <div class="default-gap"></div>
+        
+        
+        <!--Set mode : -->
+        <!--<button class="clickable" data-callback='mode-work-day'>work day</button>-->
+        <!--<button class="clickable" data-callback='mode-day-off'>day off</button>-->
+        
+        <!--<div style="padding-top:1rem;"></div>-->
+        
+      </section>
       
-      Timer preset :
-      <div class="default-gap"></div>
-      <div id="preset-button" style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
-        <button autofocus class='clickable' data-callback='set-alarm' data-time='12'>12m</button>
-        <button class='clickable' data-callback='set-alarm' data-time='20'>20m</button>
-        <button class='clickable' data-callback='set-alarm' data-time='25'>25m</button>
-        <button class='clickable' data-callback='set-alarm' data-time='30'>30m</button>
-      </div>
-      <div class="default-gap"></div>
-      
-      
-      <!--Set mode : -->
-      <!--<button class="clickable" data-callback='mode-work-day'>work day</button>-->
-      <!--<button class="clickable" data-callback='mode-day-off'>day off</button>-->
-      
-      <!--<div style="padding-top:1rem;"></div>-->
-      
-    </section>
-  
+      <section>
+        <button class="clickable" data-callback='reset-data'>Reset Data</button>
+      </section>
+    
+    </div>
+
   </div>
   
   
   
   <!-- TEMPLATES -->
-  <template id='tmp-task'>
+  
+  <!-- # container task -->
+  <template id="tmp-task">
+    
   	<div class="container-item" data-obj="task" data-id="?" data-kind="task">
-  	  <div style="padding:0.3rem 0.5rem;">
-    	  <div class="d-flex justify-content-between">
-    	    <span data-slot='title'></span>
-          <div style="font-size:0.7rem;">
-            <span data-slot='totalProgressLabel'></span>
-            <span data-slot='rankLabel'></span>
-            <span class="label-finish-count"></span>
-          </div>
+  	  
+  	  <!-- # task body -->
+  	  <div style="padding:0.3rem 0.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;">
+  	  
+  	    <!-- ## task top info -->
+  	    <div>
+  	    
+  	      <!-- ### task info (title) -->
+      	  <div class="d-flex justify-content-between">
+      	    <div>
+        	    <div data-slot="missionPath" data-slot-html></div>
+        	    <span data-slot="title"></span>
+      	    </div>
+      	    <div class="d-none">
+      	      <span data-slot="label"></span>
+      	    </div>
+            <div style="font-size:0.7rem;">
+              <span data-slot="rankLabel"></span>
+              <span class="label-finish-count"></span>
+            </div>
+      	  </div>
+      	  
+      	  <div class="mb-m"></div>
+      	  
+      	  <!-- ### time progress info -->
+        	<div style="font-size:0.7rem;display:flex;">
+            <div style="flex:1;">
+          	  <span data-obj="progress" data-slot="progress"></span>
+          	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+          	  <span data-slot="totalProgressStr"></span>
+          	  --
+      	      <span data-slot="targetString"></span> 
+      	      <span class="d-none" data-slot="completionPercentage"></span>
+        	  </div>
+        	  <div>
+              <span data-slot="ratio"></span>
+              <span data-slot="ratioTimeLeftStr" data-slot-html></span>
+        	  </div>
+        	</div>
+        
+      	  <!-- ### task notes -->
+      	  <div style="margin-top:1rem;">
+      	    <div data-slot="note" data-template='#tmp-notes'></div>
+      	  </div>
+      	  
     	  </div>
-        <div style="margin-top:0.7rem"></div>
-    	  <div class="default-inline-flex-gap" data-slot="" data-template="#tmp-mission-buttons">
-    	  </div>
-    	 
-    	  <!--task notes-->
-    	  <div style="margin-top:1rem;">
-    	    <div data-slot='note' data-template='#tmp-notes'></div>
+    	  <!-- ### play button -->
+    	  <div class="d-flex align-items-center">
+          <button class="btn-start icon-mate" data-role='start' data-group="active not-running" title='Start'>
+            play_arrow
+          </button>
+          <button class="btn-stop icon-mate" data-role='stop' data-group="active" title='Stop'>
+            stop
+          </button>
     	  </div>
   	  
   	  </div>
+	    <!-- ## -->
   	  
-  	  <div data-obj="tracking-status" style="height:4px;"></div>
-    	
-    	
-    	<div style="padding:2px 4px;font-size:0.7rem;display:flex;">
-    	  <div style="flex:1;">
-      	  <span data-obj="progress" data-slot="progress"></span><span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
-    	  </div>
-    	  <div>
-  	      <span data-slot="targetString"></span> <span data-slot="completionPercentage"></span>
-    	  </div>
-    	</div>
-    	<div class="NzA5ODc1NQ-progress-bar-container">
-        <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
-          <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
-        </div>
+  	  
+  	  <!-- # task footer information -->
+  	  
+  	  <!-- # task toolbar -->
+  	  <div class="container-task-toolbar" style="padding:0.5rem;">
+    	  <div class="d-flex justify-content-between" data-slot="" data-template="#tmp-mission-buttons"></div>
+    	  
+        <div data-obj="tracking-status" style="height:4px;"></div>
+      	
+      	<div class="d-none">
+        	<div class="NzA5ODc1NQ-progress-bar-container">
+            <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
+              <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+            </div>
+          </div>
+      	</div>
+  	  </div>
+  	  
+  	  <!-- ## running task indicator -->
+    	<div class="task-progress-bar-container">
+        <div class="task-progress-bar"></div>
       </div>
+      
+    	<!-- # -->
       
   	</div>
   </template>
 
   <template id="tmp-mission-buttons">
-    <!-- <button data-role='set-active' class="icon-mate" title='Focus on this task'>track_changes</button> -->
-    <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
-    <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
-    <!--<button data-role='reduce' class="icon-mate">remove</button>-->
-    <!--<button data-role='add' class="icon-mate">add</button>-->
-    <button data-role='set-target' class="icon-mate" data-group="active" title='Change target'>schedule</button>
-    <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
-    <button data-role='edit' class="icon-mate" title='Setting'>edit</button>
-    <button data-role='finish' class="icon-mate" data-group="active" title='Finish'>check_small</button>
-    <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
-    <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
-    <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>timer</button>
-    <button data-role='add-progress-minutes' class="icon-mate" data-group="active" title='Add progress manually'>add</button>
-    <button data-role='start' class="icon-mate" data-group="active not-running" title='Start'>play_arrow</button>
-    <div style="padding-top:4px;"></div>
-    <div data-role="manage" class="default-inline-flex-gap">
-      <button data-role='track'>Track</button>
-      <button data-role='untrack'>Untrack</button>
+
+    <div class="d-inline-flex" style="gap:0.2rem;">
+      <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
+      <div class="d-flex">
+        <button data-role='remove-mission' class="icon-mate" title='Remove from mission'>playlist_remove</button>
+        <button data-role='add-to-mission' class="icon-mate" title='Add to mission'>playlist_add</button>
+      </div>
+      
+      <div class="d-none">
+        <button data-role='set-active' class="icon-mate" title='Focus on this task' data-group="not-running unarchived">track_changes</button>
+      </div>
+      <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
+      <!--<button data-role='reduce' class="icon-mate">remove</button>-->
+      <!--<button data-role='add' class="icon-mate">add</button>-->
+      <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
+      <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Change target'>schedule</button>
+      <button data-role='edit' class="icon-mate" data-group="not-running" title='Setting'>edit</button>
+      <div class="d-none">
+        <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
+        <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
+      </div>
+      <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
+      <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
+      <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
+      <button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>
+      <!-- <button data-role='add-label' class="icon-mate">label</button> -->
+      <div style="padding-top:4px;"></div>
+      <div data-role="manage" class="default-inline-flex-gap">
+        <button data-role='track'>Track</button>
+        <button data-role='untrack'>Untrack</button>
+      </div>
+      <div data-group="not-running" style="padding-right:0.3rem;"></div>
+      <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
     </div>
+    
+    <!-- # sub task buttons -->
+    <div class="d-flex" style="gap:0.2rem;">
+      <div class="container-navigate-mission d-none">
+        <button class="icon-mate" data-role='navigate-mission' title='Open mission into view'>open_in_new</button>
+      </div>
+      <div class="container-create-sub d-none d-flex">
+        <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>account_tree</button>
+      </div>
+      <div class="container-navigate d-none d-flex">
+        <button class="icon-mate" data-role='navigate-sub' title='View sub missions'>chevron_right</button>
+      </div>
+    </div>
+	  
+    
   </template>
   
   <template id='tmp-notes'>
@@ -260,7 +352,7 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          New timer :
+          New task :
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             <input type="hidden" name="id"/>
@@ -311,6 +403,7 @@
     </div>
   </modal-v2>
   
+  <script src="lib/sweetalert2@11.js"></script>
   <link href="modal-v2.css" rel="stylesheet"/>
   <script src='modal-v2.js'></script>
 

@@ -2,6 +2,10 @@ let uiComponent = (function () {
   
   let SELF = {
     ShowModalAddTask,
+    
+    // groups
+    Navigate,
+    BuildBreadcrumbs,
 
     Init,
     SetFocusEl,
@@ -10,6 +14,82 @@ let uiComponent = (function () {
   function Init() {
     initSimpleElementFilter();
     attachKeyboardShortcuts();
+    
+    initBreadcrumbListener();
+    BuildBreadcrumbs();
+  }
+  
+  function BuildBreadcrumbs() {
+    
+    let breadcrumbs = [];
+    
+    // push the root path
+    breadcrumbs.push({
+      id: '',
+      name: (isViewModeMission() ? 'Mission' : 'Home'),
+      parentId: '',
+    });
+    
+    try {
+      let safeLoopCount = 0;
+      let subPaths = [];
+      foobar(subPaths, lsdb.data.activeGroupId, safeLoopCount);
+      breadcrumbs = [...breadcrumbs, ...subPaths];
+    } catch (err) {
+      console.error(err)
+    }
+      
+    $('#container-breadcrumbs').innerHTML = '';
+    for (let item of breadcrumbs) {
+      if (item.id == lsdb.data.activeGroupId) {
+        $('#container-breadcrumbs').innerHTML += `
+          <small> / ${item.name}</small>
+        `;
+      } else {
+        $('#container-breadcrumbs').innerHTML += `
+          <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
+        `;
+      }
+    }
+
+  }
+  
+  function foobar(breadcrumbs, parentId, safeLoopCount) {
+    let activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+    if (activeGroup) {
+      breadcrumbs.splice(0, 0, activeGroup);
+      let safeLoopCount = 10;
+      let parentId = activeGroup.parentId;
+      if (parentId != '') {
+        // safe loop leaking
+        if (safeLoopCount > 10) {
+          throw 'overflow';
+        }
+        foobar(breadcrumbs, parentId, safeLoopCount + 1);
+      }
+    }
+  }
+  
+  function Navigate(id) {
+    if (isViewModeMission()) {
+      if (lsdb.data.topMostMissionPath == '' && isTopMissionPath(id)) {
+        lsdb.data.topMostMissionPath = id;
+      } else if (id == '') {
+        lsdb.data.topMostMissionPath = '';
+      }
+    }
+    lsdb.data.activeGroupId = id;
+    lsdb.save();
+    BuildBreadcrumbs();
+  }
+  
+  function initBreadcrumbListener() {
+    $('#container-breadcrumbs').addEventListener('click', (evt) => {
+      if (evt.target.tagName == 'BUTTON') {
+        Navigate(evt.target.dataset.id);
+        TaskListTask();
+      }
+    });
   }
   
   function SetFocusEl(el) {
@@ -29,7 +109,9 @@ let uiComponent = (function () {
   
   function attachKeyboardShortcuts() {
     Mousetrap.bind('alt+n', function(e) {
-      ShowModalAddTask();
+      ShowModalAddTask({
+	      parentId: lsdb.data.activeGroupId,
+      });
       return false;
     });
   }
@@ -59,18 +141,39 @@ let uiComponent = (function () {
     }
   }
   
+  // search input
   const listenAndToggleVisibility = (inputSelector, selector, visibleClass, containerSelector) => {
     let element = document.querySelector(inputSelector);
+    let classDisplayNone = 'd-none';
+    
     element.addEventListener('input', () => {
       const inputValue = element.value.toLowerCase();
-      for (let node of document.querySelectorAll(containerSelector)) {
-        const selectorValue = node.querySelector(selector).textContent.toLowerCase();
-        if (selectorValue.includes(inputValue)) {
-          node.classList.remove(visibleClass);
-        } else {
-          node.classList.add(visibleClass);
+      let labelFilterValue = $('#in-filter-search-label').value;
+      let nodes = document.querySelectorAll(containerSelector);
+      let filteredNodes = nodes;
+      
+      if (labelFilterValue) {
+        filteredNodes = [];
+        for (let node of nodes) {
+          const selectorValue = node.querySelector('[data-slot="label"]').textContent.toLowerCase().split(',');
+          if (selectorValue.includes(labelFilterValue)) {
+            node.classList.remove(classDisplayNone);
+            filteredNodes.push(node);
+          } else {
+            node.classList.add(classDisplayNone);
+          }
         }
       }
+      
+      for (let node of filteredNodes) {
+        const selectorValue = node.querySelector(selector).textContent.toLowerCase();
+        if (selectorValue.includes(inputValue)) {
+          node.classList.remove(classDisplayNone);
+        } else {
+          node.classList.add(classDisplayNone);
+        }
+      }
+      
     });
   };
   
@@ -78,15 +181,8 @@ let uiComponent = (function () {
     
   };
   
-  SELF.loadSleepTime = async function() {
-    let data = await window.service.GetData('sleepTime');
-    let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
-    $('#txt-sleeptime').textContent = minutesToTimeString(initial);
-  };
-  
   SELF.updateUI = function(isTimerRunning) {
     if (!isTimerRunning) {
-      $('#live-history').textContent = '';
       // countdown
       $('#txt-countdown').textContent = '00:00:00';
       $('.NzE2ODYyNQ-progress-bar-fill').style.width = '0%';

@@ -1,6 +1,8 @@
-.align-items-center{align-items:center}.justify-content-end{justify-content:end}.text-center{text-align:center}.flex-column{flex-direction:column}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}
+.align-items-center{align-items:center}.justify-content-end{justify-content:end}.text-center{text-align:center}.flex-column{flex-direction:column}.justify-content-between{justify-content:space-between}
+.d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
+.w-100{width:100%}
 
-.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
+.mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
 * {
   box-sizing: border-box;
@@ -29,11 +31,11 @@ body {
 /*  }*/
 /*}*/
 
-@font-face {
-  font-family: 'Material Symbols Outlined';
-  font-style: normal;
-  src: url('fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2') format('woff');
-}
+/*@font-face {*/
+/*  font-family: 'Material Symbols Outlined';*/
+/*  font-style: normal;*/
+/*  src: url('fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2') format('woff');*/
+/*}*/
 .icon-mate {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -221,7 +223,7 @@ button:focus{
 }
 
 /* progress bar NzA5ODc1NQ */
-.NzA5ODc1NQ-progress-bar-container {
+.NzA5ODc1NQ-progress-bar-container, .task-progress-bar {
   width: 100%;
   align-items: center;
   display: flex;
@@ -250,6 +252,49 @@ button:focus{
   background-size: 56px 40px;
 }
 
+.task-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background-color: #48a9e6;
+  overflow: hidden;
+  display: flex;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
+  background-size: 56px 40px;
+}
+
+body[data-state~="--timer-running"] .task-progress-bar {
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
 .NzA5ODc1NQ-progress-bar-fill--animated {
   animation: progress-bar-stripes 1s linear infinite;
+}
+
+.btn-star.is-starred {
+  background: #fff900;
+  border-color: #fff900;
+}
+
+
+/* # task body */
+.btn-start, .btn-stop {
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fdff47;
+    border: 0;
+    color: white;
+    font-size: 1.7rem;
+}
+
+/* # task toolbar */
+#tasklist .container-task-toolbar {
+  background: #f4f4f4;
+}
+#tasklist [data-obj="task"][data-state~="--active"] .container-task-toolbar {
+  background: #bfe3ef;
 }

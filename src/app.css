@@ -20,7 +20,20 @@
 [data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
 [data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
 #tasklist [data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }
-[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"] { display: none; }
+#tasklist [data-obj="task"]:not([data-state~="--active"]) .btn-start { 
+  background: #e2e2e2; 
+}
+[data-obj="task"][data-state~="--is-mission"] [data-role="remove-mission"] {
+  background: #ffcece;
+  border-color: #e59f9f;
+}
+
+[data-obj="task"]:not([data-state~="--is-mission"]) [data-role="remove-mission"],
+[data-obj="task"][data-state~="--is-mission"] [data-role="add-to-mission"],
+[data-obj="task"]:not([data-state~="--active"]) [data-obj="live-progress"],
+[data-obj="task"]:not([data-state~="--active"]) .task-progress-bar-container { 
+  display: none; 
+}
 
 #tasklist-completed [data-kind="task"]::after {
   content: '';
@@ -79,9 +92,17 @@ body:not([data-state~="--timer-running"]) .btn-timer-control-stop,
 body[data-state~="--timer-running"] .btn-timer-control-start,
 body[data-state~="--timer-running"] .container-task [data-state="--active"] [data-group~="not-running"],
 .container-task #tasklist-completed [data-group~="active"],
+#tasklist [data-group~="archived"],
+#tasklist-completed [data-group~="unarchived"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
 body:not([data-state~="--import-mode"]) [data-section="import"],
 _ {
   display:none
+}
+
+/* # timer is running */
+[data-obj="task"]:not([data-state~="--active"]) .btn-stop,
+body:not([data-state~="--timer-running"]) [data-obj="task"][data-state~="--active"] .btn-stop {
+  display: none;
 }

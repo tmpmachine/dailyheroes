@@ -1,3 +1,36 @@
+let tasks = [];
+
+let storageName = 'appdata-NzkwMTI0NA';
+window.lsdb = new Lsdb(storageName, {
+  root: {
+    viewMode: 'tasks',
+    
+    start: null,
+    history: 0,
+    historyTime: 0,
+    activeTask: '',
+    
+    // navigation
+    activeGroupId: '',
+    topMostMissionPath: '',
+    
+    search: '',
+    labelFilter: '',
+    scheduledTime: 0,
+    tasks: [],
+    missionIds: [],
+    groups: [],
+    isSortByTotalProgress: true,
+  },
+  groups: {
+    id: '',
+    name: '',
+    parentId: '',
+  }
+});
+
+
+
 window.modeChromeExtension = false;
 try {
   if (chrome.storage.local.get) {
@@ -10,23 +43,6 @@ if (window.modeChromeExtension) {
 }
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
-
-async function setSleepTime() {
-  let data = await window.service.GetData('sleepTime');
-  let initial = (data.sleepTime ? data.sleepTime : 22 * 60);
-  
-  let time = window.prompt('Sleep time', minutesToTimeString(initial));
-  if (time) {
-    let minutes = timeStringToMinutes(time);
-    if (minutes) {
-      await window.service.SetData({ 'sleepTime': minutes });
-      await calculateOverloadInfo();
-      uiComponent.loadSleepTime();
-      await updateUI();
-    }
-  }
-}
-
 
 function copyToClipboard(text) {
   var node  = document.createElement('textarea');
@@ -142,12 +158,11 @@ async function setTimer(duration) {
   }
   await window.service.SetData({ 'history': data.history + distanceMinutes });
   await window.service.RemoveData(['start']);
-  document.querySelector('#history').textContent = data.history + distanceMinutes;
   await updateProgressActiveTask(distanceMinutes, distanceTime);
   
   
   let aMinute = 60;
-  let miliseconds = 1000;
+  let milliseconds = 1000;
   let now = new Date().getTime();
   let triggerTime = now + duration;
   
@@ -164,9 +179,9 @@ async function setTimer(duration) {
     await chrome.alarms.create('main', {
       when: triggerTime,
     });
-    if (triggerTime - 3 * aMinute * miliseconds > 0) {
+    if (triggerTime - 3 * aMinute * milliseconds > 0) {
       await chrome.alarms.create('3m', {
-  	      when: triggerTime - 3 * aMinute * miliseconds
+  	      when: triggerTime - 3 * aMinute * milliseconds
       });
     }
     await chrome.runtime.sendMessage({message: 'start-timer'});
@@ -174,6 +189,31 @@ async function setTimer(duration) {
   
   updateUI();  
 }
+
+let androidClient = (() => {
+  
+  let SELF = {
+    StartTimer,
+    StopTimer,
+  };
+  
+  function StartTimer(seconds, title) {
+    if (typeof(MyApp) == 'undefined') return;
+    
+    let isPersistent = true;
+    let desc = '';
+    MyApp.StartTask(seconds, title, desc, isPersistent);
+  }
+  
+  function StopTimer() {
+    if (typeof(MyApp) == 'undefined') return;
+    
+    MyApp.StopTask();
+  }
+  
+  return SELF;
+  
+})();
 
 async function clearTaskHistory() {
   for (let task of tasks) {
@@ -195,63 +235,24 @@ async function clearTaskTotalProgressTime() {
   await storeTask();
 }
 
-async function TaskUpdateTask(form) {
-  let task = tasks.find(x => x.id == form.id.value);
-  task.title = form.title.value;
-  task.target = parseHoursMinutesToMinutes(form.target.value);
-  task.finishCount = parseInt(form['finishCount'].value);
-  task.finishCountProgress = parseInt(form['finishCount'].value);
-
-  await storeTask();
-  partialUpdateUITask(task.id, task);
-  form.reset();
-  form.stateList.remove('--edit-mode');
-}
-
 function partialUpdateUITask(id, task) {
   let el = $(`[data-obj="task"][data-id="${id}"]`);
   el.querySelector('[data-slot="title"]').textContent = task.title;
 }
 
-async function TaskAddTask(form)  {
-  if (form.title.value.trim().length == 0) {
-    return;
-  }
-  
-  let targetVal = form.target.value;
-  if (isNumber(targetVal)) {
-    // set default to minutes
-    targetVal = `${targetVal}m`;
-  }
-
-  let taskId;
-  let finishCount = form['finishCount'].value ? parseInt(form['finishCount'].value) : null;
-  try {
-    taskId = addTaskData({
-      finishCount,
-      finishCountProgress: finishCount,
-      title: form.title.value,
-      target: parseHoursMinutesToMinutes(targetVal),
-      parentId: form['parent-id'].value ? form['parent-id'].value : null,
+function CheckAndCreateGroups(title, id) {
+  let data = lsdb.data.groups.find(x => x.id == id);
+  if (!data) {
+    let group = lsdb.new('groups', {
+      id,
+      name: title,
+      parentId: lsdb.data.activeGroupId,
     });
-  } catch (e) {
-    console.error(e);
-    alert('Failed.');    
-    return;
+    lsdb.data.groups.push(group);
+    lsdb.save();
+  } else {
+    console.log('exists');
   }
-  
-  form.reset();
-
-  // set as active task if none is active
-  let data = await window.service.GetData('start');
-  if (!data.start && taskId) {
-    await window.service.SetData({'activeTask': taskId});
-  }
-
-  await storeTask();
-  await listTask();
-  
-  updateUI();
 }
 
 function isNumber(input) {
@@ -265,16 +266,20 @@ function addTaskData(inputData) {
     progress: 0,
     progressTime: 0,
     totalProgressTime: 0,
+    
+    // used by time balancing
+    targetTime: 0,
+
     lastUpdated: 0,
     untracked: false,
     activeSubTaskId: null,
   }};
-  if (data.parentId) {
-    let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
-    tasks.splice(parentTaskIndex + 1, 0, data);
-  } else {
+  // if (data.parentId) {
+    // let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
+    // tasks.splice(parentTaskIndex + 1, 0, data);
+  // } else {
     tasks.splice(0, 0, data);
-  }
+  // }
   
   return id;
 }
@@ -284,100 +289,63 @@ async function storeTask() {
 }
       
       
-let storageName = 'appdata-NzkwMTI0NA';
-window.lsdb = new Lsdb(storageName, {
-  root: {
-    start: null,
-    history: 0,
-    historyTime: 0,
-    activeTask: '',
-    search: '',
-    scheduledTime: 0,
-    tasks: [],
-    isSortByTotalProgress: true,
-  },
-});
+
       
-let tasks = [];
-async function initApp() {
-  showCurrentTimeInAMPM();
-  await initData();
-  attachListeners();
-  await loadTasks();
-  await listTask();
-  await loadRestTime();
-  await calculateOverloadInfo();
-  uiComponent.loadSleepTime();
-  uiComponent.Init();
-  updateUI();
-  loadSearch();
+
+
+async function TaskSetActiveTaskInfo() {
+  $('#txt-active-task-name').textContent = '';
+  
+  let activeTask = await getActiveTask();
+  if (activeTask) {
+    
+    let ratioTimeLeftStr = '';
+    let ratioTimeLeft = timeLeftRatio.find(x => x.id == activeTask.id);
+    if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+      ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+    }
+    
+    $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
+  }
 }
 
-async function loadSearch() {
-  if (window.lsdb.data.search) {
+function loadSearch() {
+  if (window.lsdb.data.search || window.lsdb.data.labelFilter) {
     $('#node-filter-box').value = lsdb.data.search;
     let element = $('#node-filter-box');
     
     let selector = '[data-slot="title"]';
-    let visibleClass = 'd-none';
+    let classDisplayNone = 'd-none';
     let containerSelector = '#tasklist-container [data-obj="task"]';
-    
+    let labelFilterValue = $('#in-filter-search-label').value;
+
     const inputValue = element.value.toLowerCase();
-    for (let node of document.querySelectorAll(containerSelector)) {
+    let nodes = document.querySelectorAll(containerSelector);
+    let filteredNodes = nodes;
+    
+    if (labelFilterValue) {
+      filteredNodes = [];
+      for (let node of nodes) {
+        const selectorValue = node.querySelector('[data-slot="label"]').textContent.toLowerCase().split(',');
+        if (selectorValue.includes(labelFilterValue)) {
+          node.classList.remove(classDisplayNone);
+          filteredNodes.push(node);
+        } else {
+          node.classList.add(classDisplayNone);
+        }
+      }
+    }
+
+    for (let node of filteredNodes) {
       const selectorValue = node.querySelector(selector).textContent.toLowerCase();
       if (selectorValue.includes(inputValue)) {
-        node.classList.remove(visibleClass);
+        node.classList.remove(classDisplayNone);
       } else {
-        node.classList.add(visibleClass);
+        node.classList.add(classDisplayNone);
       }
     }
     
   }
-}
-
-
-async function getSleepTimeInMinutes() {
-  let defaultSleepHours = 22;
-  let data = await window.service.GetData('sleepTime');
-  let total = (data.sleepTime ? data.sleepTime : defaultSleepHours * 60);
-  
-  return total;
-}
-
-async function calculateOverloadInfo() {
-  let totalUnfinishedProgress = getSumUnfinishedProgress();
-  let sleepHoursInMinutes = await getSleepTimeInMinutes();
-  
-  let overloadWarningTxt = calculateOverload(totalUnfinishedProgress, sleepHoursInMinutes);
-  $('#txt-time-overload-info').innerHTML = '';
-  if (overloadWarningTxt) {
-    $('#txt-time-overload-info').innerHTML = overloadWarningTxt;
-  }
-}
-
-function getHoursAndMinutes(totalMinutes) {
-  const sleepHours = Math.floor(totalMinutes / 60);
-  const sleepMinutes = totalMinutes % 60;
-  return { sleepHours, sleepMinutes };
-}
-
-
-function calculateOverload(progress, sleepHoursInMinutes) {
-  
-  const { sleepHours, sleepMinutes } = getHoursAndMinutes(sleepHoursInMinutes);
-  
-  const sleepTime = new Date();
-  sleepTime.setHours(sleepHours, sleepMinutes, 0, 0); // set sleep time to today at 23:00
-  
-  const currentTime = new Date();
-  const totalTime = currentTime.getTime() + progress * 60000; // convert progress to milliseconds and add to current time
-  
-  if (totalTime > sleepTime.getTime()) {
-    const overload = Math.round((totalTime - sleepTime.getTime()) / 60000); // convert overload to minutes and round to nearest integer
-    return `There will be <b>${minutesToHoursAndMinutes(overload)}</b> of unfinished work after sleep time. Try readjusting tasks target or sleep time.`;
-  }
-  
-  return null; // return null if not overloaded
 }
 
 
@@ -387,49 +355,6 @@ function deleteStorageItem(key) {
   });
 }
 
-async function loadRestTime() {
-    
-  // load progress and rest from storage
-  window.service.GetData(['start', 'rest'], function(data) {
-    let liveProgress = 0;
-    if (data.start) {
-      liveProgress = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
-    }
-    let progress = getSumTaskProgress() + liveProgress;
-    let rest = data.rest || 0;
-    
-    let restAfterThresholdMinutes = 35;
-    
-    // calculate number of rest times
-    let numOfRestTimes = Math.floor(progress / restAfterThresholdMinutes) - rest;
-    let timeUntilRest = restAfterThresholdMinutes - progress % restAfterThresholdMinutes;
-    $('#txt-left-until-rest').textContent = `${minutesToHoursAndMinutes(timeUntilRest)} until next rest time`;
-  
-    // get container to append buttons to
-    let restTimeContainer = document.getElementById('rest-time');
-  
-    if (numOfRestTimes === 0) {
-      let restButton = document.createElement('span');
-      restButton.innerText = `No rest time available. Progress for ${restAfterThresholdMinutes}m to get 1 rest time.`;
-      restTimeContainer.appendChild(restButton);
-    }
-  
-    // append rest time buttons to container
-    for (let i = 1; i <= numOfRestTimes; i++) {
-      let restButton = document.createElement('button');
-      restButton.innerText = 'Take';
-      restTimeContainer.appendChild(restButton);
-      restButton.addEventListener('click', function() {
-        // increment rest value by 5 when button is clicked
-        rest += 1;
-        window.service.SetData({rest: rest});
-        restButton.remove();
-      });
-    }
-  });
-
-}
-
 async function clearAlarms() {
   if (window.modeChromeExtension) {
     await chrome.alarms.clearAll();
@@ -437,6 +362,11 @@ async function clearAlarms() {
     window.lsdb.data.scheduledTime = 0;
     window.lsdb.save();
   }
+}
+
+async function TaskStopActiveTask() {
+  await stopTimer();
+  androidClient.StopTimer();
 }
 
 async function stopTimer() {
@@ -452,18 +382,20 @@ async function stopTimer() {
     await updateProgressActiveTask(distanceMinutes, distanceTime);
   }
   await window.service.RemoveData(['start']);
-  // window.close();
   
   updateUI();
   if (window.modeChromeExtension) {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      // 2. A page requested user data, respond with a copy of `user`
-      // if (message === 'get-user-data') {
-        // sendResponse(user);
-      // }
-      asd('ysy')
-    });
     await chrome.runtime.sendMessage({message: 'stop'});
+  }
+  
+}
+
+function toggleStartTimer() {
+  let isTimerRunning = document.body.stateList.contains('--timer-running');
+  if (isTimerRunning) {
+    TaskStopActiveTask();
+  } else {
+    startOrRestartTask();
   }
 }
 
@@ -481,7 +413,7 @@ async function finishTimer() {
 
   await stopTimer();
   await finishTask(task.id); 
-  updateUI()
+  updateUI();
 }
 
 let countdonwIntervalId;
@@ -547,11 +479,6 @@ async function updateTime(scheduledTime, startTime) {
 function updateProgressPercentage(startTime) {
   let distanceMinutes = Math.floor((new Date().getTime() - startTime) / (60 * 1000));
   let distanceTime = new Date().getTime() - startTime;
-  if (distanceMinutes > 0) {
-    $('#live-history').textContent = `(+${distanceMinutes}m)`;
-  } else {
-    $('#live-history').textContent = '(+0m)';
-  }
   
   // let history = getSumTaskProgress();
   let historyTime = getSumTaskProgressTime();
@@ -564,32 +491,6 @@ function updateProgressPercentage(startTime) {
   $('#percentage').textContent = `(${percentage}%)`;
   $('.progress-bar-fill').style.width = `${percentage}%`;
 }
-
-
-function calculateTimeDifferenceInMinutes(timeInMinutes) {
-  const currentTimeInMinutes = (new Date()).getHours() * 60 + (new Date()).getMinutes();
-  return timeInMinutes > currentTimeInMinutes ? timeInMinutes - currentTimeInMinutes : (24 * 60 - currentTimeInMinutes) + timeInMinutes;
-}
-
-
-async function getTimeBeforeSleep() {
-  let sleepHours = await getSleepTimeInMinutes();
-  let diffTime = calculateTimeDifferenceInMinutes(sleepHours);
-  return diffTime;
-}
-
-function showCurrentTimeInAMPM() {
-  const date = new Date();
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours %= 12;
-  hours = hours || 12;
-  const strTime = hours + ':' + (minutes < 10 ? '0' + minutes : minutes) + ' ' + ampm;
-  $('#txt-clock').textContent = strTime;
-  // console.log(strTime);
-}
-
 
 async function initData() {
   let result = window.service.GetData(['history']);
@@ -606,32 +507,16 @@ function attachListeners() {
 
 
 function detectKeyPressS() {
-  let sKeyPressed = false;
-  let tKeyPressed = false;
-  let rKeyPressed = false;
-  let fKeyPressed = false;
   let slashKeyPressed = false;
 
   function detect(event) {
     // Check if the currently focused element is not an input element
-    if (document.activeElement.tagName.toLowerCase() == 'input') {
+    if (document.activeElement.tagName.toLowerCase() == 'input' || document.activeElement.tagName.toLowerCase() == 'textarea') {
       // Do something
       return;
     }
-    if (event.key === 's' && !sKeyPressed) {
-      sKeyPressed = true;
-      $('[data-callback="stop-timer"]').focus();
-    } else if (event.key === 'r' && !tKeyPressed) {
-      rKeyPressed = true;
-      $('[data-callback="start-or-restart-timer"]').focus();
-    } else if (event.key === 'f' && !tKeyPressed) {
-      fKeyPressed = true;
-      $('[data-callback="finish-timer"]').focus();
-    } else if (event.key === 't' && !tKeyPressed) {
-      tKeyPressed = true;
-      $('[data-callback="set-timer"] input').focus();
-      event.preventDefault();
-    } else if (event.key === '/' && !slashKeyPressed) {
+  
+    if (event.key === '/' && !slashKeyPressed) {
       slashKeyPressed = true;
       $('#node-filter-box').focus();
       event.preventDefault();
@@ -639,10 +524,7 @@ function detectKeyPressS() {
   }
 
   function reset() {
-    sKeyPressed = false;
-    tKeyPressed = false;
-    rKeyPressed = false;
-    fKeyPressed = false;
+    slashKeyPressed = false;
   }
 
   document.addEventListener('keypress', detect);
@@ -707,7 +589,7 @@ async function setActiveTask() {
   if (data.activeTask) {
     let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
     if (el) {
-      el.stateList.toggle('--active');
+      el.stateList.add('--active');
       let activeTimerDistance = await getActiveTimerDistance();
       el.querySelector('[data-obj="live-progress"]').textContent = `(+${activeTimerDistance}m)`;
       
@@ -748,6 +630,18 @@ async function loadTasks() {
   if (data.tasks) {
     tasks = data.tasks;
   }
+  await integrityCheck(tasks);
+}
+
+async function integrityCheck(tasks) {
+  for (let task of tasks) {
+    if (typeof(task.targetTime) == 'undefined')
+      task.targetTime = 0;
+    if (typeof(task.ratio) == 'undefined')
+      task.ratio = 0;
+    if (task.parentId === null)
+      task.parentId = '';
+  }
 }
 
 function minutesToHoursAndMinutes(minutes) {
@@ -760,6 +654,10 @@ function minutesToHoursAndMinutes(minutes) {
   if (minutes > 0) {
     timeString +=  `${remainderMinutes}m`;
   }
+  if (minutes == 0) {
+    timeString = '0m';
+  }
+  
   return timeString;
 }
 
@@ -767,20 +665,94 @@ function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
 }
 
+async function TaskListTask() {
+  await listTask();
+}
 
 async function listTask() {
+  
+  let isMissionView = (lsdb.data.viewMode == 'mission');
+  
+  let totalRatio = 0;
+  
   let docFrag = document.createDocumentFragment();
   let docFragCompleted = document.createDocumentFragment();
-  let activeTimerDistance = await getActiveTimerDistance();
-  let activeTimerDistanceTime = await getActiveTimerDistanceTime();
+  let activeTimerDistance = await getActiveTimerDistance(); // minutes
+  let activeTimerDistanceTime = await getActiveTimerDistanceTime(); // milliseconds
   let activeTask = await getActiveTask();
+  let activeTaskPath = [];
+  
+  // get active task path
+  {
+    if (activeTask) {
+      let parentId = activeTask.parentId;
+      let group = lsdb.data.groups.find(x => x.id == parentId);
+      while (group) {
+        activeTaskPath.push(group.id);
+        group = lsdb.data.groups.find(x => x.id == group.parentId);
+      }
+    }
+  }
   
   // if (lsdb.data.isSortByTotalProgress) {
   //   tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
   // }
   
+  // todo: set to filtered tasks
+  let filteredTasks = tasks;
+  
+  if (isMissionView) {
+    
+    
+    
+    // sort by last starred
+    lsdb.data.missionIds.sort((a,b) => {
+      return a.createdDate > b.createdDate ? 1 : -1;
+    });
+    lsdb.data.missionIds.sort((a,b) => {
+      let order = a.lastUpdatedDate > b.lastUpdatedDate ? -1 : 1;
+      
+      if (typeof(a.lastStarredDate) != 'number' && typeof(b.lastStarredDate) == 'number') {
+        return 1;
+      } else if (typeof(a.lastStarredDate) == 'number' && typeof(b.lastStarredDate) != 'number') {
+        return -1;
+      }
+      
+      return order;
+    });
+    // lsdb.data.missionIds.sort((a,b) => {
+    //   if (typeof(b.lastStarredDate) != 'number') return 1;
+      
+    //   return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
+    // });
+    
+    if (lsdb.data.activeGroupId === '') {
+      // filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
+      filteredTasks = lsdb.data.missionIds.map(x => {
+        return tasks.find(task => task.id == x.id);
+      })
+    } else {
+      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+      // filteredTasks = task;
+    }
+    
+  } else { 
+    if (lsdb.data.activeGroupId === '') {
+      filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
+    } else {
+      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+    }
+    // sort by last starred
+    filteredTasks.sort((a,b) => {
+      if (typeof(b.lastStarredDate) == 'undefined') return -1;
+  
+      return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
+    });
+  }
+
+  
   // let rankLabel = 1;
-  for (let item of tasks) {
+  for (let item of filteredTasks) {
     
     let liveProgress = 0;
     let liveProgressTime = 0;
@@ -792,23 +764,107 @@ async function listTask() {
     let targetMinutesLeft = item.target - msToMinutes(item.progressTime) - liveProgress;
     let progressMinutesLeft = msToMinutes(item.progressTime);
     let totalMsProgressChildTask = 0;
-
+  
+    // get total ratio
+    if (typeof(item.ratio) == 'number') {
+      totalRatio += item.ratio;
+    }
+    
     // accumulates child task progress
     {
-      totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
-      let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
-      targetMinutesLeft -= totalChildTaskProgressMinutes;
+      // totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
+      // let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
+      // targetMinutesLeft -= totalChildTaskProgressMinutes;
       // progressMinutesLeft += totalChildTaskProgressMinutes;
+    }
+    
+    // # set ratio time left string
+    let ratioTimeLeftStr = '';
+    // let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
+    // if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+    //   ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+    // }
+    
+    // ## handle if self task
+    if (item.ratio > 0)
+    {
+      {
+        let targetTime = item.targetTime;
+        if (activeTask && activeTask.id == item.id) {
+          targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
+        }
+        if (targetTime > 0) {
+          ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+        }
+      }
+      
+      // ## handle if other task
+      if (activeTask && activeTask.id != item.id && item.ratio > 0 && item.targetTime > 0) {
+        
+        let targetTime = item.targetTime;
+        
+        // calculate active task progress and target difference
+        try {
+  
+          let addedTime = activeTimerDistanceTime;
+          let ratio = activeTask.ratio;
+          if (ratio > 0) {
+            let excessTime = activeTask.targetTime - addedTime;
+            if (excessTime < 0) {
+              
+              let remainingRatio = 100 - ratio;
+              let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+            
+              let addedTargetTime = Math.round(timeToDistribute * (item.ratio / remainingRatio));
+              targetTime = addOrInitNumber(targetTime, addedTargetTime);
+            }
+          }
+          
+          if (isSubTaskOf(activeTask.parentId, item.id)) {
+            targetTime -= activeTimerDistanceTime;
+          }
+          
+        } catch (e) {
+          console.error(e);
+        }
+        
+        if (targetTime > 0) {
+          ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+        }
+        
+      }
+    
+    }
+    
+    // show mission path
+    let missionPath = '';
+    let ratioStr = item.ratio ? `${item.ratio}%` : '';
+    let isTopPath = isTopMissionPath(item.id);
+    if (isMissionView && isTopPath) {
+      ratioStr = '';
+      missionPath = getAndComputeMissionPath(item.parentId);
+    }
+    
+    // show total task progress (self + child tasks)
+    let totalProgressStr = '';
+    let totalProgressMinutes = msToMinutes(item.totalProgressTime);
+    {
+      let totalMsProgressChildTask = sumAllChildProgress(item.id);
+      totalProgressStr = `(${minutesToHoursAndMinutes( totalProgressMinutes + msToMinutes(totalMsProgressChildTask) )} total)`;
     }
 
 
+    let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
     let fillData = {...item, ...{
       // targetString: minutesToHoursAndMinutes(item.target),
       // rankLabel: ` | Rank #${rankLabel}`,
-      targetString: targetMinutesLeft ? `${minutesToHoursAndMinutes(targetMinutesLeft)} left` : '',
+      missionPath,
+      ratio: ratioStr,
+      ratioTimeLeftStr,
+      totalProgressStr,
+      targetString: (targetMinutesLeftStr.trim().length > 0 ? `${targetMinutesLeftStr} left` : ''),
       allocatedTimeString: minutesToHoursAndMinutes(item.target),
       progress: progressMinutesLeft ? minutesToHoursAndMinutes(progressMinutesLeft) : '0m',
-      totalProgressLabel: item.totalProgressTime ? 'Total : ' + minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime)) : '',
     }};
 
 
@@ -822,19 +878,17 @@ async function listTask() {
       })
     }
 
-    let isCompleted = false;
     let percentageProgress = 0;
     let percentageProgressTime = 0;
     if (item.target) {
       percentageProgress = Math.min(100, Math.floor((msToMinutes(item.progressTime + totalMsProgressChildTask) + liveProgress)/item.target*10000)/100);
       percentageProgressTime = Math.min(100, Math.floor((item.progressTime + liveProgressTime + totalMsProgressChildTask) / minutesToMs(item.target) * 10000) / 100);
-      fillData.completionPercentage = `(${percentageProgressTime}%)`;
+      // fillData.completionPercentage = `(${percentageProgressTime}%)`;
+      if (percentageProgressTime == 100) {
+        fillData.completionPercentage = `(completed)`;
+      }
     }
 
-    if (item.progressTime + liveProgressTime >= minutesToMs(item.target)) {
-      isCompleted = true;
-    }
-    
     if (fillData.note) {
       let index = 0;
       fillData.note = fillData.note.map(x => { x.index = index; index++; return x})
@@ -846,11 +900,23 @@ async function listTask() {
   	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
   	});
 
-    el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
+    // el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
 
     // set finish count label
     if (fillData.finishCount) {
       el.querySelector('.label-finish-count').textContent = `(${fillData.finishCountProgress} left)`;
+    }
+
+    // star button
+    if (isMissionView && isTopPath) {
+      let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+      if (mission) {
+        let isStarred = (typeof(mission.lastStarredDate) == 'number');
+        el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
+      }
+    } else {
+      let isStarred = (typeof(item.lastStarredDate) != 'undefined');
+      el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
     }
     
   	taskEl = el.querySelector('[data-obj="task"]');
@@ -860,16 +926,67 @@ async function listTask() {
   	  taskEl.stateList.add('--untracked');
   	}
   	
+  	// todo: check active task path
+  	if (activeTask) {
+    	if (item.id == activeTask.id || activeTaskPath.includes(item.id)) {
+    	  taskEl.stateList.add('--active');
+    	}
+  	}
+  	
+    if (isMissionView) {
+  	  if (isTopPath) {
+  	    taskEl.stateList.add('--is-mission');
+        el.querySelector('.container-navigate-mission').classList.remove('d-none');
+  	  } else {
+        el.querySelector('.container-create-sub').classList.remove('d-none');
+  	    let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+        if (mission) {
+    	    taskEl.stateList.add('--is-mission');
+        }  
+  	  }
+    } else {
+      let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+      if (mission) {
+  	    taskEl.stateList.add('--is-mission');
+      }
+    }
+    if (lsdb.data.groups.find(x => x.id == item.id)) {
+      el.querySelector('.container-navigate').classList.remove('d-none');
+    } else {
+      el.querySelector('.container-create-sub').classList.remove('d-none');
+    }
   	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
   	
+  	
+  	/* obsolete feature
+  	
+  	// handle completed task
+  	let isCompleted = false;
+    if (item.progressTime + liveProgressTime >= minutesToMs(item.target)) {
+      isCompleted = true;
+    }
   	if (isCompleted) {
   	  docFragCompleted.append(el);
+  	}
+  	*/
+  	
+  	if (item.isArchived) {
+    	docFragCompleted.append(el);
   	} else {
   	  docFrag.append(el);
   	}
 
+
     // rankLabel++;
+    
   }
+  
+  if (isMissionView && lsdb.data.groupId == '') {
+    $('#txt-total-ratio').textContent = '';
+  } else {
+    $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
+  }
+  
   $('#tasklist').innerHTML = '';
   $('#tasklist').append(docFrag);
   $('#tasklist-completed').innerHTML = '';
@@ -877,6 +994,76 @@ async function listTask() {
   
   await setActiveTask();
 }
+
+function sumAllChildProgress(parentId) {
+  return tasks.filter(x => x.parentId == parentId).reduce((total, item) => total + item.totalProgressTime + sumAllChildProgress(item.id), 0); 
+}
+
+function isSubTaskOf(parentId, findId) {
+  let group = getGroupById(parentId);
+  while (group) {
+    if (group.id == findId) {
+      return true;
+    }
+    group = getGroupById(group.parentId);
+  }
+  return false;
+}
+
+function isTopMissionPath(id) {
+  for (let item of lsdb.data.missionIds) {
+    if (item.id == id) return true;
+  }
+  return false;
+}
+
+function getAndComputeMissionPath(groupId) {
+    
+    let breadcrumbs = []
+    
+    let activeGroup = lsdb.data.groups.find(x => x.id == groupId)
+    if (activeGroup) {
+      breadcrumbs.push(activeGroup);
+      
+      let safeLoopCount = 10;
+      let parentId = activeGroup.parentId;
+      while (parentId != '') {
+        
+        activeGroup = lsdb.data.groups.find(x => x.id == parentId);
+        breadcrumbs.splice(0, 0, activeGroup);
+        parentId = activeGroup.parentId;
+        
+        // safe loop leaking
+        safeLoopCount -= 1;
+        if (safeLoopCount < 0) {
+          break;
+        }
+      }
+      
+    }
+    
+    let html = ''
+    for (let item of breadcrumbs) {
+      // if (item.id == lsdb.data.activeGroupId) {
+      
+      let ratioTimeLeftStr = '';
+      let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
+      if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+      }
+      
+        html += `
+          <small>${item.name} <mark>${ratioTimeLeftStr}</mark> /</small>
+        `
+      // } else {
+      //   html += `
+      //     <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
+      //   `
+      // }
+    }
+    
+    return html;
+  }
 
 function setActiveSubTaskItem(el, item) {
   if (!item.activeSubTaskId) return;
@@ -895,11 +1082,6 @@ function updateUI() {
     if (isRunning) {
       distanceMinutes = Math.floor((new Date().getTime() - result.start) / (60 * 1000));
       distanceTime = new Date().getTime() - result.start;
-      if (distanceMinutes > 0) {
-        $('#live-history').textContent = `(+${distanceMinutes}m)`;
-      } else {
-        $('#live-history').textContent = '(+0m)';
-      }
     }
     
     uiComponent.updateUI(isRunning);
@@ -907,13 +1089,8 @@ function updateUI() {
     
     let history = getSumTaskProgress();
     let historyTime = getSumTaskProgressTime();
-    // let target = result.target;
     let target = getSumTaskTarget();
-    $('#history').textContent = minutesToHoursAndMinutes(history);
-    // $('#target').textContent = minutesToHoursAndMinutes(target);
-    $('#target').textContent = minutesToHoursAndMinutes(target);
-    $('#txt-time-before-sleep').textContent = minutesToHoursAndMinutes(await getTimeBeforeSleep());
-    $('#txt-unallocated-time').textContent = minutesToHoursAndMinutes(await getUnallocatedTime());
+    
     
     // $('#percentage').textContent = Math.max(100, Math.floor(history/target*100)/100);
     let percentage = Math.min(100, Math.floor((historyTime+distanceTime)/minutesToMs(target)*10000)/100);
@@ -952,18 +1129,6 @@ function getSumTaskProgressTime() {
   return total;
 }
 
-function getSumUnfinishedProgress() {
-  let total = 0;
-  for (let item of tasks) {
-    if (item.untracked) {
-      continue;
-    }
-    total += Math.max(0, item.target - msToMinutes(item.progressTime));
-  }
-  
-  return total;
-}
-
 function getSumTaskTarget() {
   let total = 0;
   for (let item of tasks) {
@@ -976,17 +1141,6 @@ function getSumTaskTarget() {
   return total;
 }
 
-async function getUnallocatedTime() {
-  let total = 0;
-  try {
-    // let totalTarget = getSumTaskTarget();
-    let totalUnfinished = getSumUnfinishedProgress();
-    let timeBeforSleep = await getTimeBeforeSleep();
-    total = timeBeforSleep - totalUnfinished;
-  } catch (e) {}
-  return total;
-}
-
 async function removeActiveTaskIfExists(id) {
   let task = await getActiveTask();
   if (task && id == task.id) {
@@ -994,54 +1148,296 @@ async function removeActiveTaskIfExists(id) {
   }
 }
 
-async function taskClickHandler(el) {
-  let actionRole = getActionRole(el);
-  let parentEl = el.closest('[data-obj="task"]');
-  let id = parentEl.dataset.id;
-  switch (actionRole) {
-    case 'edit': editTask(id); break;
-    case 'delete':
-      let deleteIndex = tasks.findIndex(x => x.id == id);
-      tasks.splice(deleteIndex, 1);
-      await storeTask();
-      await removeActiveTaskIfExists(id);
-      parentEl.remove();
-      updateUI();
-      break;
-    case 'add-sub-timer': addSubTimer(id); break;
-    case 'track': trackProgress(id); break;
-    case 'untrack': untrackProgress(id); break;
-    case 'set-active': switchActiveTask(parentEl, id); break;
-    case 'split-task': await splitTask(id); break;
-    // case 'rename': await renameTask(id); break;
-    case 'reduce': await reduceTaskDuration(id); break;
-    case 'add': await increaseTaskDuration(id); break;
-    case 'set-target': 
-      await setTaskTarget(id); 
-      break;
-    case 'finish':
-      let activeTask = await getActiveTask();
-      if (activeTask && activeTask.id == id) {
-        await stopTimer();
-      }
-      await finishTask(id);
-      updateUI();
-    break;
-    case 'restart': await restartTask(id); break;
-    case 'take-note': showModalNote(id); break;
-    case 'start': await startTaskTimer(parentEl, id); break;
-      
-    // notes
-    case 'rename-sub-task': renameNote(id, el); break;
-    case 'start-sub-task':
-      await fixMissingNoteId(id, el); await setSubTask(id, el); break;
-    case 'delete-note': deleteNote(id, el); break;
+function changeViewModeConfig(mode) {
+  lsdb.data.topMostMissionPath = '';
+  lsdb.data.viewMode = mode;
+}
+
+function saveConfig() {
+  lsdb.save();
+}
+
+function resetActiveGroupId() {
+  lsdb.data.activeGroupId = '';
+}
+
+
+
+async function taskDeleteTask(id, taskEl) {
+  
+  let isConfirm = window.confirm('Are you sure?');
+  if (!isConfirm) return; 
+  
+  let totalDeletedProgressTime = 0;
+  
+  let deleteIndex = tasks.findIndex(x => x.id == id);
+  let parentTask = app.GetTaskById(tasks[deleteIndex].parentId);
+  totalDeletedProgressTime += tasks[deleteIndex].progressTime;
+  tasks.splice(deleteIndex, 1);
+  
+  // delete group
+  {
+    let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
+    if (deleteIndex >= 0) {
+      lsdb.data.groups.splice(deleteIndex, 1);
+    }
   }
-} 
+  
+  // delete mission
+  {
+    let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
+    if (deleteIndex >= 0) {
+      lsdb.data.missionIds.splice(deleteIndex, 1);
+    }
+  }
+
+  // delete child task recurisively
+  totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
+  console.log(totalDeletedProgressTime)
+  
+  // put total progress time of deleted tasks into the parent progress
+  if (parentTask) {
+    parentTask.totalProgressTime += totalDeletedProgressTime;
+    // parentTask.progress += Math.floor(totalDeletedProgressTime/60000);
+  }
+  
+  await storeTask();
+  lsdb.save();
+  
+  await removeActiveTaskIfExists(id);
+  taskEl.remove();
+  updateUI();
+}
+
+async function taskNavigateToMission(id) {
+  let task = await app.GetTaskById(id);
+  if (!task) return;
+  
+  changeViewModeConfig('tasks');
+  saveConfig();
+  uiComponent.Navigate(task.parentId);
+  listTask();
+}
+
+function taskAddToMission(id, parentEl) {
+  let idx = lsdb.data.missionIds.findIndex(x => x.id == id);
+  if (idx < 0) {
+    lsdb.data.missionIds.push({
+      id,
+      lastStarredDate: null,
+      lastUpdatedDate: new Date().getTime(),
+      createdDate: new Date().getTime(),
+    });
+    parentEl.stateList.add('--is-mission');
+  } else {
+    lsdb.data.missionIds.splice(idx, 1);
+    parentEl.stateList.remove('--is-mission');
+    if (isViewModeMission()) {
+      parentEl.remove();
+    }
+  }
+  
+  lsdb.save();
+}
+
+function isViewModeMission() {
+  return lsdb.data.viewMode == 'mission';
+}
+
+function deleteAllChildTasksByParentId(id) {
+  let ids =  tasks.map(x => {
+    if (x.parentId == id) {
+      return x.id;
+    } 
+    return null;
+  }).filter(x => x !== null);
+  
+  let totalDeletedProgressTime = 0;
+  for (let id of ids) {
+    let deleteIndex = tasks.findIndex(x => x.id == id);
+    totalDeletedProgressTime += tasks[deleteIndex].progressTime;
+    tasks.splice(deleteIndex, 1);
+    
+    // delete group
+    {
+      let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
+      if (deleteIndex >= 0) {
+        lsdb.data.groups.splice(deleteIndex, 1);
+      }
+    }
+    // delete mission
+    {
+      let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
+      if (deleteIndex >= 0) {
+        lsdb.data.missionIds.splice(deleteIndex, 1);
+      }
+    }
+    
+    totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
+  }
+  return totalDeletedProgressTime;
+}
+
+async function taskStarTask(id) {
+  if (isViewModeMission() && isTopMissionPath(id)) {
+    let mission = lsdb.data.missionIds.find(x => x.id == id);
+    if (typeof(mission.lastStarredDate) == 'number') {
+      delete mission.lastStarredDate;
+    } else {
+      mission.lastStarredDate = new Date().getTime();
+    }
+    mission.lastUpdatedDate = new Date().getTime();
+    lsdb.save();
+  } else {
+    let task = tasks.find(x => x.id == id);
+    if (typeof(task.lastStarredDate) == 'number') {
+      delete task.lastStarredDate;
+    } else {
+      task.lastStarredDate = new Date().getTime();
+    }
+    await storeTask();
+  }
+  TaskListTask();
+}
+
+async function TaskAddProgressManually(id) {
+  let task = tasks.find(x => x.id == id);
+  if (!task) return;
+  
+  const { value: userVal } = await Swal.fire({
+      title: 'Progress in minutes',
+      input: 'text',
+      inputLabel: 'example: 10, 15, 30',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+  });
+  
+  if (!userVal) return;
+  
+  try {
+    let addedMinutes = parseInt(userVal);
+    task.progress += addedMinutes;
+    task.progressTime += addedMinutes * 60 * 1000;
+    task.totalProgressTime += addedMinutes * 60 * 1000;
+    
+    if (!
+      (typeof(task.progress) == 'number' &&
+      typeof(task.progressTime) == 'number' &&
+      typeof(task.totalProgressTime) == 'number')
+    ) {
+      throw 'Failed, task data not valid';
+    }
+    
+    task.progress = Math.max(0, task.progress);
+    task.progressTime = Math.max(0, task.progressTime);
+    task.totalProgressTime = Math.max(0, task.totalProgressTime);
+    
+    await taskApplyNecessaryTaskUpdates(task, addedMinutes * 60 * 1000);
+    await storeTask();  
+    TaskListTask();
+    
+  } catch (e) {
+    console.error(e);
+    alert('Failed');
+    return;
+  }
+  
+}
+
+async function taskApplyAllParentTargetTime(parentId, distanceTime) {
+  let task = app.GetTaskById(parentId);
+  while (task) {
+    if (task.ratio > 0) {
+      await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
+    }
+    task = app.GetTaskById(task.parentId);
+  }
+}
+
+async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
+  try {
+      let excessTime = task.targetTime - addedTime;
+      if (excessTime < 0) {
+        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
+      }
+      task.targetTime = Math.max(0, task.targetTime - addedTime);
+    } catch (e) {
+      console.error(e);
+  }
+}
+
+async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes}, addedTime) {
+
+  if (typeof(ratio) != 'number') return;
+  
+  let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
+
+  let remainingRatio = 100 - ratio;
+  let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+
+  for (let task of filteredTasks) {
+    let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+  }
+
+}
+
+function addOrInitNumber(variable, numberToAdd) {
+  if (variable === null || typeof variable === "undefined") {
+    variable = 0;
+  }
+  if (typeof variable !== "number") {
+    variable = parseFloat(variable);
+  }
+  if (!isNaN(variable)) {
+    variable += numberToAdd;
+  }
+  return variable;
+}
+
+async function taskSetTaskRatio(id) {
+  let task = tasks.find(x => x.id == id);
+  if (!task) return;
+  
+  const { value } = await Swal.fire({
+      title: 'Priority Ratio',
+      input: 'text',
+      inputLabel: 'example: 10, 25, 50',
+      inputValue: task.ratio,
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+  });
+  
+  if (!value) return;
+  
+  task.ratio = parseFloat(value);
+  await storeTask();
+  TaskListTask();
+}
+
+async function TaskAddLabel(id) {
+  let task = tasks.find(x => x.id == id);
+  if (!task) return;
+  
+  let label = window.prompt('Label', task.label);
+  if (!label) return;
+  
+  task.label = label;
+  await storeTask();  
+}
 
 async function startTaskTimer(parentEl, id) {
   await stopTimer();
   await switchActiveTask(parentEl, id, true);
+  await restartTask(id);
   await startCurrentTask(id);
 }
 
@@ -1087,16 +1483,6 @@ function addSubTimer(taskId) {
   uiComponent.ShowModalAddTask(defaultVal);
 }
 
-async function renameTask(id) {
-  let task = tasks.find(x => x.id == id);
-  
-  let title = window.prompt('rename', task.title);
-  if (!title) return;
-  
-  task.title = title;
-  await storeTask();
-  partialUpdateTask('title', task);
-}
 
 function partialUpdateTask(key, data) {
   switch (key) {
@@ -1119,6 +1505,26 @@ function appendNotes(data) {
   $(`[data-id="${data.id}"] [data-slot="note"]`).append(el);
 }
 
+async function taskArchiveTask(id) {
+  let task = tasks.find(x => x.id == id);
+  task.isArchived = true;
+  await storeTask();
+  let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
+  $('#tasklist-completed').append(taskEl);
+}
+
+async function taskUnarchive(id) {
+  let task = tasks.find(x => x.id == id);
+  task.isArchived = false;
+  // task.progress = 0;
+  // task.progressTime = 0;
+  // task.finishCountProgress = task.finishCount;
+  await storeTask();
+  await TaskListTask();  
+  loadSearch();
+}
+
+// todo: rename to archive
 async function finishTask(id) {
   let task = tasks.find(x => x.id == id);
   task.progress = task.target;
@@ -1134,7 +1540,8 @@ async function restartTask(id) {
   task.progressTime = 0;
   task.finishCountProgress = task.finishCount;
   await storeTask();
-  listTask();  
+  await TaskListTask();  
+  loadSearch();
 }
 
 async function addNote(form) {
@@ -1254,13 +1661,16 @@ async function startCurrentTask(id) {
   if (task.progress >= task.target) return;
   
   // accumulates child task progress
-  let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
+  // let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
 
-  setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
+  // setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
+  let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
+  androidClient.StartTimer(seconds, task.title);
+  setTimer(task.target * 60 * 1000 - task.progressTime);
 }
 
 async function startTask(id) {
-  let task = tasks.find(x => x.id == id);
+  // let task = tasks.find(x => x.id == id);
   // task.progress = task.target;
   // task.progressTime = task.target * 60 * 1000;
   // await storeTask();
@@ -1273,7 +1683,6 @@ async function reduceTaskDuration(id) {
   
   let task = tasks.find(x => x.id == id);
   task.target = Math.max(0, task.target - parseHoursMinutesToMinutes(target));
-  calculateOverloadInfo();
   await storeTask();
   await listTask();  
   await updateUI();
@@ -1291,14 +1700,29 @@ async function increaseTaskDuration(id) {
 }
 
 async function setTaskTarget(id) {
-  let target = window.prompt('Set mission target (example: 1h, 30m, or 1h30m)');
-  if (!target) return;
   
   let task = tasks.find(x => x.id == id);
-  task.target = Math.max(0, parseHoursMinutesToMinutes(target));
+  
+  const { value: userVal } = await Swal.fire({
+      title: 'Set mission target',
+      input: 'text',
+      inputLabel: 'example: 1h, 30m, or 1h30m',
+      inputValue: minutesToHoursAndMinutes(task.target),
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+  });
+  
+  if (!userVal) return;
+  
+  task.target = Math.max(0, parseHoursMinutesToMinutes(userVal));
   await storeTask();
-  await listTask();  
+  await TaskListTask();  
   await updateUI();
+  loadSearch();
 }
 
 async function splitTask(id) {
@@ -1326,33 +1750,30 @@ async function splitTask(id) {
 }
 
 function untrackProgress(id) {
-  let task = getTaskById(id);
+  let task = app.getTaskById(id);
   task.untracked = true;
   updateUI();
   storeTask();
 }
 
 function trackProgress(id) {
-  let task = getTaskById(id);
+  let task = app.getTaskById(id);
   task.untracked = false;
   updateUI();
   storeTask();
 }
 
 async function editTask(taskId) {
-  let task = await getTaskById(taskId);
-  let {id, title, target, finishCount} = task;
+  let task = await app.getTaskById(taskId);
+  let {id, parentId, title, target, finishCount} = task;
   let defaultVal = {
     id,
     title,
     target: minutesToHoursAndMinutes(target),
     finishCount,
+    parentId,
   };
   uiComponent.ShowModalAddTask(defaultVal);
-}
-
-function getTaskById(id) {
-  return tasks.find(x => x.id == id);
 }
 
 async function removeActiveTask() {
@@ -1370,25 +1791,37 @@ async function getActiveTask() {
   return null;
 }
 
-async function updateProgressActiveTask(addedProgress, distanceTime) {
+async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let data = await window.service.GetData(['activeTask']);
   if (data.activeTask) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      activeTask.progress += addedProgress;
+      activeTask.progress += addedMinutes;
       activeTask.progressTime += distanceTime;
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
       }
       activeTask.totalProgressTime += distanceTime;
-      // update sub task total progress time
-      updateSubTaskProgress(activeTask, distanceTime);
+      
+      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime);
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
-      el.querySelector('[data-obj="live-progress"]').textContent = '(+0m)';
-      el.querySelector('[data-obj="progress"]').textContent = minutesToHoursAndMinutes(msToMinutes(activeTask.progressTime));
+      if (el) {
+        el.querySelector('[data-obj="live-progress"]').textContent = '(+0m)';
+        el.querySelector('[data-obj="progress"]').textContent = minutesToHoursAndMinutes(msToMinutes(activeTask.progressTime));
+      }
     }
+  }
+}
+
+async function taskApplyNecessaryTaskUpdates(task, distanceTime) {
+  // update all parent target time
+  await taskApplyAllParentTargetTime(task.parentId, distanceTime);
+  
+  // apply target time balancing
+  if (task.ratio > 0) {
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
   }
 }
 
@@ -1476,12 +1909,219 @@ function parseHoursMinutesToMinutes(timeString) {
   return (hours * 60) + minutes;
 }
 
-function GetTotalProgressString() {
-  let totalProgressTime = tasks.reduce((total, item) => {
-    return total += item.totalProgressTime;
-  }, 0)
-  let totalProgessString = minutesToHoursAndMinutes(msToMinutes(totalProgressTime));
-  alert(`Total timer progress : ${totalProgessString}`) ;
+function RatioSettings() {
+  let currentSettings = localStorage.getItem('ratio-label-settings') || 'main';
+  let label = window.prompt('Labels to check', currentSettings);
+  if (!label) return;
+  
+  localStorage.setItem('ratio-label-settings', label);
 }
 
-initApp();
+let timeLeftRatio = [];
+
+
+
+function getGroupById(id) {
+  return lsdb.data.groups.find(x => x.id == id)
+}
+
+
+function getTotalProgressTimeByParentId(parentId) {
+  
+  let taskIds = [];
+  let total = tasks.reduce((a, b) => {
+    if (b.parentId == parentId) {
+      taskIds.push(b.id);
+      return a + b.totalProgressTime;
+    }
+    return a;
+  }, 0);
+  
+  // count until last child
+  for (let id of taskIds) {
+    total += getTotalProgressTimeByParentId(id);    
+  }
+  
+  return total;
+}
+
+async function taskOpenTaskIntoView() {
+  let activeTask = await getActiveTask();
+  if (!activeTask) return;
+  
+  lsdb.data.viewMode = 'tasks';
+  lsdb.save();
+  uiComponent.Navigate(activeTask.parentId);
+  await TaskListTask();
+}
+  
+
+
+
+let app = (function () {
+
+  let SELF = {
+    InitApp,
+    TaskClickHandler,
+    
+    GetTaskById,
+    getTaskById: GetTaskById,
+    TaskAddTask,
+    TaskUpdateTask,
+  };
+  
+  async function InitApp() {
+    await initData();
+    attachListeners();
+    await loadTasks();
+    await listTask();
+    TaskSetActiveTaskInfo();
+    uiComponent.Init();
+    updateUI();
+    
+    if (lsdb.data.viewMode == 'mission') {
+      $('#tasklist-container').stateList.add('--view-mission');
+    }
+    
+    $('#in-filter-search-label').value = window.lsdb.data.labelFilter;
+    loadSearch();
+  }
+  
+  async function TaskClickHandler(el) {
+    let actionRole = getActionRole(el);
+    let parentEl = el.closest('[data-obj="task"]');
+    let id = parentEl.dataset.id;
+    switch (actionRole) {
+      case 'navigate-mission': taskNavigateToMission(id); break;
+      case 'navigate-sub': 
+        // changeViewModeConfig('tasks');
+        // saveConfig();
+        uiComponent.Navigate(id);
+        listTask();
+        break;
+      case 'edit': editTask(id); break;
+      case 'star-task': taskStarTask(id); break;
+      case 'delete': taskDeleteTask(id, parentEl); break;
+      case 'set-ratio': taskSetTaskRatio(id); break;
+      case 'add-label': TaskAddLabel(id); break;
+      case 'add-sub-timer': addSubTimer(id); break;
+      case 'add-progress-minutes': 
+        await TaskAddProgressManually(id); 
+        break;
+      case 'track': trackProgress(id); break;
+      case 'untrack': untrackProgress(id); break;
+      case 'set-active': switchActiveTask(parentEl, id); break;
+      case 'split-task': await splitTask(id); break;
+      case 'reduce': await reduceTaskDuration(id); break;
+      case 'add': await increaseTaskDuration(id); break;
+      case 'remove-mission': taskAddToMission(id, parentEl); break;
+      case 'add-to-mission': taskAddToMission(id, parentEl); break;
+      case 'set-target': 
+        await setTaskTarget(id); 
+        break;
+      case 'archive':
+        let activeTask = await getActiveTask();
+        if (activeTask && activeTask.id == id) {
+          await stopTimer();
+        }
+        // await finishTask(id);
+        await taskArchiveTask(id);
+        await removeActiveTaskIfExists(id);
+        updateUI();
+      break;
+      case 'unarchive': await taskUnarchive(id); break;
+      case 'restart': await restartTask(id); break;
+      case 'take-note': showModalNote(id); break;
+      case 'start': await startTaskTimer(parentEl, id); break;
+      case 'stop': await stopTimer(); break;
+        
+      // notes
+      case 'rename-sub-task': renameNote(id, el); break;
+      case 'start-sub-task':
+        await fixMissingNoteId(id, el); await setSubTask(id, el); break;
+      case 'delete-note': deleteNote(id, el); break;
+    }
+  }
+  
+  function GetTaskById(id) {
+    return tasks.find(x => x.id == id);
+  }
+  
+  async function TaskUpdateTask(form) {
+    let task = tasks.find(x => x.id == form.id.value);
+    task.title = form.title.value;
+    task.target = parseHoursMinutesToMinutes(form.target.value);
+    task.finishCount = parseInt(form['finishCount'].value);
+    task.finishCountProgress = parseInt(form['finishCount'].value);
+    task.parentId = form['parent-id'].value;
+  
+    await storeTask();
+    partialUpdateUITask(task.id, task);
+    form.reset();
+    form.stateList.remove('--edit-mode');
+    
+    syncGroupName(task.id, task.title, task.parentId);
+  }
+  
+  function syncGroupName(id, newTitle, parentId) {
+    let group = lsdb.data.groups.find(x => x.id == id);
+    if (!group) return;
+    
+    group.name = newTitle;
+    group.parentId = parentId;
+    lsdb.save();
+  }
+  
+  async function TaskAddTask(form)  {
+    if (form.title.value.trim().length == 0) {
+      return;
+    }
+    
+    let targetVal = form.target.value;
+    if (isNumber(targetVal)) {
+      // set default to minutes
+      targetVal = `${targetVal}m`;
+    }
+  
+    let taskId;
+    let finishCount = form['finishCount'].value ? parseInt(form['finishCount'].value) : null;
+    try {
+      let parentId = form['parent-id'].value;
+      taskId = addTaskData({
+        finishCount,
+        finishCountProgress: finishCount,
+        title: form.title.value,
+        target: parseHoursMinutesToMinutes(targetVal),
+        parentId: parentId ? parentId : '',
+      });
+      
+      if (parentId) {
+        let parentTask = await app.GetTaskById(parentId);
+        await CheckAndCreateGroups(parentTask.title, parentId);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed.');    
+      return;
+    }
+    
+    form.reset();
+  
+    // set as active task if none is active
+    let data = await window.service.GetData('start');
+    if (!data.start && taskId) {
+      await window.service.SetData({'activeTask': taskId});
+    }
+  
+    await storeTask();
+    await listTask();
+    
+    updateUI();
+  }
+  
+  return SELF;
+  
+})();
+
+
+app.InitApp();

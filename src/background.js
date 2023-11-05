@@ -46,38 +46,89 @@ async function reduceCountActiveTask() {
   }
 }
 
-async function updateProgressActiveTask(addedProgress, distanceTime) {
+async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let data = await chrome.storage.local.get(['activeTask']);
   if (data.activeTask) {
     let tasks = await getTask();
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      activeTask.progress += addedProgress;
+      activeTask.progress += addedMinutes;
       activeTask.progressTime += distanceTime;
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
       }
       activeTask.totalProgressTime += distanceTime;
       
-      // update sub task total progress time
-      updateSubTaskProgress(activeTask, distanceTime);
-
+      // apply target time balancing
+      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks)
       await storeTask(tasks);
     }
   }
 }
 
-function updateSubTaskProgress(task, distanceTime) {
-  if (!task.activeSubTaskId) return;
+async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
+  // update all parent target time
+  await taskApplyAllParentTargetTime(task.parentId, distanceTime, tasks);
+  
+  // apply target time balancing
+  if (task.ratio > 0) {
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
+  }
+}
 
-  let note = getSubMissionById(task, task.activeSubTaskId);
-  if (!note) return;
+function GetTaskById(tasks, id) {
+  return tasks.find(x => x.id == id);
+}
 
-  if (typeof(note.totalProgressTime) == 'undefined') {
-    note.totalProgressTime = 0;
+async function taskApplyAllParentTargetTime(parentId, distanceTime, tasks) {
+  let task = GetTaskById(tasks, parentId);
+  while (task) {
+    if (task.ratio > 0) {
+      await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
+    }
+    task = GetTaskById(tasks, task.parentId);
+  }
+}
+
+async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, tasks) {
+  try {
+      let excessTime = task.targetTime - addedTime;
+      if (excessTime < 0) {
+        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime), tasks);
+      }
+      task.targetTime = Math.max(0, task.targetTime - addedTime);
+    } catch (e) {
+      console.error(e);
+  }
+}
+
+async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes}, addedTime, tasks) {
+
+  if (typeof(ratio) != 'number') return;
+  
+  let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
+
+  let remainingRatio = 100 - ratio;
+  let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+
+  for (let task of filteredTasks) {
+    let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
   }
 
-  note.totalProgressTime += distanceTime;
+}
+
+function addOrInitNumber(variable, numberToAdd) {
+  if (variable === null || typeof variable === "undefined") {
+    variable = 0;
+  }
+  if (typeof variable !== "number") {
+    variable = parseFloat(variable);
+  }
+  if (!isNaN(variable)) {
+    variable += numberToAdd;
+  }
+  return variable;
 }
 
 function getSubMissionById(task, subId) {
@@ -155,14 +206,14 @@ async function alarmHandler(alarm) {
           }
 
           // calculate miutes left if has parent task
-          if (activeTask.parentId) {
-            let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
-            let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
+          // if (activeTask.parentId) {
+          //   let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
+          //   let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
             
-            let parentTask = tasks.find(x => x.id == activeTask.parentId);
-            let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
-            finishCountLeftTxt += ` (${accumulatedMinutesLeft}m left)`
-          }
+          //   let parentTask = tasks.find(x => x.id == activeTask.parentId);
+          //   let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
+          //   finishCountLeftTxt += ` (${accumulatedMinutesLeft}m left)`
+          // }
 
         }
       }
