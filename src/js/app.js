@@ -158,7 +158,9 @@ async function setTimer(duration) {
   }
   await window.service.SetData({ 'history': data.history + distanceMinutes });
   await window.service.RemoveData(['start']);
-  await updateProgressActiveTask(distanceMinutes, distanceTime);
+  if (distanceTime > 0) {
+    await updateProgressActiveTask(distanceMinutes, distanceTime);
+  }
   
   
   let aMinute = 60;
@@ -288,10 +290,6 @@ async function storeTask() {
   await window.service.SetData({ 'tasks': tasks });
 }
       
-      
-
-      
-
 
 async function TaskSetActiveTaskInfo() {
   $('#txt-active-task-name').textContent = '';
@@ -404,6 +402,7 @@ async function startOrRestartTask() {
   if (!task) return;
   
   await stopTimer();
+  await restartTask(task.id);
   await startCurrentTask(task.id);
 }
 
@@ -1161,54 +1160,6 @@ function resetActiveGroupId() {
   lsdb.data.activeGroupId = '';
 }
 
-
-
-async function taskDeleteTask(id, taskEl) {
-  
-  let isConfirm = window.confirm('Are you sure?');
-  if (!isConfirm) return; 
-  
-  let totalDeletedProgressTime = 0;
-  
-  let deleteIndex = tasks.findIndex(x => x.id == id);
-  let parentTask = app.GetTaskById(tasks[deleteIndex].parentId);
-  totalDeletedProgressTime += tasks[deleteIndex].progressTime;
-  tasks.splice(deleteIndex, 1);
-  
-  // delete group
-  {
-    let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
-    if (deleteIndex >= 0) {
-      lsdb.data.groups.splice(deleteIndex, 1);
-    }
-  }
-  
-  // delete mission
-  {
-    let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
-    if (deleteIndex >= 0) {
-      lsdb.data.missionIds.splice(deleteIndex, 1);
-    }
-  }
-
-  // delete child task recurisively
-  totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
-  console.log(totalDeletedProgressTime)
-  
-  // put total progress time of deleted tasks into the parent progress
-  if (parentTask) {
-    parentTask.totalProgressTime += totalDeletedProgressTime;
-    // parentTask.progress += Math.floor(totalDeletedProgressTime/60000);
-  }
-  
-  await storeTask();
-  lsdb.save();
-  
-  await removeActiveTaskIfExists(id);
-  taskEl.remove();
-  updateUI();
-}
-
 async function taskNavigateToMission(id) {
   let task = await app.GetTaskById(id);
   if (!task) return;
@@ -1278,75 +1229,7 @@ function deleteAllChildTasksByParentId(id) {
   return totalDeletedProgressTime;
 }
 
-async function taskStarTask(id) {
-  if (isViewModeMission() && isTopMissionPath(id)) {
-    let mission = lsdb.data.missionIds.find(x => x.id == id);
-    if (typeof(mission.lastStarredDate) == 'number') {
-      delete mission.lastStarredDate;
-    } else {
-      mission.lastStarredDate = new Date().getTime();
-    }
-    mission.lastUpdatedDate = new Date().getTime();
-    lsdb.save();
-  } else {
-    let task = tasks.find(x => x.id == id);
-    if (typeof(task.lastStarredDate) == 'number') {
-      delete task.lastStarredDate;
-    } else {
-      task.lastStarredDate = new Date().getTime();
-    }
-    await storeTask();
-  }
-  TaskListTask();
-}
 
-async function TaskAddProgressManually(id) {
-  let task = tasks.find(x => x.id == id);
-  if (!task) return;
-  
-  const { value: userVal } = await Swal.fire({
-      title: 'Progress in minutes',
-      input: 'text',
-      inputLabel: 'example: 10, 15, 30',
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return 'You need to write something!';
-        }
-      }
-  });
-  
-  if (!userVal) return;
-  
-  try {
-    let addedMinutes = parseInt(userVal);
-    task.progress += addedMinutes;
-    task.progressTime += addedMinutes * 60 * 1000;
-    task.totalProgressTime += addedMinutes * 60 * 1000;
-    
-    if (!
-      (typeof(task.progress) == 'number' &&
-      typeof(task.progressTime) == 'number' &&
-      typeof(task.totalProgressTime) == 'number')
-    ) {
-      throw 'Failed, task data not valid';
-    }
-    
-    task.progress = Math.max(0, task.progress);
-    task.progressTime = Math.max(0, task.progressTime);
-    task.totalProgressTime = Math.max(0, task.totalProgressTime);
-    
-    await taskApplyNecessaryTaskUpdates(task, addedMinutes * 60 * 1000);
-    await storeTask();  
-    TaskListTask();
-    
-  } catch (e) {
-    console.error(e);
-    alert('Failed');
-    return;
-  }
-  
-}
 
 async function taskApplyAllParentTargetTime(parentId, distanceTime) {
   let task = app.GetTaskById(parentId);
@@ -1536,6 +1419,9 @@ async function finishTask(id) {
 
 async function restartTask(id) {
   let task = tasks.find(x => x.id == id);
+  if (task.progressTime < task.target * 60 * 1000) {
+    return;
+  }
   task.progress = 0;
   task.progressTime = 0;
   task.finishCountProgress = task.finishCount;
@@ -1628,7 +1514,7 @@ async function renameNote(id, el) {
   let noteId = parentEl.querySelector('[data-slot="id"]').textContent;
   let task = tasks.find(x => x.id == id);
 
-  let newDesc
+  let newDesc;
   if (noteId) {
     let note = task.note.find(x => x.id == noteId);
     let desc = window.prompt('rename', note.desc);
@@ -1645,7 +1531,7 @@ async function renameNote(id, el) {
   }
   await storeTask();
   if (noteId) {
-    partialUpdateNoteName(parentEl, newDesc)
+    partialUpdateNoteName(parentEl, newDesc);
   }
 }
 
@@ -1667,36 +1553,6 @@ async function startCurrentTask(id) {
   let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
   androidClient.StartTimer(seconds, task.title);
   setTimer(task.target * 60 * 1000 - task.progressTime);
-}
-
-async function startTask(id) {
-  // let task = tasks.find(x => x.id == id);
-  // task.progress = task.target;
-  // task.progressTime = task.target * 60 * 1000;
-  // await storeTask();
-  // listTask();  
-}
-
-async function reduceTaskDuration(id) {
-  let target = window.prompt('how much (hours minutes)');
-  if (!target) return;
-  
-  let task = tasks.find(x => x.id == id);
-  task.target = Math.max(0, task.target - parseHoursMinutesToMinutes(target));
-  await storeTask();
-  await listTask();  
-  await updateUI();
-}
-
-async function increaseTaskDuration(id) {
-  let target = window.prompt('how much (hours minutes)');
-  if (!target) return;
-  
-  let task = tasks.find(x => x.id == id);
-  task.target = Math.max(0, task.target + parseHoursMinutesToMinutes(target));
-  await storeTask();
-  await listTask();  
-  await updateUI();
 }
 
 async function setTaskTarget(id) {
@@ -1804,6 +1660,9 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
       activeTask.totalProgressTime += distanceTime;
       
       await taskApplyNecessaryTaskUpdates(activeTask, distanceTime);
+      
+      app.AddProgressTimeToRootMission(activeTask.parentId, distanceTime);
+      
       await storeTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
@@ -1968,12 +1827,193 @@ let app = (function () {
     getTaskById: GetTaskById,
     TaskAddTask,
     TaskUpdateTask,
+    TaskDeleteTask,
+    TaskStarTask,
+    TaskAddProgressManually,
+    
+    AddProgressTimeToRootMission,
+    
+    // app init
+    ApplyTaskProgressHistoryToMissionRoot,
   };
+  
+  async function ApplyTaskProgressHistoryToMissionRoot() {
+    if (!window.modeChromeExtension) return;
+    
+    let data = await chrome.storage.local.get(['taskProgressHistory']);
+    if (data.taskProgressHistory === undefined) return;
+    
+    for (let historyData of data.taskProgressHistory) {
+      app.AddProgressTimeToRootMission(parentTaskId, historyData.progressTime);
+    }
+    
+    await storeTask();
+    
+  }
+  
+  async function TaskStarTask(id) {
+    if (isViewModeMission() && isTopMissionPath(id)) {
+      let mission = lsdb.data.missionIds.find(x => x.id == id);
+      if (typeof(mission.lastStarredDate) == 'number') {
+        delete mission.lastStarredDate;
+      } else {
+        mission.lastStarredDate = new Date().getTime();
+      }
+      mission.lastUpdatedDate = new Date().getTime();
+      lsdb.save();
+    } else {
+      let task = tasks.find(x => x.id == id);
+      if (typeof(task.lastStarredDate) == 'number') {
+        delete task.lastStarredDate;
+      } else {
+        task.lastStarredDate = new Date().getTime();
+      }
+      await storeTask();
+    }
+    TaskListTask();
+  }
+  
+  async function TaskAddProgressManually(id) {
+    let task = tasks.find(x => x.id == id);
+    if (!task) return;
+    
+    const { value: userVal } = await Swal.fire({
+        title: 'Progress in minutes',
+        input: 'text',
+        inputLabel: 'example: 10, 15, 30',
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to write something!';
+          }
+        }
+    });
+    
+    if (!userVal) return;
+    
+    try {
+      let addedMinutes = parseInt(userVal);
+      let addedTime = addedMinutes * 60 * 1000;
+      task.progress += addedMinutes;
+      task.progressTime += addedTime;
+      task.totalProgressTime += addedTime;
+      
+      if (!
+        (typeof(task.progress) == 'number' &&
+        typeof(task.progressTime) == 'number' &&
+        typeof(task.totalProgressTime) == 'number')
+      ) {
+        throw 'Failed, task data not valid';
+      }
+      
+      task.progress = Math.max(0, task.progress);
+      task.progressTime = Math.max(0, task.progressTime);
+      task.totalProgressTime = Math.max(0, task.totalProgressTime);
+      
+      await taskApplyNecessaryTaskUpdates(task, addedMinutes * 60 * 1000);
+      
+      AddProgressTimeToRootMission(task.parentId, addedTime);
+      
+      await storeTask();  
+      TaskListTask();
+      
+    } catch (e) {
+      console.error(e);
+      alert('Failed');
+      return;
+    }
+    
+  }
+  
+  function AddProgressTimeToRootMission(parentTaskId, progressTime) {
+    try {
+      let missionParentTask = getMissionRoots(parentTaskId);
+      if (missionParentTask.length > 0) {
+        missionParentTask.forEach(task => {
+          task.progressTime += progressTime;
+        });
+      }
+    } catch (e) { console.log(e); }
+  }
+  
+  function getMissionRoots(taskId) {
+    let missionsTask = [];
+    let parentId = taskId;
+    let safeLoopCount = 20;
+    
+    while (parentId != '') {
+      
+      let mission = lsdb.data.missionIds.find(x => x.id == parentId);
+      if (mission) {
+        let task = tasks.find(x => x.id == mission.id);
+        missionsTask.push(task);
+      }
+      
+      let task = tasks.find(x => x.id == parentId);
+      if (!task) {
+        break
+      }
+      parentId = task.parentId;
+
+      safeLoopCount -= 1;
+      if (safeLoopCount < 0) {
+        break;
+      }
+    }
+    
+    return missionsTask;
+  }
+  
+  async function TaskDeleteTask(id, taskEl) {
+  
+    let isConfirm = window.confirm('Are you sure?');
+    if (!isConfirm) return; 
+    
+    let totalDeletedProgressTime = 0;
+    
+    let deleteIndex = tasks.findIndex(x => x.id == id);
+    let parentTask = app.GetTaskById(tasks[deleteIndex].parentId);
+    totalDeletedProgressTime += tasks[deleteIndex].progressTime;
+    tasks.splice(deleteIndex, 1);
+    
+    // delete group
+    {
+      let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
+      if (deleteIndex >= 0) {
+        lsdb.data.groups.splice(deleteIndex, 1);
+      }
+    }
+    
+    // delete mission
+    {
+      let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
+      if (deleteIndex >= 0) {
+        lsdb.data.missionIds.splice(deleteIndex, 1);
+      }
+    }
+  
+    // delete child task recurisively
+    totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
+    // console.log(totalDeletedProgressTime)
+    
+    // put total progress time of deleted tasks into the parent progress
+    if (parentTask) {
+      parentTask.totalProgressTime += totalDeletedProgressTime;
+    }
+    
+    await storeTask();
+    lsdb.save();
+    
+    await removeActiveTaskIfExists(id);
+    taskEl.remove();
+    updateUI();
+  }
   
   async function InitApp() {
     await initData();
     attachListeners();
     await loadTasks();
+    await app.ApplyTaskProgressHistoryToMissionRoot();
     await listTask();
     TaskSetActiveTaskInfo();
     uiComponent.Init();
@@ -2000,25 +2040,19 @@ let app = (function () {
         listTask();
         break;
       case 'edit': editTask(id); break;
-      case 'star-task': taskStarTask(id); break;
-      case 'delete': taskDeleteTask(id, parentEl); break;
+      case 'star-task': app.TaskStarTask(id); break;
+      case 'delete': app.TaskDeleteTask(id, parentEl); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-timer': addSubTimer(id); break;
-      case 'add-progress-minutes': 
-        await TaskAddProgressManually(id); 
-        break;
+      case 'add-progress-minutes': await app.TaskAddProgressManually(id); break;
       case 'track': trackProgress(id); break;
       case 'untrack': untrackProgress(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
       case 'split-task': await splitTask(id); break;
-      case 'reduce': await reduceTaskDuration(id); break;
-      case 'add': await increaseTaskDuration(id); break;
       case 'remove-mission': taskAddToMission(id, parentEl); break;
       case 'add-to-mission': taskAddToMission(id, parentEl); break;
-      case 'set-target': 
-        await setTaskTarget(id); 
-        break;
+      case 'set-target': await setTaskTarget(id); break;
       case 'archive':
         let activeTask = await getActiveTask();
         if (activeTask && activeTask.id == id) {

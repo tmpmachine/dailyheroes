@@ -2,12 +2,18 @@
 <html>
 <head>
 
+  <title>Daily Heroes</title>
+  <meta name="viewport" content="width=device-width"/>
+
   <link href="style.css" rel="stylesheet"/>
   <link href="app.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-  <meta name="viewport" content="width=device-width"/>
-  <title>Daily Heroes</title>
-
+  
+  <!-- # webcomponents -->
+  <!-- ## modal-v2 -->
+  <link href="modal-v2.css" rel="stylesheet"/>
+  <script src="modal-v2.js"></script>
+  
 </head>
 <body>
   
@@ -285,8 +291,6 @@
         <button data-role='set-active' class="icon-mate" title='Focus on this task' data-group="not-running unarchived">track_changes</button>
       </div>
       <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
-      <!--<button data-role='reduce' class="icon-mate">remove</button>-->
-      <!--<button data-role='add' class="icon-mate">add</button>-->
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Change target'>schedule</button>
       <button data-role='edit' class="icon-mate" data-group="not-running" title='Setting'>edit</button>
@@ -346,6 +350,7 @@
     </div>
   </template>
 
+  <!-- # modal task -->
   <modal-v2 id="projects-modal">
     <div class="modal" slot="content">
       <!-- modal content-->
@@ -379,7 +384,23 @@
       </div>
     </div>
   </modal-v2>
+  
+  <!-- # modal mission target -->
+  <modal-v2 id="modal-prompt">
+    <div class="modal" slot="content">
+      <!-- # modal content-->
+      <div class="ov-auto">
+        <div style="padding:1rem;">
+          
+          sample 
 
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
+
+  <!-- # modal note -->
   <modal-v2 id="modal-note" class="is-modal">
     <div class="modal" slot="content">
       <!-- modal content-->
@@ -404,17 +425,19 @@
   </modal-v2>
   
   <script src="lib/sweetalert2@11.js"></script>
-  <link href="modal-v2.css" rel="stylesheet"/>
-  <script src='modal-v2.js'></script>
+  
+  <!-- # webcomponents -->
+  <!-- ## modal-v2 -->
+  <script src="modal-v2-utils.js"></script>
 
   <script src="service.js"></script>
   <script src="service-chrome.js"></script>
   <script src="lib/mousetrap.min.js"></script>
   <script src="lib/statelist@v1.0.2.min.js"></script>
-  <script src='lib/templateslot.min.js'></script>
+  <script src="lib/templateslot.min.js"></script>
   
-  <script src='js/component-loader.js'></script>
-  <script src='index.js'></script>
+  <script src="js/component-loader.js"></script>
+  <script src="index.js"></script>
 
 </body>
 </html>

@@ -60,7 +60,21 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
       activeTask.totalProgressTime += distanceTime;
       
       // apply target time balancing
-      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks)
+      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks);
+      
+      // store task history to accumultas the progress on parent mission later
+      {
+        let data = await chrome.storage.local.get(['taskProgressHistory']);
+        let historyData = {
+          parentId: activeTask.parentId,
+          progressTime: distanceTime,
+        };
+        if (data.taskProgressHistory == undefined) {
+          data.taskProgressHistory = [];
+        }
+        data.taskProgressHistory.push(historyData);
+      }
+      
       await storeTask(tasks);
     }
   }
@@ -129,10 +143,6 @@ function addOrInitNumber(variable, numberToAdd) {
     variable += numberToAdd;
   }
   return variable;
-}
-
-function getSubMissionById(task, subId) {
-  return task.note.find(x => x.id == subId)
 }
 
 async function storeTask(tasks) {

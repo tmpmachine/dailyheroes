@@ -90,7 +90,7 @@ body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 /*body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],*/
 body:not([data-state~="--timer-running"]) .btn-timer-control-stop,
 body[data-state~="--timer-running"] .btn-timer-control-start,
-body[data-state~="--timer-running"] .container-task [data-state="--active"] [data-group~="not-running"],
+body[data-state~="--timer-running"] .container-task [data-state~="--active"] [data-group~="not-running"],
 .container-task #tasklist-completed [data-group~="active"],
 #tasklist [data-group~="archived"],
 #tasklist-completed [data-group~="unarchived"],
