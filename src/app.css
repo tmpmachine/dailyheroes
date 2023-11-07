@@ -106,3 +106,8 @@ _ {
 body:not([data-state~="--timer-running"]) [data-obj="task"][data-state~="--active"] .btn-stop {
   display: none;
 }
+
+/* # platform view */
+body:not(.is-platform-web) [data-view-platform="web"] {
+  display: none;
+}

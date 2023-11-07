@@ -3,8 +3,14 @@
 <head>
 
   <title>Daily Heroes</title>
+  <!-- mobile meta tags-->
   <meta name="viewport" content="width=device-width"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
+  <!-- pwa manifest -->
+  <link rel="manifest" href="manifest.json"/>
+  
   <link href="style.css" rel="stylesheet"/>
   <link href="app.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -176,13 +182,38 @@
       </section>
       
       <section>
-        <button class="clickable" data-callback='reset-data'>Reset Data</button>
+        <div class="d-inline-flex" style="gap:0.3rem;">
+          <button class="clickable" data-callback='reset-data'>Reset data</button>
+          <div class="d-inline-flex" data-view-platform="web" style="gap:0.3rem;">
+            <button id="buttonInstall">Install</button>
+            <button onclick="pwaCacher.update()">Check for updates</button>
+            <button onclick="pwaCacher.removeUpdate()">Remove app cache</button>
+          </div>
+        </div>
       </section>
     
     </div>
 
   </div>
   
+  
+  <style>
+    #update-notif {
+      display: none;
+    }
+    #update-notif.active {
+      display: block;
+    }
+  </style>
+  <div id="update-notif" style="position:fixed;bottom:0;left:0;width:100%;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold">
+    <div class="d-grid" style="grid-template-columns:1fr auto;">
+      <div style="padding:16px;">New version available</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;">
+        <div id="btn-refresh" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+        <div id="btn-dismiss" style="padding:16px;text-transform:uppercase;font-weight:bold;">Dismiss</div>
+      </div>
+    </div>
+  </div>
   
   
   <!-- TEMPLATES -->
@@ -438,6 +469,8 @@
   
   <script src="js/component-loader.js"></script>
   <script src="index.js"></script>
+  
+  <script src="pwa-cacher.js"></script>
 
 </body>
 </html>

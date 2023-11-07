@@ -40,7 +40,11 @@ try {
 
 if (window.modeChromeExtension) {
   window.service = window.serviceChrome;
+} else {
+  document.body.classList.add('is-platform-web')
 }
+
+
 
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 

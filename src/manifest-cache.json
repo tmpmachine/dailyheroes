@@ -1,0 +1,30 @@
+{
+  "etc": [
+    "service.js",
+    
+    "lib/mousetrap.min.js",
+    "lib/statelist@v1.0.2.min.js",
+    "lib/sweetalert2@11.js",
+    "lib/templateslot.min.js",
+    
+    "dom-events.js",
+    
+    "js/component-loader.js",
+    "js/app.js",
+    
+    "lsdb.js",
+    "ui.js",
+    "index.js",
+    "modal-v2.js",
+    "modal-v2.css",
+    
+    "app.css",
+    "style.css"
+  ],
+  "root": [
+    "./",
+    "index.html",
+    "manifest.json",
+    "pwa-cacher.js"
+  ]
+}
