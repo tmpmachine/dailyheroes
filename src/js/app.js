@@ -367,8 +367,8 @@ async function clearAlarms() {
 }
 
 async function TaskStopActiveTask() {
-  await stopTimer();
   androidClient.StopTimer();
+  await stopTimer();
 }
 
 async function stopTimer() {
@@ -2071,7 +2071,9 @@ let app = (function () {
       case 'restart': await restartTask(id); break;
       case 'take-note': showModalNote(id); break;
       case 'start': await startTaskTimer(parentEl, id); break;
-      case 'stop': await stopTimer(); break;
+      case 'stop': 
+        await TaskStopActiveTask(); 
+      break;
         
       // notes
       case 'rename-sub-task': renameNote(id, el); break;

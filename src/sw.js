@@ -2,22 +2,10 @@
   increase below number to trigger service worker update/reactivation
   to deliver latest updates for all users automatically on page visit
   
-  unique numer : 0
+  unique numer : 2
 */
 
 let cacheName = 'dailyheroes-MjQzNTM2OTU';
-
-// delete old cache versioning
-// use manifest-cache.json for future updates
-function clearOlderVersionCache() {
-  caches.keys().then(function(c){
-    c.map(function(cacheName){
-      if (cacheName.split('-')[1].length <= 2) {
-        caches.delete(cacheName);
-      }
-    });
-  });
-}
 
 function extractUrlsFromJson(json) {
   let urls = [];
@@ -47,32 +35,33 @@ self.addEventListener('install', function(event) {
 });
 
 function recache() {
-  clearOlderVersionCache();
+  
   return fetch('manifest-cache.json')
-    .then(res => res.json())
-    .then(json => {
-      let cacheURLs = extractUrlsFromJson(json);
-      caches.delete(cacheName)
-      .then(() => {
-        caches.open(cacheName)
-        .then(function(cache) {
-          return Promise.all(
-            cacheURLs.map(function(url) {
-              return cache.add(url).catch(function(error) {
-                console.error('Failed to cache URL:', url, error);
-              });
-            })
-          );
-        })
-        .then(function() {
-          console.log('Files successfully cached.');
-        })
-        .catch(function(error) {
-          console.log(error);
-          console.log('Failed to cache all required files.');
-        });
+  .then(res => res.json())
+  .then(json => {
+    let cacheURLs = extractUrlsFromJson(json);
+    caches.delete(cacheName)
+    .then(() => {
+      caches.open(cacheName)
+      .then(function(cache) {
+        return Promise.all(
+          cacheURLs.map(function(url) {
+            return cache.add(url).catch(function(error) {
+              console.error('Failed to cache URL:', url, error);
+            });
+          })
+        );
+      })
+      .then(function() {
+        console.log('Files successfully cached.');
+      })
+      .catch(function(error) {
+        console.log(error);
+        console.log('Failed to cache all required files.');
       });
     });
+  });
+  
 }
 
 self.addEventListener('activate', function(e) {

@@ -15,13 +15,13 @@ window.DOMEvents = {
           Swal.fire(
             'Deleted!',
             'Your file has been deleted.',
-            'success'
-          )
+            'success',
+          );
           lsdb.reset();
     	    tasks.length = 0;
     	    await storeTask();
         }
-      })
+      });
 	 
 	  },
 	  'show-modal-add-task': () => {
