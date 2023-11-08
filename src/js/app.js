@@ -30,7 +30,6 @@ window.lsdb = new Lsdb(storageName, {
 });
 
 
-
 window.modeChromeExtension = false;
 try {
   if (chrome.storage.local.get) {
@@ -1824,6 +1823,8 @@ async function taskOpenTaskIntoView() {
 let app = (function () {
 
   let SELF = {
+    isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
+    
     InitApp,
     TaskClickHandler,
     
@@ -1970,7 +1971,7 @@ let app = (function () {
   
   async function TaskDeleteTask(id, taskEl) {
   
-    let isConfirm = window.confirm('Are you sure?');
+    let isConfirm = await uiComponent.ShowConfirm();
     if (!isConfirm) return; 
     
     let totalDeletedProgressTime = 0;

@@ -9,6 +9,8 @@ let uiComponent = (function () {
 
     Init,
     SetFocusEl,
+    
+    ShowConfirm,
   };
 
   function Init() {
@@ -260,6 +262,43 @@ let uiComponent = (function () {
   	taskEl.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
     
   };
+  
+  
+  // # simple custom confirmation dialogue
+  
+  const showConfirmationButton = document.getElementById("showConfirmation");
+  const confirmationPopup = document.getElementById("confirmationPopup");
+  const confirmYesButton = document.getElementById("confirmYes");
+  const confirmNoButton = document.getElementById("confirmNo");
+  let modalResolver;
+  
+  function ShowConfirm() {
+    return new Promise(resolve => {
+      
+      if (!app.isPlatformAndroid) {
+        let isConfirm = window.confirm('Are you sure?');
+        resolve(isConfirm)
+        return;
+      } 
+      
+      confirmationPopup.style.display = "block";
+      modalResolver = resolve;
+      
+    })
+  }
+  
+  confirmYesButton.addEventListener("click", () => {
+      confirmationPopup.style.display = "none";
+      modalResolver(true);
+  });
+  
+  confirmNoButton.addEventListener("click", () => {
+      console.log("Confirmed: No");
+      modalResolver(false);
+      confirmationPopup.style.display = "none";
+  });
+  
+  // #
   
   return SELF;
   
