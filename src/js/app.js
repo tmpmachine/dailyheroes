@@ -1209,7 +1209,7 @@ function deleteAllChildTasksByParentId(id) {
   let totalDeletedProgressTime = 0;
   for (let id of ids) {
     let deleteIndex = tasks.findIndex(x => x.id == id);
-    totalDeletedProgressTime += tasks[deleteIndex].progressTime;
+    totalDeletedProgressTime += tasks[deleteIndex].totalDeletedProgressTime;
     tasks.splice(deleteIndex, 1);
     
     // delete group
@@ -1978,7 +1978,7 @@ let app = (function () {
     
     let deleteIndex = tasks.findIndex(x => x.id == id);
     let parentTask = app.GetTaskById(tasks[deleteIndex].parentId);
-    totalDeletedProgressTime += tasks[deleteIndex].progressTime;
+    totalDeletedProgressTime += tasks[deleteIndex].totalProgressTime;
     tasks.splice(deleteIndex, 1);
     
     // delete group
