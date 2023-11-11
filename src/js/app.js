@@ -1209,7 +1209,7 @@ function deleteAllChildTasksByParentId(id) {
   let totalDeletedProgressTime = 0;
   for (let id of ids) {
     let deleteIndex = tasks.findIndex(x => x.id == id);
-    totalDeletedProgressTime += tasks[deleteIndex].totalDeletedProgressTime;
+    totalDeletedProgressTime += tasks[deleteIndex].totalProgressTime;
     tasks.splice(deleteIndex, 1);
     
     // delete group
