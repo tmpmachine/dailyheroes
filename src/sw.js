@@ -2,10 +2,21 @@
   increase below number to trigger service worker update/reactivation
   to deliver latest updates for all users automatically on page visit
   
-  unique numer : 2
+  unique numer : 6
 */
 
 let cacheName = 'dailyheroes-MjQzNTM2OTU';
+
+// remove old caches
+caches.keys().then(function(c){
+  c.map(function(cacheName){
+    if (cacheName.startsWith('sampleApp')) {
+      caches.delete(cacheName).then(function(boolean) {
+        // your cache is now deleted
+      });
+    }
+  });
+});
 
 function extractUrlsFromJson(json) {
   let urls = [];

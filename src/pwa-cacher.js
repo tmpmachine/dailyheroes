@@ -15,6 +15,7 @@ let pwaCacher = (function() {
   }
     
   SELF.removeUpdate = function() {
+    
     caches.delete(cacheName)
       .then(() => {
           alert('Done! Reload to take effect.');

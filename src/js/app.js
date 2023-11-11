@@ -21,6 +21,10 @@ window.lsdb = new Lsdb(storageName, {
     missionIds: [],
     groups: [],
     isSortByTotalProgress: true,
+    
+    // component's data
+    compoMission: {},
+    
   },
   groups: {
     id: '',
@@ -505,6 +509,7 @@ function attachListeners() {
   window.listenOn('.clickable', 'click', window.DOMEvents.clickable);
   window.listenOn('.submittable', 'submit', window.DOMEvents.submittable);
   window.listenOn('.inputable', 'input', window.DOMEvents.inputable);
+  window.listenOn('.changeable', 'change', window.DOMEvents.changeable);
 }
 
 
@@ -705,13 +710,13 @@ async function listTask() {
   
   if (isMissionView) {
     
-    
+    let missionIds = compoMission.GetMissions();
     
     // sort by last starred
-    lsdb.data.missionIds.sort((a,b) => {
+    missionIds.sort((a,b) => {
       return a.createdDate > b.createdDate ? 1 : -1;
     });
-    lsdb.data.missionIds.sort((a,b) => {
+    missionIds.sort((a,b) => {
       let order = a.lastUpdatedDate > b.lastUpdatedDate ? -1 : 1;
       
       if (typeof(a.lastStarredDate) != 'number' && typeof(b.lastStarredDate) == 'number') {
@@ -722,17 +727,12 @@ async function listTask() {
       
       return order;
     });
-    // lsdb.data.missionIds.sort((a,b) => {
-    //   if (typeof(b.lastStarredDate) != 'number') return 1;
-      
-    //   return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
-    // });
     
     if (lsdb.data.activeGroupId === '') {
       // filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
-      filteredTasks = lsdb.data.missionIds.map(x => {
+      filteredTasks = missionIds.map(x => {
         return tasks.find(task => task.id == x.id);
-      })
+      }).filter(x => typeof(x) == 'object');
     } else {
       filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
       // filteredTasks = task;
@@ -911,7 +911,7 @@ async function listTask() {
 
     // star button
     if (isMissionView && isTopPath) {
-      let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+      let mission = compoMission.GetMissionById(item.id);
       if (mission) {
         let isStarred = (typeof(mission.lastStarredDate) == 'number');
         el.querySelector('.btn-star').classList.toggle('is-starred', isStarred);
@@ -941,13 +941,13 @@ async function listTask() {
         el.querySelector('.container-navigate-mission').classList.remove('d-none');
   	  } else {
         el.querySelector('.container-create-sub').classList.remove('d-none');
-  	    let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+  	    let mission = compoMission.GetMissionById(item.id);
         if (mission) {
     	    taskEl.stateList.add('--is-mission');
         }  
   	  }
     } else {
-      let mission = lsdb.data.missionIds.find(x => x.id == item.id);
+	    let mission = compoMission.GetMissionById(item.id);
       if (mission) {
   	    taskEl.stateList.add('--is-mission');
       }
@@ -1013,7 +1013,8 @@ function isSubTaskOf(parentId, findId) {
 }
 
 function isTopMissionPath(id) {
-  for (let item of lsdb.data.missionIds) {
+  let missions = compoMission.GetMissions();
+  for (let item of missions) {
     if (item.id == id) return true;
   }
   return false;
@@ -1153,6 +1154,7 @@ async function removeActiveTaskIfExists(id) {
 function changeViewModeConfig(mode) {
   lsdb.data.topMostMissionPath = '';
   lsdb.data.viewMode = mode;
+  uiComponent.UpdateViewModeState();
 }
 
 function saveConfig() {
@@ -1174,23 +1176,26 @@ async function taskNavigateToMission(id) {
 }
 
 function taskAddToMission(id, parentEl) {
-  let idx = lsdb.data.missionIds.findIndex(x => x.id == id);
-  if (idx < 0) {
-    lsdb.data.missionIds.push({
-      id,
-      lastStarredDate: null,
-      lastUpdatedDate: new Date().getTime(),
-      createdDate: new Date().getTime(),
-    });
-    parentEl.stateList.add('--is-mission');
-  } else {
-    lsdb.data.missionIds.splice(idx, 1);
+  let isExists = compoMission.IsExistsMissionId(id)
+  if (isExists) {
+    // remove from mission
+    compoMission.RemoveMissionById(id);
     parentEl.stateList.remove('--is-mission');
     if (isViewModeMission()) {
       parentEl.remove();
     }
+  } else {
+    // add to mission
+    let missionData = {
+      id,
+      lastStarredDate: null,
+      lastUpdatedDate: new Date().getTime(),
+      createdDate: new Date().getTime(),
+    };
+    compoMission.AddMission(missionData);
+    parentEl.stateList.add('--is-mission');
   }
-  
+
   lsdb.save();
 }
 
@@ -1221,9 +1226,9 @@ function deleteAllChildTasksByParentId(id) {
     }
     // delete mission
     {
-      let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
-      if (deleteIndex >= 0) {
-        lsdb.data.missionIds.splice(deleteIndex, 1);
+      let isExistsMission = compoMission.IsExistsMissionId(id);
+      if (isExistsMission) {
+        compoMission.RemoveMissionById(id)
       }
     }
     
@@ -1825,8 +1830,9 @@ let app = (function () {
   let SELF = {
     isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
     
-    InitApp,
+    Init,
     TaskClickHandler,
+    GetDataManager,
     
     GetTaskById,
     getTaskById: GetTaskById,
@@ -1841,6 +1847,10 @@ let app = (function () {
     // app init
     ApplyTaskProgressHistoryToMissionRoot,
   };
+  
+  function GetDataManager() {
+    return lsdb;
+  }
   
   async function ApplyTaskProgressHistoryToMissionRoot() {
     if (!window.modeChromeExtension) return;
@@ -1858,7 +1868,7 @@ let app = (function () {
   
   async function TaskStarTask(id) {
     if (isViewModeMission() && isTopMissionPath(id)) {
-      let mission = lsdb.data.missionIds.find(x => x.id == id);
+      let mission = compoMission.GetMissionById(id);
       if (typeof(mission.lastStarredDate) == 'number') {
         delete mission.lastStarredDate;
       } else {
@@ -1948,7 +1958,7 @@ let app = (function () {
     
     while (parentId != '') {
       
-      let mission = lsdb.data.missionIds.find(x => x.id == parentId);
+      let mission = compoMission.GetMissionById(parentId);
       if (mission) {
         let task = tasks.find(x => x.id == mission.id);
         missionsTask.push(task);
@@ -1991,9 +2001,9 @@ let app = (function () {
     
     // delete mission
     {
-      let deleteIndex = lsdb.data.missionIds.findIndex(x => x.id == id);
-      if (deleteIndex >= 0) {
-        lsdb.data.missionIds.splice(deleteIndex, 1);
+      let isExistsMission = compoMission.GetMissionById(id);
+      if (isExistsMission) {
+        compoMission.RemoveMissionById(id)
       }
     }
   
@@ -2014,7 +2024,7 @@ let app = (function () {
     updateUI();
   }
   
-  async function InitApp() {
+  async function Init() {
     await initData();
     attachListeners();
     await loadTasks();
@@ -2163,6 +2173,3 @@ let app = (function () {
   return SELF;
   
 })();
-
-
-app.InitApp();

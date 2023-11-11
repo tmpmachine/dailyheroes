@@ -1,14 +1,20 @@
+
 window.$ = document.querySelector.bind(document);
 window.qsa = document.querySelectorAll.bind(document);
 
 window.componentLoader.load([
   {
     urls: [
-      'dom-events.js',
-      'ui.js',
+      'js/dom-events.js',
+      'js/ui.js',
       'lsdb.js',
+      
+      // app components
+      'js/mission-manager.js',
     ],
-    callback: function() { },
+    callback: function() { 
+      
+    },
   },
   {
     urls: [
@@ -19,6 +25,12 @@ window.componentLoader.load([
       if (!window.modeChromeExtension) {
         initServiceWorker();
       }
+      
+      // init component first
+      compoMission.Init();
+      
+      // init app
+      app.Init();
       
     },
   },

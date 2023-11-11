@@ -17,6 +17,10 @@
 /* --------------------------- */
 /* # list mission */
 
+body:not(.is-view-mode-mission) [data-visible-on~="mission-view"] {
+  display: none;
+}
+
 [data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
 [data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
 #tasklist [data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }

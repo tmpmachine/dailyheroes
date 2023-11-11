@@ -104,8 +104,17 @@ window.DOMEvents = {
 		  let duration = parseInt(ev.target.dataset.time); // in minutes
 		  await setTimerByMinutes(duration);
 	  },
+	  
+	  
+	  // # mission groups 
+    'new-mission-group': () => uiMission.NewGroup(),
+    'rename-active-mission-group': () => uiMission.RenameActiveGroup(),
+    'delete-mission-group': () => uiMission.DeleteGroupByName(),
+    
 	},
+	
 	inputable: {
+	  
 	  'save-word-template': (e) => {
 	    let val = e.target.value;
 	    window.clearTimeout(window.saveTimeout);
@@ -124,8 +133,11 @@ window.DOMEvents = {
 	      loadSearch()
 	    }, 250);
 	  },
+	  
 	},
+	
 	submittable: {
+	  
 	  'set-timer': async (ev) => {
 	    ev.preventDefault();
 	    let form = ev.target;
@@ -190,8 +202,18 @@ window.DOMEvents = {
 		// data.ratio = parseFloat(formData.get('ratio')) || null;
 		// data.duration = parseInt(formData.get('duration')) || null;
 		// return data;
-	    },
+    },
+	  
+	},
+	
+	
+	// # onchange
+	changeable: {
+	  
+	  'on-mission-group-change': (evt) => uiMission.OnChangeGroup(evt),
+	  
 	}
+	
 };
 
 

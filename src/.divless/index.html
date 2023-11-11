@@ -123,6 +123,26 @@
         <div class="default-gap"></div>
         <div class="default-gap"></div>
         
+        <!-- # mission group -->
+        [ .d-grid {gap:0.3rem} data-visible-on="mission-view"
+          
+          [
+            Collection [sel #in-sel-mission-group .changeable data-callback='on-mission-group-change']
+            [ .mb-xs]
+          ]
+          
+          [ .d-flex {gap:0.3rem}
+            [btn 'Rename' .clickable data-callback='rename-active-mission-group']
+            [btn 'Create new group' .clickable data-callback='new-mission-group']
+            [btn .clickable data-callback='delete-mission-group'
+              [i .icon-mate 'delete']
+            ]
+          ]
+          
+        ][ .mb-m]
+        
+        
+        <!-- # task list container -->
         <div id="tasklist-container" class="container-task">
           <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
           <div style="padding-top:1rem;"></div>
