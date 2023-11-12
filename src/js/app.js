@@ -1875,6 +1875,9 @@ let app = (function () {
     Init,
     TaskClickHandler,
     GetDataManager,
+    ResetData,
+    BackupData,
+    UploadBackupFile,
     
     GetTaskById,
     getTaskById: GetTaskById,
@@ -1892,6 +1895,112 @@ let app = (function () {
   
   function GetDataManager() {
     return lsdb;
+  }
+  
+  async function ResetData() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      
+      if (result.isConfirmed) {
+        lsdb.reset();
+  	    tasks.length = 0;
+  	    await storeTask();
+        
+        Swal.fire(
+          'Deleted!',
+          'Your file has been deleted.',
+          'success',
+        ).then(() => {
+  	      location.reload();
+        });
+        
+      }
+      
+    });
+  }
+  
+  async function BackupData() {
+	    
+    let dataString = await getBackupDataJSON();
+    let blob = new Blob([dataString], {type: 'application/json'});
+    let url = URL.createObjectURL(blob);
+    
+    let el = document.createElement('a');
+    el.href = url;
+    el.download = `daily-heroes-backup-${new Date().getTime()}.json`;
+    el.onclick = function() {
+      el.remove();
+    };
+    document.body.append(el);
+    el.click();
+    
+  }
+  
+  async function UploadBackupFile() {
+    
+    let input = document.createElement('input');
+    input.type ='file';
+    input.onchange = function() {
+
+      let r = new FileReader();
+      r.onload = function(evt) {
+        
+        try {
+          let fileTextContent = evt.target.result;
+          let backupData = JSON.parse(fileTextContent);
+          taskRestoreAppData(backupData);
+        } catch (e) {
+          console.error(e);
+        }
+        
+      };
+      r.readAsText(this.files[0]);
+      
+    };
+    document.body.append(input);
+    input.click();
+    input.remove();
+    
+  }
+  
+  async function taskRestoreAppData(backupData) {
+    // todo : should provide logic to handle versioned backup data
+    lsdb.data = backupData;
+    
+    if (SELF.isPlatformChromeExt) {
+      // #  don't store tasks data on extension popup, use the browser extension's storage
+      //    todo: should store other data in extension's storage too
+      await window.service.SetData({ 'tasks': JSON.parse(JSON.stringify(lsdb.data.tasks)) });
+      lsdb.data.tasks.length = 0; 
+    }
+    
+    saveAppData();
+    location.reload();
+  }
+  
+  function saveAppData() {
+    lsdb.save();
+  }
+  
+  async function getBackupDataJSON() {
+    
+    let referenceSafeExportData = JSON.parse(JSON.stringify(lsdb.data));
+    
+    if (SELF.isPlatformChromeExt) {
+      let data = await window.service.GetData(['tasks']);
+      if (data.tasks) {
+        referenceSafeExportData.tasks = data.tasks;
+      }
+    }
+    
+    return JSON.stringify(referenceSafeExportData);
   }
   
   async function ApplyTaskProgressHistoryToMissionRoot() {
