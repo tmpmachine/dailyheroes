@@ -244,7 +244,15 @@
           <!-- application data -->
           [
             [ 'Application Data' {fw:bold}][ .mb-m]
-            <button class="clickable" data-callback='reset-data'>Reset data</button>
+            [
+              <button class="clickable" data-callback='reset-data'>Reset data</button>
+            ][ .mb-m]
+            
+            [small 'Backup and restore.'][ .mb-m]
+            [
+              <button class="clickable" data-callback='backup-data'>Backup</button>
+              <button class="clickable" data-callback='restore-data'>Restore</button>
+            ]
           ][ .default-gap]
           
           <!-- web app installation -->
@@ -258,8 +266,8 @@
           <!-- app cache -->
           [ data-view-platform="web"
             [ 'Application Cache' {fw:bold}]
-            [small 'For development and offline support.']
-            [ .mb-m]
+            
+            [small 'For development and offline support.'][ .mb-m]
             [ .d-grid {gap:0.3rem}
               [
                 <button onclick="pwaCacher.update()">Check for updates</button>
