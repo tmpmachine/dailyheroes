@@ -17,6 +17,7 @@
 /* --------------------------- */
 /* # list mission */
 
+body.is-view-mode-mission [data-visible-on~="task-view"],
 body:not(.is-view-mode-mission) [data-visible-on~="mission-view"] {
   display: none;
 }

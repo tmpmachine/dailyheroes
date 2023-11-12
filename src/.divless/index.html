@@ -31,35 +31,61 @@
       <section>
         
         <div class="d-flex justify-content-between">
-          <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
+          
           <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
           <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
           <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
-          <h3 style="margin:0.5rem">Daily Heroes</h3>
           <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
         </div>
         <div class="default-gap"></div>
         
-        <!-- # active task name -->
-        [ .d-flex .justify-content-between
-          [
-            Task : [s @txt-active-task-name] 
+        <!-- # active task container -->
+        [ .d-flex {gap:0.5rem}
+          
+          <!-- # progress bar -->
+          [ {flex-grow:1}
+            <div class="NzE2ODYyNQ-progress-bar-container">
+              <div class="NzE2ODYyNQ-progress-bar">
+                <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+                <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+              </div>
+            </div>
+            [ .mb-m]
+            
+            <!-- # active task info -->
+            [
+              [small 'Active task'] : [s @txt-active-task-name {fw:bold}] 
+            ]
+            
           ]
-          [
-            [button .clickable data-callback='open-task-into-view'
-              [small 'Open task']
+          
+          <!-- # toggle active task timer -->
+          [ .d-grid {gap:0.5rem}
+            <div data-obj="stop-timer">
+              [ .d-grid {gap:0.35rem}
+                <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
+                  Stop [small '(Alt + S)']
+                </button>
+                <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
+                  Start [small '(Alt + S)']
+                </button>
+                <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
+              ]
+            </div>
+            <!-- # open task button -->
+            [ .d-flex .justify-content-center
+              [button .clickable data-callback='open-task-into-view'
+                [small .icon-mate 'open_in_new']
+              ]
             ]
           ]
+        
         ]
+        
+        
         [ .mb-xs]
         
-        <!-- # progress bar -->
-        <div class="NzE2ODYyNQ-progress-bar-container">
-          <div class="NzE2ODYyNQ-progress-bar">
-            <div class="NzE2ODYyNQ-progress-bar-fill"></div>
-            <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
-          </div>
-        </div>
+        
         [ .d-none
           <div style="height:2px;"></div>
           <div class="progress-bar-container">
@@ -69,22 +95,6 @@
             </div>
           </div>
         ]
-        <div class="default-gap"></div>
-        <div data-obj="stop-timer">
-          [
-            Timer
-          ]
-          [ .d-grid {gap:0.35rem} {cols:1fr 1fr}
-            <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
-              Stop [small '(Alt + S)']
-            </button>
-            <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
-              Start [small '(Alt + S)']
-            </button>
-            <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
-          ]
-        </div>
-        <div class="default-gap"></div>
         
         <!-- TASK LIST -->
         <div data-section="import">
@@ -101,45 +111,55 @@
             [btn 'Completed' .clickable data-callback='show-completed']
           ]
         ]
+        [ .mb-m]
 
-        Search :
+        <!-- # search -->
         <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
         [ .d-none
           Filter by label :
           [in .inputable .input-style-default data-callback="save-label-filter" #in-filter-search-label]
         ]
         <div class="default-gap"></div>
-        [ .d-grid {cols:1fr 1fr}
-          [btn 'All Tasks' .clickable data-callback='view-tasks']
-          [btn 'Missions' .clickable data-callback='view-mission']
+        
+        <!-- # add task -->
+        [ 
+          <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
+        ]
+        [ .mb-m]
+        
+        
+        <!-- # view mode tabs -->
+        [ .d-grid {cols:1fr 1fr} .container-view-mode
+          [btn 'All Tasks' .clickable data-callback='view-tasks' data-id="task"]
+          [btn 'Missions' .clickable data-callback='view-mission' data-id="mission"]
         ]
         <div class="default-gap"></div>
         
-        [ .d-flex .justify-content-between
-          [ #container-breadcrumbs]
-          [ #txt-total-ratio]
-        ]
-              
-        <div class="default-gap"></div>
-        <div class="default-gap"></div>
-        
-        <!-- # mission group -->
-        [ .d-grid {gap:0.3rem} data-visible-on="mission-view"
+        <!-- # mission collection -->
+        [ .d-grid {gap:0.3rem} data-visible-on="mission-view" {cols:1fr auto} .align-items-center
           
-          [
+          [ .ov-auto
             Collection [sel #in-sel-mission-group .changeable data-callback='on-mission-group-change']
             [ .mb-xs]
           ]
           
           [ .d-flex {gap:0.3rem}
-            [btn 'Rename' .clickable data-callback='rename-active-mission-group']
-            [btn 'Create new group' .clickable data-callback='new-mission-group']
+            [btn .clickable data-callback='rename-active-mission-group' .icon-mate 'edit']
+            [btn .clickable data-callback='new-mission-group' .icon-mate 'add']
             [btn .clickable data-callback='delete-mission-group'
               [i .icon-mate 'delete']
             ]
           ]
           
-        ][ .mb-m]
+        ][ .mb-m][ .default-gap]
+        
+        <!-- # breadcrumbs -->
+        [ .d-flex .justify-content-between
+          [ #container-breadcrumbs .container-breadcrumbs]
+          [ #txt-total-ratio {text-wrap:nowrap}]
+        ]
+              
+        <div class="default-gap"></div>
         
         
         <!-- # task list container -->
