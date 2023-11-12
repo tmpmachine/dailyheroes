@@ -457,28 +457,35 @@ async function startCountdown() {
 
 async function updateTime(scheduledTime, startTime) {
   
-  let distance = scheduledTime - new Date().getTime();
+  let currentTime = new Date().getTime();
+  let distance = Math.abs(scheduledTime - currentTime);
+  let isNegative = (scheduledTime < currentTime);
   let seconds = Math.round(distance / 1000);
   
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
-  $('#txt-countdown').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   
-  let percentage = (new Date().getTime()-startTime)/(scheduledTime-startTime)*100;
+  let negativeStr = (isNegative ? '-' : '');
+  let countdownStr = `${negativeStr} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`.trim();
+  updateCountdownText(countdownStr, isNegative);
+  
+  let percentage = ( currentTime - startTime ) / ( scheduledTime - startTime ) * 100;
   $('.NzE2ODYyNQ-progress-bar-fill').style.width = `${percentage}%`;
-  if (--seconds < 0) {
-    clearInterval(countdonwIntervalId);
-  }
   
-  let distanceMinutes = Math.floor((new Date().getTime() - startTime) / (60 * 1000));
-  let distanceTime = new Date().getTime() - startTime;
+  let distanceMinutes = Math.floor((currentTime - startTime) / (60 * 1000));
+  let distanceTime = currentTime - startTime;
   updateProgressPercentage(startTime);
   
   let activeTask = await getActiveTask();
   if (activeTask) {
     uiComponent.updateTaskProgressBar(activeTask.id);
   }
+}
+
+function updateCountdownText(countdownStr, isNegative) {
+  $('#txt-countdown').textContent = countdownStr;
+  $('.NzE2ODYyNQ-progress-bar-fill').classList.toggle('is-excess-time', isNegative);
 }
 
 

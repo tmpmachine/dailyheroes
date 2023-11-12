@@ -31,35 +31,61 @@
       <section>
         
         <div class="d-flex justify-content-between">
-          <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
+          
           <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
           <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
           <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
-          <h3 style="margin:0.5rem">Daily Heroes</h3>
           <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
         </div>
         <div class="default-gap"></div>
         
-        <!-- # active task name -->
-        <div class="d-flex justify-content-between">
-          <div>
-            Task : <span id="txt-active-task-name"></span> 
+        <!-- # active task container -->
+        <div class="d-flex" style="gap:0.5rem;">
+          
+          <!-- # progress bar -->
+          <div style="flex-grow:1;">
+            <div class="NzE2ODYyNQ-progress-bar-container">
+              <div class="NzE2ODYyNQ-progress-bar">
+                <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+                <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+              </div>
+            </div>
+            <div class="mb-m"></div>
+            
+            <!-- # active task info -->
+            <div>
+              <small>Active task</small> : <span id="txt-active-task-name" style="font-weight:bold;"></span> 
+            </div>
+            
           </div>
-          <div>
-            <button class="clickable" data-callback='open-task-into-view'>
-              <small>Open task</small>
-            </button>
+          
+          <!-- # toggle active task timer -->
+          <div class="d-grid" style="gap:0.5rem;">
+            <div data-obj="stop-timer">
+              <div class="d-grid" style="gap:0.35rem;">
+                <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
+                  Stop <small>(Alt + S)</small>
+                </button>
+                <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
+                  Start <small>(Alt + S)</small>
+                </button>
+                <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
+              </div>
+            </div>
+            <!-- # open task button -->
+            <div class="d-flex justify-content-center">
+              <button class="clickable" data-callback='open-task-into-view'>
+                <small class="icon-mate">open_in_new</small>
+              </button>
+            </div>
           </div>
+        
         </div>
+        
+        
         <div class="mb-xs"></div>
         
-        <!-- # progress bar -->
-        <div class="NzE2ODYyNQ-progress-bar-container">
-          <div class="NzE2ODYyNQ-progress-bar">
-            <div class="NzE2ODYyNQ-progress-bar-fill"></div>
-            <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
-          </div>
-        </div>
+        
         <div class="d-none">
           <div style="height:2px;"></div>
           <div class="progress-bar-container">
@@ -69,22 +95,6 @@
             </div>
           </div>
         </div>
-        <div class="default-gap"></div>
-        <div data-obj="stop-timer">
-          <div>
-            Timer
-          </div>
-          <div class="d-grid" style="gap:0.35rem;grid-template-columns:1fr 1fr;">
-            <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
-              Stop <small>(Alt + S)</small>
-            </button>
-            <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
-              Start <small>(Alt + S)</small>
-            </button>
-            <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
-          </div>
-        </div>
-        <div class="default-gap"></div>
         
         <!-- TASK LIST -->
         <div data-section="import">
@@ -101,45 +111,55 @@
             <button class="clickable" data-callback='show-completed'>Completed</button>
           </div>
         </div>
+        <div class="mb-m"></div>
 
-        Search :
+        <!-- # search -->
         <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
         <div class="d-none">
           Filter by label :
           <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
         </div>
         <div class="default-gap"></div>
-        <div class="d-grid" style="grid-template-columns:1fr 1fr;">
-          <button class="clickable" data-callback='view-tasks'>All Tasks</button>
-          <button class="clickable" data-callback='view-mission'>Missions</button>
+        
+        <!-- # add task -->
+        <div>
+          <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
+        </div>
+        <div class="mb-m"></div>
+        
+        
+        <!-- # view mode tabs -->
+        <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr;">
+          <button class="clickable" data-callback='view-tasks' data-id="task">All Tasks</button>
+          <button class="clickable" data-callback='view-mission' data-id="mission">Missions</button>
         </div>
         <div class="default-gap"></div>
         
-        <div class="d-flex justify-content-between">
-          <div id="container-breadcrumbs"></div>
-          <div id="txt-total-ratio"></div>
-        </div>
-              
-        <div class="default-gap"></div>
-        <div class="default-gap"></div>
-        
-        <!-- # mission group -->
-        <div class="d-grid" data-visible-on="mission-view" style="gap:0.3rem;">
+        <!-- # mission collection -->
+        <div class="d-grid align-items-center" data-visible-on="mission-view" style="gap:0.3rem;grid-template-columns:1fr auto;">
           
-          <div>
+          <div class="ov-auto">
             Collection <select id="in-sel-mission-group" class="changeable" data-callback='on-mission-group-change'></select>
             <div class="mb-xs"></div>
           </div>
           
           <div class="d-flex" style="gap:0.3rem;">
-            <button class="clickable" data-callback='rename-active-mission-group'>Rename</button>
-            <button class="clickable" data-callback='new-mission-group'>Create new group</button>
+            <button class="clickable icon-mate" data-callback='rename-active-mission-group'>edit</button>
+            <button class="clickable icon-mate" data-callback='new-mission-group'>add</button>
             <button class="clickable" data-callback='delete-mission-group'>
               <i class="icon-mate">delete</i>
             </button>
           </div>
           
-        </div><div class="mb-m"></div>
+        </div><div class="mb-m"></div><div class="default-gap"></div>
+        
+        <!-- # breadcrumbs -->
+        <div class="d-flex justify-content-between">
+          <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
+          <div id="txt-total-ratio" style="text-wrap:nowrap;"></div>
+        </div>
+              
+        <div class="default-gap"></div>
         
         
         <!-- # task list container -->

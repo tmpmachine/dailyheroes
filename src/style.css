@@ -1,6 +1,7 @@
-.align-items-center{align-items:center}.justify-content-end{justify-content:end}.text-center{text-align:center}.flex-column{flex-direction:column}.justify-content-between{justify-content:space-between}
+.justify-content-center{justify-content:center}.align-items-center{align-items:center}.justify-content-end{justify-content:end}.text-center{text-align:center}.flex-column{flex-direction:column}.justify-content-between{justify-content:space-between}
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .w-100{width:100%}
+.ov-auto{overflow:auto}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
@@ -93,7 +94,7 @@ button:hover{
 }
 button:focus{
   outline:none;
-  box-shadow:0 0 0 3px rgba(0,0,0,0.2);
+  /*box-shadow:0 0 0 3px rgba(0,0,0,0.2);*/
 }
 
 
@@ -178,7 +179,8 @@ button:focus{
 }
 
 
-/* progress bar countdown NzE2ODYyNQ */
+/* # active task, progress bar, task countdown */
+
 .NzE2ODYyNQ-progress-bar-container {
   width: 100%;
   height: 15px;
@@ -196,8 +198,6 @@ button:focus{
   background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
   background-size: 56px 40px;
 }
-
-
 .NzE2ODYyNQ-progress-bar-fill {
   position: absolute;
   top: 0;
@@ -208,6 +208,9 @@ button:focus{
   border-radius: 5px;
   background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 10px, transparent 10px, transparent 20px);
   background-size: 56px 40px;
+}
+.NzE2ODYyNQ-progress-bar-fill.is-excess-time {
+  background-color: #eca1a0;
 }
 
 .NzE2ODYyNQ-progress-bar-fill--animated {
@@ -297,4 +300,36 @@ body[data-state~="--timer-running"] .task-progress-bar {
 }
 #tasklist [data-obj="task"][data-state~="--active"] .container-task-toolbar {
   background: #bfe3ef;
+}
+
+
+/* # view mode tabs */
+.container-view-mode button {
+  background: none;
+  border: 3px solid #00000000;
+  padding: 10px;
+  text-transform: uppercase;
+}
+.container-view-mode .is-active {
+  font-weight: bold;
+  border-bottom: 3px solid black
+}
+.container-view-mode :not(.is-active) {
+  opacity: 0.6;
+  border-bottom: 3px solid gainsboro;
+}
+
+
+/* # breadcrumbs */
+.container-breadcrumbs button {
+    background: white;
+    border-radius: 4px;
+    opacity: 0.92;
+}
+
+.container-breadcrumbs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
 }

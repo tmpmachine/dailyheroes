@@ -16,6 +16,19 @@ let uiComponent = (function () {
   
   function UpdateViewModeState() {
     document.body.classList.toggle('is-view-mode-mission', isViewModeMission())
+    
+    // toggle class active tab
+    let tabId = isViewModeMission() ? 'mission' : 'task';
+    let activeClass = 'is-active';
+    $ns(`.container-view-mode .${activeClass}`).classList.remove(activeClass);
+    $(`.container-view-mode [data-id="${tabId}"]`).classList.add(activeClass);
+  }
+  
+  let $ns = function(selector) {
+    let el = $(selector);
+    if (!el) return {classList:{remove:()=>{}}};
+    
+    return el;
   }
 
   function Init() {
