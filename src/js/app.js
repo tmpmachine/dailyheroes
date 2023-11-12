@@ -48,7 +48,6 @@ if (window.modeChromeExtension) {
 }
 
 
-
 window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
 
 function copyToClipboard(text) {
@@ -473,6 +472,21 @@ async function updateTime(scheduledTime, startTime) {
   let percentage = ( currentTime - startTime ) / ( scheduledTime - startTime ) * 100;
   $('.NzE2ODYyNQ-progress-bar-fill').style.width = `${percentage}%`;
   
+  // is task finished, perform once.
+  if (isNegative) {
+    
+    // ended few milliseconds ago
+    if (distance < 1000) {
+      sendNotification();
+    }
+    
+    // stop updating the timer, it's ended by background script
+    if (app.isPlatformChromeExt) {
+      clearInterval(countdonwIntervalId);
+    }
+    
+  }
+  
   let distanceMinutes = Math.floor((currentTime - startTime) / (60 * 1000));
   let distanceTime = currentTime - startTime;
   updateProgressPercentage(startTime);
@@ -481,6 +495,24 @@ async function updateTime(scheduledTime, startTime) {
   if (activeTask) {
     uiComponent.updateTaskProgressBar(activeTask.id);
   }
+}
+
+
+async function sendNotification() {
+  if (!app.isCanNotify) return;
+  
+  let task = await getActiveTask();
+  
+  let notification = new Notification("Time's up!", {
+      body: `Task : ${task.title}`,
+      requireInteraction: true
+  });
+  
+  notification.onclick = function () {
+    window.focus();
+    notification.close();
+  };
+  
 }
 
 function updateCountdownText(countdownStr, isNegative) {
@@ -1836,6 +1868,9 @@ let app = (function () {
 
   let SELF = {
     isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
+    isPlatformChromeExt: window.modeChromeExtension,
+    isPlatformWeb: ( !window.modeChromeExtension && typeof(MyApp) == 'undefined' ),
+    isCanNotify: false,
     
     Init,
     TaskClickHandler,
@@ -2047,6 +2082,32 @@ let app = (function () {
     
     $('#in-filter-search-label').value = window.lsdb.data.labelFilter;
     loadSearch();
+    
+    // web platform notification support
+    setWebPlatformNotificationSupport();
+  }
+  
+  function setWebPlatformNotificationSupport() {
+    
+    if (!SELF.isPlatformWeb) return;
+    
+    
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notification");
+    } else if (Notification.permission === "granted") {
+      setAppNotificationFeature(true);
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          setAppNotificationFeature(true);
+        }
+      });
+    }
+    
+  }
+  
+  function setAppNotificationFeature(isCanNotify) {
+    SELF.isCanNotify = isCanNotify;
   }
   
   async function TaskClickHandler(el) {
