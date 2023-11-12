@@ -27,8 +27,14 @@
 
     <div class="d-grid" style="max-width:100%;min-width:330px;margin:auto;gap:1rem;">
     
-      <!-- right column -->
-      <section>
+      <!-- # screen : home -->
+      <section class="container-screen is-active" data-navigate-name="home">
+        
+        <!-- # navigations-->
+        <div class="d-flex justify-content-end">
+          <button class="clickable icon-mate" data-callback="navigate-screen" data-navigate-to="settings">settings</button>
+        </div><div class="default-gap"></div>
+
         
         <div class="d-flex justify-content-between">
           
@@ -123,7 +129,7 @@
         
         <!-- # add task -->
         <div>
-          <button class="clickable" data-callback='show-modal-add-task'>New Task (Alt + N)</button>
+          <button class="clickable" data-callback="show-modal-add-task">New Task (Alt + N)</button>
         </div>
         <div class="mb-m"></div>
         
@@ -185,6 +191,7 @@
         </div>
         
       </section>
+      
       <section class="d-none">
         
         Set timer (T) :
@@ -221,15 +228,53 @@
         
       </section>
       
-      <section>
-        <div class="d-inline-flex" style="gap:0.3rem;">
-          <button class="clickable" data-callback='reset-data'>Reset data</button>
-          <div class="d-inline-flex" data-view-platform="web" style="gap:0.3rem;">
-            <button id="buttonInstall">Install</button>
-            <button onclick="pwaCacher.update()">Check for updates</button>
-            <button onclick="pwaCacher.removeUpdate()">Remove app cache</button>
+      <!-- # screen : settings-->
+      <section class="container-screen" data-navigate-name="settings">
+        
+        <div class="d-flex align-items-center" style="gap:1rem;">
+          <button class="clickable icon-mate" data-callback="navigate-screen" data-navigate-to="home">chevron_left</button>
+          <div style="font-weight:bold;">Settings</div>
+        </div>
+        
+        <div class="default-gap"></div>
+        <div class="default-gap"></div>
+        
+        <div class="d-grid" style="gap:0.3rem;">
+          
+          <!-- application data -->
+          <div>
+            <div style="font-weight:bold;">Application Data</div><div class="mb-m"></div>
+            <button class="clickable" data-callback='reset-data'>Reset data</button>
+          </div><div class="default-gap"></div>
+          
+          <!-- web app installation -->
+          <div class="d-grid" data-view-platform="web" style="gap:0.3rem;">
+            <div>
+              <div style="font-weight:bold;">Web App</div><div class="mb-m"></div>
+              <button id="buttonInstall">Install</button><div class="default-gap"></div>
+            </div>
+          </div><div class="default-gap"></div>
+          
+          <!-- app cache -->
+          <div data-view-platform="web">
+            <div style="font-weight:bold;">Application Cache</div>
+            <small>For development and offline support.</small>
+            <div class="mb-m"></div>
+            <div class="d-grid" style="gap:0.3rem;">
+              <div>
+                <button onclick="pwaCacher.update()">Check for updates</button>
+              </div>
+              <div>
+                <button onclick="pwaCacher.removeUpdate()">Remove app cache</button>
+              </div>
+            </div>
           </div>
         </div>
+        
+      </section>
+      
+      <section>
+        
       </section>
     
     </div>

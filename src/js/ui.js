@@ -11,8 +11,28 @@ let uiComponent = (function () {
     SetFocusEl,
     UpdateViewModeState,
     
+    // user prompt
     ShowConfirm,
+    
+    NavigateScreen,
   };
+  
+  function NavigateScreen(evt) {
+    
+    let targetNavigateName = evt.target.dataset.navigateTo;
+    if (!targetNavigateName) return;
+    
+    let activeClass = 'is-active';
+    
+    // screen elements check
+    let activeScreenEl = $(`.container-screen.${activeClass}`);
+    let targetScreenEl = $(`.container-screen[data-navigate-name="${targetNavigateName}"]`);
+    if (!targetScreenEl || !activeScreenEl) return;
+    
+    activeScreenEl.classList.remove(activeClass);
+    targetScreenEl.classList.add(activeClass);
+    
+  }
   
   function UpdateViewModeState() {
     document.body.classList.toggle('is-view-mode-mission', isViewModeMission())
