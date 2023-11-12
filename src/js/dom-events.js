@@ -1,5 +1,8 @@
 window.DOMEvents = {
 	clickable: {
+	  
+	  'navigate-screen': (evt) => uiComponent.NavigateScreen(evt),
+	  
 	  'reset-data': async () => {
 	    
 	    Swal.fire({
