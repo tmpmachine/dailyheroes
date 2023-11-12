@@ -235,7 +235,7 @@ async function alarmHandler(alarm) {
           title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
         });
       }
-      spawnNotification(`Times up! ${finishCountLeftTxt}`, 'limegreen', icon3, true, actions);
+      spawnNotification(`Time's up! ${finishCountLeftTxt}`, 'limegreen', icon3, true, actions);
 
       chrome.alarms.clearAll();
       chrome.action.setIcon({ path: icon3 });
