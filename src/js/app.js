@@ -481,6 +481,7 @@ async function updateTime(scheduledTime, startTime) {
     // ended few milliseconds ago
     if (distance < 1000) {
       sendNotification();
+      uiComponent.TurnOnScreen();
     }
     
     // stop updating the timer, it's ended by background script

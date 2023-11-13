@@ -61,6 +61,31 @@ body:not(.is-view-mode-mission) [data-visible-on~="mission-view"] {
   display: none;
 }
 
+/* # screen off */
+
+/*body[data-state~="--screen-off"] { background: #000000; }*/
+
+body[data-state~="--screen-off"] .container-app { opacity: 0%; }
+
+body:not([data-state~="--screen-off"]) .container-screen-off { 
+  display: none; 
+}
+
+.container-screen-off {
+  background: #000000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+/* # z-index layers */
+
+.container-screen-off { z-index:9999 }
+
+
 /* --------------------------- */
 /* # list sub-mission */
 

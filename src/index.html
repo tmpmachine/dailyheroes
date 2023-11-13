@@ -23,7 +23,7 @@
 </head>
 <body>
   
-  <div style="max-width:500px;margin:auto;">
+  <div class="container-app" style="max-width:500px;margin:auto;">
 
     <div class="d-grid" style="max-width:100%;min-width:330px;margin:auto;gap:1rem;">
     
@@ -31,7 +31,10 @@
       <section class="container-screen is-active" data-navigate-name="home">
         
         <!-- # navigations-->
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-between">
+          <button class="clickable d-flex align-items-center" data-callback="turn-off-screen" style="gap:0.3rem;">
+            Fake screen off <span class="icon-mate">bolt</span>
+          </button>
           <button class="clickable icon-mate" data-callback="navigate-screen" data-navigate-to="settings">settings</button>
         </div><div class="default-gap"></div>
 
@@ -288,6 +291,10 @@
     </div>
 
   </div>
+  
+  <section class="container-screen-off clickable" data-callback="turn-on-screen">
+    <!---->
+  </section>
   
   
   <style>

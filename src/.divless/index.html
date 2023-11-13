@@ -23,15 +23,18 @@
 </head>
 <body>
   
-  [ {max-width:500px;m:auto}
+  [ {max-width:500px;m:auto} .container-app
 
-    [ {max-width:100%;min-width:330px;margin:auto;} .d-grid {gap:1rem}
+    [ {max-width:100%;min-width:330px;margin:auto;} .d-grid {gap:1rem} 
     
       <!-- # screen : home -->
       <section class="container-screen is-active" data-navigate-name="home">
         
         <!-- # navigations-->
-        [ .d-flex .justify-content-end
+        [ .d-flex .justify-content-between
+          [btn .clickable data-callback="turn-off-screen" .d-flex .align-items-center {gap:0.3rem}
+            Fake screen off [s .icon-mate 'bolt']
+          ]
           [btn .clickable data-callback="navigate-screen" data-navigate-to="settings" .icon-mate 'settings']
         ][ .default-gap]
 
@@ -288,6 +291,10 @@
     ]
 
   ]
+  
+  <section class="container-screen-off clickable" data-callback="turn-on-screen">
+    <!---->
+  </section>
   
   
   <style>

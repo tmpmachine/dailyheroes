@@ -3,6 +3,10 @@ window.DOMEvents = {
 	  
 	  'navigate-screen': (evt) => uiComponent.NavigateScreen(evt),
 	  
+	  
+	  'turn-off-screen': () => uiComponent.TaskTurnOffScreen(),
+	  'turn-on-screen': () => uiComponent.TurnOnScreen(),
+	  
 	  // # settings data
 	  'reset-data': () => app.ResetData(),
 	  'backup-data': () => app.BackupData(),
