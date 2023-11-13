@@ -369,14 +369,17 @@ async function clearAlarms() {
 }
 
 async function TaskStopActiveTask() {
-  androidClient.StopTimer();
   await stopTimer();
 }
 
 async function stopTimer() {
   document.body.stateList.remove('--timer-running');
   await clearAlarms();
-    
+  
+  if (app.isPlatformAndroid) {
+    androidClient.StopTimer();
+  }
+  
   let data = await window.service.GetData(["history", "historyTime", "start"]);
   if (data.start) {
     let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
