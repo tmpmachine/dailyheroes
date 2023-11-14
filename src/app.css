@@ -14,6 +14,15 @@
   border-radius: 0.4rem;
 }
 
+
+/* # modals */
+
+#projects-modal:not(.is-view-mode-edit) [data-visible-on]:not([data-visible-on="--mode-add"]),
+#projects-modal.is-view-mode-edit [data-visible-on="--mode-add"] {
+  display: none;
+}
+
+
 /* --------------------------- */
 /* # list mission */
 

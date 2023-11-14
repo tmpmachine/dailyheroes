@@ -280,6 +280,7 @@ let uiComponent = (function () {
   }
 
   function ShowModalAddTask(defaultValue = {}) {
+    
     let modal = document.querySelectorAll('#projects-modal')[0].toggle();
     let form = modal.querySelector('form');
     form.reset();
@@ -296,12 +297,17 @@ let uiComponent = (function () {
       modal.querySelector('[name="parent-id"]').value = defaultValue.parentId;
     }
     
+    // set form add/edit mode
+    let isEditMode = (defaultValue.id !== undefined)
+    modal.classList.toggle('is-view-mode-edit', isEditMode);
+    
     for (let key in defaultValue) {
       let inputEl = form.querySelector(`[name="${key}"]`);
       if (!inputEl) continue;
       
       inputEl.value = defaultValue[key];
     }
+    
   }
   
   // search input

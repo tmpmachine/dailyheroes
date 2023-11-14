@@ -85,7 +85,7 @@ window.DOMEvents = {
 		},
   	'task-click-handler': (ev) => app.TaskClickHandler(ev.target),
 		
-		'stop-timer': () => TaskStopActiveTask(),
+		'stop-timer': () => app.TaskStopActiveTask(),
 		'start-or-restart-timer': () => startOrRestartTask(),
 		
 		'finish-timer': () => finishTimer(),
