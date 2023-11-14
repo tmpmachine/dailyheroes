@@ -1026,7 +1026,7 @@ async function listTask() {
     
   }
   
-  if (isMissionView && lsdb.data.groupId == '') {
+  if (isMissionView && lsdb.data.activeGroupId == '') {
     $('#txt-total-ratio').textContent = '';
   } else {
     $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
