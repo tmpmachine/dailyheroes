@@ -104,7 +104,33 @@ let uiComponent = (function () {
   }
   document.addEventListener("fullscreenchange", fullscreenchanged);
   
+  let lastTapTime = 0;
+  let tapDelay = 300; // Adjust this value based on your needs (in milliseconds)
   
+  $('.container-screen-off').addEventListener('touchstart', function(event) {
+    let currentTime = new Date().getTime();
+    let tapTimeDifference = currentTime - lastTapTime;
+  
+    if (tapTimeDifference < tapDelay) {
+      // Double tap detected
+      console.log('Double tap!');
+      // Your double tap logic here
+  
+      // Reset last tap time
+      lastTapTime = 0;
+      uiComponent.TurnOnScreen()
+    } else {
+      // Single tap
+      lastTapTime = currentTime;
+  
+      // Your single tap logic here
+    }
+  
+    // Prevent the default behavior of the touchstart event
+    event.preventDefault();
+  });
+
+
   let screenAwake = (function() {
     
     let wakeLock = null;

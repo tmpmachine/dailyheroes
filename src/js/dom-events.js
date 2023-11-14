@@ -5,7 +5,6 @@ window.DOMEvents = {
 	  
 	  
 	  'turn-off-screen': () => uiComponent.TaskTurnOffScreen(),
-	  'turn-on-screen': () => uiComponent.TurnOnScreen(),
 	  
 	  // # settings data
 	  'reset-data': () => app.ResetData(),
