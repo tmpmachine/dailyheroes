@@ -7,7 +7,7 @@ window.componentLoader.load([
     urls: [
       'js/dom-events.js',
       'js/ui.js',
-      'lsdb.js',
+      'js/lib/lsdb.js',
       
       // app components
       'js/mission-manager.js',
