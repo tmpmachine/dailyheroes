@@ -14,6 +14,7 @@ let compoMission = (function() {
     GetMissions,
     GetMissionById,
     SetActiveGroupById,
+    Commit,
     
     // # group
     AddGroup,
@@ -157,6 +158,9 @@ let compoMission = (function() {
     appDataManager.data.compoMission = clearReference(data);
   }
   
+  function Commit() {
+    commitData();
+  }
   
     
   function RemoveMissionById(id) {

@@ -2029,6 +2029,8 @@ let app = (function () {
   
   async function TaskStarTask(id) {
     if (isViewModeMission() && isTopMissionPath(id)) {
+      // star in mission mode
+      
       let mission = compoMission.GetMissionById(id);
       if (typeof(mission.lastStarredDate) == 'number') {
         delete mission.lastStarredDate;
@@ -2036,8 +2038,11 @@ let app = (function () {
         mission.lastStarredDate = new Date().getTime();
       }
       mission.lastUpdatedDate = new Date().getTime();
+      compoMission.Commit();
       lsdb.save();
     } else {
+      // star in tasks mode
+      
       let task = tasks.find(x => x.id == id);
       if (typeof(task.lastStarredDate) == 'number') {
         delete task.lastStarredDate;
