@@ -25,10 +25,10 @@
   
   [ {max-width:500px;m:auto} .container-app
 
-    [ {max-width:100%;min-width:330px;margin:auto;} .d-grid
+    [ {max-width:100%;min-width:330px;margin:auto;} .d-grid .container-app-inner
     
       <!-- # screen : home -->
-      <section class="container-screen is-active" data-navigate-name="home">
+      <section class="container-screen is-active pos-relative" data-navigate-name="home">
         
         <!-- # navigations-->
         [ .d-flex .justify-content-between
@@ -63,30 +63,41 @@
             
             <!-- # active task info -->
             [
-              [small 'Active task'] : [s @txt-active-task-name {fw:bold}] 
+              [small 'Active task'] : [s @txt-active-task-name {fw:bold;word-break:break-word}] 
+            ]
+            [ .mb-xs]
+            <!-- # open task button -->
+            [ 
+              [button .clickable data-callback='open-task-into-view'
+                [small .icon-mate 'open_in_new']
+              ]
             ]
             
           ]
           
           <!-- # toggle active task timer -->
-          [ .d-grid {gap:0.5rem}
+          [ .d-flex .flex-column {gap:0.5rem}
+          
             <div data-obj="stop-timer">
-              [ .d-grid {gap:0.35rem}
-                <button class='clickable btn-timer-control-stop' data-callback='stop-timer'>
-                  Stop [small '(Alt + S)']
+              [ .d-grid {gap:0.35rem} {h:2.2rem} {mw:100px}
+                <button class='clickable btn-timer-control-stop d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='stop-timer'>
+                  Stop 
+                  [s .icon-mate 'stop']
                 </button>
-                <button class='clickable btn-timer-control-start' data-callback='start-or-restart-timer'>
-                  Start [small '(Alt + S)']
+                <button class='clickable btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
+                  Start
+                  [s .icon-mate 'play_arrow']
                 </button>
                 <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
               ]
             </div>
-            <!-- # open task button -->
-            [ .d-flex .justify-content-center
-              [button .clickable data-callback='open-task-into-view'
-                [small .icon-mate 'open_in_new']
+            <!-- # timer global preset -->
+            [ .d-none .justify-content-center 
+              [button .clickable data-callback='set-global-preset-timer'
+                [small .icon-mate 'schedule']
               ]
             ]
+            
           ]
         
         ]
@@ -121,6 +132,8 @@
           ]
         ]
         [ .mb-m]
+
+        [ .default-gap]
 
         <!-- # search -->
         <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
@@ -187,6 +200,8 @@
         ]
         
         <!-- # add task -->
+        <!-- empty gap for floating button -->
+        [ {h:76px}] 
         [ .container-add-task
           <button class="clickable btn-add-task" data-callback="show-modal-add-task">
             [s .icon-mate 'add' {fs:2.2rem}]

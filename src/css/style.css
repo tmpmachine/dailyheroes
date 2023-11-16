@@ -2,6 +2,7 @@
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .w-100{width:100%}
 .ov-auto{overflow:auto}
+.pos-relative{position:relative}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
@@ -56,6 +57,10 @@ html,body{
   height: max-content;
 }
 
+html, body, .container-app, .container-app-inner {
+  height: 100%;
+}
+
 .container-app {
     padding: 0.6rem 0.6rem 0;
 }
@@ -68,15 +73,18 @@ html,body{
   font-weight: bold;
 }
 
+/* # container add task*/
+.container-add-task {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin-top: 76px;
+}
 
 /* # buttons */
 
 /* ## add task */
-.container-add-task {
-  position: sticky;
-  bottom: 0;
-  margin-top: 76px;
-}
 .btn-add-task {
   border-radius: 100%;
   height: 64px;
