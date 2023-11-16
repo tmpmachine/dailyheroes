@@ -9,6 +9,27 @@
 * {
   box-sizing: border-box;
 }
+
+/* # themes */
+:root {
+  --dark: #201e1e;
+  --light: #fdfdfd;
+  --text-light: #82f6eb;
+
+  --card-dark: #2f323b;
+  --card-dark-lighter: rgb(255 255 255 / 4%);
+
+  --button-dark: #2f323b;
+  --button-light: #3f424d;
+  --button-lighter: #6f6f6f;
+  
+  --border-dark: #cbccd042;
+  --border-lighter: #dbdbdbc4;
+
+  --text-light-color: #22ff3f;
+}
+
+
 body {
   margin: 0;
   background: white;
