@@ -11,27 +11,30 @@
   <!-- pwa manifest -->
   <link rel="manifest" href="manifest.json"/>
   
-  <link href="style.css" rel="stylesheet"/>
-  <link href="app.css" rel="stylesheet"/>
+  <link href="css/style.css" rel="stylesheet"/>
+  <link href="css/app.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
   
   <!-- # webcomponents -->
   <!-- ## modal-v2 -->
-  <link href="modal-v2.css" rel="stylesheet"/>
-  <script src="modal-v2.js"></script>
+  <link href="css/modal-v2.css" rel="stylesheet"/>
+  <script src="js/web-components/modal-v2.js"></script>
   
 </head>
 <body>
   
-  <div style="max-width:500px;margin:auto;">
+  <div class="container-app" style="max-width:500px;margin:auto;">
 
-    <div class="d-grid" style="max-width:100%;min-width:330px;margin:auto;gap:1rem;">
+    <div class="d-grid" style="max-width:100%;min-width:330px;margin:auto;">
     
       <!-- # screen : home -->
       <section class="container-screen is-active" data-navigate-name="home">
         
         <!-- # navigations-->
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-between">
+          <button class="clickable d-flex align-items-center" data-callback="turn-off-screen" style="gap:0.3rem;">
+            Fake screen off <span class="icon-mate">bolt</span>
+          </button>
           <button class="clickable icon-mate" data-callback="navigate-screen" data-navigate-to="settings">settings</button>
         </div><div class="default-gap"></div>
 
@@ -127,13 +130,6 @@
         </div>
         <div class="default-gap"></div>
         
-        <!-- # add task -->
-        <div>
-          <button class="clickable" data-callback="show-modal-add-task">New Task (Alt + N)</button>
-        </div>
-        <div class="mb-m"></div>
-        
-        
         <!-- # view mode tabs -->
         <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr;">
           <button class="clickable" data-callback='view-tasks' data-id="task">All Tasks</button>
@@ -188,6 +184,13 @@
           <small>Ratio config</small>
           <textarea id="in-ratio-settings" style="height:200px;"></textarea>
           <button class="clickable" data-callback='save-ratio'>Save</button>
+        </div>
+        
+        <!-- # add task -->
+        <div class="container-add-task">
+          <button class="clickable btn-add-task" data-callback="show-modal-add-task">
+            <span class="icon-mate" style="font-size:2.2rem;">add</span>
+          </button>
         </div>
         
       </section>
@@ -281,13 +284,14 @@
         
       </section>
       
-      <section>
-        
-      </section>
     
     </div>
 
   </div>
+  
+  <section class="container-screen-off">
+    <!---->
+  </section>
   
   
   <style>
@@ -481,7 +485,9 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          New task :
+          <span data-visible-on="--mode-add">New task :</span>
+          <span data-visible-on="--mode-edit">Edit task :</span>
+          
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             <input type="hidden" name="id"/>
@@ -491,16 +497,16 @@
             <div>
               Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
             </div>
-            <div>
+            <div class="d-none">
               Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
             </div>
-            <div>
+            <div data-visible-on="--mode-edit">
               Parent Id <input type="text" name='parent-id' class="input-style-default"/>
             </div>
             <div class="mb-m"></div>
             <div>
-              <button data-role='btn-add'>Add</button>
-              <button data-role="btn-edit">Update</button>
+              <button data-role='btn-add' data-visible-on="--mode-add">Add</button>
+              <button data-role="btn-edit" data-visible-on="--mode-edit">Update</button>
             </div>
           </form>
 
@@ -581,7 +587,7 @@
   
   
   
-  <script src="lib/sweetalert2@11.js"></script>
+  <script src="js/lib/sweetalert2@11.js"></script>
   
   <!-- # webcomponents -->
   <!-- ## modal-v2 -->
@@ -589,9 +595,9 @@
 
   <script src="service.js"></script>
   <script src="service-chrome.js"></script>
-  <script src="lib/mousetrap.min.js"></script>
-  <script src="lib/statelist@v1.0.2.min.js"></script>
-  <script src="lib/templateslot.min.js"></script>
+  <script src="js/lib/mousetrap.min.js"></script>
+  <script src="js/lib/statelist@v1.0.2.min.js"></script>
+  <script src="js/lib/templateslot.min.js"></script>
   
   <script src="js/component-loader.js"></script>
   <script src="index.js"></script>

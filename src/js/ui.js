@@ -15,6 +15,10 @@ let uiComponent = (function () {
     ShowConfirm,
     
     NavigateScreen,
+    
+    // screen util
+    TaskTurnOffScreen,
+    TurnOnScreen,
   };
   
   function NavigateScreen(evt) {
@@ -61,6 +65,147 @@ let uiComponent = (function () {
     // # mission and mission groups
     uiComponent.UpdateViewModeState();
     uiMission.ListGroup();
+  }
+  
+  async function TaskTurnOffScreen() {
+    let isEnabled = await screenAwake.TaskEnable();
+    if (isEnabled) {
+      document.body.stateList.add('--screen-off');
+      enterFullScreen();
+    }
+  }
+  
+  async function TurnOnScreen() {
+    screenAwake.Disable();
+    document.body.stateList.remove('--screen-off');
+    exitFullscreen();
+  }
+  
+  function enterFullScreen() {
+    let elem = document.body;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch((err) => {
+        
+      });
+    }
+  }
+  
+  function exitFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }
+  
+    
+  function fullscreenchanged(event) {
+    if (!document.fullscreenElement) {
+      TurnOnScreen();
+    }
+  }
+  document.addEventListener("fullscreenchange", fullscreenchanged);
+  
+  let lastTapTime = 0;
+  let tapDelay = 300; // Adjust this value based on your needs (in milliseconds)
+  
+  $('.container-screen-off').addEventListener('touchstart', function(event) {
+    let currentTime = new Date().getTime();
+    let tapTimeDifference = currentTime - lastTapTime;
+  
+    if (tapTimeDifference < tapDelay) {
+      // Double tap detected
+      console.log('Double tap!');
+      // Your double tap logic here
+  
+      // Reset last tap time
+      lastTapTime = 0;
+      uiComponent.TurnOnScreen()
+    } else {
+      // Single tap
+      lastTapTime = currentTime;
+  
+      // Your single tap logic here
+    }
+  
+    // Prevent the default behavior of the touchstart event
+    event.preventDefault();
+  });
+
+
+  let screenAwake = (function() {
+    
+    let wakeLock = null;
+    
+    const requestWakeLock = async () => {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => {
+          // isAwake = false;
+          wakeLock = null;
+        });
+      } catch (err) {
+        // console.error(`${err.name}, ${err.message}`);
+        return false;
+      }
+      
+      return true;
+    };
+     
+    async function toggleWake() {
+      if (wakeLock === null) {
+        let isSuccess = await requestWakeLock();
+        if (isSuccess) {
+          // settingsUtil.set('uiState.keepAwake', true);
+          // settingsUtil.save();
+        } else {
+          // settingsUtil.set('uiState.keepAwake', false);
+          // settingsUtil.save();
+        }
+        return isSuccess;
+      } else {
+        // settingsUtil.set('uiState.keepAwake', false);
+        // settingsUtil.save();
+        wakeLock.release();
+        wakeLock = null;
+        return false;
+      }
+    }
+    
+    async function TaskEnable() {
+      let isSuccess = await requestWakeLock();
+      return isSuccess;
+    }
+    
+    function Disable() {
+      if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+      }
+    }
+    
+    const handleVisibilityChange = () => {
+      if (wakeLock == null && document.visibilityState === 'visible') {
+        TurnOnScreen();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return {
+      toggleWake,
+      TaskEnable,
+      Disable,
+    };
+  })();
+  
+  
+  function toggleFullscreen() {
+    let elem = document.body;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch((err) => {
+        console
+      });
+    } else {
+      document.exitFullscreen();
+    }
   }
   
   function BuildBreadcrumbs() {
@@ -161,6 +306,7 @@ let uiComponent = (function () {
   }
 
   function ShowModalAddTask(defaultValue = {}) {
+    
     let modal = document.querySelectorAll('#projects-modal')[0].toggle();
     let form = modal.querySelector('form');
     form.reset();
@@ -177,12 +323,17 @@ let uiComponent = (function () {
       modal.querySelector('[name="parent-id"]').value = defaultValue.parentId;
     }
     
+    // set form add/edit mode
+    let isEditMode = (defaultValue.id !== undefined)
+    modal.classList.toggle('is-view-mode-edit', isEditMode);
+    
     for (let key in defaultValue) {
       let inputEl = form.querySelector(`[name="${key}"]`);
       if (!inputEl) continue;
       
       inputEl.value = defaultValue[key];
     }
+    
   }
   
   // search input
