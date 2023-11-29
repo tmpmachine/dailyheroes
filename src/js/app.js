@@ -407,7 +407,7 @@ async function startOrRestartTask() {
   if (!task) return;
   
   await stopTimer();
-  await restartTask(task.id);
+  await app.TaskContinueTask(task.id);
   await startCurrentTask(task.id);
 }
 
@@ -1050,7 +1050,7 @@ async function TaskAddLabel(id) {
 async function startTaskTimer(parentEl, id) {
   await stopTimer();
   await switchActiveTask(parentEl, id, true);
-  await restartTask(id);
+  await app.TaskContinueTask(id);
   await startCurrentTask(id);
 }
 
@@ -1149,9 +1149,6 @@ async function finishTask(id) {
 
 async function restartTask(id) {
   let task = tasks.find(x => x.id == id);
-  if (task.progressTime < task.target * 60 * 1000) {
-    return;
-  }
   task.progress = 0;
   task.progressTime = 0;
   task.finishCountProgress = task.finishCount;
@@ -1573,11 +1570,25 @@ let app = (function () {
     AddProgressTimeToRootMission,
     TaskStopActiveTask,
     TaskListTask,
+    TaskContinueTask,
     
     // app init
     ApplyTaskProgressHistoryToMissionRoot,
   };
   
+  async function TaskContinueTask(id) {
+    let task = tasks.find(x => x.id == id);
+    if (task.progressTime < task.target * 60 * 1000) {
+      return;
+    }
+    task.progress = 0;
+    task.progressTime = 0;
+    task.finishCountProgress = task.finishCount;
+    await storeTask();
+    await app.TaskListTask();  
+    loadSearch();
+  }
+
   async function TaskListTask() {
     
     let isMissionView = (lsdb.data.viewMode == 'mission');
