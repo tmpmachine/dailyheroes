@@ -269,7 +269,7 @@ function isNumber(input) {
 
 function addTaskData(inputData) {
   let id = generateUniqueId();
-  let data = {...inputData, ...{
+  let data = {...{
     id,
     progress: 0,
     progressTime: 0,
@@ -277,11 +277,13 @@ function addTaskData(inputData) {
     
     // used by time balancing
     targetTime: 0,
+    ratio: 0,
 
     lastUpdated: 0,
     untracked: false,
     activeSubTaskId: null,
-  }};
+  }, ...inputData};
+  
   // if (data.parentId) {
     // let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
     // tasks.splice(parentTaskIndex + 1, 0, data);
@@ -2059,15 +2061,15 @@ let app = (function () {
     if (!task) return;
     
     const { value: userVal } = await Swal.fire({
-        title: 'Progress in minutes',
-        input: 'text',
-        inputLabel: 'example: 10, 15, 30',
-        showCancelButton: true,
-        inputValidator: (value) => {
-          if (!value) {
-            return 'You need to write something!';
-          }
+      title: 'Progress in minutes',
+      input: 'text',
+      inputLabel: 'example: 10, 15, 30',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
         }
+      }
     });
     
     if (!userVal) return;
@@ -2209,6 +2211,7 @@ let app = (function () {
     
     // web platform notification support
     setWebPlatformNotificationSupport();
+    
   }
   
   function setWebPlatformNotificationSupport() {
