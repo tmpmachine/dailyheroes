@@ -2,12 +2,34 @@
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .w-100{width:100%}
 .ov-auto{overflow:auto}
+.pos-relative{position:relative}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
 * {
   box-sizing: border-box;
 }
+
+/* # themes */
+:root {
+  --dark: #201e1e;
+  --light: #fdfdfd;
+  --text-light: #82f6eb;
+
+  --card-dark: #2f323b;
+  --card-dark-lighter: rgb(255 255 255 / 4%);
+
+  --button-dark: #2f323b;
+  --button-light: #3f424d;
+  --button-lighter: #6f6f6f;
+  
+  --border-dark: #cbccd042;
+  --border-lighter: #dbdbdbc4;
+
+  --text-light-color: #22ff3f;
+}
+
+
 body {
   margin: 0;
   background: white;
@@ -56,6 +78,10 @@ html,body{
   height: max-content;
 }
 
+html, body, .container-app, .container-app-inner {
+  height: 100%;
+}
+
 .container-app {
     padding: 0.6rem 0.6rem 0;
 }
@@ -68,15 +94,18 @@ html,body{
   font-weight: bold;
 }
 
+/* # container add task*/
+.container-add-task {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin-top: 76px;
+}
 
 /* # buttons */
 
 /* ## add task */
-.container-add-task {
-  position: sticky;
-  bottom: 0;
-  margin-top: 76px;
-}
 .btn-add-task {
   border-radius: 100%;
   height: 64px;
