@@ -325,10 +325,6 @@ function messageHandler(request, sender, sendResponse) {
     // chrome.action.setIcon({ path: icon1 })
     clearPersistentNotif();
     updateTime();
-    
-    playAudio('audio.html');
-      stopAudioAfter('audio.html');
-    // playAudio('mission-start.html');
 
   } else if (request.message === 'stop') {
     // spawnNotification('Misi dimulai, Happy farming!', 'white', icon1);
