@@ -8,6 +8,7 @@ async function handleNotificationClick(event) {
   event.notification.close();
   switch (event.action) {
     case 'stop':
+      taskStopOffscreenDocument('audio.html');
       await stopByNotification();
       await setStopAlarmIcon();
       break;
@@ -26,6 +27,64 @@ async function handleNotificationClick(event) {
     case '20m':
       startNewAlarm(20);
       break;
+  }
+}
+
+async function playAudio(path) {  
+  clearTimeout(stopAudioTimeout)
+  await taskStopOffscreenDocument(path);
+  await setupOffscreenDocument(path);
+}
+
+let stopAudioTimeout;
+function stopAudioAfter(path) {
+  stopAudioTimeout = setTimeout(() => {
+    taskStopOffscreenDocument(path);
+  }, 10200)
+}
+
+let creating; // A global promise to avoid concurrency issues
+async function setupOffscreenDocument(path) {
+  // Check all windows controlled by the service worker to see if one 
+  // of them is the offscreen document with the given path
+  const offscreenUrl = chrome.runtime.getURL(path);
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT'],
+    documentUrls: [offscreenUrl]
+  });
+
+  if (existingContexts.length > 0) {
+    return;
+  }
+
+  // create offscreen document
+  if (creating) {
+    await creating;
+  } else {
+    creating = chrome.offscreen.createDocument({
+      url: path,
+      reasons: ['AUDIO_PLAYBACK'],
+      justification: 'notification',
+    });
+    await creating;
+    creating = null;
+  }
+}
+
+async function taskStopOffscreenDocument(path) {
+  // Check all windows controlled by the service worker to see if one 
+  // of them is the offscreen document with the given path
+  const offscreenUrl = chrome.runtime.getURL(path);
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT'],
+    documentUrls: [offscreenUrl]
+  });
+
+  if (existingContexts.length > 0) {
+    chrome.offscreen.closeDocument(
+        // callback?: function,
+    )
+    return;
   }
 }
 
@@ -236,11 +295,14 @@ async function alarmHandler(alarm) {
         });
       }
       spawnNotification(`Time's up! ${finishCountLeftTxt}`, 'limegreen', icon3, true, actions);
+      playAudio('audio.html');
+      stopAudioAfter('audio.html');
 
       chrome.alarms.clearAll();
       chrome.action.setIcon({ path: icon3 });
       break;
     case '3m':
+
       spawnNotification('3 minutes left!', '#EB455F', icon4, false, [
         {
           action: 'stop',
@@ -263,6 +325,11 @@ function messageHandler(request, sender, sendResponse) {
     // chrome.action.setIcon({ path: icon1 })
     clearPersistentNotif();
     updateTime();
+    
+    playAudio('audio.html');
+      stopAudioAfter('audio.html');
+    // playAudio('mission-start.html');
+
   } else if (request.message === 'stop') {
     // spawnNotification('Misi dimulai, Happy farming!', 'white', icon1);
     chrome.action.setIcon({ path: icon3 })

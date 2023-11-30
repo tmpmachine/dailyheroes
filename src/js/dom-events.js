@@ -99,6 +99,8 @@ window.DOMEvents = {
     'rename-active-mission-group': () => uiMission.RenameActiveGroup(),
     'delete-mission-group': () => uiMission.DeleteGroupByName(),
     
+    'pick-audio': () => app.SetAlarmAudio(), 
+    'remove-audio': () => app.RemoveAlarmAudio(), 
 	},
 	
 	inputable: {

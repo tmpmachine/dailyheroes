@@ -34,6 +34,11 @@ window.componentLoader.load([
       
     },
   },
+  {
+    urls: [
+      'js/lib/idb-keyval@6.js',
+    ]
+  }
 ]);
 
 

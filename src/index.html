@@ -267,10 +267,19 @@
             </div><div class="mb-m"></div>
             
             <small>Backup and restore.</small><div class="mb-m"></div>
-            <div>
+            <div class="d-flex" style="gap:0.3rem;">
               <button class="clickable" data-callback='backup-data'>Backup</button>
               <button class="clickable" data-callback='restore-data'>Restore</button>
             </div>
+          </div><div class="default-gap"></div> 
+          
+          <!-- sound -->
+          <div>
+            <div style="font-weight:bold;">Sound</div><div class="mb-m"></div>
+            <div class="d-flex" style="gap:0.3rem;">
+              <button class="clickable" data-callback='pick-audio'>Pick audio</button>
+              <button class="clickable" data-callback='remove-audio'>Remove audio</button>
+            </div><div class="mb-m"></div>
           </div><div class="default-gap"></div>
           
           <!-- web app installation -->
@@ -370,7 +379,7 @@
         	  </div>
         	  <div>
               <span data-slot="ratio"></span>
-              <span data-slot="ratioTimeLeftStr" data-slot-html></span>
+              <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
         	  </div>
         	</div>
         
@@ -511,6 +520,9 @@
             </div>
             <div>
               Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
+            </div>
+            <div>
+              Target <input type="text" name='targetTime' class="input-style-default"/>
             </div>
             <div class="d-none">
               Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>

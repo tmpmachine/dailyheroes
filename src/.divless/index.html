@@ -267,10 +267,19 @@
             ][ .mb-m]
             
             [small 'Backup and restore.'][ .mb-m]
-            [
+            [ .d-flex {gap:0.3rem}
               <button class="clickable" data-callback='backup-data'>Backup</button>
               <button class="clickable" data-callback='restore-data'>Restore</button>
             ]
+          ][ .default-gap] 
+          
+          <!-- sound -->
+          [
+            [ 'Sound' {fw:bold}][ .mb-m]
+            [ .d-flex {gap:0.3rem}
+              <button class="clickable" data-callback='pick-audio'>Pick audio</button>
+              <button class="clickable" data-callback='remove-audio'>Remove audio</button>
+            ][ .mb-m]
           ][ .default-gap]
           
           <!-- web app installation -->
@@ -370,7 +379,7 @@
         	  ]
         	  [
               <span data-slot="ratio"></span>
-              <span data-slot="ratioTimeLeftStr" data-slot-html></span>
+              <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
         	  ]
         	</div>
         
@@ -506,12 +515,15 @@
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             <input type="hidden" name="id"/>
-            <div>
+            [
               Title <input type="text" name='title' class="input-style-default"/>
-            </div>
-            <div>
+            ]
+            [
               Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
-            </div>
+            ]
+            [
+              Target <input type="text" name='targetTime' class="input-style-default"/>
+            ]
             [ .d-none
               Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
             ]

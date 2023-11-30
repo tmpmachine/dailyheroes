@@ -9,7 +9,13 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["notifications", "alarms", "background", "storage"],
+  "permissions": [
+    "offscreen",
+    "notifications", 
+    "alarms", 
+    "background", 
+    "storage"
+  ],
   "background": {
     "service_worker": "src/background.js",
     "type": "module"

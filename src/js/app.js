@@ -246,6 +246,7 @@ async function clearTaskTotalProgressTime() {
 function partialUpdateUITask(id, task) {
   let el = $(`[data-obj="task"][data-id="${id}"]`);
   el.querySelector('[data-slot="title"]').textContent = task.title;
+  el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes(msToMinutes(task.targetTime));
 }
 
 function CheckAndCreateGroups(title, id) {
@@ -308,7 +309,7 @@ async function TaskSetActiveTaskInfo() {
     let ratioTimeLeftStr = '';
     let ratioTimeLeft = timeLeftRatio.find(x => x.id == activeTask.id);
     if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
-      ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+      ratioTimeLeftStr = `${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}`;
     }
     
     $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
@@ -776,7 +777,7 @@ function getAndComputeMissionPath(groupId) {
       let ratioTimeLeftStr = '';
       let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
       if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
-        ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
+        ratioTimeLeftStr = `${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}`;
       }
       
         html += `
@@ -1350,11 +1351,12 @@ function trackProgress(id) {
 
 async function editTask(taskId) {
   let task = await app.getTaskById(taskId);
-  let {id, parentId, title, target, finishCount} = task;
+  let {id, parentId, title, target, targetTime, finishCount} = task;
   let defaultVal = {
     id,
     title,
     target: minutesToHoursAndMinutes(target),
+    targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
     finishCount,
     parentId,
   };
@@ -1549,6 +1551,9 @@ async function taskOpenTaskIntoView() {
 let app = (function () {
 
   let SELF = {
+    // app init
+    ApplyTaskProgressHistoryToMissionRoot,
+    
     isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
     isPlatformChromeExt: window.modeChromeExtension,
     isPlatformWeb: ( !window.modeChromeExtension && typeof(MyApp) == 'undefined' ),
@@ -1574,9 +1579,45 @@ let app = (function () {
     TaskListTask,
     TaskContinueTask,
     
-    // app init
-    ApplyTaskProgressHistoryToMissionRoot,
+    SetAlarmAudio,
+    RemoveAlarmAudio,
   };
+  
+  function SetAlarmAudio() {
+    let input = document.createElement('input');
+    input.type ='file';
+    input.onchange = function() {
+      storeAudioFile(this.files[0]);
+    };
+    document.body.append(input);
+    input.click();
+    input.remove();
+  }
+  
+  function RemoveAlarmAudio() {
+    idbKeyval.del('audioFile');
+  }
+  
+  async function storeAudioFile(file) {
+    try {
+      await idbKeyval.set('audioFile', file);
+    } catch (error) {
+      console.error('Error storing File Handle:', error);
+    }
+  }
+  
+  async function retrieveFileHandle() {
+    try {
+      const file = await idbKeyval.get('audioFile');
+      if (file) {
+        return file
+      } else {
+        console.error('File Handle not found in IndexedDB.');
+      }
+    } catch (error) {
+      console.error('Error retrieving File Handle:', error);
+    }
+  }
   
   async function TaskContinueTask(id) {
     let task = tasks.find(x => x.id == id);
@@ -1711,7 +1752,7 @@ let app = (function () {
             targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
           }
           if (targetTime > 0) {
-            ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+            ratioTimeLeftStr = `${minutesToHoursAndMinutes(msToMinutes(targetTime))}`;
           }
         }
         
@@ -1746,7 +1787,7 @@ let app = (function () {
           }
           
           if (targetTime > 0) {
-            ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(msToMinutes(targetTime))}</mark>`;
+            ratioTimeLeftStr = `${minutesToHoursAndMinutes(msToMinutes(targetTime))}`;
           }
           
         }
@@ -2204,6 +2245,7 @@ let app = (function () {
   }
   
   async function Init() {
+    
     await initData();
     attachListeners();
     await loadTasks();
@@ -2223,6 +2265,28 @@ let app = (function () {
     // web platform notification support
     setWebPlatformNotificationSupport();
     
+    initTests();
+    
+  }
+  
+  async function initTests() {
+    return;
+    let $$ = document.querySelectorAll.bind(document);
+    
+    await waitForElement('[data-role="edit"]');
+    
+    Array.from($$('[data-role="edit"]')).pop().click();
+  }
+  
+  function waitForElement(selector) {
+    return new Promise(resolve => {
+        let interval = window.setInterval(() => {
+          if ($(selector)) {
+              window.clearInterval(interval);
+              resolve();
+          }
+        }, 100);
+    });
   }
   
   function setWebPlatformNotificationSupport() {
@@ -2306,10 +2370,11 @@ let app = (function () {
     let task = tasks.find(x => x.id == form.id.value);
     task.title = form.title.value;
     task.target = parseHoursMinutesToMinutes(form.target.value);
+    task.targetTime = parseHoursMinutesToMinutes(form.targetTime.value) * 60 * 1000;
     task.finishCount = parseInt(form['finishCount'].value);
     task.finishCountProgress = parseInt(form['finishCount'].value);
     task.parentId = form['parent-id'].value;
-  
+    
     await storeTask();
     partialUpdateUITask(task.id, task);
     form.reset();
