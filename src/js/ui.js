@@ -22,20 +22,10 @@ let uiComponent = (function () {
   };
   
   function NavigateScreen(evt) {
+    let viewTarget = evt.target.dataset.viewTarget;
+    if (!viewTarget) return;
     
-    let targetNavigateName = evt.target.dataset.navigateTo;
-    if (!targetNavigateName) return;
-    
-    let activeClass = 'is-active';
-    
-    // screen elements check
-    let activeScreenEl = $(`.container-screen.${activeClass}`);
-    let targetScreenEl = $(`.container-screen[data-navigate-name="${targetNavigateName}"]`);
-    if (!targetScreenEl || !activeScreenEl) return;
-    
-    activeScreenEl.classList.remove(activeClass);
-    targetScreenEl.classList.add(activeClass);
-    
+    viewUtil.SetViewTarget(viewTarget);
   }
   
   function UpdateViewModeState() {

@@ -379,3 +379,7 @@ body[data-state~="--timer-running"] .task-progress-bar {
     gap: 4px;
     align-items: center;
 }
+
+
+/* view utils : views initial state */
+[data-view-name] { display: none; }

@@ -150,8 +150,3 @@ body:not([data-state~="--timer-running"]) [data-obj="task"][data-state~="--activ
 body:not(.is-platform-web) [data-view-platform="web"] {
   display: none;
 }
-
-/* # app screen */
-.container-screen:not(.is-active) {
-  display: none;
-}

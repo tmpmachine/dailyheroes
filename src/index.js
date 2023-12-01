@@ -6,6 +6,7 @@ window.componentLoader.load([
   {
     urls: [
       'js/dom-events.js',
+      'js/utils/view-util.js',
       'js/ui.js',
       'js/lib/lsdb.js',
       
@@ -13,7 +14,7 @@ window.componentLoader.load([
       'js/mission-manager.js',
     ],
     callback: function() { 
-      
+      viewUtil.Init();
     },
   },
   {
