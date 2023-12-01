@@ -144,9 +144,9 @@ async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
   await taskApplyAllParentTargetTime(task.parentId, distanceTime, tasks);
   
   // apply target time balancing
-  if (task.ratio > 0) {
+  // if (task.ratio > 0) {
     await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
-  }
+  // }
 }
 
 function GetTaskById(tasks, id) {
@@ -156,9 +156,9 @@ function GetTaskById(tasks, id) {
 async function taskApplyAllParentTargetTime(parentId, distanceTime, tasks) {
   let task = GetTaskById(tasks, parentId);
   while (task) {
-    if (task.ratio > 0) {
+    // if (task.ratio > 0) {
       await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
-    }
+    // }
     task = GetTaskById(tasks, task.parentId);
   }
 }
@@ -166,7 +166,7 @@ async function taskApplyAllParentTargetTime(parentId, distanceTime, tasks) {
 async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, tasks) {
   try {
       let excessTime = task.targetTime - addedTime;
-      if (excessTime < 0) {
+      if (excessTime < 0 && task.ratio > 0) {
         await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime), tasks);
       }
       task.targetTime = Math.max(0, task.targetTime - addedTime);
@@ -254,22 +254,28 @@ async function alarmHandler(alarm) {
       // get task
       let isRepeatCountFinished = false;
       let finishCountLeftTxt = '';
-      let targetMinutesTxt = ''
+      let targetMinutesTxt = '';
+      let targetTimeLeftStr = '';
       
       if (data.activeTask) {
+        
         let tasks = await getTask();
         let activeTask = tasks.find(x => x.id == data.activeTask);
+        
         if (activeTask) {
 
           // set target minutes on restart button
           targetMinutesTxt = ` (${activeTask.target}m)`;
-
+          if (activeTask.targetTime > 0) {
+            targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`
+          }
+          
           // set finish count text
           if (activeTask.finishCount && activeTask.finishCountProgress > 0) {
             if (activeTask.finishCountProgress-1 == 0) {
               isRepeatCountFinished = true;
             } else {
-              finishCountLeftTxt = `(${activeTask.finishCountProgress-1})`
+              finishCountLeftTxt = `(${activeTask.finishCountProgress-1})`;
             }
             await reduceCountActiveTask();
           }
@@ -285,6 +291,7 @@ async function alarmHandler(alarm) {
           // }
 
         }
+        
       }
 
       let actions = [];
@@ -294,12 +301,17 @@ async function alarmHandler(alarm) {
           title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
         });
       }
-      spawnNotification(`Time's up! ${finishCountLeftTxt}`, 'limegreen', icon3, true, actions);
+      
+      // spawn notif
+      spawnNotification(`Time's up! ${targetTimeLeftStr} ${finishCountLeftTxt}`.trim(), 'limegreen', icon3, true, actions);
+      
+      // play alarm audio
       playAudio('audio.html');
       stopAudioAfter('audio.html');
 
       chrome.alarms.clearAll();
       chrome.action.setIcon({ path: icon3 });
+      
       break;
     case '3m':
 

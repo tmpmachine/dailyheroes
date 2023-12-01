@@ -968,9 +968,9 @@ function deleteAllChildTasksByParentId(id) {
 async function taskApplyAllParentTargetTime(parentId, distanceTime) {
   let task = app.GetTaskById(parentId);
   while (task) {
-    if (task.ratio > 0) {
+    // if (task.ratio > 0) {
       await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
-    }
+    // }
     task = app.GetTaskById(task.parentId);
   }
 }
@@ -978,7 +978,7 @@ async function taskApplyAllParentTargetTime(parentId, distanceTime) {
 async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
   try {
       let excessTime = task.targetTime - addedTime;
-      if (excessTime < 0) {
+      if (excessTime < 0 && task.ratio > 0) {
         await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
       }
       task.targetTime = Math.max(0, task.targetTime - addedTime);
@@ -1411,9 +1411,9 @@ async function taskApplyNecessaryTaskUpdates(task, distanceTime) {
   await taskApplyAllParentTargetTime(task.parentId, distanceTime);
   
   // apply target time balancing
-  if (task.ratio > 0) {
+  // if (task.targetTime > 0) {
     await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
-  }
+  // }
 }
 
 function updateSubTaskProgress(task, distanceTime) {
@@ -1754,7 +1754,7 @@ let app = (function () {
       // }
       
       // ## handle if self task
-      if (item.ratio > 0)
+      if (item.ratio > 0 || item.targetTime > 0)
       {
         {
           let targetTime = item.targetTime;
