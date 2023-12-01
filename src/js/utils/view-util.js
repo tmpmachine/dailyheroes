@@ -31,10 +31,10 @@ let viewUtil = (function() {
         if ($(`style[data-view-group-control="${viewGroupName}"]`)) continue;
         
         let parentContainer = viewGroupEl.parentElement;
-        let childViewEls = parentContainer.querySelectorAll(`[data-view-group="${viewGroupName}"] > [data-view-name]`)
+        let childViewEls = parentContainer.querySelectorAll(`[data-view-group="${viewGroupName}"] [data-view-group-parent="${viewGroupName}"]`);
         
         let childViewNames = Array.from(childViewEls).map(el => el.dataset.viewName);
-        let childViewSelectors = childViewNames.map(viewName => `[data-view-group="${viewGroupName}"][data-view-visible~="${viewName}"] [data-view-name="${viewName}"]`)
+        let childViewSelectors = childViewNames.map(viewName => `[data-view-group="${viewGroupName}"][data-view-visible~="${viewName}"] [data-view-group-parent="${viewGroupName}"][data-view-name="${viewName}"]`)
         
         let elContainer = document.createElement('style');
         elContainer.dataset.viewGroupControl = viewGroupName;

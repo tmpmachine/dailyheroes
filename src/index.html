@@ -28,7 +28,7 @@
     <div class="d-grid container-app-inner" data-view-group="screens" data-view-visible="home" style="max-width:100%;min-width:330px;margin:auto;">
     
       <!-- # screen : home -->
-      <section class="container-screen is-active pos-relative" data-view-name="home">
+      <section class="container-screen is-active pos-relative" data-view-group-parent="screens" data-view-name="home">
         
         <!-- # navigations-->
         <div class="d-flex justify-content-between">
@@ -247,7 +247,7 @@
       </section>
       
       <!-- # screen : settings-->
-      <section class="container-screen" data-view-name="settings">
+      <section class="container-screen" data-view-group-parent="screens" data-view-name="settings">
         
         <div class="d-flex align-items-center" style="gap:1rem;">
           <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="screens.home">chevron_left</button>

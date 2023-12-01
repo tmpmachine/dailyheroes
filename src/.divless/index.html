@@ -28,7 +28,7 @@
     [ {max-width:100%;min-width:330px;margin:auto;} .d-grid .container-app-inner data-view-group="screens" data-view-visible="home"
     
       <!-- # screen : home -->
-      <section class="container-screen is-active pos-relative" data-view-name="home">
+      <section class="container-screen is-active pos-relative" data-view-group-parent="screens" data-view-name="home">
         
         <!-- # navigations-->
         [ .d-flex .justify-content-between
@@ -247,7 +247,7 @@
       </section>
       
       <!-- # screen : settings-->
-      <section class="container-screen" data-view-name="settings">
+      <section class="container-screen" data-view-group-parent="screens" data-view-name="settings">
         
         [ .d-flex {gap:1rem} .align-items-center
           [btn .clickable data-callback="navigate-screen" data-view-target="screens.home" .icon-mate 'chevron_left']
