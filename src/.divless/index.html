@@ -21,19 +21,21 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body>
+<body data-view-group="platform">
   
   [ {max-width:500px;m:auto} .container-app
 
     [ {max-width:100%;min-width:330px;margin:auto;} .d-grid .container-app-inner data-view-group="screens" data-view-visible="home"
     
       <!-- # screen : home -->
-      <section class="container-screen is-active pos-relative" data-view-group-parent="screens" data-view-name="home">
+      <section class="container-screen pos-relative" data-view-group-parent="screens" data-view-name="home">
         
         <!-- # navigations-->
         [ .d-flex .justify-content-between
-          [btn .clickable data-callback="turn-off-screen" .d-flex .align-items-center {gap:0.3rem}
-            Fake screen off [s .icon-mate 'bolt']
+          [ 
+            [btn .clickable data-callback="turn-off-screen" .d-flex .align-items-center {gap:0.3rem} data-view-group-parent="platform" data-view-name="web"
+              Fake screen off [s .icon-mate 'bolt']
+            ]
           ]
           [btn .clickable data-callback="navigate-screen" data-view-target="screens.settings" .icon-mate 'settings']
         ][ .default-gap]
@@ -143,46 +145,54 @@
         ]
         <div class="default-gap"></div>
         
-        <!-- # view mode tabs -->
-        [ .d-grid {cols:1fr 1fr} .container-view-mode
-          [btn 'All Tasks' .clickable data-callback='view-tasks' data-id="task"]
-          [btn 'Missions' .clickable data-callback='view-mission' data-id="mission"]
-        ]
-        <div class="default-gap"></div>
+        <!-- # container task view mode-->
         
-        <!-- # mission collection -->
-        [ .d-grid {gap:0.3rem} data-visible-on="mission-view" {cols:1fr auto} .align-items-center
+        <section data-view-group="task-view-mode" data-view-visible="task">
           
-          [ .ov-auto
-            Collection [sel #in-sel-mission-group .changeable data-callback='on-mission-group-change']
-            [ .mb-xs]
+          <!-- # view mode tabs -->
+          [ .d-grid {cols:1fr 1fr} .container-view-mode
+            [btn 'All Tasks' .clickable data-callback='view-tasks' data-id="task"]
+            [btn 'Missions' .clickable data-callback='view-mission' data-id="mission"]
           ]
+          <div class="default-gap"></div>
           
-          [ .d-flex {gap:0.3rem}
-            [btn .clickable data-callback='rename-active-mission-group' .icon-mate 'edit']
-            [btn .clickable data-callback='new-mission-group' .icon-mate 'add']
-            [btn .clickable data-callback='delete-mission-group'
-              [i .icon-mate 'delete']
-            ]
-          ]
-          
-        ][ .mb-m][ .default-gap]
-        
-        <!-- # breadcrumbs -->
-        [ .d-flex .justify-content-between
-          [ #container-breadcrumbs .container-breadcrumbs]
-          [ #txt-total-ratio {text-wrap:nowrap}]
-        ]
+          <!-- # mission collection -->
+          [ data-view-group-parent="task-view-mode" data-view-name="mission"
+            [ .d-grid {gap:0.3rem} {cols:1fr auto} .align-items-center
               
-        <div class="default-gap"></div>
-        
-        
-        <!-- # task list container -->
-        <div id="tasklist-container" class="container-task">
-          <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
-          <div style="padding-top:1rem;"></div>
-          <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
-        </div>
+              [ .ov-auto
+                Collection [sel #in-sel-mission-group .changeable data-callback='on-mission-group-change']
+                [ .mb-xs]
+              ]
+              
+              [ .d-flex {gap:0.3rem}
+                [btn .clickable data-callback='rename-active-mission-group' .icon-mate 'edit']
+                [btn .clickable data-callback='new-mission-group' .icon-mate 'add']
+                [btn .clickable data-callback='delete-mission-group'
+                  [i .icon-mate 'delete']
+                ]
+              ]
+              
+            ][ .mb-m]
+          ][ .default-gap]
+          
+          <!-- # breadcrumbs -->
+          [ .d-flex .justify-content-between
+            [ #container-breadcrumbs .container-breadcrumbs]
+            [ #txt-total-ratio {text-wrap:nowrap}]
+          ]
+                
+          <div class="default-gap"></div>
+          
+          
+          <!-- # task list container -->
+          <div id="tasklist-container" class="container-task">
+            <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
+            <div style="padding-top:1rem;"></div>
+            <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
+          </div>
+          
+        </section>
         
         [ .d-flex .justify-content-between
           [ .d-none
@@ -284,7 +294,7 @@
           ][ .default-gap]
           
           <!-- web app installation -->
-          [ data-view-platform="web" .d-grid {gap:0.3rem}
+          [ data-view-group-parent="platform" data-view-name="web" .d-grid {gap:0.3rem}
             [
               [ 'Web App' {fw:bold}][ .mb-m]
               [btn #buttonInstall 'Install'][ .default-gap]
@@ -292,7 +302,7 @@
           ][ .default-gap]
           
           <!-- app cache -->
-          [ data-view-platform="web"
+          [ data-view-group-parent="platform" data-view-name="web"
             [ 'Application Cache' {fw:bold}]
             
             [small 'For development and offline support.'][ .mb-m]
@@ -504,14 +514,14 @@
   </template>
 
   <!-- # modal task -->
-  <modal-v2 id="projects-modal">
+  <modal-v2 id="projects-modal" data-view-group="form-task" data-view-visible="add">
     <div class="modal" slot="content">
       <!-- modal content-->
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          [s 'New task :' data-visible-on="--mode-add"]
-          [s 'Edit task :' data-visible-on="--mode-edit"]
+          [s 'New task :' data-view-group-parent="form-task" data-view-name="add"]
+          [s 'Edit task :' data-view-group-parent="form-task" data-view-name="edit"]
           
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
@@ -528,13 +538,13 @@
             [ .d-none
               Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
             ]
-            [ data-visible-on="--mode-edit"
+            [ data-view-group-parent="form-task" data-view-name="edit"
               Parent Id <input type="text" name='parent-id' class="input-style-default"/>
             ]
             [ .mb-m]
             <div>
-              <button data-role='btn-add' data-visible-on="--mode-add">Add</button>
-              <button data-role="btn-edit" data-visible-on="--mode-edit">Update</button>
+              <button data-role='btn-add' data-view-group-parent="form-task" data-view-name="add">Add</button>
+              <button data-role="btn-edit" data-view-group-parent="form-task" data-view-name="edit">Update</button>
             </div>
           </form>
 

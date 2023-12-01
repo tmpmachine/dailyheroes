@@ -44,7 +44,7 @@ try {
 if (window.modeChromeExtension) {
   window.service = window.serviceChrome;
 } else {
-  document.body.classList.add('is-platform-web')
+  viewUtil.SetViewTarget('platform.web');
 }
 
 

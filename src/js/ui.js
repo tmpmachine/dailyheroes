@@ -29,7 +29,12 @@ let uiComponent = (function () {
   }
   
   function UpdateViewModeState() {
-    document.body.classList.toggle('is-view-mode-mission', isViewModeMission())
+    // document.body.classList.toggle('is-view-mode-mission', isViewModeMission());
+    if (isViewModeMission()) {
+      viewUtil.SetViewTarget('task-view-mode.mission');
+    } else {
+      viewUtil.SetViewTarget('task-view-mode.task');
+    }
     
     // toggle class active tab
     let tabId = isViewModeMission() ? 'mission' : 'task';
@@ -315,7 +320,7 @@ let uiComponent = (function () {
     
     // set form add/edit mode
     let isEditMode = (defaultValue.id !== undefined)
-    modal.classList.toggle('is-view-mode-edit', isEditMode);
+    viewUtil.SetViewTarget( (isEditMode ? 'form-task.edit' : 'form-task.add') );
     
     for (let key in defaultValue) {
       let inputEl = form.querySelector(`[name="${key}"]`);

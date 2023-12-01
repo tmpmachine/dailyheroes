@@ -15,21 +15,9 @@
 }
 
 
-/* # modals */
-
-#projects-modal:not(.is-view-mode-edit) [data-visible-on]:not([data-visible-on="--mode-add"]),
-#projects-modal.is-view-mode-edit [data-visible-on="--mode-add"] {
-  display: none;
-}
-
-
 /* --------------------------- */
 /* # list mission */
 
-body.is-view-mode-mission [data-visible-on~="task-view"],
-body:not(.is-view-mode-mission) [data-visible-on~="mission-view"] {
-  display: none;
-}
 
 [data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
 [data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
@@ -143,10 +131,5 @@ _ {
 /* # timer is running */
 [data-obj="task"]:not([data-state~="--active"]) .btn-stop,
 body:not([data-state~="--timer-running"]) [data-obj="task"][data-state~="--active"] .btn-stop {
-  display: none;
-}
-
-/* # platform view */
-body:not(.is-platform-web) [data-view-platform="web"] {
   display: none;
 }
