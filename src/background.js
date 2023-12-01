@@ -31,7 +31,7 @@ async function handleNotificationClick(event) {
 }
 
 async function playAudio(path) {  
-  clearTimeout(stopAudioTimeout)
+  clearTimeout(stopAudioTimeout);
   await taskStopOffscreenDocument(path);
   await setupOffscreenDocument(path);
 }
@@ -40,7 +40,7 @@ let stopAudioTimeout;
 function stopAudioAfter(path) {
   stopAudioTimeout = setTimeout(() => {
     taskStopOffscreenDocument(path);
-  }, 10200)
+  }, 10200);
 }
 
 let creating; // A global promise to avoid concurrency issues
