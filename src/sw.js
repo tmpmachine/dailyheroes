@@ -2,7 +2,7 @@
   increase below number to trigger service worker update/reactivation
   to deliver latest updates for all users automatically on page visit
   
-  unique numer : 9
+  unique numer : 11
 */
 
 let cacheName = 'dailyheroes-MjQzNTM2OTU';

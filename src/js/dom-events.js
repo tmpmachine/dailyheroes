@@ -101,6 +101,7 @@ window.DOMEvents = {
     
     'pick-audio': () => app.SetAlarmAudio(), 
     'remove-audio': () => app.RemoveAlarmAudio(), 
+    'test-audio': () => app.TaskPlayAlarmAudio(), 
 	},
 	
 	inputable: {

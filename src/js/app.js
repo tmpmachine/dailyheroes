@@ -481,6 +481,7 @@ async function updateTime(scheduledTime, startTime) {
     if (distance < 1000) {
       sendNotification();
       uiComponent.TurnOnScreen();
+      app.TaskPlayAlarmAudio();
     }
     
     // stop updating the timer, it's ended by background script
@@ -1581,6 +1582,7 @@ let app = (function () {
     
     SetAlarmAudio,
     RemoveAlarmAudio,
+    TaskPlayAlarmAudio,
   };
   
   function SetAlarmAudio() {
@@ -1606,7 +1608,7 @@ let app = (function () {
     }
   }
   
-  async function retrieveFileHandle() {
+  async function retrieveAudioFile() {
     try {
       const file = await idbKeyval.get('audioFile');
       if (file) {
@@ -1616,6 +1618,14 @@ let app = (function () {
       }
     } catch (error) {
       console.error('Error retrieving File Handle:', error);
+    }
+  }
+  
+  async function TaskPlayAlarmAudio() {
+    let audioFile = await retrieveAudioFile();
+    if (audioFile) {
+      let audio = new Audio(URL.createObjectURL(audioFile));
+      audio.play();
     }
   }
   
