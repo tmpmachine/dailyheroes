@@ -1662,7 +1662,8 @@ let app = (function () {
   }
   
   function Commit() {
-    lsdb.data.isFilterTaskByTargetTime = IsShowTargetTimeOnly();    
+    lsdb.data.isFilterTaskByTargetTime = data.isViewTargetTimeOnly;    
+    lsdb.data.isSortByTotalProgress = data.isSortByTotalProgress;    
   }
   
   function filterTaskByTargetTime() {
