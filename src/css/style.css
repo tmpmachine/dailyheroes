@@ -325,6 +325,10 @@ body[data-state~="--timer-running"] .task-progress-bar {
   border-color: #fff900;
 }
 
+/* # task */
+[data-kind="task"] .title {
+  word-break: break-word;
+}
 
 /* # task body */
 .btn-start, .btn-stop {
