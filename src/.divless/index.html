@@ -188,6 +188,16 @@
             ][ .mb-m]
           ][ .default-gap]
           
+          <!-- # filter by target time -->
+          [ data-view-group="task-view-mode" data-view-name="task"
+            [ .d-flex .align-items-center .user-select-none
+              [in type='checkbox' id='labeled-by-showtarget' .inputable data-callback="toggle-show-target-only"] 
+              [l for='labeled-by-showtarget' .d-flex .align-items-center
+                [small 'Show only task with target time (>= 10m)']
+              ]
+            ]
+            [ {mb:0.5rem}]
+          ]
           <!-- # breadcrumbs -->
           [ data-view-group="task-view-mode" data-view-name-not="filter-target"
             [ .d-flex .justify-content-between
@@ -196,15 +206,7 @@
                 [ #txt-total-ratio {text-wrap:nowrap}]
               ]
             ]
-            [ {mb:0.25rem}]
-          ]
-          [ data-view-group="task-view-mode" data-view-name="task"
-            [ .d-flex .align-items-center .user-select-none
-              [in type='checkbox' id='labeled-by-showtarget' .inputable data-callback="toggle-show-target-only"] 
-              [l for='labeled-by-showtarget' .d-flex .align-items-center
-                [small 'Show only task with target time (>= 10m)']
-              ]
-            ]
+            [ {mb:0.3rem}]
           ]
                 
           <div class="default-gap"></div>

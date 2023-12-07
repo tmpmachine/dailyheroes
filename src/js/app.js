@@ -1872,10 +1872,11 @@ let app = (function () {
       let missionPath = '';
       let ratioStr = item.ratio ? `${item.ratio}%` : '';
       let isTopPath = isTopMissionPath(item.id);
-      if (isMissionView && isTopPath) {
+      if (isMissionView && isTopPath || IsShowTargetTimeOnly()) {
         ratioStr = '';
         missionPath = getAndComputeMissionPath(item.parentId);
       }
+      
       
       // show total task progress (self + child tasks)
       let totalProgressStr = '';
