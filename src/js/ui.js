@@ -275,7 +275,7 @@ let ui = (function () {
     $('#container-breadcrumbs').addEventListener('click', (evt) => {
       if (evt.target.tagName == 'BUTTON') {
         Navigate(evt.target.dataset.id);
-        TaskListTask();
+        app.TaskListTask();
       }
     });
   }
@@ -617,22 +617,22 @@ let uiMission = (function() {
   }
   
   function __refreshMissionList() {
-    TaskListTask();
+    app.TaskListTask();
   }
     
   function RemoveGroup(group) {
-    let isConfirm = __confirmUser(group.title)
+    let isConfirm = __confirmUser(group.title);
     if (!isConfirm) return;
     
     let deletedGroup = compoMission.DeleteGroupById(group.id);
     
     if (deletedGroup != null) {
-      __saveAppData()
+      __saveAppData();
     } else {
-      console.log('failed to delete group')
+      console.log('failed to delete group');
     }
       
-    __refreshGroupList()
+    __refreshGroupList();
   }
       
   

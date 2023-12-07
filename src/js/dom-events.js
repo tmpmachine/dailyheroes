@@ -57,9 +57,9 @@ window.DOMEvents = {
 			await window.service.RemoveData('rest');
 			clearTaskHistory();
 			if (window.modeChromeExtension) {
-				await listTask();
+				await app.TaskListTask();
 			} else {
-				await listTask();
+				await app.TaskListTask();
 				location.reload();
 			}
 		},
@@ -70,7 +70,7 @@ window.DOMEvents = {
 			if (window.modeChromeExtension) {
 			window.close();
 			} else {
-				await listTask();
+				await app.TaskListTask();
 				location.reload();
 			}
 		},
@@ -106,6 +106,12 @@ window.DOMEvents = {
 	
 	inputable: {
 	  
+	  'toggle-sort-by-progress': (evt) => {
+	    app.SetSortMode(evt);
+	    app.Commit();
+	    appSettings.Save();
+	    app.TaskListTask();
+	  },
 	  'toggle-show-target-only': (evt) => {
 	    app.SetViewTargetTimeOnly(evt);
 	    app.Commit();
@@ -194,7 +200,7 @@ window.DOMEvents = {
 		
 		form.reset();
 		await storeTask();
-		listTask();
+		app.TaskListTask();
 		// const data = {};
 		// data.title = formData.get('title') || null;
 		// data.ratio = parseFloat(formData.get('ratio')) || null;

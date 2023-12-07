@@ -9,7 +9,9 @@ window.lsdb = new Lsdb(storageName, {
     history: 0,
     historyTime: 0,
     activeTask: '',
+    
     isFilterTaskByTargetTime: false,
+    isSortByTotalProgress: true,
     
     // navigation
     activeGroupId: '',
@@ -21,7 +23,6 @@ window.lsdb = new Lsdb(storageName, {
     tasks: [],
     missionIds: [],
     groups: [],
-    isSortByTotalProgress: true,
     
     // component's data
     compoMission: {},
@@ -709,14 +710,6 @@ function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
 }
 
-async function TaskListTask() {
-  await listTask();
-}
-
-async function listTask() {
-  await app.TaskListTask();
-}
-
 function sumAllChildProgress(parentId) {
   return tasks.filter(x => x.parentId == parentId).reduce((total, item) => total + item.totalProgressTime + sumAllChildProgress(item.id), 0); 
 }
@@ -892,7 +885,7 @@ async function taskNavigateToMission(id) {
   changeViewModeConfig('tasks');
   saveConfig();
   ui.Navigate(task.parentId);
-  listTask();
+  app.TaskListTask();
 }
 
 function taskAddToMission(id, parentEl) {
@@ -1306,30 +1299,6 @@ async function setTaskTarget(id) {
   loadSearch();
 }
 
-async function splitTask(id) {
-  let title = window.prompt('task title');
-  if (!title) return;
-  let target = window.prompt('target (hours minutes)');
-  if (!target) return;
-  
-  try {
-    addTaskData({
-      title,
-      target: parseHoursMinutesToMinutes(target),
-    });
-  } catch (e) {
-    console.error(e);
-    alert('Failed.');    
-    return;
-  }
-  
-  let task = tasks.find(x => x.id == id);
-  task.target = Math.max(0, task.target - parseHoursMinutesToMinutes(target));
-  
-  await storeTask();
-  listTask();  
-}
-
 function untrackProgress(id) {
   let task = app.getTaskById(id);
   task.untracked = true;
@@ -1592,11 +1561,13 @@ let app = (function () {
     
     IsShowTargetTimeOnly,
     SetViewTargetTimeOnly,
+    SetSortMode,
     Commit,
   };
   
   let data = {
     isViewTargetTimeOnly: false,
+    isSortByTotalProgress: false,
   };
   
   function SetAlarmAudio() {
@@ -1686,6 +1657,10 @@ let app = (function () {
     data.isViewTargetTimeOnly = evt.target.checked;
   }
   
+  function SetSortMode(evt) {
+    data.isSortByTotalProgress = evt.target.checked;
+  }
+  
   function Commit() {
     lsdb.data.isFilterTaskByTargetTime = IsShowTargetTimeOnly();    
   }
@@ -1750,6 +1725,12 @@ let app = (function () {
     
   }
 
+  function sortTaskByTotalProgressTimeAsc(tasks) {
+    tasks.sort((a, b) => {
+      return a.totalProgressTime < b.totalProgressTime ? -1 : 1;
+    });
+  }
+
   async function TaskListTask() {
     
     let isMissionView = (lsdb.data.viewMode == 'mission');
@@ -1775,13 +1756,13 @@ let app = (function () {
       }
     }
     
-    // if (lsdb.data.isSortByTotalProgress) {
-    //   tasks.sort((a, b) => a.totalProgressTime > b.totalProgressTime ? -1 : 1);
-    // }
-    
-    // todo: set to filtered tasks
+    // filter tasks
     let filteredTasks = await filterListTask(isMissionView);
-  
+    
+    // sort tasks
+    if (!isMissionView && data.isSortByTotalProgress) {
+      sortTaskByTotalProgressTimeAsc(filteredTasks);
+    }
 
     // let rankLabel = 1;
     for (let item of filteredTasks) {
@@ -1802,20 +1783,8 @@ let app = (function () {
         totalRatio += item.ratio;
       }
       
-      // accumulates child task progress
-      {
-        // totalMsProgressChildTask = tasks.filter(x => x.parentId == item.id).reduce((total, item) => total+item.totalProgressTime, 0);
-        // let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
-        // targetMinutesLeft -= totalChildTaskProgressMinutes;
-        // progressMinutesLeft += totalChildTaskProgressMinutes;
-      }
-      
       // # set ratio time left string
       let ratioTimeLeftStr = '';
-      // let ratioTimeLeft = timeLeftRatio.find(x => x.id == item.id);
-      // if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
-      //   ratioTimeLeftStr = `<mark>${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}</mark>`;
-      // }
       
       // ## handle if self task
       if (item.ratio > 0 || item.targetTime > 0)
@@ -2327,7 +2296,7 @@ let app = (function () {
     attachListeners();
     await loadTasks();
     await app.ApplyTaskProgressHistoryToMissionRoot();
-    await listTask();
+    await TaskListTask();
     TaskSetActiveTaskInfo();
     ui.Init();
     updateUI();
@@ -2355,6 +2324,9 @@ let app = (function () {
     
     data.isViewTargetTimeOnly = lsdb.data.isFilterTaskByTargetTime;
     $('#labeled-by-showtarget').checked = data.isViewTargetTimeOnly;
+    
+    data.isSortByTotalProgress = lsdb.data.isSortByTotalProgress;
+    $('#labeled-by-sortbyprogress').checked = data.isSortByTotalProgress;
   }
   
   async function initTests() {
@@ -2410,7 +2382,7 @@ let app = (function () {
         // changeViewModeConfig('tasks');
         // saveConfig();
         ui.Navigate(id);
-        listTask();
+        app.TaskListTask();
         break;
       case 'edit': editTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
@@ -2521,7 +2493,7 @@ let app = (function () {
     }
   
     await storeTask();
-    await listTask();
+    await app.TaskListTask();
     
     updateUI();
   }

@@ -219,6 +219,17 @@
             <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
           </div>
           
+          <!-- # sort task option -->
+          <div data-view-group="task-view-mode" data-view-name="task">
+            <div class="d-flex align-items-center user-select-none">
+              <input class="inputable" type='checkbox' id='labeled-by-sortbyprogress' data-callback="toggle-sort-by-progress"/> 
+              <label class="d-flex align-items-center" for='labeled-by-sortbyprogress'>
+                <small>Ascending sort by total progress time</small>
+              </label>
+            </div>
+            <div style="margin-bottom:0.5rem;"></div>
+          </div>
+          
         </section>
         
         <div class="d-flex justify-content-between">
