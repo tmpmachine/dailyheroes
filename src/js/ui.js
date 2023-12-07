@@ -25,7 +25,8 @@ let ui = (function () {
     let viewTarget = evt.target.dataset.viewTarget;
     if (!viewTarget) return;
     
-    viewStateUtil.Toggle('screens', [viewTarget]);
+    viewStateUtil.Remove('screens', ['home', 'settings']);
+    viewStateUtil.Add('screens', [viewTarget]);
   }
   
   function UpdateViewModeState() {
