@@ -1393,11 +1393,11 @@ function updateSubTaskProgress(task, distanceTime) {
 }
 
 function getSubMissionById(task, subId) {
-  return task.note.find(x => x.id == subId)
+  return task.note.find(x => x.id == subId);
 }
 
 function disableAllActive() {
-  let taskEls = qsa('#tasklist-container [data-obj="task"]');
+  let taskEls = document.querySelectorAll('#tasklist-container [data-obj="task"]');
   for (let node of taskEls) {
     node.stateList.remove('--active');
     node.querySelector('[data-obj="live-progress"]').textContent = ``;

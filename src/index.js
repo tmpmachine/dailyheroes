@@ -1,9 +1,7 @@
-
 window.$ = document.querySelector.bind(document);
-window.qsa = document.querySelectorAll.bind(document);
 
 
-// init states
+// view states
 let viewStatesMap = [
   {
     group: 'task-view-mode',
@@ -35,6 +33,7 @@ let viewStatesMap = [
     ],
   },
 ];
+
 
 window.componentLoader.load([
   {

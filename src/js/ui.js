@@ -25,19 +25,17 @@ let ui = (function () {
     let viewTarget = evt.target.dataset.viewTarget;
     if (!viewTarget) return;
     
-    viewStateUtil.Remove('screens', ['home', 'settings']);
-    viewStateUtil.Add('screens', [viewTarget]);
+    viewStateUtil.Set('screens', [viewTarget]);
   }
   
   function UpdateViewModeState() {
-    // document.body.classList.toggle('is-view-mode-mission', isViewModeMission());
-    viewStateUtil.Remove('task-view-mode', ['mission','task','filter-target']);
+    let groupState = 'task-view-mode';
     if (isViewModeMission()) {
-      viewStateUtil.Add('task-view-mode', ['mission']);
+      viewStateUtil.Set(groupState, ['mission']);
     } else {
-      viewStateUtil.Add('task-view-mode', ['task']);
+      viewStateUtil.Set(groupState, ['task']);
       if (app.IsShowTargetTimeOnly()) {
-        viewStateUtil.Add('task-view-mode', ['filter-target']);
+        viewStateUtil.Add(groupState, ['filter-target']);
       }
     }
     
@@ -53,7 +51,7 @@ let ui = (function () {
     if (!el) return {classList:{remove:()=>{}}};
     
     return el;
-  }
+  };
 
   function Init() {
     initSimpleElementFilter();
@@ -118,7 +116,7 @@ let ui = (function () {
   
       // Reset last tap time
       lastTapTime = 0;
-      ui.TurnOnScreen()
+      ui.TurnOnScreen();
     } else {
       // Single tap
       lastTapTime = currentTime;
@@ -201,7 +199,7 @@ let ui = (function () {
     let elem = document.body;
     if (!document.fullscreenElement) {
       elem.requestFullscreen().catch((err) => {
-        console
+        console.log(err);
       });
     } else {
       document.exitFullscreen();
@@ -225,7 +223,7 @@ let ui = (function () {
       foobar(subPaths, lsdb.data.activeGroupId, safeLoopCount);
       breadcrumbs = [...breadcrumbs, ...subPaths];
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
       
     $('#container-breadcrumbs').innerHTML = '';
@@ -513,10 +511,10 @@ let uiMission = (function() {
     RenameActiveGroup,
     OnChangeGroup,
     DeleteGroupByName,
-  }
+  };
   
   function ListGroup() {
-    __refreshGroupList()
+    __refreshGroupList();
   }
   
   function __refreshGroupList() {
@@ -542,13 +540,13 @@ let uiMission = (function() {
   
   function NewGroup() {
     
-    let title = __promptUser()
+    let title = __promptUser();
     if (!title) return;
     
-    compoMission.AddGroup(title)
+    compoMission.AddGroup(title);
     
     __saveAppData();
-    __refreshGroupList()
+    __refreshGroupList();
   }
   
   function __saveAppData() {
@@ -586,13 +584,13 @@ let uiMission = (function() {
     let evt = inputSelectEvt;
     let id = evt.target.value;
     
-    let success = compoMission.SetActiveGroupById(id)
+    let success = compoMission.SetActiveGroupById(id);
     if (success) {
-      __resetMissionView()
-      __saveAppData()
-      __refreshMissionList()
+      __resetMissionView();
+      __saveAppData();
+      __refreshMissionList();
     } else {
-      console.log('failed to change group')
+      console.log('failed to change group');
     }
   }
   
