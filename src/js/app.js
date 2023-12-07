@@ -9,6 +9,7 @@ window.lsdb = new Lsdb(storageName, {
     history: 0,
     historyTime: 0,
     activeTask: '',
+    isFilterTaskByTargetTime: false,
     
     // navigation
     activeGroupId: '',
@@ -44,7 +45,7 @@ try {
 if (window.modeChromeExtension) {
   window.service = window.serviceChrome;
 } else {
-  viewUtil.SetViewTarget('platform.web');
+  viewStateUtil.Toggle('platform', ['web']);
 }
 
 
@@ -449,7 +450,7 @@ async function startCountdown() {
   
   countdonwIntervalId = setInterval(() => {
     updateTime(scheduledTime, startTime);
-    // uiComponent.updateProgressBar();
+    // ui.updateProgressBar();
   }, 1000);
   
   // Execute the function immediately before waiting for 1 second
@@ -480,7 +481,7 @@ async function updateTime(scheduledTime, startTime) {
     // ended few milliseconds ago
     if (distance < 1000) {
       sendNotification();
-      uiComponent.TurnOnScreen();
+      ui.TurnOnScreen();
       app.TaskPlayAlarmAudio();
     }
     
@@ -497,7 +498,7 @@ async function updateTime(scheduledTime, startTime) {
   
   let activeTask = await getActiveTask();
   if (activeTask) {
-    uiComponent.updateTaskProgressBar(activeTask.id);
+    ui.updateTaskProgressBar(activeTask.id);
   }
 }
 
@@ -539,13 +540,6 @@ function updateProgressPercentage(startTime) {
   }
   $('#percentage').textContent = `(${percentage}%)`;
   $('.progress-bar-fill').style.width = `${percentage}%`;
-}
-
-async function initData() {
-  let result = window.service.GetData(['history']);
-  if (typeof(result.history) == 'undefined') {
-	  await window.service.SetData({ 'history': 0 });
-  }
 }
 
 function attachListeners() {
@@ -813,7 +807,7 @@ function updateUI() {
       distanceTime = new Date().getTime() - result.start;
     }
     
-    uiComponent.updateUI(isRunning);
+    ui.updateUI(isRunning);
     await startCountdown();
     
     let history = getSumTaskProgress();
@@ -880,7 +874,7 @@ async function removeActiveTaskIfExists(id) {
 function changeViewModeConfig(mode) {
   lsdb.data.topMostMissionPath = '';
   lsdb.data.viewMode = mode;
-  uiComponent.UpdateViewModeState();
+  ui.UpdateViewModeState();
 }
 
 function saveConfig() {
@@ -897,7 +891,7 @@ async function taskNavigateToMission(id) {
   
   changeViewModeConfig('tasks');
   saveConfig();
-  uiComponent.Navigate(task.parentId);
+  ui.Navigate(task.parentId);
   listTask();
 }
 
@@ -1067,13 +1061,13 @@ async function switchActiveTask(taskEl, id, persistent = false) {
     if (id == activeTask.id && !persistent) {
       await removeActiveTask();
       disableAllActive();
-      uiComponent.updateTaskProgressBar(id, false);
+      ui.updateTaskProgressBar(id, false);
     } else {
-      uiComponent.updateTaskProgressBar(activeTask.id, false);
+      ui.updateTaskProgressBar(activeTask.id, false);
       await window.service.SetData({'activeTask': id});
       disableAllActive();
       taskEl.stateList.add('--active');
-      await uiComponent.updateTaskProgressBar(id);
+      await ui.updateTaskProgressBar(id);
       
       let data = await window.service.GetData('start');
       if (data.start) {
@@ -1097,7 +1091,7 @@ function addSubTimer(taskId) {
   let defaultVal = {
     parentId: taskId,
   };
-  uiComponent.ShowModalAddTask(defaultVal);
+  ui.ShowModalAddTask(defaultVal);
 }
 
 
@@ -1188,7 +1182,7 @@ async function showModalNote(id) {
   modal.addEventListener('onclose', function() {
     modal.classList.toggle('modal--active', false);
   });
-  uiComponent.SetFocusEl(modal.querySelector('input[type="text"]'));
+  ui.SetFocusEl(modal.querySelector('input[type="text"]'));
   modal.querySelector('form').id.value = id;
 }
 
@@ -1361,7 +1355,7 @@ async function editTask(taskId) {
     finishCount,
     parentId,
   };
-  uiComponent.ShowModalAddTask(defaultVal);
+  ui.ShowModalAddTask(defaultVal);
 }
 
 async function removeActiveTask() {
@@ -1542,12 +1536,24 @@ async function taskOpenTaskIntoView() {
   
   lsdb.data.viewMode = 'tasks';
   lsdb.save();
-  uiComponent.Navigate(activeTask.parentId);
+  ui.Navigate(activeTask.parentId);
   await app.TaskListTask();
 }
   
 
-
+let appSettings = (function() {
+  
+  let SELF = {
+    Save,
+  };
+  
+  function Save() {
+    lsdb.save();
+  }
+  
+  return SELF;
+  
+})();
 
 let app = (function () {
 
@@ -1583,6 +1589,14 @@ let app = (function () {
     SetAlarmAudio,
     RemoveAlarmAudio,
     TaskPlayAlarmAudio,
+    
+    IsShowTargetTimeOnly,
+    SetViewTargetTimeOnly,
+    Commit,
+  };
+  
+  let data = {
+    isViewTargetTimeOnly: false,
   };
   
   function SetAlarmAudio() {
@@ -1642,6 +1656,100 @@ let app = (function () {
     loadSearch();
   }
 
+  function filterListTask(isMissionView) {
+    
+    let filteredTasks = [];
+        
+    if (isMissionView) {
+      // mission view
+      
+      filteredTasks = filterTaskByCollection();
+    } else {
+      // all task view
+      
+      if (IsShowTargetTimeOnly()) {
+        filteredTasks = filterTaskByTargetTime();
+      } else {
+        filteredTasks = filterTaskByPath();
+      }     
+    }
+    
+    return filteredTasks;
+    
+  }
+  
+  function IsShowTargetTimeOnly() {
+    return data.isViewTargetTimeOnly;
+  }
+  
+  function SetViewTargetTimeOnly(evt) {
+    data.isViewTargetTimeOnly = evt.target.checked;
+  }
+  
+  function Commit() {
+    lsdb.data.isFilterTaskByTargetTime = IsShowTargetTimeOnly();    
+  }
+  
+  function filterTaskByTargetTime() {
+    // 10 min threshold
+    return tasks.filter(x => x.targetTime > 10*60*1000);
+  }
+  
+  function filterTaskByPath() {
+    let filteredTasks = tasks;
+    
+    if (lsdb.data.activeGroupId === '') {
+      filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
+    } else {
+      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+    }
+    
+    // sort by last starred
+    filteredTasks.sort((a,b) => {
+      if (typeof(b.lastStarredDate) == 'undefined') return -1;
+  
+      return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
+    });
+      
+    return filteredTasks;
+  }
+  
+  function filterTaskByCollection() {
+    
+    let filteredTasks = tasks;
+    
+    let missionIds = compoMission.GetMissions();
+      
+    // sort by last starred
+    missionIds.sort((a,b) => {
+      return a.createdDate > b.createdDate ? 1 : -1;
+    });
+    missionIds.sort((a,b) => {
+      let order = a.lastUpdatedDate > b.lastUpdatedDate ? -1 : 1;
+      
+      if (typeof(a.lastStarredDate) != 'number' && typeof(b.lastStarredDate) == 'number') {
+        return 1;
+      } else if (typeof(a.lastStarredDate) == 'number' && typeof(b.lastStarredDate) != 'number') {
+        return -1;
+      }
+      
+      return order;
+    });
+    
+    if (lsdb.data.activeGroupId === '') {
+      // filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
+      filteredTasks = missionIds.map(x => {
+        return tasks.find(task => task.id == x.id);
+      }).filter(x => typeof(x) == 'object');
+    } else {
+      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+      // filteredTasks = task;
+    }
+    
+    return filteredTasks;
+    
+  }
+
   async function TaskListTask() {
     
     let isMissionView = (lsdb.data.viewMode == 'mission');
@@ -1672,53 +1780,9 @@ let app = (function () {
     // }
     
     // todo: set to filtered tasks
-    let filteredTasks = tasks;
-    
-    if (isMissionView) {
-      
-      let missionIds = compoMission.GetMissions();
-      
-      // sort by last starred
-      missionIds.sort((a,b) => {
-        return a.createdDate > b.createdDate ? 1 : -1;
-      });
-      missionIds.sort((a,b) => {
-        let order = a.lastUpdatedDate > b.lastUpdatedDate ? -1 : 1;
-        
-        if (typeof(a.lastStarredDate) != 'number' && typeof(b.lastStarredDate) == 'number') {
-          return 1;
-        } else if (typeof(a.lastStarredDate) == 'number' && typeof(b.lastStarredDate) != 'number') {
-          return -1;
-        }
-        
-        return order;
-      });
-      
-      if (lsdb.data.activeGroupId === '') {
-        // filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
-        filteredTasks = missionIds.map(x => {
-          return tasks.find(task => task.id == x.id);
-        }).filter(x => typeof(x) == 'object');
-      } else {
-        filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
-        // filteredTasks = task;
-      }
-      
-    } else { 
-      if (lsdb.data.activeGroupId === '') {
-        filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
-      } else {
-        filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
-      }
-      // sort by last starred
-      filteredTasks.sort((a,b) => {
-        if (typeof(b.lastStarredDate) == 'undefined') return -1;
-    
-        return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
-      });
-    }
+    let filteredTasks = await filterListTask(isMissionView);
   
-    
+
     // let rankLabel = 1;
     for (let item of filteredTasks) {
       
@@ -1918,6 +1982,8 @@ let app = (function () {
     	    taskEl.stateList.add('--is-mission');
         }
       }
+      
+      
       if (lsdb.data.groups.find(x => x.id == item.id)) {
         el.querySelector('.container-navigate').classList.remove('d-none');
       } else {
@@ -2211,7 +2277,7 @@ let app = (function () {
   
   async function TaskDeleteTask(id, taskEl) {
   
-    let isConfirm = await uiComponent.ShowConfirm();
+    let isConfirm = await ui.ShowConfirm();
     if (!isConfirm) return; 
     
     let totalDeletedProgressTime = 0;
@@ -2262,7 +2328,7 @@ let app = (function () {
     await app.ApplyTaskProgressHistoryToMissionRoot();
     await listTask();
     TaskSetActiveTaskInfo();
-    uiComponent.Init();
+    ui.Init();
     updateUI();
     
     if (lsdb.data.viewMode == 'mission') {
@@ -2277,6 +2343,17 @@ let app = (function () {
     
     initTests();
     
+  }
+  
+    
+  async function initData() {
+    let result = window.service.GetData(['history']);
+    if (typeof(result.history) == 'undefined') {
+  	  await window.service.SetData({ 'history': 0 });
+    }
+    
+    data.isViewTargetTimeOnly = lsdb.data.isFilterTaskByTargetTime;
+    $('#labeled-by-showtarget').checked = data.isViewTargetTimeOnly;
   }
   
   async function initTests() {
@@ -2331,7 +2408,7 @@ let app = (function () {
       case 'navigate-sub': 
         // changeViewModeConfig('tasks');
         // saveConfig();
-        uiComponent.Navigate(id);
+        ui.Navigate(id);
         listTask();
         break;
       case 'edit': editTask(id); break;

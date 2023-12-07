@@ -1,10 +1,10 @@
 window.DOMEvents = {
 	clickable: {
 	  
-	  'navigate-screen': (evt) => uiComponent.NavigateScreen(evt),
+	  'navigate-screen': (evt) => ui.NavigateScreen(evt),
 	  
 	  
-	  'turn-off-screen': () => uiComponent.TaskTurnOffScreen(),
+	  'turn-off-screen': () => ui.TaskTurnOffScreen(),
 	  
 	  // # settings data
 	  'reset-data': () => app.ResetData(),
@@ -13,7 +13,7 @@ window.DOMEvents = {
 	  
 	  
 	  'show-modal-add-task': () => {
-	    uiComponent.ShowModalAddTask({
+	    ui.ShowModalAddTask({
 	      parentId: lsdb.data.activeGroupId,
 	    });
     },
@@ -22,15 +22,15 @@ window.DOMEvents = {
       changeViewModeConfig('mission');
       resetActiveGroupId();
       lsdb.save();
-      uiComponent.BuildBreadcrumbs();
-      listTask();
+      ui.BuildBreadcrumbs();
+      app.TaskListTask();
     },
     'view-tasks': () => {
       changeViewModeConfig('tasks');
       resetActiveGroupId();
       lsdb.save();
-      uiComponent.BuildBreadcrumbs();
-      listTask();
+      ui.BuildBreadcrumbs();
+      app.TaskListTask();
     },
     
     'open-task-into-view': () => taskOpenTaskIntoView(),
@@ -106,6 +106,13 @@ window.DOMEvents = {
 	
 	inputable: {
 	  
+	  'toggle-show-target-only': (evt) => {
+	    app.SetViewTargetTimeOnly(evt);
+	    app.Commit();
+	    appSettings.Save();
+	    ui.UpdateViewModeState();
+	    app.TaskListTask();
+    },
 	  'save-word-template': (e) => {
 	    let val = e.target.value;
 	    window.clearTimeout(window.saveTimeout);
@@ -121,7 +128,7 @@ window.DOMEvents = {
 	    window.saveTimeout = window.setTimeout(async function() {
 	      window.lsdb.data.labelFilter = val;
 	      window.lsdb.save();
-	      loadSearch()
+	      loadSearch();
 	    }, 250);
 	  },
 	  

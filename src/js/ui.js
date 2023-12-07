@@ -1,4 +1,4 @@
-let uiComponent = (function () {
+let ui = (function () {
   
   let SELF = {
     ShowModalAddTask,
@@ -25,15 +25,19 @@ let uiComponent = (function () {
     let viewTarget = evt.target.dataset.viewTarget;
     if (!viewTarget) return;
     
-    viewUtil.SetViewTarget(viewTarget);
+    viewStateUtil.Toggle('screens', [viewTarget]);
   }
   
   function UpdateViewModeState() {
     // document.body.classList.toggle('is-view-mode-mission', isViewModeMission());
+    viewStateUtil.Remove('task-view-mode', ['mission','task','filter-target']);
     if (isViewModeMission()) {
-      viewUtil.SetViewTarget('task-view-mode.mission');
+      viewStateUtil.Add('task-view-mode', ['mission']);
     } else {
-      viewUtil.SetViewTarget('task-view-mode.task');
+      viewStateUtil.Add('task-view-mode', ['task']);
+      if (app.IsShowTargetTimeOnly()) {
+        viewStateUtil.Add('task-view-mode', ['filter-target']);
+      }
     }
     
     // toggle class active tab
@@ -58,7 +62,7 @@ let uiComponent = (function () {
     BuildBreadcrumbs();
     
     // # mission and mission groups
-    uiComponent.UpdateViewModeState();
+    ui.UpdateViewModeState();
     uiMission.ListGroup();
   }
   
@@ -113,7 +117,7 @@ let uiComponent = (function () {
   
       // Reset last tap time
       lastTapTime = 0;
-      uiComponent.TurnOnScreen()
+      ui.TurnOnScreen()
     } else {
       // Single tap
       lastTapTime = currentTime;
@@ -311,7 +315,7 @@ let uiComponent = (function () {
     modal.addEventListener('onclose', function() {
       modal.classList.toggle('modal--active', false);
     });
-    uiComponent.SetFocusEl(modal.querySelector('input[type="text"]'));
+    ui.SetFocusEl(modal.querySelector('input[type="text"]'));
 
     // set default value
     if (typeof(defaultValue.parentId) == 'string') {
@@ -319,8 +323,14 @@ let uiComponent = (function () {
     }
     
     // set form add/edit mode
-    let isEditMode = (defaultValue.id !== undefined)
-    viewUtil.SetViewTarget( (isEditMode ? 'form-task.edit' : 'form-task.add') );
+    viewStateUtil.Remove('form-task', ['edit', 'add']);
+    
+    let isEditMode = (defaultValue.id !== undefined);
+    if (isEditMode) {
+      viewStateUtil.Add('form-task', ['edit']);
+    } else {
+      viewStateUtil.Add('form-task', ['add']);
+    }
     
     for (let key in defaultValue) {
       let inputEl = form.querySelector(`[name="${key}"]`);
@@ -603,7 +613,7 @@ let uiMission = (function() {
   
   function __resetMissionView() {
     resetActiveGroupId();
-    uiComponent.BuildBreadcrumbs();
+    ui.BuildBreadcrumbs();
   }
   
   function __refreshMissionList() {

@@ -2,11 +2,45 @@
 window.$ = document.querySelector.bind(document);
 window.qsa = document.querySelectorAll.bind(document);
 
+
+// init states
+let viewStatesMap = [
+  {
+    group: 'task-view-mode',
+    states: [
+      'task',
+      'mission',
+    ],
+    inverseStates: [
+      'filter-target',
+    ],
+  },
+  {
+    group: 'screens',
+    states: [
+      'home',
+      'settings',
+    ],
+  },
+  {
+    group: 'platform',
+    states: [
+      'web',
+    ],
+  },
+  {
+    group: 'form-task',
+    states: [
+      'add', 'edit',
+    ],
+  },
+];
+
 window.componentLoader.load([
   {
     urls: [
       'js/dom-events.js',
-      'js/utils/view-util.js',
+      'js/utils/view-state-util.js',
       'js/ui.js',
       'js/lib/lsdb.js',
       
@@ -14,7 +48,9 @@ window.componentLoader.load([
       'js/mission-manager.js',
     ],
     callback: function() { 
-      viewUtil.Init();
+      
+      viewStateUtil.Init(viewStatesMap); 
+
     },
   },
   {
