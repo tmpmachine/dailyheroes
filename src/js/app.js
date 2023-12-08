@@ -375,31 +375,6 @@ async function clearAlarms() {
   }
 }
 
-async function stopTimer() {
-  document.body.stateList.remove('--timer-running');
-  await clearAlarms();
-  
-  if (app.isPlatformAndroid) {
-    androidClient.StopTimer();
-  }
-  
-  let data = await window.service.GetData(["history", "historyTime", "start"]);
-  if (data.start) {
-    let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
-    let distanceTime = new Date().getTime() - data.start;
-    await window.service.SetData({ 'history': data.history + distanceMinutes });
-    await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
-    await updateProgressActiveTask(distanceMinutes, distanceTime);
-  }
-  await window.service.RemoveData(['start']);
-  
-  updateUI();
-  if (window.modeChromeExtension) {
-    await chrome.runtime.sendMessage({message: 'stop'});
-  }
-  
-}
-
 function toggleStartTimer() {
   let isTimerRunning = document.body.stateList.contains('--timer-running');
   if (isTimerRunning) {
@@ -413,7 +388,7 @@ async function startOrRestartTask() {
   let task = await getActiveTask();
   if (!task) return;
   
-  await stopTimer();
+  await app.TaskStopActiveTask();
   await app.TaskContinueTask(task.id);
   await startCurrentTask(task.id);
 }
@@ -422,7 +397,7 @@ async function finishTimer() {
   let task = await getActiveTask();
   if (!task) return;
 
-  await stopTimer();
+  await app.TaskStopActiveTask();
   await finishTask(task.id); 
   updateUI();
 }
@@ -1041,7 +1016,7 @@ async function TaskAddLabel(id) {
 }
 
 async function startTaskTimer(parentEl, id) {
-  await stopTimer();
+  await app.TaskStopActiveTask();
   await switchActiveTask(parentEl, id, true);
   await app.TaskContinueTask(id);
   await startCurrentTask(id);
@@ -2014,7 +1989,31 @@ let app = (function () {
   }
   
   async function TaskStopActiveTask() {
-    await stopTimer();
+    
+    document.body.stateList.remove('--timer-running');
+    await clearAlarms();
+    
+    if (app.isPlatformAndroid) {
+      androidClient.StopTimer();
+    }
+    
+    let data = await window.service.GetData(["history", "historyTime", "start"]);
+    if (data.start) {
+      let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
+      let distanceTime = new Date().getTime() - data.start;
+      await window.service.SetData({ 'history': data.history + distanceMinutes });
+      await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
+      await updateProgressActiveTask(distanceMinutes, distanceTime);
+    }
+    await window.service.RemoveData(['start']);
+    
+    updateUI();
+    if (window.modeChromeExtension) {
+      await chrome.runtime.sendMessage({message: 'stop'});
+    }
+    
+    app.TaskListTask();
+    
   }
   
   function GetDataManager() {
@@ -2169,6 +2168,7 @@ let app = (function () {
   }
   
   async function TaskAddProgressManually(id) {
+    
     let task = tasks.find(x => x.id == id);
     if (!task) return;
     
@@ -2418,7 +2418,7 @@ let app = (function () {
       case 'archive':
         let activeTask = await getActiveTask();
         if (activeTask && activeTask.id == id) {
-          await stopTimer();
+          await TaskStopActiveTask();
         }
         // await finishTask(id);
         await taskArchiveTask(id);
