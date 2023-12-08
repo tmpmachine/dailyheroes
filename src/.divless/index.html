@@ -33,7 +33,7 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body data-view-group="platform" data-view-states="">
+<body data-view-group="platform auth" data-view-states="">
   
   [ {max-width:500px;m:auto} .container-app
 
@@ -311,10 +311,23 @@
           [
             [ 'Application Data' {fw:bold}][ .mb-m]
             [
-              <button class="clickable" data-callback='reset-data'>Reset data</button>
+              <button class="clickable" data-callback="reset-data">Reset data</button>
             ][ .mb-m]
             
-            [small 'Backup and restore.'][ .mb-m]
+            [small 'Cloud backup and restore.'][ .mb-m]
+            [ .d-flex {gap:0.3rem}
+              <button class="clickable" data-callback="authorize">Authorize</button>
+              [ data-view-group="auth" data-view-name="authorized"
+                [btn class="clickable" data-callback="backup-to-cloud" 'Backup' #btn-cloud-backup]
+                [btn class="clickable" data-callback="restore-from-cloud" 'Restore' #btn-cloud-restore]
+              ]
+            ]
+            [
+              [ #txt-backup-status]
+              [ #txt-restore-status]
+            ]
+            
+            [small 'Local backup and restore.'][ .mb-m]
             [ .d-flex {gap:0.3rem}
               <button class="clickable" data-callback='backup-data'>Backup</button>
               <button class="clickable" data-callback='restore-data'>Restore</button>

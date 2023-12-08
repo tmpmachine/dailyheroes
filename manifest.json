@@ -14,11 +14,16 @@
     "notifications", 
     "alarms", 
     "background", 
-    "storage"
+    "storage",
+    "identity"
   ],
   "background": {
     "service_worker": "src/background.js",
     "type": "module"
+  },
+  "oauth2": {
+    "client_id": "254780146992-2q6tb47ckr9tml8gch24qpbkvva10u6f.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive.appdata"]
   },
   "action" : {
     "default_icon" : "icons/icon.webp",

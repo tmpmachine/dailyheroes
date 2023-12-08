@@ -14,6 +14,12 @@ let viewStatesMap = [
     ],
   },
   {
+    group: 'auth',
+    states: [
+      'authorized',
+    ],
+  },
+  {
     group: 'screens',
     states: [
       'home',
@@ -74,6 +80,13 @@ window.componentLoader.load([
     urls: [
       'js/lib/idb-keyval@6.js',
     ]
+  },
+  {
+    urls: [
+      "js/lib/drive-api.js",
+      "js/components/compo-gsi-chrome.js",
+      "js/components/compo-backup.js",
+    ],
   }
 ]);
 

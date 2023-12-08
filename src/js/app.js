@@ -1517,6 +1517,8 @@ let app = (function () {
     GetDataManager,
     ResetData,
     BackupData,
+    TaskExportDataToBlob,
+    TaskImportDataFromJSON,
     UploadBackupFile,
     
     GetTaskById,
@@ -2051,8 +2053,7 @@ let app = (function () {
   
   async function BackupData() {
 	    
-    let dataString = await getBackupDataJSON();
-    let blob = new Blob([dataString], {type: 'application/json'});
+    let blob = await TaskExportDataToBlob();
     let url = URL.createObjectURL(blob);
     
     let el = document.createElement('a');
@@ -2066,6 +2067,21 @@ let app = (function () {
     
   }
   
+  async function TaskExportDataToBlob() {
+    let dataString = await getBackupDataJSON();
+    let blob = new Blob([dataString], {type: 'application/json'});
+    return blob;
+  }
+  
+  async function TaskImportDataFromJSON(json) {
+    try {
+      let backupData = JSON.parse(json);
+      await taskRestoreAppData(backupData);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  
   async function UploadBackupFile() {
     
     let input = document.createElement('input');
@@ -2074,15 +2090,8 @@ let app = (function () {
 
       let r = new FileReader();
       r.onload = function(evt) {
-        
-        try {
-          let fileTextContent = evt.target.result;
-          let backupData = JSON.parse(fileTextContent);
-          taskRestoreAppData(backupData);
-        } catch (e) {
-          console.error(e);
-        }
-        
+        let fileTextContent = evt.target.result;
+        TaskImportDataFromJSON(fileTextContent);
       };
       r.readAsText(this.files[0]);
       

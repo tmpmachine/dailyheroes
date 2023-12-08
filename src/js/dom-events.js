@@ -10,6 +10,9 @@ window.DOMEvents = {
 	  'reset-data': () => app.ResetData(),
 	  'backup-data': () => app.BackupData(),
 	  'restore-data': () => app.UploadBackupFile(),
+	  'authorize': () => compoGsiChrome.InitTokenClient(),
+	  'backup-to-cloud': () => compoBackup.TaskBackupAndUploadToCloud(),
+	  'restore-from-cloud': () => compoBackup.TaskRestore(),
 	  
 	  
 	  'show-modal-add-task': () => ui.ShowModalAddTask(),

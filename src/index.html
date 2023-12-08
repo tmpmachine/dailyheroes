@@ -33,7 +33,7 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body data-view-group="platform" data-view-states="">
+<body data-view-group="platform auth" data-view-states="">
   
   <div class="container-app" style="max-width:500px;margin:auto;">
 
@@ -311,10 +311,23 @@
           <div>
             <div style="font-weight:bold;">Application Data</div><div class="mb-m"></div>
             <div>
-              <button class="clickable" data-callback='reset-data'>Reset data</button>
+              <button class="clickable" data-callback="reset-data">Reset data</button>
             </div><div class="mb-m"></div>
             
-            <small>Backup and restore.</small><div class="mb-m"></div>
+            <small>Cloud backup and restore.</small><div class="mb-m"></div>
+            <div class="d-flex" style="gap:0.3rem;">
+              <button class="clickable" data-callback="authorize">Authorize</button>
+              <div data-view-group="auth" data-view-name="authorized">
+                <button id="btn-cloud-backup" class="clickable" data-callback="backup-to-cloud">Backup</button>
+                <button id="btn-cloud-restore" class="clickable" data-callback="restore-from-cloud">Restore</button>
+              </div>
+            </div>
+            <div>
+              <div id="txt-backup-status"></div>
+              <div id="txt-restore-status"></div>
+            </div>
+            
+            <small>Local backup and restore.</small><div class="mb-m"></div>
             <div class="d-flex" style="gap:0.3rem;">
               <button class="clickable" data-callback='backup-data'>Backup</button>
               <button class="clickable" data-callback='restore-data'>Restore</button>
