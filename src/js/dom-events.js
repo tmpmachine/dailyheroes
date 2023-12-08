@@ -12,7 +12,7 @@ window.DOMEvents = {
 	  'restore-data': () => app.UploadBackupFile(),
 	  
 	  
-	  'show-modal-add-task': () => ui.AddTask(),
+	  'show-modal-add-task': () => ui.ShowModalAddTask(),
     
     'view-mission': () => {
       changeViewModeConfig('mission');

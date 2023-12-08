@@ -21,19 +21,11 @@ let ui = (function () {
     TurnOnScreen,
     ChangeGlobalPresetTimer,
     
-    AddTask,
     SetGlobalTimer,
   };
   
   function SetGlobalTimer() {
     $('#txt-global-preset-timer').textContent = app.GetGlobalTimerStr()
-  }
-  
-  function AddTask() {
-    ui.ShowModalAddTask({
-      parentId: lsdb.data.activeGroupId,
-      target: app.GetGlobalTimerStr(),
-    });
   }
   
   function ChangeGlobalPresetTimer() {
@@ -326,12 +318,19 @@ let ui = (function () {
   
   function attachKeyboardShortcuts() {
     Mousetrap.bind('alt+n', function(e) {
-      AddTask();
+      ShowModalAddTask();
       return false;
     });
   }
 
   function ShowModalAddTask(defaultValue = {}) {
+    
+    let formValue = {
+      parentId: lsdb.data.activeGroupId,
+      target: app.GetGlobalTimerStr(),
+    };
+    
+    defaultValue = Object.assign(formValue, defaultValue)
     
     let modal = document.querySelectorAll('#projects-modal')[0].toggle();
     let form = modal.querySelector('form');
