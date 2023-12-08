@@ -2351,7 +2351,7 @@ let app = (function () {
     // let $$ = document.querySelectorAll.bind(document);
     
     // await waitForElement('[data-role="edit"]');
-    viewStateUtil.Set('screens', ['settings'])
+    // viewStateUtil.Set('screens', ['settings'])
     // Array.from($$('[data-role="edit"]')).pop().click();
   }
   
