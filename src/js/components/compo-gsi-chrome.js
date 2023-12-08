@@ -28,7 +28,16 @@ let compoGsiChrome = (function() {
   }
   
   function InitTokenClient() {
-    chrome.identity.getAuthToken({ 'interactive': true }, (access_token) => onTokenResponse(access_token));
+    if (app.isPlatformChromeExt) {
+      chrome.identity.getAuthToken({ 'interactive': true }, (access_token) => onTokenResponse(access_token));
+    } else {
+      local.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: '254780146992-5j2ipsb9m60n1npo3v99ggb6l5017dj3.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata',
+        callback: (tokenResponse) => onTokenResponse(tokenResponse.access_token),
+      });
+      RequestToken();
+    }
   }
   
   function onTokenResponse(access_token) {
