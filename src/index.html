@@ -321,6 +321,20 @@
             </div>
           </div><div class="default-gap"></div> 
           
+          <!-- global preset timer -->
+          <div>
+            <div style="font-weight:bold;">Global Preset Timer</div><div class="mb-m"></div>
+            <div>
+              <span id="txt-global-preset-timer"></span> <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
+            </div><div class="mb-m"></div>
+            
+            <small>Backup and restore.</small><div class="mb-m"></div>
+            <div class="d-flex" style="gap:0.3rem;">
+              <button class="clickable" data-callback='backup-data'>Backup</button>
+              <button class="clickable" data-callback='restore-data'>Restore</button>
+            </div>
+          </div><div class="default-gap"></div> 
+          
           <!-- sound -->
           <div>
             <div style="font-weight:bold;">Sound</div><div class="mb-m"></div>
@@ -576,7 +590,7 @@
               Title <input type="text" name='title' class="input-style-default"/>
             </div>
             <div>
-              Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
+              Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
             </div>
             <div>
               Target <input type="text" name='targetTime' class="input-style-default"/>

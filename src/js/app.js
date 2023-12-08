@@ -9,6 +9,8 @@ window.lsdb = new Lsdb(storageName, {
     history: 0,
     historyTime: 0,
     activeTask: '',
+    globalTimer: 12, // 12 minutes
+    
     
     isFilterTaskByTargetTime: false,
     isSortByTotalProgress: true,
@@ -1563,12 +1565,22 @@ let app = (function () {
     SetViewTargetTimeOnly,
     SetSortMode,
     Commit,
+    
+    SetGlobalTimer,
+    GetGlobalTimer,
+    GetGlobalTimerStr,
   };
   
   let data = {
     isViewTargetTimeOnly: false,
     isSortByTotalProgress: false,
+    
+    globalTimer: 12, // 15 minutes
   };
+  
+  function SetGlobalTimer(minutes) { data.globalTimer = minutes; }
+  function GetGlobalTimer() { return data.globalTimer; }
+  function GetGlobalTimerStr() { return minutesToHoursAndMinutes( GetGlobalTimer() ); }
   
   function SetAlarmAudio() {
     let input = document.createElement('input');
@@ -1664,6 +1676,7 @@ let app = (function () {
   function Commit() {
     lsdb.data.isFilterTaskByTargetTime = data.isViewTargetTimeOnly;    
     lsdb.data.isSortByTotalProgress = data.isSortByTotalProgress;    
+    lsdb.data.globalTimer = data.globalTimer;    
   }
   
   function filterTaskByTargetTime() {
@@ -2328,15 +2341,18 @@ let app = (function () {
     
     data.isSortByTotalProgress = lsdb.data.isSortByTotalProgress;
     $('#labeled-by-sortbyprogress').checked = data.isSortByTotalProgress;
+    
+    data.globalTimer = lsdb.data.globalTimer;
+    ui.SetGlobalTimer()
   }
   
   async function initTests() {
-    return;
-    let $$ = document.querySelectorAll.bind(document);
+    // return;
+    // let $$ = document.querySelectorAll.bind(document);
     
-    await waitForElement('[data-role="edit"]');
-    
-    Array.from($$('[data-role="edit"]')).pop().click();
+    // await waitForElement('[data-role="edit"]');
+    viewStateUtil.Set('screens', ['settings'])
+    // Array.from($$('[data-role="edit"]')).pop().click();
   }
   
   function waitForElement(selector) {

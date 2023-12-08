@@ -321,6 +321,20 @@
             ]
           ][ .default-gap] 
           
+          <!-- global preset timer -->
+          [
+            [ 'Global Preset Timer' {fw:bold}][ .mb-m]
+            [
+              [s #txt-global-preset-timer] <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
+            ][ .mb-m]
+            
+            [small 'Backup and restore.'][ .mb-m]
+            [ .d-flex {gap:0.3rem}
+              <button class="clickable" data-callback='backup-data'>Backup</button>
+              <button class="clickable" data-callback='restore-data'>Restore</button>
+            ]
+          ][ .default-gap] 
+          
           <!-- sound -->
           [
             [ 'Sound' {fw:bold}][ .mb-m]
@@ -576,7 +590,7 @@
               Title <input type="text" name='title' class="input-style-default"/>
             ]
             [
-              Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default" value="15m"/>
+              Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
             ]
             [
               Target <input type="text" name='targetTime' class="input-style-default"/>

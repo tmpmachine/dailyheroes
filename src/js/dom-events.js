@@ -12,11 +12,7 @@ window.DOMEvents = {
 	  'restore-data': () => app.UploadBackupFile(),
 	  
 	  
-	  'show-modal-add-task': () => {
-	    ui.ShowModalAddTask({
-	      parentId: lsdb.data.activeGroupId,
-	    });
-    },
+	  'show-modal-add-task': () => ui.AddTask(),
     
     'view-mission': () => {
       changeViewModeConfig('mission');
@@ -102,6 +98,8 @@ window.DOMEvents = {
     'pick-audio': () => app.SetAlarmAudio(), 
     'remove-audio': () => app.RemoveAlarmAudio(), 
     'test-audio': () => app.TaskPlayAlarmAudio(), 
+    
+    'change-global-preset-timer': () => ui.ChangeGlobalPresetTimer(),
 	},
 	
 	inputable: {

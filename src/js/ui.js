@@ -19,7 +19,37 @@ let ui = (function () {
     // screen util
     TaskTurnOffScreen,
     TurnOnScreen,
+    ChangeGlobalPresetTimer,
+    
+    AddTask,
+    SetGlobalTimer,
   };
+  
+  function SetGlobalTimer() {
+    $('#txt-global-preset-timer').textContent = app.GetGlobalTimerStr()
+  }
+  
+  function AddTask() {
+    ui.ShowModalAddTask({
+      parentId: lsdb.data.activeGroupId,
+      target: app.GetGlobalTimerStr(),
+    });
+  }
+  
+  function ChangeGlobalPresetTimer() {
+    let globalTimerStr = app.GetGlobalTimerStr();
+    
+    let userVal = window.prompt('Value', globalTimerStr);
+    if (!userVal) return;
+    
+    let parsedMinutes = parseHoursMinutesToMinutes(userVal);
+    if (parsedMinutes === null) return;
+    
+    app.SetGlobalTimer(parsedMinutes);
+    app.Commit();
+    appSettings.Save();
+    SetGlobalTimer();
+  }
   
   function NavigateScreen(evt) {
     let viewTarget = evt.target.dataset.viewTarget;
@@ -296,9 +326,7 @@ let ui = (function () {
   
   function attachKeyboardShortcuts() {
     Mousetrap.bind('alt+n', function(e) {
-      ShowModalAddTask({
-	      parentId: lsdb.data.activeGroupId,
-      });
+      AddTask();
       return false;
     });
   }
