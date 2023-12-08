@@ -38,22 +38,6 @@ window.lsdb = new Lsdb(storageName, {
 });
 
 
-window.modeChromeExtension = false;
-try {
-  if (chrome.storage.local.get) {
-    window.modeChromeExtension = true;
-  }
-} catch (e) {}
-
-if (window.modeChromeExtension) {
-  window.service = window.serviceChrome;
-} else {
-  viewStateUtil.Toggle('platform', ['web']);
-}
-
-
-window.listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
-
 function copyToClipboard(text) {
   var node  = document.createElement('textarea');
   node.value = text;
@@ -518,13 +502,6 @@ function updateProgressPercentage(startTime) {
   }
   $('#percentage').textContent = `(${percentage}%)`;
   $('.progress-bar-fill').style.width = `${percentage}%`;
-}
-
-function attachListeners() {
-  window.listenOn('.clickable', 'click', window.DOMEvents.clickable);
-  window.listenOn('.submittable', 'submit', window.DOMEvents.submittable);
-  window.listenOn('.inputable', 'input', window.DOMEvents.inputable);
-  window.listenOn('.changeable', 'change', window.DOMEvents.changeable);
 }
 
 
@@ -2316,7 +2293,6 @@ let app = (function () {
   async function Init() {
     
     await initData();
-    attachListeners();
     await loadTasks();
     await app.ApplyTaskProgressHistoryToMissionRoot();
     await TaskListTask();

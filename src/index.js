@@ -1,52 +1,37 @@
 window.$ = document.querySelector.bind(document);
 
-
-// view states
-let viewStatesMap = [
-  {
-    group: 'task-view-mode',
-    states: [
-      'task',
-      'mission',
-    ],
-    inverseStates: [
-      'filter-target',
-    ],
-  },
-  {
-    group: 'auth',
-    states: [
-      'authorized',
-    ],
-  },
-  {
-    group: 'screens',
-    states: [
-      'home',
-      'settings',
-    ],
-  },
-  {
-    group: 'platform',
-    states: [
-      'web',
-    ],
-  },
-  {
-    group: 'form-task',
-    states: [
-      'add', 'edit',
-    ],
-  },
-];
-
-
 window.componentLoader.load([
   {
     urls: [
+      'js/view-states.js',
       'js/dom-events.js',
       'js/utils/view-state-util.js',
       'js/ui.js',
+    ],
+    callback: function() { 
+      
+      viewStateUtil.Init(viewStates); 
+      DOMEvents.Init();
+      
+      
+      // platform checking
+      window.modeChromeExtension = false;
+      try {
+        if (chrome.storage.local.get) {
+          window.modeChromeExtension = true;
+        }
+      } catch (e) {}
+      
+      if (window.modeChromeExtension) {
+        window.service = window.serviceChrome;
+      } else {
+        viewStateUtil.Toggle('platform', ['web']);
+      }
+
+    },
+  },
+  {
+    urls: [
       'js/lib/lsdb.js',
       
       // app components
@@ -54,8 +39,6 @@ window.componentLoader.load([
     ],
     callback: function() { 
       
-      viewStateUtil.Init(viewStatesMap); 
-
     },
   },
   {
@@ -87,6 +70,18 @@ window.componentLoader.load([
       "js/components/compo-gsi-chrome.js",
       "js/components/compo-backup.js",
     ],
+    callback: function() {
+      
+      if (app.isPlatformWeb) {
+        window.componentLoader.load([{
+            urls: [
+              'https://accounts.google.com/gsi/client',
+            ]
+          },
+        ]);
+      }
+            
+    }
   }
 ]);
 

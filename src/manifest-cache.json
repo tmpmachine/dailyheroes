@@ -16,6 +16,7 @@
     "js/lib/lsdb.js",
     
     "js/dom-events.js",
+    "js/view-states.js",
     
     "js/component-loader.js",
     "js/mission-manager.js",

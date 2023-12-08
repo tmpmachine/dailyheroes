@@ -321,6 +321,52 @@ let ui = (function () {
       ShowModalAddTask();
       return false;
     });
+    
+    // attach keyboard listeners
+    window.addEventListener('keydown', keyHandler);
+    window.addEventListener('keyup', keyHandler);
+  }
+  
+  function OnePress() {
+
+    let pressed = {}
+    
+    function watch(type, key) {
+      if (type == 'keydown') {
+        if (pressed[key]) {
+          
+        } else {
+          pressed[key] = true
+          return true
+        }
+      } else {
+        pressed[key] = false;
+      }
+      
+      return false
+    }
+    
+    function blur() {
+      pressed = {};
+    }
+    
+    return {
+      watch,
+      blur,
+    };
+  
+  }
+  
+  let onePress = OnePress();
+
+  function keyHandler(event) {
+    if (event.key == 's') {
+      if (onePress.watch(event.type, event.key)) {
+        if (event.altKey) {
+          toggleStartTimer();
+        }
+      }
+    }
   }
 
   function ShowModalAddTask(defaultValue = {}) {
