@@ -1976,13 +1976,14 @@ let app = (function () {
       androidClient.StopTimer();
     }
     
-    let data = await window.service.GetData(["history", "historyTime", "start"]);
+    let data = await window.service.GetData(['history', 'historyTime', 'start', 'activeTask']);
     if (data.start) {
       let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
       let distanceTime = new Date().getTime() - data.start;
       await window.service.SetData({ 'history': data.history + distanceMinutes });
       await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
       await updateProgressActiveTask(distanceMinutes, distanceTime);
+      await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
     }
     await window.service.RemoveData(['start']);
     
@@ -1992,6 +1993,24 @@ let app = (function () {
     }
     
     app.TaskListTask();
+    
+  }
+  
+  async function taskUpdateTaskTimeStreak(distanceTime, activeTaskId) {
+    
+    let data = await chrome.storage.local.get(['lastActiveId', 'totalTimeStreak']);
+    
+    if (typeof(data.lastActiveId) == 'undefined' || activeTaskId != data.lastActiveId) {
+      await chrome.storage.local.set({
+      	lastActiveId: activeTaskId,
+      	totalTimeStreak: 0,
+      });
+    } else {
+      let totalTimeStreak = data.totalTimeStreak + distanceTime;
+      await chrome.storage.local.set({
+      	totalTimeStreak,
+      });
+    }
     
   }
   

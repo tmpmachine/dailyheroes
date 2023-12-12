@@ -83,7 +83,7 @@ async function taskStopOffscreenDocument(path) {
   if (existingContexts.length > 0) {
     chrome.offscreen.closeDocument(
         // callback?: function,
-    )
+    );
     return;
   }
 }
@@ -218,12 +218,14 @@ async function getTask() {
 
 async function stopByNotification() {
   await chrome.alarms.clearAll();
-  let data = await chrome.storage.local.get(["history", "start"]);
+  let data = await chrome.storage.local.get(['history', 'start', 'activeTask']);
   let distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
   let distanceTime = new Date().getTime() - data.start;
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
   await updateProgressActiveTask(distanceMinutes, distanceTime);
+  
+  await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
 }
 
 async function setStopAlarmIcon() {
@@ -239,79 +241,7 @@ async function alarmHandler(alarm) {
       spawnNotification('Halfway there!', 'limegreen', icon5, false);
       break;
     case 'main':
-      
-      let data = await chrome.storage.local.get(["history", "start", "activeTask"]);
-		  let distanceMinutes = 0;
-		  let distanceTime = 0;
-      if (typeof(data.start) != 'undefined') {
-        distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
-        distanceTime = new Date().getTime() - data.start;
-      }
-		  await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
-      await chrome.storage.local.remove(['start']);
-      await updateProgressActiveTask(distanceMinutes, distanceTime);
-      
-      // get task
-      let isRepeatCountFinished = false;
-      let finishCountLeftTxt = '';
-      let targetMinutesTxt = '';
-      let targetTimeLeftStr = '';
-      
-      if (data.activeTask) {
-        
-        let tasks = await getTask();
-        let activeTask = tasks.find(x => x.id == data.activeTask);
-        
-        if (activeTask) {
-
-          // set target minutes on restart button
-          targetMinutesTxt = ` (${activeTask.target}m)`;
-          if (activeTask.targetTime > 0) {
-            targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`
-          }
-          
-          // set finish count text
-          if (activeTask.finishCount && activeTask.finishCountProgress > 0) {
-            if (activeTask.finishCountProgress-1 == 0) {
-              isRepeatCountFinished = true;
-            } else {
-              finishCountLeftTxt = `(${activeTask.finishCountProgress-1})`;
-            }
-            await reduceCountActiveTask();
-          }
-
-          // calculate miutes left if has parent task
-          // if (activeTask.parentId) {
-          //   let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
-          //   let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
-            
-          //   let parentTask = tasks.find(x => x.id == activeTask.parentId);
-          //   let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
-          //   finishCountLeftTxt += ` (${accumulatedMinutesLeft}m left)`
-          // }
-
-        }
-        
-      }
-
-      let actions = [];
-      if (!isRepeatCountFinished) {
-        actions.push({
-          action: 'restart',
-          title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
-        });
-      }
-      
-      // spawn notif
-      spawnNotification(`Time's up! ${targetTimeLeftStr} ${finishCountLeftTxt}`.trim(), 'limegreen', icon3, true, actions);
-      
-      // play alarm audio
-      playAudio('audio.html');
-      stopAudioAfter('audio.html');
-
-      chrome.alarms.clearAll();
-      chrome.action.setIcon({ path: icon3 });
-      
+      onAlarmEnded(alarm);
       break;
     case '3m':
 
@@ -327,6 +257,109 @@ async function alarmHandler(alarm) {
       ]);
       break;
   }
+}
+
+async function onAlarmEnded(alarm) {
+  
+  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId']);
+  let distanceMinutes = 0;
+  let distanceTime = 0;
+  if (typeof(data.start) != 'undefined') {
+    distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
+    distanceTime = new Date().getTime() - data.start;
+  }
+  await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
+  await chrome.storage.local.remove(['start']);
+  await updateProgressActiveTask(distanceMinutes, distanceTime);
+
+  
+  
+  
+  
+  // get task
+  let isRepeatCountFinished = false;
+  let finishCountLeftTxt = '';
+  let targetMinutesTxt = '';
+  let targetTimeLeftStr = '';
+  let timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+  
+  if (data.activeTask) {
+    
+    let tasks = await getTask();
+    let activeTask = tasks.find(x => x.id == data.activeTask);
+    
+    if (activeTask) {
+      
+      // set target minutes on restart button
+      targetMinutesTxt = ` (${activeTask.target}m)`;
+      if (activeTask.targetTime > 0) {
+        targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`
+      }
+      
+      // set finish count text
+      if (activeTask.finishCount && activeTask.finishCountProgress > 0) {
+        if (activeTask.finishCountProgress-1 == 0) {
+          isRepeatCountFinished = true;
+        } else {
+          finishCountLeftTxt = `(${activeTask.finishCountProgress-1})`;
+        }
+        await reduceCountActiveTask();
+      }
+
+      // calculate miutes left if has parent task
+      // if (activeTask.parentId) {
+      //   let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
+      //   let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
+        
+      //   let parentTask = tasks.find(x => x.id == activeTask.parentId);
+      //   let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
+      //   finishCountLeftTxt += ` (${accumulatedMinutesLeft}m left)`
+      // }
+
+    }
+    
+  }
+  
+  let actions = [];
+  if (!isRepeatCountFinished) {
+    actions.push({
+      action: 'restart',
+      title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
+    });
+  }
+  
+  // spawn notif
+  spawnNotification(`Time's up! ${targetTimeLeftStr} ${timeStreakStr} ${finishCountLeftTxt}`.trim(), 'limegreen', icon3, true, actions);
+  
+  // play alarm audio
+  playAudio('audio.html');
+  stopAudioAfter('audio.html');
+
+  chrome.alarms.clearAll();
+  chrome.action.setIcon({ path: icon3 });
+      
+}
+
+async function taskUpdateTaskTimeStreak(distanceTime, activeTaskId) {
+  
+  let timeStreakStr = '';
+  let data = await chrome.storage.local.get(['lastActiveId', 'totalTimeStreak']);
+  
+  if (typeof(data.lastActiveId) == 'undefined' || activeTaskId != data.lastActiveId) {
+    await chrome.storage.local.set({
+    	lastActiveId: activeTaskId,
+    	totalTimeStreak: 0,
+    });
+  } else {
+    let totalTimeStreak = data.totalTimeStreak + distanceTime;
+    await chrome.storage.local.set({
+    	totalTimeStreak,
+    });
+    timeStreakStr = `(${minutesToHoursAndMinutes(msToMinutes(totalTimeStreak))} total)`;
+  }
+  
+  return timeStreakStr;
+  
 }
 
 chrome.runtime.onMessage.addListener(messageHandler);
@@ -350,7 +383,7 @@ function clearPersistentNotif() {
   self.registration.getNotifications().then(function(notifications) {
     // Loop through the notifications and close the one with a specific title
     for (let i = 0; i < notifications.length; i++) {
-      if (notifications[i].title.includes('Times up! (total :')) {
+      if (notifications[i].title.startsWith(`Time's up!`)) {
         notifications[i].close();
         break;
       }
@@ -366,6 +399,23 @@ let icon5 = 'data:image/webp;base64,UklGRiIBAABXRUJQVlA4TBUBAAAvH8AHAH/AJgDAJNMo
 
 function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
+}
+
+function minutesToHoursAndMinutes(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const remainderMinutes = minutes % 60;
+  let timeString = '';
+  if (hours > 0) {
+    timeString +=  `${hours}h`;
+  }
+  if (minutes > 0) {
+    timeString +=  `${remainderMinutes}m`;
+  }
+  if (minutes == 0) {
+    timeString = '0m';
+  }
+  
+  return timeString;
 }
 
 async function startNewAlarm(minutes) {
