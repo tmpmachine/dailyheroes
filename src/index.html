@@ -37,7 +37,7 @@
   
   <div class="container-app" style="max-width:500px;margin:auto;">
 
-    <div class="d-grid container-app-inner" data-view-group="screens" data-view-states="home" style="max-width:100%;min-width:330px;margin:auto;">
+    <div class="d-grid container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:330px;margin:auto;">
     
       <!-- # screen : home -->
       <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
@@ -256,7 +256,21 @@
         <!-- # add task -->
         <!-- empty gap for floating button -->
         <div style="height:76px;"></div> 
+        
+        <!-- # floating buttons -->
         <div class="container-add-task">
+          
+          <!-- # overlay tracker -->
+          <div class="tracker-overlay d-grid" data-view-group="features" data-view-name="tracker-overlay">
+            <div>
+              <small>Active tracker</small>
+            </div>
+            <div class="d-inline-flex" style="gap:0.3rem;">
+              <div class="word-break-all" data-slot="title"></div>
+              <div data-slot="progressTimeStr"></div>
+            </div>
+          </div>
+          
           <button class="clickable btn-add-task" data-callback="show-modal-add-task">
             <span class="icon-mate" style="font-size:2.2rem;">add</span>
           </button>

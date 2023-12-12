@@ -1,5 +1,7 @@
 let uiTracker = (function() {
   
+  let $ = document.querySelector.bind(document);
+  
   let SELF = {
     Init,
     NewItem,
@@ -30,6 +32,15 @@ let uiTracker = (function() {
     appSettings.Save();
     
     RefreshItemList();
+    updateActiveTrackerOverlay();
+  }
+  
+  function showTracker() {
+    viewStateUtil.Add('features', ['tracker-overlay']);
+  }
+  
+  function hideTracker() {
+    viewStateUtil.Remove('features', ['tracker-overlay']);
   }
   
   function setActiveById(id) {
@@ -40,6 +51,7 @@ let uiTracker = (function() {
     saveAppData();
     
     RefreshItemList();
+    updateActiveTrackerOverlay();
   }
   
   function deleteById(id) {
@@ -51,6 +63,7 @@ let uiTracker = (function() {
     appSettings.Save();
     
     RefreshItemList();
+    updateActiveTrackerOverlay();
   }
   
   function getItemDataByEvent(evt) {
@@ -78,6 +91,20 @@ let uiTracker = (function() {
   
   function Init() {
     RefreshItemList();
+    updateActiveTrackerOverlay();
+  }
+  
+  function updateActiveTrackerOverlay() {
+    // check active tracker
+    let item = compoTracker.GetActive();
+    if (!item) {
+      hideTracker();
+      return;
+    }
+    
+    showTracker();
+    $('.tracker-overlay').querySelector('[data-slot="title"]').textContent = item.title;
+    $('.tracker-overlay').querySelector('[data-slot="progressTimeStr"]').textContent = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
   }
   
   function RefreshItemList() {

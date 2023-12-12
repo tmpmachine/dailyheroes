@@ -10,6 +10,12 @@ let viewStates = [
     ],
   },
   {
+    group: 'features',
+    states: [
+      'tracker-overlay',
+    ],
+  },
+  {
     group: 'auth',
     states: [
       'authorized',
