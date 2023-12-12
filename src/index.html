@@ -49,7 +49,13 @@
               Fake screen off <span class="icon-mate">bolt</span>
             </button>
           </div>
-          <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="settings">settings</button>
+          <div class="d-flex" style="gap:0.3rem;">
+            <!-- # tracker timer -->
+            <button class="clickable d-flex align-items-center" data-callback="navigate-screen" data-view-target="trackers" style="gap:0.3rem;">
+              Trackers <span class="icon-mate">timer</span>
+            </button>
+            <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="settings">settings</button>
+          </div>
         </div><div class="default-gap"></div>
 
         
@@ -141,13 +147,13 @@
         
         <div class="d-none">
           <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
-            <button class="clickable" data-callback='show-active'>Active</button>
-            <button class="clickable" data-callback='show-completed'>Completed</button>
+            <button class="clickable" data-callback="show-active">Active</button>
+            <button class="clickable" data-callback="show-completed">Completed</button>
           </div>
         </div>
         <div class="mb-m"></div>
-
         <div class="default-gap"></div>
+
 
         <!-- # search -->
         <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
@@ -294,7 +300,25 @@
         
       </section>
       
-      <!-- # screen : settings-->
+      <!-- # screen : trackers -->
+      <section class="container-screen" data-view-group="screens" data-view-name="trackers">
+        
+        <div class="d-flex align-items-center" style="gap:1rem;">
+          <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+          <div style="font-weight:bold;">Trackers</div>
+        </div>
+        
+        <div class="default-gap"></div>
+        <div class="default-gap"></div>
+
+        <button class="clickable" data-callback='new-tracker'>New tracker</button>
+        
+        <!-- # container trackers -->
+        <div id="container-list-tracker" class="clickable" data-callback="handle-click-list-tracker"></div>
+        
+      </section>
+      
+      <!-- # screen : settings -->
       <section class="container-screen" data-view-group="screens" data-view-name="settings">
         
         <div class="d-flex align-items-center" style="gap:1rem;">
@@ -415,6 +439,22 @@
   
   <!-- TEMPLATES -->
   
+  <!-- # container tracker -->
+  <template id="tmp-list-tracker">
+    <div data-kind="item" data-id="">
+      <div data-slot="title"></div>
+      <div>
+        <small data-slot="progressTimeStr">
+      </small>
+      <div class="d-flex justify-content-end" style="gap:0.3em;">
+        <button data-action="rename">Rename</button>
+        <button data-action="delete">Delete</button>
+        <button data-action="set">Set</button>
+      </div>
+    </div>
+  </template>
+  
+    
   <!-- # container task -->
   <template id="tmp-task">
     

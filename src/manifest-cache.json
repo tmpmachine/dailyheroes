@@ -4,6 +4,8 @@
   ],
   "components": [
     "js/components/compo-gsi-chrome.js",
+    "js/components/compo-tracker.js",
+    "js/components/compo-mission.js",
     "js/components/compo-backup.js"
   ],
   "fonts": [
@@ -22,9 +24,11 @@
     "js/view-states.js",
     
     "js/component-loader.js",
-    "js/mission-manager.js",
     "js/app.js",
     "js/ui.js",
+    "js/ui-mission.js",
+    "js/ui-tracker.js",
+    "js/utils/uuidv4-util.js",
     
     "index.js",
     "js/web-components/modal-v2.js",

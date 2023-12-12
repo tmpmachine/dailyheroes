@@ -7,6 +7,8 @@ window.componentLoader.load([
       'js/dom-events.js',
       'js/utils/view-state-util.js',
       'js/ui.js',
+      'js/ui-mission.js',
+      'js/ui-tracker.js',
     ],
     callback: function() { 
       
@@ -33,9 +35,11 @@ window.componentLoader.load([
   {
     urls: [
       'js/lib/lsdb.js',
+      'js/utils/uuidv4-util.js',
       
       // app components
-      'js/mission-manager.js',
+      'js/components/compo-mission.js',
+      'js/components/compo-tracker.js',
     ],
     callback: function() { 
       

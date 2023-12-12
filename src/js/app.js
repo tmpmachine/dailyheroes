@@ -28,6 +28,7 @@ window.lsdb = new Lsdb(storageName, {
     
     // component's data
     compoMission: {},
+    compoTracker: {},
     
   },
   groups: {
@@ -1984,16 +1985,27 @@ let app = (function () {
       await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
       await updateProgressActiveTask(distanceMinutes, distanceTime);
       await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+      
+      // update active tracker
+      updateActiveTrackerProgress(distanceTime);
+      saveAppData();
     }
     await window.service.RemoveData(['start']);
     
     updateUI();
+    uiTracker.RefreshItemList();
+    
     if (window.modeChromeExtension) {
       await chrome.runtime.sendMessage({message: 'stop'});
     }
     
     app.TaskListTask();
     
+  }
+  
+  function updateActiveTrackerProgress(distanceTime) {
+    compoTracker.AppendProgressToActiveTracker(distanceTime);
+    compoTracker.Commit();
   }
   
   async function taskUpdateTaskTimeStreak(distanceTime, activeTaskId) {
@@ -2214,8 +2226,15 @@ let app = (function () {
       
       AddProgressTimeToRootMission(task.parentId, addedTime);
       
-      await storeTask();  
+      await storeTask(); 
+      
+      // update active tracker
+      updateActiveTrackerProgress(addedTime);
+      saveAppData();
+      
+      // ui update
       app.TaskListTask();
+      uiTracker.RefreshItemList();
       
     } catch (e) {
       console.error(e);
@@ -2347,15 +2366,21 @@ let app = (function () {
     $('#labeled-by-sortbyprogress').checked = data.isSortByTotalProgress;
     
     data.globalTimer = lsdb.data.globalTimer;
-    ui.SetGlobalTimer()
+    ui.SetGlobalTimer();
+    
+    compoTracker.Init(lsdb.data.compoTracker);
+    uiTracker.Init();
+    
   }
   
   async function initTests() {
     // return;
     // let $$ = document.querySelectorAll.bind(document);
     
+    // # change initial screens
+    // viewStateUtil.Set('screens', ['trackers']);
+    
     // await waitForElement('[data-role="edit"]');
-    // viewStateUtil.Set('screens', ['settings'])
     // Array.from($$('[data-role="edit"]')).pop().click();
   }
   

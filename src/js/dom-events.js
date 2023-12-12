@@ -106,6 +106,11 @@ let DOMEvents = (function() {
       'test-audio': () => app.TaskPlayAlarmAudio(), 
       
       'change-global-preset-timer': () => ui.ChangeGlobalPresetTimer(),
+      
+      
+      // # trackers
+      'new-tracker': () => uiTracker.NewItem(),
+      'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
   	},
   	
   	inputable: {

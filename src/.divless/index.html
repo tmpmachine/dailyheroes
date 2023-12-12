@@ -49,7 +49,13 @@
               Fake screen off [s .icon-mate 'bolt']
             ]
           ]
-          [btn .clickable data-callback="navigate-screen" data-view-target="settings" .icon-mate 'settings']
+          [ .d-flex {gap:0.3rem}
+            <!-- # tracker timer -->
+            [btn .clickable .d-flex .align-items-center {gap:0.3rem} data-callback="navigate-screen" data-view-target="trackers"
+              Trackers [s .icon-mate 'timer']
+            ]
+            [btn .clickable data-callback="navigate-screen" data-view-target="settings" .icon-mate 'settings']
+          ]
         ][ .default-gap]
 
         
@@ -141,13 +147,13 @@
         
         [ .d-none
           [ {d:grid} {cols:1fr 1fr} {pb:1rem}
-            [btn 'Active' .clickable data-callback='show-active']
-            [btn 'Completed' .clickable data-callback='show-completed']
+            [btn 'Active' .clickable data-callback="show-active"]
+            [btn 'Completed' .clickable data-callback="show-completed"]
           ]
         ]
         [ .mb-m]
-
         [ .default-gap]
+
 
         <!-- # search -->
         <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
@@ -294,7 +300,25 @@
         
       </section>
       
-      <!-- # screen : settings-->
+      <!-- # screen : trackers -->
+      <section class="container-screen" data-view-group="screens" data-view-name="trackers">
+        
+        [ .d-flex {gap:1rem} .align-items-center
+          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left']
+          [ 'Trackers' {fw:bold}]
+        ]
+        
+        [ .default-gap]
+        [ .default-gap]
+
+        [btn 'New tracker' .clickable data-callback='new-tracker']
+        
+        <!-- # container trackers -->
+        [ #container-list-tracker .clickable data-callback="handle-click-list-tracker"]
+        
+      </section>
+      
+      <!-- # screen : settings -->
       <section class="container-screen" data-view-group="screens" data-view-name="settings">
         
         [ .d-flex {gap:1rem} .align-items-center
@@ -415,6 +439,22 @@
   
   <!-- TEMPLATES -->
   
+  <!-- # container tracker -->
+  <template id="tmp-list-tracker">
+    [ data-kind="item" data-id=""
+      [ data-slot="title"]
+      [ 
+        [small data-slot="progressTimeStr"
+      ]
+      [ .d-flex .justify-content-end {gap:0.3em}
+        [btn 'Rename' data-action="rename"]
+        [btn 'Delete' data-action="delete"]
+        [btn 'Set' data-action="set"]
+      ]
+    ]
+  </template>
+  
+    
   <!-- # container task -->
   <template id="tmp-task">
     

@@ -20,6 +20,7 @@ let viewStates = [
     states: [
       'home',
       'settings',
+      'trackers',
     ],
   },
   {
