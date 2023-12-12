@@ -1483,7 +1483,7 @@ let app = (function () {
 
   let SELF = {
     // app init
-    ApplyTaskProgressHistoryToMissionRoot,
+    ApplyProgressMadeOutsideApp,
     
     isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
     isPlatformChromeExt: window.modeChromeExtension,
@@ -2143,17 +2143,24 @@ let app = (function () {
     return JSON.stringify(referenceSafeExportData);
   }
   
-  async function ApplyTaskProgressHistoryToMissionRoot() {
+  async function ApplyProgressMadeOutsideApp() {
     if (!window.modeChromeExtension) return;
     
     let data = await chrome.storage.local.get(['taskProgressHistory']);
+    
     if (data.taskProgressHistory === undefined) return;
     
     for (let historyData of data.taskProgressHistory) {
-      app.AddProgressTimeToRootMission(parentTaskId, historyData.progressTime);
+      // # apply progress made not directly within app; i.e. restarting task from notifications.
+      // app.AddProgressTimeToRootMission(parentTaskId, historyData.progressTime);
+      
+      // # apply progress to active tracker
+      updateActiveTrackerProgress(historyData.progressTime);
     }
     
+    await chrome.storage.local.remove('taskProgressHistory');
     await storeTask();
+    appSettings.Save();
     
   }
   
@@ -2332,7 +2339,7 @@ let app = (function () {
     
     await initData();
     await loadTasks();
-    await app.ApplyTaskProgressHistoryToMissionRoot();
+    await app.ApplyProgressMadeOutsideApp();
     await TaskListTask();
     TaskSetActiveTaskInfo();
     ui.Init();
@@ -2369,8 +2376,6 @@ let app = (function () {
     ui.SetGlobalTimer();
     
     compoTracker.Init(lsdb.data.compoTracker);
-    uiTracker.Init();
-    
   }
   
   async function initTests() {

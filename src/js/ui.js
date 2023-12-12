@@ -87,6 +87,9 @@ let ui = (function () {
     // # mission and mission groups
     ui.UpdateViewModeState();
     uiMission.ListGroup();
+    
+    // # trackers
+    uiTracker.Init();
   }
   
   async function TaskTurnOffScreen() {

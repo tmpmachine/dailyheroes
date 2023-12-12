@@ -132,6 +132,10 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
           data.taskProgressHistory = [];
         }
         data.taskProgressHistory.push(historyData);
+        
+        await chrome.storage.local.set({
+        	taskProgressHistory: data.taskProgressHistory,
+        });
       }
       
       await storeTask(tasks);
@@ -272,10 +276,6 @@ async function onAlarmEnded(alarm) {
   await chrome.storage.local.remove(['start']);
   await updateProgressActiveTask(distanceMinutes, distanceTime);
 
-  
-  
-  
-  
   // get task
   let isRepeatCountFinished = false;
   let finishCountLeftTxt = '';
