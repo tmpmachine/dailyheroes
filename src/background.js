@@ -348,7 +348,7 @@ async function taskUpdateTaskTimeStreak(distanceTime, activeTaskId) {
   if (typeof(data.lastActiveId) == 'undefined' || activeTaskId != data.lastActiveId) {
     await chrome.storage.local.set({
     	lastActiveId: activeTaskId,
-    	totalTimeStreak: 0,
+    	totalTimeStreak: distanceTime,
     });
   } else {
     let totalTimeStreak = data.totalTimeStreak + distanceTime;
