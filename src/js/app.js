@@ -1729,7 +1729,7 @@ let app = (function () {
     let filteredTasks = await filterListTask(isMissionView);
     
     // sort tasks
-    if (!isMissionView && data.isSortByTotalProgress) {
+    if (data.isSortByTotalProgress) {
       sortTaskByTotalProgressTimeAsc(filteredTasks);
     }
 
