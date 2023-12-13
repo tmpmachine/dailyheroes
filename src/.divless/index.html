@@ -601,15 +601,17 @@
     ]
     
     <!-- # sub task buttons -->
-    [ data-view-group="task-view-mode" data-view-name-not="filter-target"
+    [ 
       [ .d-flex {gap:0.2rem}
-        [ .container-navigate-mission .d-none
+        [ .container-navigate-mission data-view-group="task-view-mode" data-view-name="mission filter-target"
           [btn data-role='navigate-mission' title='Open mission into view' .icon-mate 'open_in_new']
         ]
-        [ .container-create-sub .d-none .d-flex
-          <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>account_tree</button>
+        [ data-view-group="task-view-mode" data-view-name-not="filter-target"
+          [ .container-create-sub .d-none .d-flex
+            <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>account_tree</button>
+          ]
         ]
-        [ .container-navigate .d-none .d-flex
+        [ .container-navigate .d-flex .d-none
           [btn data-role='navigate-sub' title='View sub missions' .icon-mate 'chevron_right']
         ]
       ]

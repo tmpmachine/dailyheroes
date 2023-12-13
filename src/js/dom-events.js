@@ -122,7 +122,7 @@ let DOMEvents = (function() {
   	    app.TaskListTask();
   	  },
   	  'toggle-show-target-only': (evt) => {
-  	    app.SetViewTargetTimeOnly(evt);
+  	    app.SetViewTargetTimeOnly(evt.target.checked);
   	    app.Commit();
   	    appSettings.Save();
   	    ui.UpdateViewModeState();

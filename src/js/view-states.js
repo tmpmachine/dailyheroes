@@ -4,6 +4,7 @@ let viewStates = [
     states: [
       'task',
       'mission',
+      'filter-target',
     ],
     inverseStates: [
       'filter-target',

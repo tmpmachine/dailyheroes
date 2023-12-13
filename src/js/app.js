@@ -833,18 +833,8 @@ function resetActiveGroupId() {
   lsdb.data.activeGroupId = '';
 }
 
-async function taskNavigateToMission(id) {
-  let task = await app.GetTaskById(id);
-  if (!task) return;
-  
-  changeViewModeConfig('tasks');
-  saveConfig();
-  ui.Navigate(task.parentId);
-  app.TaskListTask();
-}
-
 function taskAddToMission(id, parentEl) {
-  let isExists = compoMission.IsExistsMissionId(id)
+  let isExists = compoMission.IsExistsMissionId(id);
   if (isExists) {
     // remove from mission
     compoMission.RemoveMissionById(id);
@@ -1524,6 +1514,8 @@ let app = (function () {
     SetGlobalTimer,
     GetGlobalTimer,
     GetGlobalTimerStr,
+    
+    TaskNavigateToMission,
   };
   
   let data = {
@@ -1532,6 +1524,23 @@ let app = (function () {
     
     globalTimer: 12, // 15 minutes
   };
+  
+  
+  async function TaskNavigateToMission(id) {
+    let task = await app.GetTaskById(id);
+    if (!task) return;
+    
+    app.SetViewTargetTimeOnly(false);
+    ui.UpdateViewModeState();
+    $('#labeled-by-showtarget').checked = app.IsShowTargetTimeOnly();
+    
+    changeViewModeConfig('tasks');
+    ui.Navigate(task.parentId);
+    app.TaskListTask();
+    
+    app.Commit();
+    saveConfig();
+  }
   
   function SetGlobalTimer(minutes) { data.globalTimer = minutes; }
   function GetGlobalTimer() { return data.globalTimer; }
@@ -1620,8 +1629,8 @@ let app = (function () {
     return data.isViewTargetTimeOnly;
   }
   
-  function SetViewTargetTimeOnly(evt) {
-    data.isViewTargetTimeOnly = evt.target.checked;
+  function SetViewTargetTimeOnly(boolVal) {
+    data.isViewTargetTimeOnly = boolVal;
   }
   
   function SetSortMode(evt) {
@@ -2428,7 +2437,7 @@ let app = (function () {
     let parentEl = el.closest('[data-obj="task"]');
     let id = parentEl.dataset.id;
     switch (actionRole) {
-      case 'navigate-mission': taskNavigateToMission(id); break;
+      case 'navigate-mission': app.TaskNavigateToMission(id); break;
       case 'navigate-sub': 
         // changeViewModeConfig('tasks');
         // saveConfig();
