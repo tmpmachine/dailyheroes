@@ -9,18 +9,16 @@ let compoGsiChrome = (function() {
   };
   
   let data = {
-    access_token: '',
+    userEmail: null,
   };
   
   let local = {
+    access_token: '',
     tokenClient: null,
   };
   
   function InitData(_data) {
     data = clearReference(_data);
-    
-    // todo: move
-    TaskInitCompoDrive();
   }
   
   function clearReference(data) {
@@ -33,7 +31,7 @@ let compoGsiChrome = (function() {
     } else {
       local.tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: '254780146992-5j2ipsb9m60n1npo3v99ggb6l5017dj3.apps.googleusercontent.com',
-        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata',
+        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email',
         callback: (tokenResponse) => onTokenResponse(tokenResponse.access_token),
       });
       RequestToken();
@@ -41,11 +39,26 @@ let compoGsiChrome = (function() {
   }
   
   function onTokenResponse(access_token) {
-    data.access_token = access_token;
+    local.access_token = access_token;
     commit();
+    
+    getTokenUserInfo(local.access_token);
     
     // todo: move
     TaskInitCompoDrive();
+  }
+  
+  function getTokenUserInfo(access_token) {
+    fetch('https://www.googleapis.com/oauth2/v3/tokeninfo', {
+      headers: {
+        authorization: `Bearer ${access_token}`
+      }
+    })
+    .then(r => r.json())
+    .then(json => {
+      data.userEmail = json.email;
+      commit();
+    });
   }
   
   // todo: move
@@ -53,7 +66,7 @@ let compoGsiChrome = (function() {
     await waitUntil(() => {
       return (typeof(drive) != 'undefined');
     });
-    drive.SetToken(data.access_token);
+    drive.SetToken(local.access_token);
     drive.readAppData();
     
     viewStateUtil.Toggle('auth', ['authorized']);
@@ -72,16 +85,23 @@ let compoGsiChrome = (function() {
   }
   
   function RequestToken() {
-    local.tokenClient.requestAccessToken();
+    let opt = {};
+    
+    if (data.userEmail) {
+      opt.hint = data.userEmail;
+      opt.prompt = '';
+    }
+    
+    local.tokenClient.requestAccessToken(opt);
   }
   
   function RevokeToken() {
-    google.accounts.oauth2.revoke(data.access_token, () => { console.log('access token revoked'); });
+    google.accounts.oauth2.revoke(local.access_token, () => { console.log('access token revoked'); });
   }
   
   function commit() {
-    // appSettings.SetComponentData('compoGsi', clearReference(data));
-    // appSettings.Save();
+    appSettings.SetComponentData('compoGsiChrome', clearReference(data));
+    appSettings.Save();
   }
   
   return SELF;

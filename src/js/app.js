@@ -30,6 +30,10 @@ window.lsdb = new Lsdb(storageName, {
     compoMission: {},
     compoTracker: {},
     
+    components: {
+      compoGsiChrome: {},
+    },
+    
   },
   groups: {
     id: '',
@@ -1459,10 +1463,30 @@ let appSettings = (function() {
   
   let SELF = {
     Save,
+    SetComponentData,
+    GetComponentData,
   };
   
   function Save() {
     lsdb.save();
+  }
+  
+  function clearReference(data) {
+    return JSON.parse(JSON.stringify(data));
+  }
+  
+  function SetComponentData(componentKey, noReferenceData) {
+    if (!lsdb.data.components[componentKey]) return false;
+    
+    lsdb.data.components[componentKey] = noReferenceData;
+    return true;
+  }
+  
+  function GetComponentData(componentKey, callback) {
+    if (!lsdb.data.components[componentKey]) return false;
+    
+    callback(clearReference(lsdb.data.components[componentKey]));
+    return true;
   }
   
   return SELF;
@@ -2384,7 +2408,30 @@ let app = (function () {
     data.globalTimer = lsdb.data.globalTimer;
     ui.SetGlobalTimer();
     
+    restoreComponentsData();
+    
     compoTracker.Init(lsdb.data.compoTracker);
+  }
+  
+  function restoreComponentsData() {
+    appSettings.GetComponentData('compoGsiChrome', async (data) => {
+      await waitUntil(() => {
+        return (typeof(compoGsiChrome) != 'undefined');
+      }, 100);
+      compoGsiChrome.InitData(data);
+    });
+  }
+  
+  function waitUntil(stateCheckCallback, delay = 100) {
+    return new Promise(resolve => {
+        let interval = window.setInterval(() => {
+        let shouldResolve = stateCheckCallback();
+        if (shouldResolve) {
+            window.clearInterval(interval);
+            resolve();
+        }
+        }, delay);
+    });
   }
   
   async function initTests() {
