@@ -67,7 +67,7 @@ let compoGsiChrome = (function() {
       return (typeof(drive) != 'undefined');
     });
     drive.SetToken(local.access_token);
-    drive.readAppData();
+    await drive.TaskReadAppData();
     
     viewStateUtil.Toggle('auth', ['authorized']);
   }

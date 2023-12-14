@@ -773,51 +773,64 @@ const drive = (function() {
     checkPermission(systemFolderId);
     syncFromDrive();
   }
-
+  
+  async function TaskReadAppData() {
+    await readAppData();
+  }
+  
   async function readAppData() {
     
     await authHelper.validateAccessToken();
-    fetch(apiUrl+'files?spaces=appDataFolder&fields=files(id,name)&trashed=false', {
-      headers: httpHeaders,
-    })
-    .then(r => r.json())
-    .then(json => {
+    
+    return new Promise(resolve => {
       
-      if (json.error) return;
-      
-      let configFile = json.files.find(x => x.name == `${appFolderName}-config.json`);
-      
-      if (configFile) {
-        getFile(configFile.id, 'text', '?alt=media').then(function(media) {
-          let systemFolderJSON = JSON.parse(media);
-          getFile(systemFolderJSON.id, 'json', '?fields=id,trashed').then(function({ id, trashed }) {
-            if (trashed) {
-              deleteFile(configFile.id).then(function() {
-                readAppData();
-              });
-            } else {
-              // initAppData(id);
+      fetch(apiUrl+'files?spaces=appDataFolder&fields=files(id,name)&trashed=false', {
+        headers: httpHeaders,
+      })
+      .then(r => r.json())
+      .then(json => {
+        
+        if (json.error) return;
+        
+        let configFile = json.files.find(x => x.name == `${appFolderName}-config.json`);
+        
+        if (configFile) {
+          getFile(configFile.id, 'text', '?alt=media').then(function(media) {
+            let systemFolderJSON = JSON.parse(media);
+            getFile(systemFolderJSON.id, 'json', '?fields=id,trashed').then(function({ id, trashed }) {
+              if (trashed) {
+                deleteFile(configFile.id).then(async function() {
+                  await readAppData();
+                  resolve();
+                });
+              } else {
+                // initAppData(id);
+                // todo: move
+                compoBackup.SetBackupFolderId(systemFolderJSON.id);
+                resolve();
+              }
+            }).catch(function(errorCode) {
+              if (errorCode === 404) {
+                deleteFile(json.files[0].id).then(async function() {
+                  await readAppData();
+                  resolve();
+                });
+              }
+            });
+          });
+        } else {
+          createSystemFolder().then(function(systemFolderJSON) {
+            createAppData(systemFolderJSON).then(function() {
+              // initAppData(systemFolderJSON.id);
               // todo: move
               compoBackup.SetBackupFolderId(systemFolderJSON.id);
-            }
-          }).catch(function(errorCode) {
-            if (errorCode === 404) {
-              deleteFile(json.files[0].id).then(function() {
-                readAppData();
-              });
-            }
+              resolve();
+            });
           });
-        });
-      } else {
-        createSystemFolder().then(function(systemFolderJSON) {
-          createAppData(systemFolderJSON).then(function() {
-            // initAppData(systemFolderJSON.id);
-            // todo: move
-            compoBackup.SetBackupFolderId(systemFolderJSON.id);
-          });
-        });
-      }
-    });
+        }
+      });
+      
+    })
     
   }
   
@@ -1040,6 +1053,7 @@ const drive = (function() {
   return Object.assign({
     apiUrl,
     readAppData,
+    TaskReadAppData,
     syncToDrive,
     syncFromDrive,
     syncFromDrivePartial,
