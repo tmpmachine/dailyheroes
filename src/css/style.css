@@ -402,7 +402,7 @@ body[data-state~="--timer-running"] .task-progress-bar {
     background: gainsboro;
 }
 .tracker-overlay {
-  width: 150px;
+  width: 160px;
   background: dodgerblue;
   color: white;
   font-size: 0.8rem;

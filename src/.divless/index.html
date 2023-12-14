@@ -257,18 +257,16 @@
           
           <!-- # overlay tracker -->
           [ .tracker-overlay .d-grid data-view-group="features" data-view-name="tracker-overlay"
-            [ .d-flex {gap:0.3rem} .justify-content-between 
-              [
+            [ .d-grid {gap:0.25rem}
+              [ .d-flex {gap:0.3rem} .justify-content-between 
+                [small 'Active tracker']
                 [
-                  [small 'Active tracker']
-                ]
-                [ .d-inline-flex {gap:0.3rem}
-                  [ data-slot="title" .word-break-all]
-                  [ data-slot="progressTimeStr"]
+                  [btn 'close' .icon-mate .clickable data-callback="stop-tracker" {font-size: 0.7rem;padding: 2px 6px;}]
                 ]
               ]
-              [
-                [btn 'close' .icon-mate .clickable data-callback="stop-tracker"]
+              [ .d-inline-flex {gap:0.3rem}
+                [ data-slot="title" .word-break-all]
+                [ data-slot="progressTimeStr"]
               ]
             ]
           ]
