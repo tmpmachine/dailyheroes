@@ -86,9 +86,10 @@
               [small 'Active task'] : [s @txt-active-task-name {fw:bold;word-break:break-word}] 
             ]
             [ .mb-xs]
+            
             <!-- # open task button -->
             [ 
-              [button .clickable data-callback='open-task-into-view'
+              [button .clickable data-callback="open-task-into-view"
                 [small .icon-mate 'open_in_new']
               ]
             ]
@@ -111,12 +112,6 @@
                 <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
               ]
             </div>
-            <!-- # timer global preset -->
-            [ .d-none .justify-content-center 
-              [button .clickable data-callback='set-global-preset-timer'
-                [small .icon-mate 'schedule']
-              ]
-            ]
             
           ]
         
@@ -262,12 +257,19 @@
           
           <!-- # overlay tracker -->
           [ .tracker-overlay .d-grid data-view-group="features" data-view-name="tracker-overlay"
-            [
-              [small 'Active tracker']
-            ]
-            [ .d-inline-flex {gap:0.3rem}
-              [ data-slot="title" .word-break-all]
-              [ data-slot="progressTimeStr"]
+            [ .d-flex {gap:0.3rem} .justify-content-between 
+              [
+                [
+                  [small 'Active tracker']
+                ]
+                [ .d-inline-flex {gap:0.3rem}
+                  [ data-slot="title" .word-break-all]
+                  [ data-slot="progressTimeStr"]
+                ]
+              ]
+              [
+                [btn 'close' .icon-mate .clickable data-callback="stop-tracker"]
+              ]
             ]
           ]
           

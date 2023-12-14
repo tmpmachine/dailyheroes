@@ -7,6 +7,7 @@ let uiTracker = (function() {
     NewItem,
     RefreshItemList,
     HandleClickListTracker,
+    StopTracker,
   };
   
   let DOMActionEvents = {
@@ -14,6 +15,15 @@ let uiTracker = (function() {
     'delete': (itemData) => deleteById(itemData.id),
     'rename': (itemData) => renameById(itemData.id)
   };
+  
+  function StopTracker() {
+    compoTracker.UnsetActive();
+    compoTracker.Commit();
+    appSettings.Save();
+    
+    updateActiveTrackerOverlay();
+    RefreshItemList();
+  }
   
   function renameById(id) {
     

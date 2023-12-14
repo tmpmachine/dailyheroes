@@ -110,7 +110,9 @@ let DOMEvents = (function() {
       
       // # trackers
       'new-tracker': () => uiTracker.NewItem(),
+      'stop-tracker': () => uiTracker.StopTracker(),
       'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
+      
   	},
   	
   	inputable: {
