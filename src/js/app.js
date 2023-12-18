@@ -1168,10 +1168,6 @@ async function startCurrentTask(id) {
   let task = tasks.find(x => x.id == id);
   if (task.progress >= task.target) return;
   
-  // accumulates child task progress
-  // let totalMsProgressChildTask = tasks.filter(x => x.parentId == id).reduce((total, item) => total+item.totalProgressTime, 0);
-
-  // setTimer(task.target * 60 * 1000 - task.progressTime - totalMsProgressChildTask);
   let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
   androidClient.StartTimer(seconds, task.title);
   setTimer(task.target * 60 * 1000 - task.progressTime);
@@ -1362,6 +1358,34 @@ function parseHoursMinutesToMinutes(timeString) {
   }
   
   return (hours * 60) + minutes;
+}
+
+
+function parseHmsToMs(timeString) {
+  if (!timeString) {
+    return null;
+  }
+
+  const regex = /^(\d+h)?(\d+m)?(\d+s)?$/;
+  const match = regex.exec(timeString);
+
+  let hours = 0;
+  let minutes = 0;
+  let seconds = 0;
+
+  if (match[1]) {
+    hours = parseInt(match[1].slice(0, -1));
+  }
+
+  if (match[2]) {
+    minutes = parseInt(match[2].slice(0, -1));
+  }
+
+  if (match[3]) {
+    seconds = parseInt(match[3].slice(0, -1));
+  }
+
+  return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
 }
 
 function RatioSettings() {
@@ -2428,10 +2452,13 @@ let app = (function () {
 
     let actionRole = getActionRole(el);
     let parentEl = el.closest('[data-obj="task"]');
+    let seqEl = el.closest('[data-kind="item-sequence-task"]');
     let id = parentEl.dataset.id;
+    let seqId = seqEl ? seqEl.dataset.id : null;
 
     switch (actionRole) {
-      case 'add-sequence-task': compoTask.AddSequence(id); break;
+      case 'add-sequence-task': ui.AddSequenceTask(id); break;
+      case 'edit-sequence-task': ui.EditSequenceTask(id, seqId); break;
       case 'navigate-mission': app.TaskNavigateToMission(id); break;
       case 'navigate-sub': 
         ui.Navigate(id);

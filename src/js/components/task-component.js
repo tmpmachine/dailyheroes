@@ -7,6 +7,7 @@ let compoTask = (function() {
     GetById,
     GetAllByParentId,
     AddSequence,
+    UpdateSequence,
     DeleteSequenceByEvt,
     GetTotalPriorityPointByParentTaskId,
   };
@@ -35,7 +36,8 @@ let compoTask = (function() {
     let item = app.GetTaskById(id);
     
     compoSequence.Stash(item.sequenceTasks);
-
+    
+    setActiveSequenceBeforeDeletionOnId(seqId);
     compoSequence.DeleteById(seqId);
     
     compoSequence.Commit();
@@ -46,6 +48,26 @@ let compoTask = (function() {
     
   }
   
+  function setActiveSequenceBeforeDeletionOnId(id) {
+    if (compoSequence.CountAll() < 2) return null;
+    
+    let seqActiveId = compoSequence.GetActiveId();
+    if (seqActiveId != id) return null;
+    
+    let item = null;
+    let lastItemIndex = compoSequence.CountAll() - 1;
+    let itemIndex = compoSequence.GetIndexById(id);
+    
+    if (itemIndex == lastItemIndex) {
+      item = compoSequence.GetPrevious();
+    } else {
+      item = compoSequence.GetNext();
+    }
+    compoSequence.SetActiveById(item.id);
+    
+    return item;
+  }
+  
   function GetAll() {
     return tasks;
   }
@@ -54,20 +76,32 @@ let compoTask = (function() {
     return tasks.filter(task => task.parentId == parentId);
   }
   
-  function AddSequence(taskId) {
+  function AddSequence(title, durationTime, taskId) {
     let item = app.GetTaskById(taskId);
 
     compoSequence.Stash(item.sequenceTasks);
     
-    let seqItem = compoSequence.Add('example');
+    let seqItem = compoSequence.Add(title, durationTime);
     if (compoSequence.CountAll() == 1) {
       compoSequence.SetActiveById(seqItem.id);
     }
     
     compoSequence.Commit();
     Commit();
+  }
+  
+  function UpdateSequence(title, durationTime, taskId, seqId) {
+    let item = app.GetTaskById(taskId);
+
+    compoSequence.Stash(item.sequenceTasks);
     
-    ui.RefreshListSequenceByTaskId(taskId);
+    compoSequence.UpdateById({
+      title,
+      targetTime: durationTime,
+    }, seqId);
+    
+    compoSequence.Commit();
+    Commit();
   }
   
   const __idGenerator = (function() {

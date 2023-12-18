@@ -55,4 +55,10 @@ let viewStates = [
       'add', 'edit',
     ],
   },
+  {
+    group: 'form-task-sequence',
+    states: [
+      'add', 'edit',
+    ],
+  },
 ];

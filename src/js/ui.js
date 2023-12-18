@@ -4,6 +4,10 @@ let ui = (function () {
   
   let SELF = {
     ShowModalAddTask,
+    ShowModalAddSequence,
+    AddSequenceTask,
+    EditSequenceTask,
+    OnSubmitSequenceTask,
     
     // groups
     Navigate,
@@ -78,10 +82,19 @@ let ui = (function () {
     let docFrag = document.createDocumentFragment();
   	
     for (let item of items) {
+      
+      // time left info
+      let timeLeftStr = '';
+      {
+        let timeLeft = Math.max(0, item.targetTime - item.progressTime);
+        timeLeftStr = secondsToHMS(msToSeconds(timeLeft));
+      }
+      
       let el = window.templateSlot.fill({
         data: {
           title: item.title,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
+          timeLeftStr: ` -- ${timeLeftStr} left`,
         }, 
         template: document.querySelector('#tmp-list-sequence-task').content.cloneNode(true), 
       });
@@ -569,6 +582,96 @@ let ui = (function () {
       viewStateUtil.Add('form-task', ['edit']);
     } else {
       viewStateUtil.Add('form-task', ['add']);
+    }
+    
+    for (let key in defaultValue) {
+      let inputEl = form.querySelector(`[name="${key}"]`);
+      if (!inputEl) continue;
+      
+      inputEl.value = defaultValue[key];
+    }
+    
+  }
+  
+  function OnSubmitSequenceTask(ev) {
+  		ev.preventDefault();
+  		let form = ev.target;
+  		
+  		let id = form.id.value;
+  		let taskId = form.taskId.value;
+  		let title = form.title.value.trim();
+  		if (title.length == 0) {
+        return;
+      }
+      
+      let durationTimeInput = form.duration.value;
+      if (isNumber(durationTimeInput)) {
+        // set default to minutes
+        durationTimeInput = `${durationTimeInput}m`;
+      }
+      let durationTime = parseHmsToMs(durationTimeInput);
+      if (durationTime <= 0) return;
+      
+  		
+	    if (ev.target.id.value.length > 0) {
+	      compoTask.UpdateSequence(title, durationTime, taskId, id);
+	    } else {
+        compoTask.AddSequence(title, durationTime, taskId);
+	    }
+  		let modal = document.querySelectorAll('#task-sequence-modal')[0];
+  		modal.close();
+  		
+      RefreshListSequenceByTaskId(taskId);
+  		
+  }
+  
+  function AddSequenceTask(taskId) {
+    let defaultValue = {
+      taskId,
+    };
+    ShowModalAddSequence(defaultValue);
+  }
+  
+  function EditSequenceTask(taskId, id) {
+    
+    let task = compoTask.GetById(taskId);
+    compoSequence.Stash(task.sequenceTasks);
+    let sequenceTask = compoSequence.GetById(id);
+    
+    let defaultValue = {
+      id,
+      taskId,
+      title: sequenceTask.title,
+      duration: secondsToHMS(msToSeconds(sequenceTask.targetTime)),
+    };
+    
+    ShowModalAddSequence(defaultValue);
+  }
+  
+  function ShowModalAddSequence(defaultValue = {}) {
+    
+    let formValue = {
+    };
+    
+    defaultValue = Object.assign(formValue, defaultValue);
+    
+    let modal = document.querySelectorAll('#task-sequence-modal')[0].toggle();
+    let form = modal.querySelector('form');
+    form.reset();
+    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+
+    modal.classList.toggle('modal--active', modal.isShown);
+    modal.addEventListener('onclose', function() {
+      modal.classList.toggle('modal--active', false);
+    });
+    ui.SetFocusEl(modal.querySelector('input[type="text"]'));
+
+    // set form add/edit mode
+    let isEditMode = (defaultValue.id !== undefined);
+    if (isEditMode) {
+      viewStateUtil.Set('form-task-sequence', ['edit']);
+    } else {
+      viewStateUtil.Set('form-task-sequence', ['add']);
     }
     
     for (let key in defaultValue) {

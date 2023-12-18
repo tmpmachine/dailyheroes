@@ -1,5 +1,6 @@
 .justify-content-center{justify-content:center}.align-items-center{align-items:center}.justify-content-end{justify-content:end}.text-center{text-align:center}.flex-column{flex-direction:column}.justify-content-between{justify-content:space-between}
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
+.flex-1{flex:1}
 .w-100{width:100%}
 .ov-auto{overflow:auto}
 .pos-relative{position:relative}.pos-absolute{position:absolute}
@@ -10,7 +11,7 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed */
 }
-.word-break-all{word-break:break-all}
+.word-break-all{word-break:break-all}.word-break-word{word-break:break-word}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 

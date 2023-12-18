@@ -37,7 +37,7 @@
   
   <div class="container-app" style="max-width:500px;margin:auto;">
 
-    <div class="d-grid container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:380px;margin:auto;">
+    <div class="d-grid container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:360px;margin:auto;">
     
       <!-- # screen : home -->
       <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
@@ -621,13 +621,19 @@
   </template>
 
   <template id="tmp-list-sequence-task">
-    <div class="item-sequence d-flex justify-content-between" data-kind="item-sequence-task">
-      <div>
-        <span data-slot="title"></span>
-        (<span data-slot="targetTimeStr"></span>)
-      </div>
-      <div>
-        <button data-role="delete-sequence-task">x</button>
+    <!-- # tmp-list-sequence-task -->
+    <div class="item-sequence" data-kind="item-sequence-task">
+      <div class="d-flex justify-content-between" style="padding:4px;gap:0.5rem;">
+        <div class="word-break-word flex-1">
+          <small>
+            <span data-slot="title"></span>
+            (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
+          </small>
+        </div>
+        <div>
+          <button class="icon-mate" data-role="delete-sequence-task">delete</button>
+          <button class="icon-mate" data-role="edit-sequence-task">edit</button>
+        </div>
       </div>
     </div>
   </template>
@@ -640,8 +646,8 @@
         <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
       </div> 
       <div class="d-flex">
-        <button data-role='remove-mission' class="icon-mate" title='Remove from mission'>playlist_remove</button>
-        <button data-role='add-to-mission' class="icon-mate" title='Add to mission'>playlist_add</button>
+        <button data-role='add-to-mission' class="icon-mate" title='Add to collection'>playlist_add</button>
+        <button data-role='remove-mission' class="icon-mate" title='Remove from collection'>playlist_remove</button>
       </div>
       
       <div class="d-none">
@@ -715,7 +721,7 @@
     </div>
   </template>
 
-  <!-- # modal task -->
+  <!-- # task modal -->
   <modal-v2 id="projects-modal" data-view-group="form-task" data-view-states="add">
     <div class="modal" slot="content">
       <!-- modal content-->
@@ -747,6 +753,38 @@
             <div>
               <button data-role='btn-add' data-view-group="form-task" data-view-name="add">Add</button>
               <button data-role="btn-edit" data-view-group="form-task" data-view-name="edit">Update</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
+  
+  <!-- # sequence task modal  -->
+  <modal-v2 id="task-sequence-modal" data-view-group="form-task-sequence" data-view-states="add">
+    <div class="modal" slot="content">
+      <!-- modal content-->
+      <div class="ov-auto">
+        <div style="padding:1rem;">
+
+          <span data-view-group="form-task-sequence" data-view-name="add">New sequence task :</span>
+          <span data-view-group="form-task-sequence" data-view-name="edit">Edit sequence task :</span>
+          
+          <div class="default-gap"></div>
+          <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-sequence-task' data-obj="form-task">
+            <input type="hidden" name="id"/>
+            <input type="hidden" name="taskId"/>
+            <div>
+              Title <input type="text" name='title' class="input-style-default"/>
+            </div>
+            <div>
+              Duration <input type="text" name='duration' placeholder='example: 30s, 45m, 1h30m' class="input-style-default"/>
+            </div>
+            <div class="mb-m"></div>
+            <div>
+              <button data-role='btn-add' data-view-group="form-task-sequence" data-view-name="add">Add</button>
+              <button data-role="btn-edit" data-view-group="form-task-sequence" data-view-name="edit">Update</button>
             </div>
           </form>
 

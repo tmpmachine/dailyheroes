@@ -19,6 +19,7 @@ let DOMEvents = (function() {
   	  
   	  
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
+  	  'show-modal-add-sequence': () => ui.ShowModalAddSequence(),
       
       'view-mission': () => {
         changeViewModeConfig('mission');
@@ -190,6 +191,7 @@ let DOMEvents = (function() {
     		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
     		modal.close();
   	  },
+  	  'submit-sequence-task': (evt) => ui.OnSubmitSequenceTask(evt),
   	  'add-note': (ev) => {
   	    ev.preventDefault();
   		let form = ev.target;

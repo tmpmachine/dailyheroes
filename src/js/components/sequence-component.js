@@ -5,16 +5,17 @@ let compoSequence = (function() {
   let SELF = {
     Stash,
     Commit,
+    GetById,
     GetActiveId,
-    List,
     SetActiveById,
     Add,
+    UpdateById,
     DeleteById,
     CountAll,
-    
     GetAll,
-    AddSequence,
-    DeleteSequenceByEvt,
+    GetNext,
+    GetPrevious,
+    GetIndexById,
   };
   
   let dataTemplate = {
@@ -34,41 +35,8 @@ let compoSequence = (function() {
     return data.items.length;
   }
   
-  function DeleteSequenceByEvt(evt) {
-    let targetEl = evt.target;
-    let taskEl = targetEl.closest('[data-kind="task"]');
-    let seqTaskEl = targetEl.closest('[data-kind="item-sequence-task"]');
-    
-    if (!taskEl) return;
-    if (!seqTaskEl) return;
-    
-    let id = taskEl.dataset.id;
-    let seqId = seqTaskEl.dataset.id;
-    
-    let item = app.GetTaskById(id);
-  }
-  
-  function GetById() {
-    
-  }
-  
   function GetAll() {
     return data.items;
-  }
-  
-  function AddSequence(taskId) {
-    let item = app.GetTaskById(taskId);
-    // console.log(item)
-    
-    let data = {
-      id: __idGenerator.next(item.sequenceTasks.counter),
-      progress: 0,
-      targetTime: 30000, // ms
-      title: new Date().getTime().toString(),
-    };
-
-    item.sequenceTasks.tasks.push(data);
-    Commit();
   }
   
   const __idGenerator = (function() {
@@ -83,13 +51,13 @@ let compoSequence = (function() {
       
   })();
   
-  function Add(title) {
+  function Add(title, durationTime) {
     let id = __idGenerator.next(data.counter);
     let item = {
       id,
       title,
       progressTime: 0,
-      targetTime: 0,
+      targetTime: durationTime,
     };
     data.items.push(item);
     
@@ -165,10 +133,6 @@ let compoSequence = (function() {
     
     return null;
   }
-    
-  function List() {
-    return data.items;
-  }
   
   function GetActive() {
     return GetById(GetActiveId());
@@ -184,6 +148,62 @@ let compoSequence = (function() {
     
     item.progressTime += time;
     return true;    
+  }
+  
+  function IsEmpty() {
+    return (GetAll().length == 0);
+  }
+  
+  function GetNext() {
+    
+    if (IsEmpty()) return null;
+    
+    let item = GetActive();
+    if (item == null) {
+      return GetByIndex(0);
+    }
+      
+    let activeItemIndex = GetIndexById(item.id);
+    let lastItemIndex = CountAll() - 1;
+    let nextItemIndex = Math.min(lastItemIndex, activeItemIndex + 1);
+    // allow endless navigation
+    if (activeItemIndex + 1 > lastItemIndex) {
+      nextItemIndex = 0;
+    }
+    let nextItem = GetByIndex(nextItemIndex);
+      
+    return nextItem;
+  }
+  
+  function GetPrevious() {
+    
+    if (IsEmpty()) return null;
+    
+    let item = GetActive();
+    if (item == null) {
+      let lastItemIndex = CountAll() - 1;
+      return GetByIndex(lastItemIndex);
+    }
+      
+    let activeItemIndex = GetIndexById(item.id);
+    let prevItemIndex = Math.max(0, activeItemIndex - 1);
+    // allow endless navigation
+    if (activeItemIndex - 1 < 0) {
+      prevItemIndex = CountAll() - 1;
+    }
+    let prevItem = GetByIndex(prevItemIndex);
+      
+    return prevItem;
+  }
+  
+  function GetByIndex(index) {
+    let items = GetAll();
+    return items[index];
+  }
+  
+  function GetIndexById(id) {
+    let items = GetAll();
+    return items.findIndex(item => item.id == id);
   }
   
   
