@@ -2,7 +2,7 @@
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .w-100{width:100%}
 .ov-auto{overflow:auto}
-.pos-relative{position:relative}
+.pos-relative{position:relative}.pos-absolute{position:absolute}
 .user-select-none {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -368,11 +368,11 @@ body[data-state~="--timer-running"] .task-progress-bar {
   padding: 10px;
   text-transform: uppercase;
 }
-.container-view-mode .is-active {
+.container-view-mode button.is-active {
   font-weight: bold;
   border-bottom: 3px solid black
 }
-.container-view-mode :not(.is-active) {
+.container-view-mode button:not(.is-active) {
   opacity: 0.6;
   border-bottom: 3px solid gainsboro;
 }
@@ -411,4 +411,13 @@ body[data-state~="--timer-running"] .task-progress-bar {
   position: absolute;
   bottom: 0.5rem;
   left: 0.5rem;
+}
+
+
+/* # item sequence */
+.item-sequence.is-active {
+  background: var(--border-lighter);
+}
+#tasklist [data-obj="task"][data-state~="--active"] .item-sequence.is-active { 
+  background: var(--text-light);
 }

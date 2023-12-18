@@ -33,11 +33,11 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body data-view-group="platform auth" data-view-states="">
+<body data-view-group="platform auth build" data-view-states="">
   
   <div class="container-app" style="max-width:500px;margin:auto;">
 
-    <div class="d-grid container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:330px;margin:auto;">
+    <div class="d-grid container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:380px;margin:auto;">
     
       <!-- # screen : home -->
       <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
@@ -60,10 +60,6 @@
 
         
         <div class="d-flex justify-content-between">
-          
-          <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
-          <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
-          <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
           <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
         </div>
         <div class="default-gap"></div>
@@ -72,7 +68,7 @@
         <div class="d-flex" style="gap:0.5rem;">
           
           <!-- # progress bar -->
-          <div style="flex-grow:1;">
+          <div data-view-group="active-task-info" data-view-states="" style="flex-grow:1;">
             <div class="NzE2ODYyNQ-progress-bar-container">
               <div class="NzE2ODYyNQ-progress-bar">
                 <div class="NzE2ODYyNQ-progress-bar-fill"></div>
@@ -84,6 +80,11 @@
             <!-- # active task info -->
             <div>
               <small>Active task</small> : <span id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></span> 
+            </div>
+            <div data-view-group="active-task-info" data-view-name="on-streak">
+              <small>
+                Total time streak : <span id="txt-time-streak"></span>
+              </small>
             </div>
             <div class="mb-xs"></div>
             
@@ -109,6 +110,7 @@
                   Start
                   <span class="icon-mate">play_arrow</span>
                 </button>
+                <small class="text-center" data-view-group="platform" data-view-name="web">(Alt+S)</small>
                 <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
               </div>
             </div>
@@ -165,7 +167,9 @@
           <!-- # view mode tabs -->
           <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr auto;">
             <button class="clickable" data-callback="view-tasks" data-id="task">All Tasks</button>
-            <button class="clickable" data-callback="view-mission" data-id="mission">Missions</button>
+            <button class="clickable" data-callback="view-mission" data-id="mission">
+              <span>Collection</span>
+            </button>
           </div>
           <div class="default-gap"></div>
           
@@ -204,7 +208,7 @@
             <div class="d-flex justify-content-between">
               <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
               <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-                <div id="txt-total-ratio" style="text-wrap:nowrap;"></div>
+                <small id="txt-total-ratio" style="text-wrap:nowrap;"></small>
               </div>
             </div>
             <div style="margin-bottom:0.3rem;"></div>
@@ -273,6 +277,9 @@
           
           <button class="clickable btn-add-task" data-callback="show-modal-add-task">
             <span class="icon-mate" style="font-size:2.2rem;">add</span>
+            <div class="pos-absolute" style="bottom:-17px;">
+              <small class="text-center" data-view-group="platform" data-view-name="web">(Alt+N)</small>
+            </div>
           </button>
         </div>
         
@@ -352,7 +359,13 @@
               <button class="clickable" data-callback="reset-data">Reset data</button>
             </div><div class="mb-m"></div>
             
-            <small>Cloud backup and restore.</small><div class="mb-m"></div>
+          </div><div class="default-gap"></div> 
+          
+          <!-- backup and restore -->
+          <div>
+            <div style="font-weight:bold;">Backup and Restore</div><div class="mb-m"></div>
+            
+            <small>Backup to Google Drive.</small><div class="mb-m"></div>
             <div class="d-flex" style="gap:0.3rem;">
               <button class="clickable" data-callback="authorize">Authorize</button>
               <div data-view-group="auth" data-view-name="authorized">
@@ -363,9 +376,9 @@
             <div>
               <div id="txt-backup-status"></div>
               <div id="txt-restore-status"></div>
-            </div>
+            </div><div class="mb-m"></div>
             
-            <small>Local backup and restore.</small><div class="mb-m"></div>
+            <small>Local backup.</small><div class="mb-m"></div>
             <div class="d-flex" style="gap:0.3rem;">
               <button class="clickable" data-callback='backup-data'>Backup</button>
               <button class="clickable" data-callback='restore-data'>Restore</button>
@@ -379,18 +392,13 @@
               <span id="txt-global-preset-timer"></span> <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
             </div><div class="mb-m"></div>
             
-            <small>Backup and restore.</small><div class="mb-m"></div>
-            <div class="d-flex" style="gap:0.3rem;">
-              <button class="clickable" data-callback='backup-data'>Backup</button>
-              <button class="clickable" data-callback='restore-data'>Restore</button>
-            </div>
           </div><div class="default-gap"></div> 
           
           <!-- sound -->
           <div>
-            <div style="font-weight:bold;">Sound</div><div class="mb-m"></div>
+            <div style="font-weight:bold;">Alarm Sound</div><div class="mb-m"></div>
             <div class="d-flex" style="gap:0.3rem;">
-              <button class="clickable" data-callback='pick-audio'>Pick audio</button>
+              <button class="clickable" data-callback='pick-audio'>Set audio</button>
               <button class="clickable" data-callback='remove-audio'>Remove audio</button>
               <button class="clickable" data-callback='test-audio'>Test audio</button>
             </div><div class="mb-m"></div>
@@ -406,17 +414,19 @@
           
           <!-- app cache -->
           <div data-view-group="platform" data-view-name="web">
-            <div style="font-weight:bold;">Application Cache</div>
+            <div style="font-weight:bold;">Updates & Offline Access</div>
+            <div class="default-gap"></div>
             
-            <small>For development and offline support.</small><div class="mb-m"></div>
             <div class="d-grid" style="gap:0.3rem;">
               <div>
                 <button onclick="pwaCacher.update()">Check for updates</button>
               </div>
               <div>
-                <button onclick="pwaCacher.removeUpdate()">Remove app cache</button>
+                <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
               </div>
             </div>
+            <div class="default-gap"></div>
+            <small>*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.</small>
           </div>
         </div>
         
@@ -536,9 +546,10 @@
   	  <!-- # task footer information -->
   	  
   	  <!-- # task toolbar -->
-  	  <div class="container-task-toolbar" style="padding:0.5rem;">
-    	  <div class="d-flex justify-content-between" data-slot="" data-template="#tmp-mission-buttons"></div>
-    	  
+  	  <div class="container-task-toolbar">
+
+    	  <div class="d-flex justify-content-between" data-slot="" data-template="#tmp-mission-buttons" style="padding:0.5rem;"></div>
+        
         <div data-obj="tracking-status" style="height:4px;"></div>
       	
       	<div class="d-none">
@@ -555,14 +566,27 @@
         <div class="task-progress-bar"></div>
       </div>
       
-    	<!-- # -->
+      <div data-container="sequence-tasks"></div>
       
   	</div>
   </template>
 
+  <template id="tmp-list-sequence-task">
+    <div class="item-sequence d-flex justify-content-between" data-kind="item-sequence-task">
+      <div>
+        <span data-slot="title"></span>
+        (<span data-slot="targetTimeStr"></span>)
+      </div>
+      <div>
+        <button data-role="delete-sequence-task">x</button>
+      </div>
+    </div>
+  </template>
+  
   <template id="tmp-mission-buttons">
 
     <div class="d-inline-flex" style="gap:0.2rem;">
+      <button class="icon-mate" data-role="add-sequence-task" title="Add sequence" data-view-group="build" data-view-name="dev">expand_more</button>
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
         <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
       </div> 

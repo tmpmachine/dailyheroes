@@ -24,6 +24,7 @@ let compoMission = (function() {
     // # mission
     AddMission,
     RemoveMissionById,
+    
   };
   
   const defaultGroupId = '#0';

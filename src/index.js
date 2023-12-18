@@ -9,12 +9,17 @@ window.componentLoader.load([
       'js/ui.js',
       'js/ui-mission.js',
       'js/ui-tracker.js',
+      'js/lib/lsdb.js',
     ],
     callback: function() { 
       
       viewStateUtil.Init(viewStates); 
       DOMEvents.Init();
       
+      // check build mode
+      if (!window.location.href.includes('https://dailyheroes.web.app/')) {
+        viewStateUtil.Toggle('build', ['dev']);
+      }
       
       // platform checking
       window.modeChromeExtension = false;
@@ -34,12 +39,15 @@ window.componentLoader.load([
   },
   {
     urls: [
-      'js/lib/lsdb.js',
+      'js/app-data.js',
       'js/utils/uuidv4-util.js',
       
       // app components
+      'js/components/compo-task.js',
       'js/components/compo-mission.js',
       'js/components/compo-tracker.js',
+      'js/components/sequence-component.js',
+      'js/components/compo-time-streak.js',
     ],
     callback: function() { 
       

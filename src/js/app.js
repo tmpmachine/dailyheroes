@@ -1,47 +1,5 @@
 let tasks = [];
 
-let storageName = 'appdata-NzkwMTI0NA';
-window.lsdb = new Lsdb(storageName, {
-  root: {
-    viewMode: 'tasks',
-    
-    start: null,
-    history: 0,
-    historyTime: 0,
-    activeTask: '',
-    globalTimer: 12, // 12 minutes
-    
-    
-    isFilterTaskByTargetTime: false,
-    isSortByTotalProgress: true,
-    
-    // navigation
-    activeGroupId: '',
-    topMostMissionPath: '',
-    
-    search: '',
-    labelFilter: '',
-    scheduledTime: 0,
-    tasks: [],
-    missionIds: [],
-    groups: [],
-    
-    // component's data
-    compoMission: {},
-    compoTracker: {},
-    
-    components: {
-      compoGsiChrome: {},
-    },
-    
-  },
-  groups: {
-    id: '',
-    name: '',
-    parentId: '',
-  }
-});
-
 
 function copyToClipboard(text) {
   var node  = document.createElement('textarea');
@@ -262,28 +220,12 @@ function isNumber(input) {
 }
 
 function addTaskData(inputData) {
-  let id = generateUniqueId();
-  let data = {...{
-    id,
-    progress: 0,
-    progressTime: 0,
-    totalProgressTime: 0,
-    
-    // used by time balancing
-    targetTime: 0,
-    ratio: 0,
 
-    lastUpdated: 0,
-    untracked: false,
-    activeSubTaskId: null,
-  }, ...inputData};
-  
-  // if (data.parentId) {
-    // let parentTaskIndex = tasks.findIndex(x => x.id == data.parentId);
-    // tasks.splice(parentTaskIndex + 1, 0, data);
-  // } else {
-    tasks.splice(0, 0, data);
-  // }
+  let id = generateUniqueId();
+  let data = {...lsdb.new('task', {
+    id,
+  }), ...inputData};
+  tasks.splice(0, 0, data);
   
   return id;
 }
@@ -291,23 +233,7 @@ function addTaskData(inputData) {
 async function storeTask() {
   await window.service.SetData({ 'tasks': tasks });
 }
-      
 
-async function TaskSetActiveTaskInfo() {
-  $('#txt-active-task-name').textContent = '';
-  
-  let activeTask = await getActiveTask();
-  if (activeTask) {
-    
-    let ratioTimeLeftStr = '';
-    let ratioTimeLeft = timeLeftRatio.find(x => x.id == activeTask.id);
-    if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
-      ratioTimeLeftStr = `${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}`;
-    }
-    
-    $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
-  }
-}
 
 function loadSearch() {
   if (window.lsdb.data.search || window.lsdb.data.labelFilter) {
@@ -437,6 +363,7 @@ async function updateTime(scheduledTime, startTime) {
   
   let negativeStr = (isNegative ? '-' : '');
   let countdownStr = `${negativeStr} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`.trim();
+  document.title = `${countdownStr} - DailyHeroes`;
   updateCountdownText(countdownStr, isNegative);
   
   let percentage = ( currentTime - startTime ) / ( scheduledTime - startTime ) * 100;
@@ -639,12 +566,16 @@ async function loadTasks() {
 
 async function integrityCheck(tasks) {
   for (let task of tasks) {
+    
     if (typeof(task.targetTime) == 'undefined')
       task.targetTime = 0;
+    
     if (typeof(task.ratio) == 'undefined')
       task.ratio = 0;
+    
     if (task.parentId === null)
       task.parentId = '';
+    
   }
 }
 
@@ -665,8 +596,38 @@ function minutesToHoursAndMinutes(minutes) {
   return timeString;
 }
 
+function secondsToHMS(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainderSeconds = seconds % 60;
+  let timeString = '';
+
+  if (hours > 0) {
+    timeString += `${hours}h`;
+  }
+
+  if (minutes > 0 || hours > 0) {
+    timeString += `${minutes}m`;
+  }
+
+  if (remainderSeconds > 0 || (hours === 0 && minutes === 0)) {
+    timeString += `${remainderSeconds}s`;
+  }
+
+  if (seconds === 0) {
+    timeString = '0s';
+  }
+
+  return timeString;
+}
+
+
 function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
+}
+
+function msToSeconds(milliseconds) {
+  return Math.floor(milliseconds / 1000);
 }
 
 function sumAllChildProgress(parentId) {
@@ -750,6 +711,7 @@ function setActiveSubTaskItem(el, item) {
 }
       
 function updateUI() {
+  
   window.service.GetData(['start','target']).then(async (result) => {
     let distanceMinutes = 0;
     let distanceTime = 0;
@@ -776,6 +738,7 @@ function updateUI() {
     $('.progress-bar-fill').style.width = `${percentage}%`;
     
   });
+  
 }
 
 function minutesToMs(time) {
@@ -890,7 +853,7 @@ function deleteAllChildTasksByParentId(id) {
     {
       let isExistsMission = compoMission.IsExistsMissionId(id);
       if (isExistsMission) {
-        compoMission.RemoveMissionById(id)
+        compoMission.RemoveMissionById(id);
       }
     }
     
@@ -904,9 +867,7 @@ function deleteAllChildTasksByParentId(id) {
 async function taskApplyAllParentTargetTime(parentId, distanceTime) {
   let task = app.GetTaskById(parentId);
   while (task) {
-    // if (task.ratio > 0) {
-      await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
-    // }
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
     task = app.GetTaskById(task.parentId);
   }
 }
@@ -957,9 +918,9 @@ async function taskSetTaskRatio(id) {
   if (!task) return;
   
   const { value } = await Swal.fire({
-      title: 'Priority Ratio',
+      title: 'Priority Level',
       input: 'text',
-      inputLabel: 'example: 10, 25, 50',
+      inputLabel: 'example: 5, 100, 200',
       inputValue: task.ratio,
       showCancelButton: true,
       inputValidator: (value) => {
@@ -985,13 +946,6 @@ async function TaskAddLabel(id) {
   
   task.label = label;
   await storeTask();  
-}
-
-async function startTaskTimer(parentEl, id) {
-  await app.TaskStopActiveTask();
-  await switchActiveTask(parentEl, id, true);
-  await app.TaskContinueTask(id);
-  await startCurrentTask(id);
 }
 
 async function switchActiveTask(taskEl, id, persistent = false) {
@@ -1321,11 +1275,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
 async function taskApplyNecessaryTaskUpdates(task, distanceTime) {
   // update all parent target time
   await taskApplyAllParentTargetTime(task.parentId, distanceTime);
-  
   // apply target time balancing
-  // if (task.targetTime > 0) {
-    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
-  // }
+  await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
 }
 
 function updateSubTaskProgress(task, distanceTime) {
@@ -1457,41 +1408,7 @@ async function taskOpenTaskIntoView() {
   ui.Navigate(activeTask.parentId);
   await app.TaskListTask();
 }
-  
 
-let appSettings = (function() {
-  
-  let SELF = {
-    Save,
-    SetComponentData,
-    GetComponentData,
-  };
-  
-  function Save() {
-    lsdb.save();
-  }
-  
-  function clearReference(data) {
-    return JSON.parse(JSON.stringify(data));
-  }
-  
-  function SetComponentData(componentKey, noReferenceData) {
-    if (!lsdb.data.components[componentKey]) return false;
-    
-    lsdb.data.components[componentKey] = noReferenceData;
-    return true;
-  }
-  
-  function GetComponentData(componentKey, callback) {
-    if (!lsdb.data.components[componentKey]) return false;
-    
-    callback(clearReference(lsdb.data.components[componentKey]));
-    return true;
-  }
-  
-  return SELF;
-  
-})();
 
 let app = (function () {
 
@@ -1540,6 +1457,7 @@ let app = (function () {
     GetGlobalTimerStr,
     
     TaskNavigateToMission,
+    StartTaskTimer,
   };
   
   let data = {
@@ -1549,6 +1467,25 @@ let app = (function () {
     globalTimer: 12, // 15 minutes
   };
   
+  async function StartTaskTimer(parentEl, id) {
+
+    // starting a different task, reset time streak
+    {
+      let activeTask = await getActiveTask();
+      if (activeTask && id != activeTask.id) {
+        let progressTime = 0;
+        await compoTimeStreak.TaskUpdateTaskTimeStreak(progressTime, id);
+        await compoTimeStreak.TaskCommit();
+      }
+    }
+    
+    await app.TaskStopActiveTask();
+    await switchActiveTask(parentEl, id, true);
+    await app.TaskContinueTask(id);
+    await startCurrentTask(id);
+    
+    ui.RefreshTimeStreak();
+  }
   
   async function TaskNavigateToMission(id) {
     let task = await app.GetTaskById(id);
@@ -1729,7 +1666,7 @@ let app = (function () {
 
   function sortTaskByTotalProgressTimeAsc(tasks) {
     tasks.sort((a, b) => {
-      return a.totalProgressTime < b.totalProgressTime ? -1 : 1;
+      return (a.totalProgressTime + sumAllChildProgress(a.id)) < (b.totalProgressTime + sumAllChildProgress(b.id)) ? -1 : 1;
     });
   }
 
@@ -1778,7 +1715,6 @@ let app = (function () {
       
       let targetMinutesLeft = item.target - msToMinutes(item.progressTime) - liveProgress;
       let progressMinutesLeft = msToMinutes(item.progressTime);
-      let totalMsProgressChildTask = 0;
     
       // get total ratio
       if (typeof(item.ratio) == 'number') {
@@ -1885,8 +1821,8 @@ let app = (function () {
       let percentageProgress = 0;
       let percentageProgressTime = 0;
       if (item.target) {
-        percentageProgress = Math.min(100, Math.floor((msToMinutes(item.progressTime + totalMsProgressChildTask) + liveProgress)/item.target*10000)/100);
-        percentageProgressTime = Math.min(100, Math.floor((item.progressTime + liveProgressTime + totalMsProgressChildTask) / minutesToMs(item.target) * 10000) / 100);
+        percentageProgress = Math.min(100, Math.floor((msToMinutes(item.progressTime) + liveProgress)/item.target*10000)/100);
+        percentageProgressTime = Math.min(100, Math.floor((item.progressTime + liveProgressTime) / minutesToMs(item.target) * 10000) / 100);
         // fillData.completionPercentage = `(${percentageProgressTime}%)`;
         if (percentageProgressTime == 100) {
           fillData.completionPercentage = `(completed)`;
@@ -1964,33 +1900,26 @@ let app = (function () {
     	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
     	
     	
-    	/* obsolete feature
-    	
-    	// handle completed task
-    	let isCompleted = false;
-      if (item.progressTime + liveProgressTime >= minutesToMs(item.target)) {
-        isCompleted = true;
-      }
-    	if (isCompleted) {
-    	  docFragCompleted.append(el);
-    	}
-    	*/
+    	// # display sequence tasks
+    	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'))
     	
     	if (item.isArchived) {
       	docFragCompleted.append(el);
     	} else {
     	  docFrag.append(el);
     	}
-  
-  
-      // rankLabel++;
+    	
       
     }
     
     if (isMissionView && lsdb.data.activeGroupId == '') {
       $('#txt-total-ratio').textContent = '';
     } else {
-      $('#txt-total-ratio').textContent = 'Allocation : ' + totalRatio + '%';
+      if (totalRatio > 0) {
+        $('#txt-total-ratio').textContent = 'Priority range : 0..' + totalRatio;
+      } else {
+        $('#txt-total-ratio').textContent = 'Priority range : N/A';
+      }
     }
     
     $('#tasklist').innerHTML = '';
@@ -2004,6 +1933,8 @@ let app = (function () {
   async function TaskStopActiveTask() {
     
     document.body.stateList.remove('--timer-running');
+    document.title = `DailyHeroes`;
+
     await clearAlarms();
     
     if (app.isPlatformAndroid) {
@@ -2017,7 +1948,9 @@ let app = (function () {
       await window.service.SetData({ 'history': data.history + distanceMinutes });
       await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
       await updateProgressActiveTask(distanceMinutes, distanceTime);
-      await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+      await compoTimeStreak.TaskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+      
+      await compoTimeStreak.TaskCommit();
       
       // update active tracker
       updateActiveTrackerProgress(distanceTime);
@@ -2026,6 +1959,7 @@ let app = (function () {
     await window.service.RemoveData(['start']);
     
     updateUI();
+    ui.RefreshTimeStreak();
     uiTracker.RefreshItemList();
     
     if (window.modeChromeExtension) {
@@ -2039,24 +1973,6 @@ let app = (function () {
   function updateActiveTrackerProgress(distanceTime) {
     compoTracker.AppendProgressToActiveTracker(distanceTime);
     compoTracker.Commit();
-  }
-  
-  async function taskUpdateTaskTimeStreak(distanceTime, activeTaskId) {
-    
-    let data = await chrome.storage.local.get(['lastActiveId', 'totalTimeStreak']);
-    
-    if (typeof(data.lastActiveId) == 'undefined' || activeTaskId != data.lastActiveId) {
-      await chrome.storage.local.set({
-      	lastActiveId: activeTaskId,
-      	totalTimeStreak: distanceTime,
-      });
-    } else {
-      let totalTimeStreak = data.totalTimeStreak + distanceTime;
-      await chrome.storage.local.set({
-      	totalTimeStreak,
-      });
-    }
-    
   }
   
   function GetDataManager() {
@@ -2370,11 +2286,11 @@ let app = (function () {
   
   async function Init() {
     
-    await initData();
+    await taskInitAppData();
     await loadTasks();
     await app.ApplyProgressMadeOutsideApp();
     await TaskListTask();
-    TaskSetActiveTaskInfo();
+    ui.TaskSetActiveTaskInfo();
     ui.Init();
     updateUI();
     
@@ -2393,7 +2309,7 @@ let app = (function () {
   }
   
     
-  async function initData() {
+  async function taskInitAppData() {
     let result = window.service.GetData(['history']);
     if (typeof(result.history) == 'undefined') {
   	  await window.service.SetData({ 'history': 0 });
@@ -2408,18 +2324,35 @@ let app = (function () {
     data.globalTimer = lsdb.data.globalTimer;
     ui.SetGlobalTimer();
     
-    restoreComponentsData();
+    await taskRestoreComponentsData();
     
     compoTracker.Init(lsdb.data.compoTracker);
   }
   
-  function restoreComponentsData() {
-    appSettings.GetComponentData('compoGsiChrome', async (data) => {
-      await waitUntil(() => {
-        return (typeof(compoGsiChrome) != 'undefined');
-      }, 100);
-      compoGsiChrome.InitData(data);
-    });
+  async function taskRestoreComponentsData() {
+    // google sign in
+    {
+      
+      let data = appSettings.GetComponentData('compoGsiChrome');
+      new Promise(async resolve => {
+        await waitUntil(() => {
+          return (typeof(compoGsiChrome) != 'undefined');
+        }, 100);
+        compoGsiChrome.InitData(data);
+        resolve();
+      });
+    }
+    
+    // time streak
+    {
+      if (window.modeChromeExtension) {
+        let data = await chrome.storage.local.get(['lastActiveId', 'totalTimeStreak']);
+        compoTimeStreak.Init(data);
+      } else {
+        let data = appData.GetComponentData('compoTimeStreak');
+        compoTimeStreak.Init(data);
+      }
+    }
   }
   
   function waitUntil(stateCheckCallback, delay = 100) {
@@ -2479,21 +2412,23 @@ let app = (function () {
     SELF.isCanNotify = isCanNotify;
   }
   
-  async function TaskClickHandler(el) {
+  async function TaskClickHandler(evt, el) {
+
     let actionRole = getActionRole(el);
     let parentEl = el.closest('[data-obj="task"]');
     let id = parentEl.dataset.id;
+
     switch (actionRole) {
+      case 'add-sequence-task': compoTask.AddSequence(id); break;
       case 'navigate-mission': app.TaskNavigateToMission(id); break;
       case 'navigate-sub': 
-        // changeViewModeConfig('tasks');
-        // saveConfig();
         ui.Navigate(id);
         app.TaskListTask();
         break;
       case 'edit': editTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
+      case 'delete-sequence-task': compoTask.DeleteSequenceByEvt(evt); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-timer': addSubTimer(id); break;
@@ -2501,7 +2436,6 @@ let app = (function () {
       case 'track': trackProgress(id); break;
       case 'untrack': untrackProgress(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
-      case 'split-task': await splitTask(id); break;
       case 'remove-mission': taskAddToMission(id, parentEl); break;
       case 'add-to-mission': taskAddToMission(id, parentEl); break;
       case 'set-target': await setTaskTarget(id); break;
@@ -2518,7 +2452,7 @@ let app = (function () {
       case 'unarchive': await taskUnarchive(id); break;
       case 'restart': await restartTask(id); break;
       case 'take-note': showModalNote(id); break;
-      case 'start': await startTaskTimer(parentEl, id); break;
+      case 'start': await StartTaskTimer(parentEl, id); break;
       case 'stop': await app.TaskStopActiveTask(); break;
         
       // notes
@@ -2527,6 +2461,7 @@ let app = (function () {
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
     }
+    
   }
   
   function GetTaskById(id) {

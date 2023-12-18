@@ -22,7 +22,73 @@ let ui = (function () {
     ChangeGlobalPresetTimer,
     
     SetGlobalTimer,
+    RefreshListSequenceByTaskId,
+    TaskSetActiveTaskInfo,
+    RefreshTimeStreak,
   };
+  
+  async function TaskSetActiveTaskInfo() {
+    $('#txt-active-task-name').textContent = '';
+    
+    let activeTask = await getActiveTask();
+    if (!activeTask) return;
+      
+    let ratioTimeLeftStr = '';
+    let ratioTimeLeft = timeLeftRatio.find(x => x.id == activeTask.id);
+    if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
+      ratioTimeLeftStr = `${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}`;
+    }
+    
+    $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
+    
+    RefreshTimeStreak();
+  }
+  
+  function RefreshTimeStreak() {
+    let streak = compoTimeStreak.GetActive();
+    if (streak) {
+      viewStateUtil.Add('active-task-info', ['on-streak']);
+      $('#txt-time-streak').textContent = secondsToHMS(msToSeconds(streak.totalTimeStreak));
+    } else {
+      viewStateUtil.Remove('active-task-info', ['on-streak']);
+    }
+  }
+  
+  function RefreshListSequenceByTaskId(id, container) {
+    
+    let item = app.GetTaskById(id);
+    
+    if (!container) {
+      container = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
+    }
+    
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    compoSequence.Stash(item.sequenceTasks);
+  	
+  	let activeId = compoSequence.GetActiveId();
+  	let items = compoSequence.GetAll();
+    let docFrag = document.createDocumentFragment();
+  	
+    for (let item of items) {
+      let el = window.templateSlot.fill({
+        data: {
+          title: item.title,
+          targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
+        }, 
+        template: document.querySelector('#tmp-list-sequence-task').content.cloneNode(true), 
+      });
+      
+      el.querySelector('[data-kind="item-sequence-task"]').dataset.id = item.id;
+      el.querySelector('[data-kind="item-sequence-task"]').classList.toggle('is-active', (item.id == activeId));
+      
+      docFrag.append(el);
+    }
+    
+    container.append(docFrag);
+  }
   
   function SetGlobalTimer() {
     $('#txt-global-preset-timer').textContent = app.GetGlobalTimerStr()

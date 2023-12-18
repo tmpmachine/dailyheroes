@@ -33,11 +33,11 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body data-view-group="platform auth" data-view-states="">
+<body data-view-group="platform auth build" data-view-states="">
   
   [ {max-width:500px;m:auto} .container-app
 
-    [ {max-width:100%;min-width:330px;margin:auto;} .d-grid .container-app-inner data-view-group="screens features" data-view-states="home"
+    [ {max-width:100%;min-width:380px;margin:auto;} .d-grid .container-app-inner data-view-group="screens features" data-view-states="home"
     
       <!-- # screen : home -->
       <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
@@ -60,10 +60,6 @@
 
         
         <div class="d-flex justify-content-between">
-          
-          <!--<button class="clickable" data-callback='export-tasks'>Export</button>-->
-          <!--<button class="clickable" data-callback='import-tasks'>Import</button>-->
-          <!--<button class="clickable icon-mate" data-callback='manage-tasks'>expand_more</button>-->
           <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
         </div>
         <div class="default-gap"></div>
@@ -72,7 +68,7 @@
         [ .d-flex {gap:0.5rem}
           
           <!-- # progress bar -->
-          [ {flex-grow:1}
+          [ {flex-grow:1} data-view-group="active-task-info" data-view-states=""
             <div class="NzE2ODYyNQ-progress-bar-container">
               <div class="NzE2ODYyNQ-progress-bar">
                 <div class="NzE2ODYyNQ-progress-bar-fill"></div>
@@ -83,7 +79,12 @@
             
             <!-- # active task info -->
             [
-              [small 'Active task'] : [s @txt-active-task-name {fw:bold;word-break:break-word}] 
+              [small 'Active task'] : [s #txt-active-task-name {fw:bold;word-break:break-word}] 
+            ]
+            [ data-view-group="active-task-info" data-view-name="on-streak"
+              [small
+                Total time streak : [s #txt-time-streak]
+              ]
             ]
             [ .mb-xs]
             
@@ -109,6 +110,7 @@
                   Start
                   [s .icon-mate 'play_arrow']
                 </button>
+                [small data-view-group="platform" data-view-name="web" '(Alt+S)' .text-center]
                 <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
               ]
             </div>
@@ -165,7 +167,9 @@
           <!-- # view mode tabs -->
           [ .d-grid {cols:1fr 1fr auto} .container-view-mode
             [btn 'All Tasks' .clickable data-callback="view-tasks" data-id="task"]
-            [btn 'Missions' .clickable data-callback="view-mission" data-id="mission"]
+            [btn .clickable data-callback="view-mission" data-id="mission"
+              [s 'Collection']
+            ]
           ]
           <div class="default-gap"></div>
           
@@ -204,7 +208,7 @@
             [ .d-flex .justify-content-between
               [ #container-breadcrumbs .container-breadcrumbs]
               [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-                [ #txt-total-ratio {text-wrap:nowrap}]
+                [small #txt-total-ratio {text-wrap:nowrap}]
               ]
             ]
             [ {mb:0.3rem}]
@@ -273,6 +277,9 @@
           
           <button class="clickable btn-add-task" data-callback="show-modal-add-task">
             [s .icon-mate 'add' {fs:2.2rem}]
+            [ .pos-absolute {b:-17px}
+              [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center]
+            ]
           </button>
         ]
         
@@ -352,7 +359,13 @@
               <button class="clickable" data-callback="reset-data">Reset data</button>
             ][ .mb-m]
             
-            [small 'Cloud backup and restore.'][ .mb-m]
+          ][ .default-gap] 
+          
+          <!-- backup and restore -->
+          [
+            [ 'Backup and Restore' {fw:bold}][ .mb-m]
+            
+            [small 'Backup to Google Drive.'][ .mb-m]
             [ .d-flex {gap:0.3rem}
               <button class="clickable" data-callback="authorize">Authorize</button>
               [ data-view-group="auth" data-view-name="authorized"
@@ -363,9 +376,9 @@
             [
               [ #txt-backup-status]
               [ #txt-restore-status]
-            ]
+            ][ .mb-m]
             
-            [small 'Local backup and restore.'][ .mb-m]
+            [small 'Local backup.'][ .mb-m]
             [ .d-flex {gap:0.3rem}
               <button class="clickable" data-callback='backup-data'>Backup</button>
               <button class="clickable" data-callback='restore-data'>Restore</button>
@@ -379,18 +392,13 @@
               [s #txt-global-preset-timer] <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
             ][ .mb-m]
             
-            [small 'Backup and restore.'][ .mb-m]
-            [ .d-flex {gap:0.3rem}
-              <button class="clickable" data-callback='backup-data'>Backup</button>
-              <button class="clickable" data-callback='restore-data'>Restore</button>
-            ]
           ][ .default-gap] 
           
           <!-- sound -->
           [
-            [ 'Sound' {fw:bold}][ .mb-m]
+            [ 'Alarm Sound' {fw:bold}][ .mb-m]
             [ .d-flex {gap:0.3rem}
-              <button class="clickable" data-callback='pick-audio'>Pick audio</button>
+              <button class="clickable" data-callback='pick-audio'>Set audio</button>
               <button class="clickable" data-callback='remove-audio'>Remove audio</button>
               <button class="clickable" data-callback='test-audio'>Test audio</button>
             ][ .mb-m]
@@ -406,17 +414,19 @@
           
           <!-- app cache -->
           [ data-view-group="platform" data-view-name="web"
-            [ 'Application Cache' {fw:bold}]
+            [ 'Updates & Offline Access' {fw:bold}]
+            [ .default-gap]
             
-            [small 'For development and offline support.'][ .mb-m]
             [ .d-grid {gap:0.3rem}
               [
                 <button onclick="pwaCacher.update()">Check for updates</button>
               ]
               [
-                <button onclick="pwaCacher.removeUpdate()">Remove app cache</button>
+                <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
               ]
             ]
+            [ .default-gap]
+            [small '*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.']
           ]
         ]
         
@@ -536,9 +546,10 @@
   	  <!-- # task footer information -->
   	  
   	  <!-- # task toolbar -->
-  	  [ .container-task-toolbar {p:0.5rem}
-    	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons"]
-    	  
+  	  [ .container-task-toolbar
+
+    	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons" {p:0.5rem}]
+        
         <div data-obj="tracking-status" style="height:4px;"></div>
       	
       	[ .d-none
@@ -555,16 +566,29 @@
         <div class="task-progress-bar"></div>
       </div>
       
-    	<!-- # -->
+      [ data-container="sequence-tasks"]
       
   	]
   </template>
 
+  <template id="tmp-list-sequence-task">
+    [ .item-sequence data-kind="item-sequence-task" .d-flex .justify-content-between
+      [
+        [s data-slot="title"]
+        ([s data-slot="targetTimeStr"])
+      ]
+      [
+        [btn 'x' data-role="delete-sequence-task"]
+      ]
+    ]
+  </template>
+  
   <template id="tmp-mission-buttons">
 
     [ .d-inline-flex {gap:0.2rem}
+      [button 'expand_more' class="icon-mate" data-role="add-sequence-task" title="Add sequence" data-view-group="build" data-view-name="dev"]
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-        <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
+        [button 'star' class="btn-star icon-mate" data-role='star-task' title="Star this task"]
       ] 
       [ .d-flex
         <button data-role='remove-mission' class="icon-mate" title='Remove from mission'>playlist_remove</button>

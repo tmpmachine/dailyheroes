@@ -1,5 +1,17 @@
 let viewStates = [
   {
+    group: 'build',
+    states: [
+      'dev'
+    ]
+  },
+  {
+    group: 'active-task-info',
+    states: [
+      'on-streak'
+    ]
+  },
+  {
     group: 'task-view-mode',
     states: [
       'task',

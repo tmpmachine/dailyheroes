@@ -6,6 +6,9 @@
     "js/components/compo-gsi-chrome.js",
     "js/components/compo-tracker.js",
     "js/components/compo-mission.js",
+    "js/components/compo-task.js",
+    "js/components/sequence-component.js",
+    "js/components/compo-time-streak.js",
     "js/components/compo-backup.js"
   ],
   "fonts": [
@@ -24,6 +27,7 @@
     "js/view-states.js",
     
     "js/component-loader.js",
+    "js/app-data.js",
     "js/app.js",
     "js/ui.js",
     "js/ui-mission.js",

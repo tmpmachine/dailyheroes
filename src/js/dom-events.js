@@ -84,7 +84,7 @@ let DOMEvents = (function() {
   			await window.service.SetData({ 'target': 3*60 + 20 });
   			updateUI();
   		},
-    	'task-click-handler': (ev) => app.TaskClickHandler(ev.target),
+    	'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
   		
   		'stop-timer': () => app.TaskStopActiveTask(),
   		'start-or-restart-timer': () => startOrRestartTask(),
