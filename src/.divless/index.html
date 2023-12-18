@@ -2,7 +2,7 @@
 <html>
 <head>
 
-  <title>Daily Heroes</title>
+  <title>DailyHeroes</title>
   <!-- mobile meta tags-->
   <meta name="viewport" content="width=device-width"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -499,7 +499,7 @@
     [ data-kind="item" data-id=""
       [ data-slot="title"]
       [ 
-        [small data-slot="progressTimeStr"
+        [small data-slot="progressTimeStr"]
       ]
       [ .d-flex .justify-content-end {gap:0.3em}
         [btn 'Rename' data-action="rename"]
@@ -669,10 +669,6 @@
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
-          <div data-role="manage" class="default-inline-flex-gap">
-            <button data-role='track'>Track</button>
-            <button data-role='untrack'>Untrack</button>
-          </div>
           [ {pr:0.3rem} data-group="not-running"]
           <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
         ]

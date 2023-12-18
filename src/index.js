@@ -112,7 +112,6 @@ function initServiceWorker() {
   
   function clientUpdateHandler(swo) {
     
-    
     if (worker)
       worker.waiting.postMessage({action: 'skipWaiting'});
     else if (swo)
@@ -143,6 +142,7 @@ function initServiceWorker() {
     // uncomment to debug without SW
     // return;
     navigator.serviceWorker.register('/sw.js').then(function(swo) {
+      
       if (!navigator.serviceWorker.controller)
         return;
       if (swo.waiting) {

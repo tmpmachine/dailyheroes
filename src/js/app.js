@@ -129,6 +129,7 @@ async function setTimer(duration) {
   
   lsdb.data.scheduledTime = triggerTime;
   lsdb.save();
+  
   if (window.modeChromeExtension) {
     await chrome.alarms.clearAll();
     await chrome.alarms.create('clock', {
@@ -179,7 +180,7 @@ async function clearTaskHistory() {
     task.progress = 0;
     task.progressTime = 0;
   }
-  await storeTask();
+  await appData.TaskStoreTask();
 }
 
 async function clearTaskTotalProgressTime() {
@@ -191,7 +192,7 @@ async function clearTaskTotalProgressTime() {
       }
     }
   }
-  await storeTask();
+  await appData.TaskStoreTask();
 }
 
 function partialUpdateUITask(id, task) {
@@ -229,11 +230,6 @@ function addTaskData(inputData) {
   
   return id;
 }
-      
-async function storeTask() {
-  await window.service.SetData({ 'tasks': tasks });
-}
-
 
 function loadSearch() {
   if (window.lsdb.data.search || window.lsdb.data.labelFilter) {
@@ -305,7 +301,7 @@ async function startOrRestartTask() {
   
   await app.TaskStopActiveTask();
   await app.TaskContinueTask(task.id);
-  await startCurrentTask(task.id);
+  await compoTask.StartTimerByTaskId(task.id);
 }
 
 async function finishTimer() {
@@ -371,7 +367,7 @@ async function updateTime(scheduledTime, startTime) {
   
   // is task finished, perform once.
   if (isNegative) {
-    
+
     // ended few milliseconds ago
     if (distance < 1000) {
       sendNotification();
@@ -380,8 +376,9 @@ async function updateTime(scheduledTime, startTime) {
     }
     
     // stop updating the timer, it's ended by background script
-    if (app.isPlatformChromeExt) {
-      clearInterval(countdonwIntervalId);
+    clearInterval(countdonwIntervalId);
+    if (!app.isPlatformChromeExt) {
+      app.TaskStopActiveTask();
     }
     
   }
@@ -400,19 +397,55 @@ async function updateTime(scheduledTime, startTime) {
 async function sendNotification() {
   if (!app.isCanNotify) return;
   
+  let isNotifSequence = false;  
   let task = await getActiveTask();
   
-  let notification = new Notification("Time's up!", {
+  compoSequence.Stash(task.sequenceTasks);
+  let sequenceTask = compoSequence.GetActive();
+  if (sequenceTask) {
+    isNotifSequence = true;  
+  }
+  compoSequence.Pop();
+  
+  if (isNotifSequence) {
+    
+    navigator.serviceWorker.ready.then((registration) => {
+      
+      registration.showNotification(`Time's up!`, {
+        body: `${sequenceTask.title}`,
+        requireInteraction: true,
+        actions: [{
+          action: 'next-task',
+          title: 'Start next task',
+        }]
+      });
+      
+    	ui.RefreshListSequenceByTaskId(task.id);
+
+    });
+    
+    /*
+    let notification = new Notification("Time's up!", {
+      body: `${sequenceTask.title}`,
+      requireInteraction: true,
+    }); 
+    */
+    
+  } else {
+    
+    let notification = new Notification(`Time's up!`, {
       body: `Task : ${task.title}`,
       requireInteraction: true
-  });
-  
-  notification.onclick = function () {
-    window.focus();
-    notification.close();
-  };
+    });
+    notification.addEventListener('click', function(e) {
+      window.focus();
+      e.target.close();
+    }, false);
+    
+  }
   
 }
+
 
 function updateCountdownText(countdownStr, isNegative) {
   $('#txt-countdown').textContent = countdownStr;
@@ -934,7 +967,7 @@ async function taskSetTaskRatio(id) {
   if (!value) return;
   
   task.ratio = parseFloat(value);
-  await storeTask();
+  await appData.TaskStoreTask();
   app.TaskListTask();
 }
 
@@ -946,7 +979,7 @@ async function TaskAddLabel(id) {
   if (!label) return;
   
   task.label = label;
-  await storeTask();  
+  await appData.TaskStoreTask();  
 }
 
 async function switchActiveTask(taskEl, id, persistent = false) {
@@ -1016,7 +1049,7 @@ function appendNotes(data) {
 async function taskArchiveTask(id) {
   let task = tasks.find(x => x.id == id);
   task.isArchived = true;
-  await storeTask();
+  await appData.TaskStoreTask();
   let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
   $('#tasklist-completed').append(taskEl);
 }
@@ -1027,7 +1060,7 @@ async function taskUnarchive(id) {
   // task.progress = 0;
   // task.progressTime = 0;
   // task.finishCountProgress = task.finishCount;
-  await storeTask();
+  await appData.TaskStoreTask();
   await app.TaskListTask();  
   loadSearch();
 }
@@ -1037,7 +1070,7 @@ async function finishTask(id) {
   let task = tasks.find(x => x.id == id);
   task.progress = task.target;
   task.progressTime = task.target * 60 * 1000;
-  await storeTask();
+  await appData.TaskStoreTask();
   let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
   $('#tasklist-completed').append(taskEl);
 }
@@ -1047,7 +1080,7 @@ async function restartTask(id) {
   task.progress = 0;
   task.progressTime = 0;
   task.finishCountProgress = task.finishCount;
-  await storeTask();
+  await appData.TaskStoreTask();
   await app.TaskListTask();  
   loadSearch();
 }
@@ -1065,7 +1098,7 @@ async function addNote(form) {
     desc: title,
   };
   task.note.push(note);
-  await storeTask();
+  await appData.TaskStoreTask();
   partialUpdateTask('notes', task);
 }
 
@@ -1093,7 +1126,7 @@ async function fixMissingNoteId(taskId, el) {
   let newId = generateUniqueId();
   task.note[noteIndex].id = newId;
   parentEl.querySelector('[data-slot="id"]').textContent = newId
-  await storeTask();
+  await appData.TaskStoreTask();
 }
 
 async function setSubTask(id, el) {
@@ -1109,7 +1142,7 @@ async function setSubTask(id, el) {
     activeSubTaskEl.stateList.toggle('--active', false);
   }
   parentEl.stateList.toggle('--active', !isActive);
-  await storeTask();
+  await appData.TaskStoreTask();
 }
 
 async function deleteNote(id, el) {
@@ -1126,7 +1159,7 @@ async function deleteNote(id, el) {
   if (task.activeSubTaskId == noteId) {
     task.activeSubTaskId = null;
   }
-  await storeTask();
+  await appData.TaskStoreTask();
   parentEl.remove();
 }
 
@@ -1151,7 +1184,7 @@ async function renameNote(id, el) {
     task.note[noteIndex].desc = desc;
     newDesc = desc;
   }
-  await storeTask();
+  await appData.TaskStoreTask();
   if (noteId) {
     partialUpdateNoteName(parentEl, newDesc);
   }
@@ -1162,15 +1195,6 @@ function partialUpdateNoteName(noteEl, desc) {
   if (descEl) {
     descEl.textContent = desc;
   }
-}
-
-async function startCurrentTask(id) {
-  let task = tasks.find(x => x.id == id);
-  if (task.progress >= task.target) return;
-  
-  let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
-  androidClient.StartTimer(seconds, task.title);
-  setTimer(task.target * 60 * 1000 - task.progressTime);
 }
 
 async function setTaskTarget(id) {
@@ -1193,24 +1217,10 @@ async function setTaskTarget(id) {
   if (!userVal) return;
   
   task.target = Math.max(0, parseHoursMinutesToMinutes(userVal));
-  await storeTask();
+  await appData.TaskStoreTask();
   await app.TaskListTask();  
   await updateUI();
   loadSearch();
-}
-
-function untrackProgress(id) {
-  let task = app.getTaskById(id);
-  task.untracked = true;
-  updateUI();
-  storeTask();
-}
-
-function trackProgress(id) {
-  let task = app.getTaskById(id);
-  task.untracked = false;
-  updateUI();
-  storeTask();
 }
 
 async function editTask(taskId) {
@@ -1257,8 +1267,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
       await taskApplyNecessaryTaskUpdates(activeTask, distanceTime);
       
       app.AddProgressTimeToRootMission(activeTask.parentId, distanceTime);
-      
-      await storeTask();
+
+      await appData.TaskStoreTask();
       
       let el = $(`[data-obj="task"][data-id="${data.activeTask}"]`);
       if (el) {
@@ -1507,7 +1517,7 @@ let app = (function () {
     await app.TaskStopActiveTask();
     await switchActiveTask(parentEl, id, true);
     await app.TaskContinueTask(id);
-    await startCurrentTask(id);
+    await compoTask.StartTimerByTaskId(id);
     
     ui.RefreshTimeStreak();
   }
@@ -1584,7 +1594,7 @@ let app = (function () {
     task.progress = 0;
     task.progressTime = 0;
     task.finishCountProgress = task.finishCount;
-    await storeTask();
+    await appData.TaskStoreTask();
     await app.TaskListTask();  
     loadSearch();
   }
@@ -1982,6 +1992,17 @@ let app = (function () {
       await updateProgressActiveTask(distanceMinutes, distanceTime);
       await compoTimeStreak.TaskUpdateTaskTimeStreak(distanceTime, data.activeTask);
       
+      // set active next sequence task
+      let task = await getActiveTask();
+      compoSequence.Stash(task.sequenceTasks);
+      let sequenceTask = compoSequence.GetActive();
+      if (sequenceTask) {
+        let item = compoSequence.GetNext();
+        compoSequence.SetActiveById(item.id);  
+      }
+      compoSequence.Commit();
+      compoSequence.Pop();
+      
       await compoTimeStreak.TaskCommit();
       
       // update active tracker
@@ -2025,7 +2046,7 @@ let app = (function () {
       if (result.isConfirmed) {
         lsdb.reset();
   	    tasks.length = 0;
-  	    await storeTask();
+  	    await appData.TaskStoreTask();
         
         Swal.fire(
           'Deleted!',
@@ -2140,7 +2161,7 @@ let app = (function () {
     }
     
     await chrome.storage.local.remove('taskProgressHistory');
-    await storeTask();
+    await appData.TaskStoreTask();
     appSettings.Save();
     
   }
@@ -2167,7 +2188,7 @@ let app = (function () {
       } else {
         task.lastStarredDate = new Date().getTime();
       }
-      await storeTask();
+      await appData.TaskStoreTask();
     }
     app.TaskListTask();
   }
@@ -2214,7 +2235,7 @@ let app = (function () {
       
       AddProgressTimeToRootMission(task.parentId, addedTime);
       
-      await storeTask(); 
+      await appData.TaskStoreTask(); 
       
       // update active tracker
       updateActiveTrackerProgress(addedTime);
@@ -2308,7 +2329,7 @@ let app = (function () {
       parentTask.totalProgressTime += totalDeletedProgressTime;
     }
     
-    await storeTask();
+    await appData.TaskStoreTask();
     lsdb.save();
     
     await removeActiveTaskIfExists(id);
@@ -2429,7 +2450,6 @@ let app = (function () {
     
     if (!SELF.isPlatformWeb) return;
     
-    
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification");
     } else if (Notification.permission === "granted") {
@@ -2472,8 +2492,6 @@ let app = (function () {
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-timer': addSubTimer(id); break;
       case 'add-progress-minutes': await app.TaskAddProgressManually(id); break;
-      case 'track': trackProgress(id); break;
-      case 'untrack': untrackProgress(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
       case 'remove-mission': taskAddToMission(id, parentEl); break;
       case 'add-to-mission': taskAddToMission(id, parentEl); break;
@@ -2516,7 +2534,7 @@ let app = (function () {
     task.finishCountProgress = parseInt(form['finishCount'].value);
     task.parentId = form['parent-id'].value;
     
-    await storeTask();
+    await appData.TaskStoreTask();
     partialUpdateUITask(task.id, task);
     form.reset();
     
@@ -2573,7 +2591,7 @@ let app = (function () {
       await window.service.SetData({'activeTask': taskId});
     }
   
-    await storeTask();
+    await appData.TaskStoreTask();
     await app.TaskListTask();
     
     updateUI();

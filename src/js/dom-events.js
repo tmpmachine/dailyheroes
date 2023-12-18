@@ -115,7 +115,7 @@ let DOMEvents = (function() {
       'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
       
       'open-priority-mapper': () => ui.OpenPriorityMapper(),      
-      'save-priority-mapper': () => ui.SavePriorityMapper(),
+      'save-priority-mapper': () => ui.TaskSavePriorityMapper(),
   	},
   	
   	inputable: {
@@ -216,7 +216,7 @@ let DOMEvents = (function() {
   		}
   		
   		form.reset();
-  		await storeTask();
+  		await appData.TaskStoreTask();
   		app.TaskListTask();
   		// const data = {};
   		// data.title = formData.get('title') || null;

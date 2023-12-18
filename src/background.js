@@ -1,3 +1,5 @@
+import { compoSequence }from '/js/sequence-component.js';
+
 chrome.runtime.onInstalled.addListener(() => { });
 
 chrome.alarms.onAlarm.addListener(alarmHandler);
@@ -107,40 +109,51 @@ async function reduceCountActiveTask() {
 
 async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let data = await chrome.storage.local.get(['activeTask']);
-  if (data.activeTask) {
-    let tasks = await getTask();
-    let activeTask = tasks.find(x => x.id == data.activeTask);
-    if (activeTask) {
-      activeTask.progress += addedMinutes;
-      activeTask.progressTime += distanceTime;
-      if (typeof(activeTask.totalProgressTime) == 'undefined') {
-        activeTask.totalProgressTime = 0;  
-      }
-      activeTask.totalProgressTime += distanceTime;
-      
-      // apply target time balancing
-      await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks);
-      
-      // store task history to accumultas the progress on parent mission later
-      {
-        let data = await chrome.storage.local.get(['taskProgressHistory']);
-        let historyData = {
-          parentId: activeTask.parentId,
-          progressTime: distanceTime,
-        };
-        if (data.taskProgressHistory == undefined) {
-          data.taskProgressHistory = [];
-        }
-        data.taskProgressHistory.push(historyData);
-        
-        await chrome.storage.local.set({
-        	taskProgressHistory: data.taskProgressHistory,
-        });
-      }
-      
-      await storeTask(tasks);
-    }
+  if (!data.activeTask) return;
+  
+  let tasks = await getTask();
+  let activeTask = tasks.find(x => x.id == data.activeTask);
+  if (!activeTask) return;
+  
+  activeTask.progress += addedMinutes;
+  activeTask.progressTime += distanceTime;
+  if (typeof(activeTask.totalProgressTime) == 'undefined') {
+    activeTask.totalProgressTime = 0;  
   }
+  activeTask.totalProgressTime += distanceTime;
+  
+  // apply target time balancing
+  await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks);
+  
+  // set active next sequence task
+  compoSequence.Stash(activeTask.sequenceTasks);
+  let sequenceTask = compoSequence.GetActive();
+  if (sequenceTask) {
+    let item = compoSequence.GetNext();
+    compoSequence.SetActiveById(item.id);  
+  }
+  compoSequence.Commit();
+  
+  
+  // store task history to accumultas the progress on parent mission later
+  {
+    let data = await chrome.storage.local.get(['taskProgressHistory']);
+    let historyData = {
+      parentId: activeTask.parentId,
+      progressTime: distanceTime,
+    };
+    if (data.taskProgressHistory == undefined) {
+      data.taskProgressHistory = [];
+    }
+    data.taskProgressHistory.push(historyData);
+    
+    await chrome.storage.local.set({
+    	taskProgressHistory: data.taskProgressHistory,
+    });
+  }
+  
+  await storeTask(tasks);
+      
 }
 
 async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
@@ -293,7 +306,7 @@ async function onAlarmEnded(alarm) {
       // set target minutes on restart button
       targetMinutesTxt = ` (${activeTask.target}m)`;
       if (activeTask.targetTime > 0) {
-        targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`
+        targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`;
       }
       
       // set finish count text

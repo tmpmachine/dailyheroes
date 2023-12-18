@@ -107,3 +107,37 @@ function cacheExtension(e) {
     }),
   ]));
 }
+
+
+// handle notification click
+self.addEventListener(
+  "notificationclick",
+  (event) => {
+    
+    event.notification.close();
+    
+    if (event.action === "next-task") {
+      
+      // This looks to see if the current is already open and
+      // focuses if it is
+      event.waitUntil(
+        clients
+          .matchAll({
+            type: "window",
+          })
+          .then((clientList) => {
+            for (const client of clientList) {
+              let url = new URL(client.url);
+              if (url.pathname === "/" && "focus" in client) return client.focus();
+            }
+            if (clients.openWindow) return clients.openWindow("/");
+          }),
+      );
+      
+    } else {
+      // User selected (e.g., clicked in) the main body of notification.
+      // clients.openWindow("/inbox");
+    }
+  },
+  false,
+);

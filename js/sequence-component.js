@@ -1,4 +1,4 @@
-let compoSequence = (function() {
+export let compoSequence = (function() {
   
   'use strict';
   

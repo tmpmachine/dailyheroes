@@ -71,13 +71,13 @@ let appSettings = (function() {
     Save,
     SetComponentData,
     GetComponentData,
-    StoreTask,
+    TaskStoreTask,
     GetActiveTaskParentId,
   };
   
   
-  function StoreTask() {
-    window.service.SetData({ 
+  async function TaskStoreTask() {
+    await window.service.SetData({ 
       'tasks': compoTask.GetAll() 
     });
   }

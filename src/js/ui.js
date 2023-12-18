@@ -32,7 +32,7 @@ let ui = (function () {
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
     OpenPriorityMapper,
-    SavePriorityMapper,
+    TaskSavePriorityMapper,
     HandleInputPrioritySlider,
   };
   
@@ -170,7 +170,7 @@ let ui = (function () {
     
   }
   
-  function SavePriorityMapper() {
+  async function TaskSavePriorityMapper() {
     
     let nodes = $$('[data-container="list-priority-mapper"] .item');
     
@@ -183,7 +183,7 @@ let ui = (function () {
     }
     
     compoPriorityMapper.Commit();
-    appData.StoreTask();
+    await appData.TaskStoreTask();
     
     app.TaskListTask();
     viewStateUtil.Set('screens', ['home']);

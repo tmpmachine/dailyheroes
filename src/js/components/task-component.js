@@ -10,7 +10,47 @@ let compoTask = (function() {
     UpdateSequence,
     DeleteSequenceByEvt,
     GetTotalPriorityPointByParentTaskId,
+    StartTimerByTaskId,
   };
+  
+  async function StartTimerByTaskId(id) {
+    let task = GetById(id);
+    
+    // check sequence tasks
+    compoSequence.Stash(task.sequenceTasks);
+    
+    try {
+      
+      let sequence = compoSequence.GetActive();
+      
+      if (sequence) {
+        startTimerByTaskSequence(sequence);
+      } else {
+        startTimerByTask(task);
+      }
+      
+    } catch (err) {
+      console.error(err);
+    }
+    
+    compoSequence.Pop();
+  }
+  
+  function startTimerByTaskSequence(task) {
+    if (task.progressTime >= task.targetTime) return;
+    
+    let seconds = (task.targetTime - task.progressTime) / 1000;
+    androidClient.StartTimer(seconds, task.title);
+    setTimer(task.targetTime - task.progressTime);
+  }
+  
+  function startTimerByTask(task) {
+    if (task.progress >= task.target) return;
+    
+    let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
+    androidClient.StartTimer(seconds, task.title);
+    setTimer(task.target * 60 * 1000 - task.progressTime);
+  }
   
   function GetTotalPriorityPointByParentTaskId(parentTaskId) {
     let total = 0;
@@ -22,7 +62,7 @@ let compoTask = (function() {
     return total;
   }
   
-  function DeleteSequenceByEvt(evt) {
+  async function DeleteSequenceByEvt(evt) {
     
     let targetEl = evt.target;
     let taskEl = targetEl.closest('[data-kind="task"]');
@@ -42,7 +82,7 @@ let compoTask = (function() {
     
     compoSequence.Commit();
     
-    appData.StoreTask();    
+    await appData.TaskStoreTask();    
     
     ui.RefreshListSequenceByTaskId(id);
     
@@ -87,7 +127,7 @@ let compoTask = (function() {
     }
     
     compoSequence.Commit();
-    Commit();
+    appData.TaskStoreTask();
   }
   
   function UpdateSequence(title, durationTime, taskId, seqId) {
@@ -101,7 +141,7 @@ let compoTask = (function() {
     }, seqId);
     
     compoSequence.Commit();
-    Commit();
+    appData.TaskStoreTask();
   }
   
   const __idGenerator = (function() {
@@ -226,10 +266,6 @@ let compoTask = (function() {
     
     item.progressTime += time;
     return true;    
-  }
-  
-  function Commit() {
-    appData.StoreTask();
   }
     
   return SELF;
