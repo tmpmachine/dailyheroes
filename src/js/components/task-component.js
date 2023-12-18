@@ -4,13 +4,22 @@ let compoTask = (function() {
   
   let SELF = {
     GetAll,
+    GetById,
+    GetAllByParentId,
     AddSequence,
     DeleteSequenceByEvt,
+    GetTotalPriorityPointByParentTaskId,
   };
   
-  let local = {
-    componentStorageKey: 'compoTabManager',
-  };
+  function GetTotalPriorityPointByParentTaskId(parentTaskId) {
+    let total = 0;
+    for (let task of tasks) {
+      if (task.parentId == parentTaskId && typeof(task.ratio) == 'number') {
+        total += task.ratio;
+      }
+    }
+    return total;
+  }
   
   function DeleteSequenceByEvt(evt) {
     
@@ -39,6 +48,10 @@ let compoTask = (function() {
   
   function GetAll() {
     return tasks;
+  }
+  
+  function GetAllByParentId(parentId) {
+    return tasks.filter(task => task.parentId == parentId);
   }
   
   function AddSequence(taskId) {
@@ -155,8 +168,8 @@ let compoTask = (function() {
   }
   
   function GetById(id) {
-    let group = data.items.find(x => x.id == id);
-    if (group !== undefined) return group;
+    let item = tasks.find(x => x.id == id);
+    if (item !== undefined) return item;
     
     return null;
   }

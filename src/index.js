@@ -43,7 +43,7 @@ window.componentLoader.load([
       'js/utils/uuidv4-util.js',
       
       // app components
-      'js/components/compo-task.js',
+      'js/components/task-component.js',
       'js/components/compo-mission.js',
       'js/components/compo-tracker.js',
       'js/components/sequence-component.js',
@@ -70,6 +70,11 @@ window.componentLoader.load([
       app.Init();
       
     },
+  },
+  {
+    urls: [
+      "js/components/priority-mapper-component.js",
+    ],
   },
   {
     urls: [

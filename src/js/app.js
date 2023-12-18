@@ -888,10 +888,11 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
   if (typeof(ratio) != 'number') return;
   
+  let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentId);
   let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
 
-  let remainingRatio = 100 - ratio;
-  let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+  let remainingRatio = totalPriorityPoint - ratio;
+  let timeToDistribute = ( addedTime *  ( remainingRatio / totalPriorityPoint ) ) / ( ratio / totalPriorityPoint );
 
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
@@ -918,9 +919,9 @@ async function taskSetTaskRatio(id) {
   if (!task) return;
   
   const { value } = await Swal.fire({
-      title: 'Priority Level',
+      title: 'Set Priority Point',
       input: 'text',
-      inputLabel: 'example: 5, 100, 200',
+      inputLabel: 'Non negative number. Example: 5, 100, 200. Enter zero (0) to unset.',
       inputValue: task.ratio,
       showCancelButton: true,
       inputValidator: (value) => {
@@ -1703,6 +1704,16 @@ let app = (function () {
       sortTaskByTotalProgressTimeAsc(filteredTasks);
     }
 
+    // temporary store total priority point in a level
+    let tempTotalPriorityPoint = [
+      /*
+        {
+          parentId: '',
+          totalPriorityPoint: 0,
+        }
+      */
+    ];
+    
     // let rankLabel = 1;
     for (let item of filteredTasks) {
       
@@ -1775,9 +1786,16 @@ let app = (function () {
       
       }
       
+      // ROP info
+      let ratioStr = '';
+      if (item.ratio) {
+        let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(item.parentId);
+        let rop = Math.round(item.ratio / totalPriorityPoint * 10000) / 100;
+        ratioStr = `ROP ${rop.toFixed(2)}%`;
+      }
+      
       // show mission path
       let missionPath = '';
-      let ratioStr = item.ratio ? `${item.ratio}%` : '';
       let isTopPath = isTopMissionPath(item.id);
       if (isMissionView && isTopPath || IsShowTargetTimeOnly()) {
         ratioStr = '';
@@ -1901,7 +1919,7 @@ let app = (function () {
     	
     	
     	// # display sequence tasks
-    	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'))
+    	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
     	
     	if (item.isArchived) {
       	docFragCompleted.append(el);
@@ -1910,16 +1928,6 @@ let app = (function () {
     	}
     	
       
-    }
-    
-    if (isMissionView && lsdb.data.activeGroupId == '') {
-      $('#txt-total-ratio').textContent = '';
-    } else {
-      if (totalRatio > 0) {
-        $('#txt-total-ratio').textContent = 'Priority range : 0..' + totalRatio;
-      } else {
-        $('#txt-total-ratio').textContent = 'Priority range : N/A';
-      }
     }
     
     $('#tasklist').innerHTML = '';
@@ -2304,7 +2312,7 @@ let app = (function () {
     // web platform notification support
     setWebPlatformNotificationSupport();
     
-    initTests();
+    runTests();
     
   }
   
@@ -2367,12 +2375,16 @@ let app = (function () {
     });
   }
   
-  async function initTests() {
+  async function runTests() {
     // return;
     // let $$ = document.querySelectorAll.bind(document);
     
     // # change initial screens
-    // viewStateUtil.Set('screens', ['trackers']);
+    // viewStateUtil.Set('screens', ['priority-mapper']);
+    // await waitUntil(() => {
+    //   return compoPriorityMapper;
+    // });
+    // ui.OpenPriorityMapper();
     
     // await waitForElement('[data-role="edit"]');
     // Array.from($$('[data-role="edit"]')).pop().click();
@@ -2465,7 +2477,7 @@ let app = (function () {
   }
   
   function GetTaskById(id) {
-    return tasks.find(x => x.id == id);
+    return compoTask.GetById(id);
   }
   
   async function TaskUpdateTask(form) {

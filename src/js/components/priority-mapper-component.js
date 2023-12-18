@@ -1,95 +1,49 @@
-let compoSequence = (function() {
+let compoPriorityMapper = (function() {
   
   'use strict';
   
   let SELF = {
+    Init,
     Stash,
     Commit,
-    GetActiveId,
-    List,
-    SetActiveById,
-    Add,
-    DeleteById,
-    CountAll,
-    
+    // GetActive,
+    // GetActiveId,
     GetAll,
-    AddSequence,
-    DeleteSequenceByEvt,
+    // GetById,
+    // SetActiveById,
+    // ToggleActiveById,
+    // UnsetActive,
+    // Add,
+    UpdateById,
+    GetParentTaskId,
+    // DeleteById,
   };
   
-  let dataTemplate = {
-    counter: {
-      id: -1,
-    },
-    activeId: null,
+  let data = {
+    parentTaskId: '',
     items: [],
   };
-  let data = null;
   
-  let local = {
-    dataSource: null,
+  let linkedData = {
+    tasks: [],
   };
   
-  function CountAll() {
-    return data.items.length;
+  function Init(noReferenceData) {
+    initData(noReferenceData);
   }
   
-  function DeleteSequenceByEvt(evt) {
-    let targetEl = evt.target;
-    let taskEl = targetEl.closest('[data-kind="task"]');
-    let seqTaskEl = targetEl.closest('[data-kind="item-sequence-task"]');
+  function initData(noReferenceData) {
+    if (Object.keys(noReferenceData).length == 0) return;
     
-    if (!taskEl) return;
-    if (!seqTaskEl) return;
-    
-    let id = taskEl.dataset.id;
-    let seqId = seqTaskEl.dataset.id;
-    
-    let item = app.GetTaskById(id);
+    data = noReferenceData;
   }
-  
-  function GetById() {
-    
-  }
-  
-  function GetAll() {
-    return data.items;
-  }
-  
-  function AddSequence(taskId) {
-    let item = app.GetTaskById(taskId);
-    // console.log(item)
-    
-    let data = {
-      id: __idGenerator.next(item.sequenceTasks.counter),
-      progress: 0,
-      targetTime: 30000, // ms
-      title: new Date().getTime().toString(),
-    };
-
-    item.sequenceTasks.tasks.push(data);
-    Commit();
-  }
-  
-  const __idGenerator = (function() {
-      
-      function next(counterObj) {
-        return `#${++counterObj.id}`;
-      }
-      
-      return {
-        next,
-      };
-      
-  })();
   
   function Add(title) {
-    let id = __idGenerator.next(data.counter);
+    let id = uuidV4Util.Generate();
     let item = {
       id,
       title,
       progressTime: 0,
-      targetTime: 0,
     };
     data.items.push(item);
     
@@ -160,16 +114,16 @@ let compoSequence = (function() {
   }
   
   function GetById(id) {
-    let group = data.items.find(x => x.id == id);
-    if (group !== undefined) return group;
+    let item = data.items.find(x => x.id == id);
+    if (item !== undefined) return item;
     
     return null;
   }
     
-  function List() {
+  function GetAll() {
     return data.items;
   }
-  
+    
   function GetActive() {
     return GetById(GetActiveId());
   }
@@ -186,31 +140,26 @@ let compoSequence = (function() {
     return true;    
   }
   
+  function GetParentTaskId() {
+    return data.parentTaskId;
+  }
   
-  function Stash(_data) {
+  function Stash(activeTaskParentId) {
+    linkedData.parentTask = compoTask.GetById(activeTaskParentId);
+    linkedData.tasks = compoTask.GetAllByParentId(activeTaskParentId);
     
-    data = clearReference(dataTemplate);
-    
-    if (!_data) {
-      return;
-    }
-    
-    local.dataSource = _data;
-    
-    let noReferenceData = clearReference(_data);
-    for (let key in noReferenceData) {
-      if (typeof(data[key]) != 'undefined') {
-        data[key] = noReferenceData[key];
-      }
-    }
-    
+    data.parentTaskId = linkedData.parentTask ? linkedData.parentTask.id : '';
+    data.items = clearReference(linkedData.tasks);
   }
   
   function Commit() {
-    for (let key in clearReference(data)) {
-      local.dataSource[key] = data[key];
+    for (let i=0; i<data.items.length; i++) {
+      linkedData.tasks[i].ratio = data.items[i].ratio;
     }
-    local.dataSource = null;
+    
+    // clear data reference
+    linkedData.parentTask = null;
+    linkedData.tasks = null;
   }
     
   return SELF;

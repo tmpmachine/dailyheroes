@@ -1,5 +1,7 @@
 let ui = (function () {
   
+  let $$ = document.querySelectorAll.bind(document);
+  
   let SELF = {
     ShowModalAddTask,
     
@@ -25,6 +27,9 @@ let ui = (function () {
     RefreshListSequenceByTaskId,
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
+    OpenPriorityMapper,
+    SavePriorityMapper,
+    HandleInputPrioritySlider,
   };
   
   async function TaskSetActiveTaskInfo() {
@@ -116,6 +121,97 @@ let ui = (function () {
     if (!viewTarget) return;
     
     viewStateUtil.Set('screens', [viewTarget]);
+  }
+  
+  function OpenPriorityMapper() {
+    viewStateUtil.Set('screens', ['priority-mapper']);
+    
+    let activeTaskParentId = appData.GetActiveTaskParentId();
+    
+    compoPriorityMapper.Stash(activeTaskParentId);
+    
+    refreshListPriorityItems();
+  }
+  
+  function HandleInputPrioritySlider(evt) {
+    if (!evt.target.classList.contains('in-priority-slider')) return;
+    
+    let items = compoPriorityMapper.GetAll();
+    let totalPriorityPoint = Array.from($$('[data-container="list-priority-mapper"] .in-priority-slider')).map(el => parseInt(el.value)).reduce((a,b)=>b+a,0);
+    
+    for (let item of items) {
+      
+      let el = $(`[data-container="list-priority-mapper"] [data-id="${item.id}"]`);
+      let elSlider = el.querySelector('.in-priority-slider');
+      let priorityPoint = parseInt(elSlider.value);
+      
+      // ROP info
+      let ropStr = '';
+      if (priorityPoint > 0) {
+        let rop = Math.round(priorityPoint / totalPriorityPoint * 10000) / 100;
+        ropStr = `${rop.toFixed(2)}%`;
+      }
+      
+      el.querySelector('[data-slot="ropStr"]').textContent = ropStr;
+    }
+    
+  }
+  
+  function SavePriorityMapper() {
+    
+    let nodes = $$('[data-container="list-priority-mapper"] .item');
+    
+    for (let node of nodes) {
+      let id = node.dataset.id;
+      let priorityPoint = parseInt(node.querySelector('input').value);
+      compoPriorityMapper.UpdateById({
+        ratio: priorityPoint,
+      }, id);
+    }
+    
+    compoPriorityMapper.Commit();
+    appData.StoreTask();
+    
+    app.TaskListTask();
+    viewStateUtil.Set('screens', ['home']);
+  }
+  
+  function refreshListPriorityItems() {
+    
+    let parentTaskId = compoPriorityMapper.GetParentTaskId();
+    let items = compoPriorityMapper.GetAll();
+    
+    let container = $('[data-container="list-priority-mapper"]');
+    container.innerHTML = '';
+    let docFrag = document.createDocumentFragment();
+    
+    let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTaskId);
+    
+    for (let item of items) {
+      
+      // ROP info
+      let ropStr = '';
+      if (item.ratio) {
+        let rop = Math.round(item.ratio / totalPriorityPoint * 10000) / 100;
+        ropStr = `${rop.toFixed(2)}%`;
+      }
+      
+      let el = window.templateSlot.fill({
+        data: {
+          ropStr,
+          title: item.title,
+        }, 
+        template: document.querySelector('#tmp-list-priority-item').content.cloneNode(true), 
+      });
+      
+      el.querySelector('[data-kind="item"]').dataset.id = item.id;
+      el.querySelector('input').value = item.ratio;
+      // el.querySelector('[data-kind="item"]').classList.toggle('is-active', (item.id == activeId));
+      
+      docFrag.append(el);
+    }
+    
+    container.append(docFrag);
   }
   
   function UpdateViewModeState() {

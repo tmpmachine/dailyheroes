@@ -208,7 +208,9 @@
             [ .d-flex .justify-content-between
               [ #container-breadcrumbs .container-breadcrumbs]
               [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-                [small #txt-total-ratio {text-wrap:nowrap}]
+                [btn class="clickable d-flex align-items-center" data-callback="open-priority-mapper" style="gap:0.3rem;"
+                  [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
+                ]
               ]
             ]
             [ {mb:0.3rem}]
@@ -321,7 +323,7 @@
         
       </section>
       
-      <!-- # screen : trackers -->
+      <!-- # trackers screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="trackers">
         
         [ .d-flex {gap:1rem} .align-items-center
@@ -339,7 +341,36 @@
         
       </section>
       
-      <!-- # screen : settings -->
+      <!-- # priority mapper screen -->
+      <section class="container-screen" data-view-group="screens" data-view-name="priority-mapper">
+        
+        [ .d-flex {gap:1rem} .align-items-center
+          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left']
+          [ 'Priority Mapper' {fw:bold}]
+        ]
+        
+        [ .default-gap]
+        [ .default-gap]
+        
+        [ .d-flex .justify-content-end
+          [btn 'Save' .clickable data-callback='save-priority-mapper']
+        ]
+        [ .default-gap]
+        
+        [small 'Guide : Adjust the slider for each task to determine its priority relative to the other tasks.']
+        [ .default-gap]
+        [ .default-gap]
+        
+        <!-- # priority mapper items container -->
+        [ .d-flex .justify-content-end
+          [small 'ROP (Ratio Of Priority)' {fw:bold}]
+        ]
+        [ {border-bottom:1px solid grey} {m:4px 0} {op:0.2}]
+        [ data-container="list-priority-mapper" .inputable data-callback="handle-input-priority-slider"]
+        
+      </section>
+      
+      <!-- # settings screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="settings">
         
         [ .d-flex {gap:1rem} .align-items-center
@@ -463,8 +494,8 @@
   
   <!-- TEMPLATES -->
   
-  <!-- # container tracker -->
   <template id="tmp-list-tracker">
+    <!-- # container tracker -->
     [ data-kind="item" data-id=""
       [ data-slot="title"]
       [ 
@@ -478,19 +509,37 @@
     ]
   </template>
   
+  <template id="tmp-list-priority-item">
+    <!-- # tmp-list-priority-item -->
+    [ data-kind="item" data-id="" .item
+      [
+        [ .d-flex .justify-content-between
+          [s data-slot="title"]
+          [small data-slot="ropStr"]
+        ]
+        [ 
+          [small data-slot="progressTimeStr"
+        ]
+      ]
+      [ .d-grid
+        [in type="range" min="0" max="100" value="0" .in-priority-slider]
+      ]
+    ]
+  </template>
+  
     
-  <!-- # container task -->
   <template id="tmp-task">
+    <!-- # container task -->
     
   	[ .container-item data-obj="task" data-id="?" data-kind="task"
   	  
   	  <!-- # task body -->
   	  [ {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
   	  
-  	    <!-- ## task top info -->
+  	    <!-- # task top info -->
   	    [
   	    
-  	      <!-- ### task info (title) -->
+  	      <!-- # task info (title) -->
       	  <div class="d-flex justify-content-between">
       	    [
         	    [ data-slot="missionPath" data-slot-html]
@@ -507,8 +556,8 @@
       	  
       	  [ .mb-m]
       	  
-      	  <!-- ### time progress info -->
-        	<div style="font-size:0.7rem;display:flex;">
+      	  <!-- # time progress info -->
+      	  [ {fs:0.7rem;} .d-flex .justify-content-between
             [ {flex:1} 
           	  <span data-obj="progress" data-slot="progress"></span>
           	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
@@ -521,9 +570,9 @@
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
               <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
         	  ]
-        	</div>
+      	  ]
         
-      	  <!-- ### task notes -->
+      	  <!-- # task notes -->
       	  <div style="margin-top:1rem;">
       	    <div data-slot="note" data-template='#tmp-notes'></div>
       	  </div>
@@ -611,7 +660,7 @@
           <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
           <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
-          <button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>
+          <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
           <div data-role="manage" class="default-inline-flex-gap">

@@ -40,6 +40,7 @@ let viewStates = [
       'home',
       'settings',
       'trackers',
+      'priority-mapper',
     ],
   },
   {

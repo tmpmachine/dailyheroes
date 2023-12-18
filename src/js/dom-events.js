@@ -113,9 +113,13 @@ let DOMEvents = (function() {
       'stop-tracker': () => uiTracker.StopTracker(),
       'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
       
+      'open-priority-mapper': () => ui.OpenPriorityMapper(),      
+      'save-priority-mapper': () => ui.SavePriorityMapper(),
   	},
   	
   	inputable: {
+  	  
+  	  'handle-input-priority-slider': (evt) => ui.HandleInputPrioritySlider(evt),
   	  
   	  'toggle-sort-by-progress': (evt) => {
   	    app.SetSortMode(evt);

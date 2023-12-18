@@ -6,9 +6,10 @@
     "js/components/compo-gsi-chrome.js",
     "js/components/compo-tracker.js",
     "js/components/compo-mission.js",
-    "js/components/compo-task.js",
+    "js/components/task-component.js",
     "js/components/sequence-component.js",
     "js/components/compo-time-streak.js",
+    "js/components/priority-mapper-component.js",
     "js/components/compo-backup.js"
   ],
   "fonts": [

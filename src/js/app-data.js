@@ -72,6 +72,7 @@ let appSettings = (function() {
     SetComponentData,
     GetComponentData,
     StoreTask,
+    GetActiveTaskParentId,
   };
   
   
@@ -83,6 +84,10 @@ let appSettings = (function() {
   
   function Save() {
     lsdb.save();
+  }
+  
+  function GetActiveTaskParentId() {
+    return lsdb.data.activeGroupId;
   }
   
   function clearReference(data) {

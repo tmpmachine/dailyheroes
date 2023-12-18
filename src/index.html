@@ -208,7 +208,9 @@
             <div class="d-flex justify-content-between">
               <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
               <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-                <small id="txt-total-ratio" style="text-wrap:nowrap;"></small>
+                <button class="clickable d-flex align-items-center" data-callback="open-priority-mapper" style="gap:0.3rem;">
+                  <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
+                </button>
               </div>
             </div>
             <div style="margin-bottom:0.3rem;"></div>
@@ -321,7 +323,7 @@
         
       </section>
       
-      <!-- # screen : trackers -->
+      <!-- # trackers screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="trackers">
         
         <div class="d-flex align-items-center" style="gap:1rem;">
@@ -339,7 +341,36 @@
         
       </section>
       
-      <!-- # screen : settings -->
+      <!-- # priority mapper screen -->
+      <section class="container-screen" data-view-group="screens" data-view-name="priority-mapper">
+        
+        <div class="d-flex align-items-center" style="gap:1rem;">
+          <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+          <div style="font-weight:bold;">Priority Mapper</div>
+        </div>
+        
+        <div class="default-gap"></div>
+        <div class="default-gap"></div>
+        
+        <div class="d-flex justify-content-end">
+          <button class="clickable" data-callback='save-priority-mapper'>Save</button>
+        </div>
+        <div class="default-gap"></div>
+        
+        <small>Guide : Adjust the slider for each task to determine its priority relative to the other tasks.</small>
+        <div class="default-gap"></div>
+        <div class="default-gap"></div>
+        
+        <!-- # priority mapper items container -->
+        <div class="d-flex justify-content-end">
+          <small style="font-weight:bold;">ROP (Ratio Of Priority)</small>
+        </div>
+        <div style="border-bottom:1px solid grey;margin:4px 0;opacity:0.2;"></div>
+        <div class="inputable" data-container="list-priority-mapper" data-callback="handle-input-priority-slider"></div>
+        
+      </section>
+      
+      <!-- # settings screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="settings">
         
         <div class="d-flex align-items-center" style="gap:1rem;">
@@ -463,8 +494,8 @@
   
   <!-- TEMPLATES -->
   
-  <!-- # container tracker -->
   <template id="tmp-list-tracker">
+    <!-- # container tracker -->
     <div data-kind="item" data-id="">
       <div data-slot="title"></div>
       <div>
@@ -478,19 +509,37 @@
     </div>
   </template>
   
+  <template id="tmp-list-priority-item">
+    <!-- # tmp-list-priority-item -->
+    <div class="item" data-kind="item" data-id="">
+      <div>
+        <div class="d-flex justify-content-between">
+          <span data-slot="title"></span>
+          <small data-slot="ropStr"></small>
+        </div>
+        <div>
+          <small data-slot="progressTimeStr">
+        </small>
+      </div>
+      <div class="d-grid">
+        <input class="in-priority-slider" type="range" min="0" max="100" value="0"/>
+      </div>
+    </div>
+  </template>
+  
     
-  <!-- # container task -->
   <template id="tmp-task">
+    <!-- # container task -->
     
   	<div class="container-item" data-obj="task" data-id="?" data-kind="task">
   	  
   	  <!-- # task body -->
   	  <div style="padding:0.3rem 0.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;">
   	  
-  	    <!-- ## task top info -->
+  	    <!-- # task top info -->
   	    <div>
   	    
-  	      <!-- ### task info (title) -->
+  	      <!-- # task info (title) -->
       	  <div class="d-flex justify-content-between">
       	    <div>
         	    <div data-slot="missionPath" data-slot-html></div>
@@ -507,8 +556,8 @@
       	  
       	  <div class="mb-m"></div>
       	  
-      	  <!-- ### time progress info -->
-        	<div style="font-size:0.7rem;display:flex;">
+      	  <!-- # time progress info -->
+      	  <div class="d-flex justify-content-between" style="font-size:0.7rem;">
             <div style="flex:1;">
           	  <span data-obj="progress" data-slot="progress"></span>
           	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
@@ -521,9 +570,9 @@
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
               <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
         	  </div>
-        	</div>
+      	  </div>
         
-      	  <!-- ### task notes -->
+      	  <!-- # task notes -->
       	  <div style="margin-top:1rem;">
       	    <div data-slot="note" data-template='#tmp-notes'></div>
       	  </div>
@@ -611,7 +660,7 @@
           <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
           <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
-          <button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>
+          <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
           <div data-role="manage" class="default-inline-flex-gap">
