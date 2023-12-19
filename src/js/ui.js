@@ -573,6 +573,7 @@ let ui = (function () {
       if (onePress.watch(event.type, event.key)) {
         if (event.altKey) {
           toggleStartTimer();
+          event.preventDefault();
         }
       }
     }

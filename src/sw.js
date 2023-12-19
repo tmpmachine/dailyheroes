@@ -2,7 +2,7 @@
   increase below number to trigger service worker update/reactivation
   to deliver latest updates for all users automatically on page visit
   
-  unique numer : 22
+  unique numer : 23
 */
 
 let cacheName = 'dailyheroes-MjQzNTM2OTU';
@@ -114,25 +114,9 @@ self.addEventListener(
   'notificationclick',
   (event) => {
     
-    event.notification.close();
-    
-    if (event.action === 'open-app') {
+    if (event.action === 'close') {
       
-      // This looks to see if the current is already open and
-      // focuses if it is
-      event.waitUntil(
-        clients
-          .matchAll({
-            type: 'window',
-          })
-          .then((clientList) => {
-            for (const client of clientList) {
-              let url = new URL(client.url);
-              if (url.pathname === '/' && 'focus' in client) return client.focus();
-            }
-            if (clients.openWindow) return clients.openWindow('/');
-          }),
-      );
+      event.notification.close();
       
     } else if (event.action === 'start-next-sequence') {
       
@@ -152,7 +136,25 @@ self.addEventListener(
         })
       );
       
+    } else {
+      
+       event.waitUntil(
+        clients.matchAll().then(function(clients) {
+          
+          for (const client of clients) {
+            let url = new URL(client.url);
+            if (url.pathname === '/' && 'focus' in client) {
+              client.focus()
+              return;
+            }
+          }
+          if (clients.openWindow) return clients.openWindow('/');
+          
+        })
+      );
+    
     }
+    
   },
   false,
 );

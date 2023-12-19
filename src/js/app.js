@@ -418,7 +418,7 @@ async function sendNotification() {
       
         
       let notifTitle = `Time's up!`;
-      let notifBody = `Next : ${sequenceTask.title}`;
+      let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTask.title}`;
       
       registration.showNotification(notifTitle, {
         body: notifBody,
@@ -426,10 +426,10 @@ async function sendNotification() {
         requireInteraction: true,
         actions: [{
           action: 'start-next-sequence',
-          title: `Start next ${sequenceTaskDurationTimeStr}`.trim(),
+          title: `Start next`.trim(),
         }, {
-          action: 'open-app',
-          title: 'Open App',
+          action: 'close',
+          title: 'Close',
         }]
       });
       
