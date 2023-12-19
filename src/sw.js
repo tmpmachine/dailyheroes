@@ -111,26 +111,26 @@ function cacheExtension(e) {
 
 // handle notification click
 self.addEventListener(
-  "notificationclick",
+  'notificationclick',
   (event) => {
     
     event.notification.close();
     
-    if (event.action === "next-task") {
+    if (event.action === 'open-app') {
       
       // This looks to see if the current is already open and
       // focuses if it is
       event.waitUntil(
         clients
           .matchAll({
-            type: "window",
+            type: 'window',
           })
           .then((clientList) => {
             for (const client of clientList) {
               let url = new URL(client.url);
-              if (url.pathname === "/" && "focus" in client) return client.focus();
+              if (url.pathname === '/' && 'focus' in client) return client.focus();
             }
-            if (clients.openWindow) return clients.openWindow("/");
+            if (clients.openWindow) return clients.openWindow('/');
           }),
       );
       
