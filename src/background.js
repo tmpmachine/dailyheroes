@@ -194,7 +194,7 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
   if (typeof(ratio) != 'number') return;
   
-  let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentId);
+  let totalPriorityPoint = tasks.filter(x => x.parentId == parentId && x.ratio > 0).map(x => x.ratio).reduce((a,b) => b + a, 0);
   let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
 
   let remainingRatio = totalPriorityPoint - ratio;
@@ -202,7 +202,7 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
   // todo
   // compoTask.Init()
-
+  
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
     
@@ -231,7 +231,7 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask, tasks
     parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
   }
   
-  let totalPriorityPoint = tasksOrigin.filter(x => x.parentId == parentTask.id && x.ratio > 0).map(x=>x.ratio).reduce((a,b)=>b+a,0);
+  let totalPriorityPoint = tasksOrigin.filter(x => x.parentId == parentTask.id && x.ratio > 0).map(x => x.ratio).reduce((a,b) => b + a, 0);
   
   for (let task of tasks) {
     
@@ -327,9 +327,11 @@ async function onAlarmEnded(alarm) {
     distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
     distanceTime = new Date().getTime() - data.start;
   }
+  
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
   await updateProgressActiveTask(distanceMinutes, distanceTime);
+
 
   // get task
   let isRepeatCountFinished = false;
@@ -387,6 +389,7 @@ async function onAlarmEnded(alarm) {
       action: 'start-next-sequence',
       title: `Start next (${sequenceTaskDurationTimeStr})`,
     });
+    notifTitle = `Time's up! ${timeStreakStr}`.trim();
     notifBody = `Next : ${sequenceTaskTitle}`;
   } else if (!isRepeatCountFinished) {
     actions.push({

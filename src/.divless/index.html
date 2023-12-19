@@ -161,11 +161,13 @@
         <div class="default-gap"></div>
         
         <!-- # mission nav menu -->
-        [ .d-flex .justify-content-end
-          [btn 'Home' data-onclick="navigate-mission-screen" data-tag="home" {mr:1rem}]
-          [btn 'Daily' data-onclick="navigate-mission-screen" data-tag="daily"]
-          [btn 'Weekly' data-onclick="navigate-mission-screen" data-tag="weekly"]
-          [btn 'Monthly' data-onclick="navigate-mission-screen" data-tag="monthly"]
+        [ data-view-group="build" data-view-name="dev"
+          [ .d-flex .justify-content-end
+            [btn 'Home' data-onclick="navigate-mission-screen" data-tag="home" {mr:1rem}]
+            [btn 'Daily' data-onclick="navigate-mission-screen" data-tag="daily"]
+            [btn 'Weekly' data-onclick="navigate-mission-screen" data-tag="weekly"]
+            [btn 'Monthly' data-onclick="navigate-mission-screen" data-tag="monthly"]
+          ]
         ]
         
         <!-- # container task view mode-->
