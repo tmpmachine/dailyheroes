@@ -3,6 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    NavigateMissionScreen,
     ShowModalAddTask,
     ShowModalAddSequence,
     AddSequenceTask,
@@ -35,6 +36,10 @@ let ui = (function () {
     TaskSavePriorityMapper,
     HandleInputPrioritySlider,
   };
+  
+  function NavigateMissionScreen(screenName) {
+    console.log(screenName)
+  }
   
   async function TaskSetActiveTaskInfo() {
     $('#txt-active-task-name').textContent = '';

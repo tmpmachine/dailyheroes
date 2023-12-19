@@ -2033,22 +2033,27 @@ let app = (function () {
       await updateProgressActiveTask(distanceMinutes, distanceTime);
       await compoTimeStreak.TaskUpdateTaskTimeStreak(distanceTime, data.activeTask);
       
+      
       // set active next sequence task
       let task = await getActiveTask();
       compoSequence.Stash(task.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
       if (sequenceTask) {
-        let item = compoSequence.GetNext();
-        compoSequence.SetActiveById(item.id);  
+        sequenceTask.progressTime += distanceTime;
+        if (sequenceTask.progressTime >= sequenceTask.targetTime) {
+          sequenceTask.progressTime = 0;
+          let item = compoSequence.GetNext();
+          compoSequence.SetActiveById(item.id);
+        }
       }
       compoSequence.Commit();
-      compoSequence.Pop();
       
       await compoTimeStreak.TaskCommit();
       
       // update active tracker
       updateActiveTrackerProgress(distanceTime);
       saveAppData();
+      await appData.TaskStoreTask();
     }
     await window.service.RemoveData(['start']);
     

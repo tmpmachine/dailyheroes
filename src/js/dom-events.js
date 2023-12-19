@@ -233,6 +233,10 @@ let DOMEvents = (function() {
   	  
   	  'on-mission-group-change': (evt) => uiMission.OnChangeGroup(evt),
   	  
+  	},
+  	
+  	onclick: {
+      'navigate-mission-screen': (evt) => ui.NavigateMissionScreen(evt.target.dataset.tag),
   	}
   	
   };
@@ -240,11 +244,21 @@ let DOMEvents = (function() {
   
   let listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
   
+  let listening = function(selector, dataKey, eventType, callbacks) {
+    let elements = document.querySelectorAll(selector);
+    for (let el of elements) {
+      let callbackFunc = callbacks[el.dataset[dataKey]];
+      el.addEventListener(eventType, callbackFunc);
+    }
+  };
+  
   function Init() {
     listenOn('.clickable', 'click', eventsMap.clickable);
     listenOn('.submittable', 'submit', eventsMap.submittable);
     listenOn('.inputable', 'input', eventsMap.inputable);
     listenOn('.changeable', 'change', eventsMap.changeable);
+    
+    listening('[data-onclick]', 'onclick', 'click', eventsMap.onclick);
   }
   
   return {

@@ -200,11 +200,14 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
   let remainingRatio = totalPriorityPoint - ratio;
   let timeToDistribute = ( addedTime *  ( remainingRatio / totalPriorityPoint ) ) / ( ratio / totalPriorityPoint );
 
+  // todo
+  // compoTask.Init()
+
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
     
-    if (isCanNavigateSub(task.id)) {
-        distributeTargetTimeInTaskSub(addedTargetTime, task);
+    if (hasSubTask(task.id, tasks)) {
+      distributeTargetTimeInTaskSub(addedTargetTime, task, tasks);
     } else {
       task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     }
@@ -213,22 +216,22 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
 }
 
-function isCanNavigateSub(taskId) {
-  return lsdb.data.groups.find(x => x.id == taskId);
+function hasSubTask(taskId, tasks) {
+  return tasks.find(x => x.parentId == taskId);
 }
 
 function anyTaskHasRatio(tasks) {
   return ( tasks.filter(task => task.ratio > 0).length > 0 );
 }
 
-async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
+async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask, tasksOrigin) {
   
-  let tasks = compoTask.GetAllByParentId(parentTask.id);
+  let tasks = tasksOrigin.filter(x => x.parentId == parentTask.id);
   if (tasks.length == 0 || !anyTaskHasRatio(tasks)) {
     parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
   }
   
-  let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTask.id);
+  let totalPriorityPoint = tasksOrigin.filter(x => x.parentId == parentTask.id && x.ratio > 0).map(x=>x.ratio).reduce((a,b)=>b+a,0);
   
   for (let task of tasks) {
     
@@ -237,8 +240,8 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
     let priorityPoint = task.ratio;
     let addedTargetTime = Math.round( timeToDistribute * (priorityPoint / totalPriorityPoint) );
     
-    if (isCanNavigateSub(task.id)) {
-      distributeTargetTimeInTaskSub(addedTargetTime, task);
+    if (hasSubTask(task.id, tasksOrigin)) {
+      distributeTargetTimeInTaskSub(addedTargetTime, task, tasksOrigin);
     } else {
       task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     }

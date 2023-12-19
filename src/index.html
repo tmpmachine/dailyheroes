@@ -160,9 +160,17 @@
         </div>
         <div class="default-gap"></div>
         
-        <!-- # container task view mode-->
+        <!-- # mission nav menu -->
+        <div class="d-flex justify-content-end">
+          <button data-onclick="navigate-mission-screen" data-tag="home" style="margin-right:1rem;">Home</button>
+          <button data-onclick="navigate-mission-screen" data-tag="daily">Daily</button>
+          <button data-onclick="navigate-mission-screen" data-tag="weekly">Weekly</button>
+          <button data-onclick="navigate-mission-screen" data-tag="monthly">Monthly</button>
+        </div>
         
+        <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task">
+          
           
           <!-- # view mode tabs -->
           <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr auto;">
