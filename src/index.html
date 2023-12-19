@@ -641,9 +641,8 @@
           </small>
         </div>
         <div>
-          <button class="icon-mate" data-role="reset-sequence-task">restart_alt</button>
-          <button class="icon-mate" data-role="delete-sequence-task">delete</button>
-          <button class="icon-mate" data-role="edit-sequence-task">edit</button>
+          <button class="icon-mate" data-role="focus-sequence-task" title="Start from here">track_changes</button>
+          <button class="icon-mate" data-role="edit-sequence-task" title="Edit">edit</button>
         </div>
       </div>
     </div>
@@ -652,7 +651,7 @@
   <template id="tmp-mission-buttons">
 
     <div class="d-inline-flex" style="gap:0.2rem;">
-      <button class="icon-mate" data-role="add-sequence-task" title="Add sequence" data-view-group="build" data-view-name="dev">expand_more</button>
+      <button class="icon-mate" data-role="add-sequence-task" title="Add sequence task">expand_more</button>
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
         <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
       </div> 
@@ -674,9 +673,9 @@
             <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
             <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
           </div>
-          <button data-role='restart' class="icon-mate" data-group="not-running" title='Restart'>restart_alt</button>
-          <button data-role='take-note' class="icon-mate d-none" data-group="active" title='Take a note'>note_add</button>
-          <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title='Add progress manually'>add</button>
+          <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
+          <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
+          <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">add</button>
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -694,7 +693,7 @@
         </div>
         <div data-view-group="task-view-mode" data-view-name-not="filter-target">
           <div class="container-create-sub d-none d-flex">
-            <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub timer'>account_tree</button>
+            <button data-role='add-sub-timer' class="icon-mate" data-group="active" title='Create sub task'>account_tree</button>
           </div>
         </div>
         <div class="container-navigate d-flex d-none">
@@ -757,10 +756,12 @@
               Parent Id <input type="text" name='parent-id' class="input-style-default"/>
             </div>
             <div class="mb-m"></div>
-            <div>
+            
+            <div class="d-flex justify-content-end">
               <button data-role='btn-add' data-view-group="form-task" data-view-name="add">Add</button>
               <button data-role="btn-edit" data-view-group="form-task" data-view-name="edit">Update</button>
             </div>
+            
           </form>
 
         </div>
@@ -775,24 +776,39 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          <span data-view-group="form-task-sequence" data-view-name="add">New sequence task :</span>
+          <span data-view-group="form-task-sequence" data-view-name="add">Add sequence task :</span>
           <span data-view-group="form-task-sequence" data-view-name="edit">Edit sequence task :</span>
           
           <div class="default-gap"></div>
-          <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-sequence-task' data-obj="form-task">
+          <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskId"/>
             <div>
-              Title <input type="text" name='title' class="input-style-default"/>
+              Title <input type="text" name="title" class="input-style-default"/>
             </div>
             <div>
-              Duration <input type="text" name='duration' placeholder='example: 30s, 45m, 1h30m' class="input-style-default"/>
+              Duration <input type="text" name="duration" placeholder="example: 30s, 45m, 1h30m" class="input-style-default"/>
             </div>
             <div class="mb-m"></div>
-            <div>
-              <button data-role='btn-add' data-view-group="form-task-sequence" data-view-name="add">Add</button>
-              <button data-role="btn-edit" data-view-group="form-task-sequence" data-view-name="edit">Update</button>
+            
+            <div data-view-group="form-task-sequence" data-view-name="add">
+              <div class="d-flex justify-content-end">
+                <button data-role="btn-add">Add</button>
+              </div>
             </div>
+            
+            <div data-view-group="form-task-sequence" data-view-name="edit">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
+                  <button type="button" data-onclick="delete-sequence-from-form">Delete</button>
+                </div>
+                <div>
+                  <button data-role="btn-edit">Update</button>
+                </div>
+              </div>
+            </div>
+            
           </form>
 
         </div>

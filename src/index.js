@@ -116,6 +116,7 @@ function initServiceWorker() {
       worker.waiting.postMessage({action: 'skipWaiting'});
     else if (swo)
       swo.waiting.postMessage({action: 'skipWaiting'});
+      
     new Promise(function(resolve, reject) {
       if ($('#update-notif') !== null) {
         $('#update-notif').classList.toggle('active', true);
@@ -138,6 +139,7 @@ function initServiceWorker() {
       $('#update-notif').classList.toggle('active', false);
     });
   }
+  
   if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
     // uncomment to debug without SW
     // return;
@@ -145,6 +147,7 @@ function initServiceWorker() {
       
       if (!navigator.serviceWorker.controller)
         return;
+        
       if (swo.waiting) {
         swo.waiting.postMessage({action: 'skipWaiting'});
         if (typeof(clientUpdateHandler) === 'undefined') {
@@ -157,6 +160,7 @@ function initServiceWorker() {
         }
         return;
       }
+      
       if (swo.installing) {
         swo.installing.addEventListener('statechange', function(e) {
           if (swo.installing.state == 'installed') {
@@ -172,6 +176,7 @@ function initServiceWorker() {
         });
         return;
       }
+      
       swo.addEventListener('updatefound', function() {
         swo.installing.addEventListener('statechange', function(e) {
           if (this.state == 'installed') {
@@ -186,6 +191,14 @@ function initServiceWorker() {
           }
         });
       });
+      
+      // Listen for messages from the service worker
+      navigator.serviceWorker.addEventListener('message', function(event) {
+        if (event.data === 'start-next-sequence') {
+          toggleStartTimer();
+        }
+      });
+      
     }).catch(function(e) {
       console.error('Something went wrong.');
     });

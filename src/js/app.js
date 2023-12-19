@@ -1,5 +1,5 @@
 let tasks = [];
-
+let globalNotification = {}
 
 function copyToClipboard(text) {
   var node  = document.createElement('textarea');
@@ -422,6 +422,7 @@ async function sendNotification() {
       
       registration.showNotification(notifTitle, {
         body: notifBody,
+        tag: 'next-sequence-wait-user-action',
         requireInteraction: true,
         actions: [{
           action: 'start-next-sequence',
@@ -2051,6 +2052,15 @@ let app = (function () {
       compoSequence.Stash(task.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
       if (sequenceTask) {
+        
+        // close sequence notif
+        let seqNotifId = `${task.id}@${sequenceTask.id}`;
+        let seqNotif = globalNotification[seqNotifId];
+        if (seqNotif) {
+          seqNotif.close();
+          delete globalNotification[seqNotifId];
+        }
+        
         sequenceTask.progressTime += distanceTime;
         if (sequenceTask.progressTime >= sequenceTask.targetTime) {
           sequenceTask.progressTime = 0;
@@ -2545,8 +2555,7 @@ let app = (function () {
       case 'edit': editTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
-      case 'reset-sequence-task': compoTask.ResetSequenceByEvt(id, seqId); break;
-      case 'delete-sequence-task': compoTask.DeleteSequenceByEvt(evt); break;
+      case 'focus-sequence-task': compoTask.FocusSequenceById(id, seqId); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-timer': addSubTimer(id); break;

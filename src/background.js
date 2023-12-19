@@ -383,12 +383,14 @@ async function onAlarmEnded(alarm) {
   let actions = [];
   let notifTitle = `Time's up!`;
   let notifBody = `${targetTimeLeftStr} ${timeStreakStr} ${finishCountLeftTxt}`.trim();
+  let tag = 'progress';
   
   if (isSequenceTask) {
     actions.push({
       action: 'start-next-sequence',
       title: `Start next (${sequenceTaskDurationTimeStr})`,
     });
+    tag = 'active-sequence-task';
     notifTitle = `Time's up! ${timeStreakStr}`.trim();
     notifBody = `Next : ${sequenceTaskTitle}`;
   } else if (!isRepeatCountFinished) {
@@ -399,7 +401,7 @@ async function onAlarmEnded(alarm) {
   }
   
   // spawn notif
-  spawnNotificationV2(notifTitle, notifBody, 'limegreen', icon3, true, actions);
+  spawnNotificationV2(notifTitle, notifBody, 'limegreen', icon3, true, actions, tag);
   
   // play alarm audio
   playAudio('audio.html');
@@ -651,7 +653,7 @@ function spawnNotification(body, color, icon, requireInteraction = false, action
   // }
 }
 
-function spawnNotificationV2(notifId, body, color, icon, requireInteraction = false, actions = []) {
+function spawnNotificationV2(notifId, body, color, icon, requireInteraction = false, actions = [], tag = 'progress') {
 
   c.canvas.width = 280;
   c.canvas.height = 5;
@@ -662,7 +664,7 @@ function spawnNotificationV2(notifId, body, color, icon, requireInteraction = fa
     body, 
     icon,
     actions,
-    tag: 'progress',
+    tag,
     renotify: true,
     requireInteraction: requireInteraction,
   });

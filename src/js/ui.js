@@ -3,6 +3,8 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    ResetProgressSequenceFromForm,
+    DeleteSequenceFromForm,
     NavigateMissionScreen,
     ShowModalAddTask,
     ShowModalAddSequence,
@@ -37,8 +39,30 @@ let ui = (function () {
     HandleInputPrioritySlider,
   };
   
+  function ResetProgressSequenceFromForm(evt) {
+    let form = evt.target.form;
+    let seqId = form.id.value;
+    let taskId = form.taskId.value;
+    
+    compoTask.TaskResetSequenceById(taskId, seqId);
+    
+    $('#task-sequence-modal').close();
+    ui.RefreshListSequenceByTaskId(taskId);
+  }
+  
+  function DeleteSequenceFromForm(evt) {
+    let form = evt.target.form;
+    let seqId = form.id.value;
+    let taskId = form.taskId.value;
+    
+    compoTask.TaskDeleteSequenceById(taskId, seqId);
+    
+    $('#task-sequence-modal').close();
+    ui.RefreshListSequenceByTaskId(taskId);
+  }
+  
   function NavigateMissionScreen(screenName) {
-    console.log(screenName)
+    console.log(screenName);
   }
   
   async function TaskSetActiveTaskInfo() {
@@ -599,35 +623,36 @@ let ui = (function () {
   }
   
   function OnSubmitSequenceTask(ev) {
-  		ev.preventDefault();
-  		let form = ev.target;
-  		
-  		let id = form.id.value;
-  		let taskId = form.taskId.value;
-  		let title = form.title.value.trim();
-  		if (title.length == 0) {
-        return;
-      }
-      
-      let durationTimeInput = form.duration.value;
-      if (isNumber(durationTimeInput)) {
-        // set default to minutes
-        durationTimeInput = `${durationTimeInput}m`;
-      }
-      let durationTime = parseHmsToMs(durationTimeInput);
-      if (durationTime <= 0) return;
-      
-  		
-	    if (ev.target.id.value.length > 0) {
-	      compoTask.UpdateSequence(title, durationTime, taskId, id);
-	    } else {
-        compoTask.AddSequence(title, durationTime, taskId);
-	    }
-  		let modal = document.querySelectorAll('#task-sequence-modal')[0];
-  		modal.close();
-  		
-      RefreshListSequenceByTaskId(taskId);
-  		
+  
+		ev.preventDefault();
+		let form = ev.target;
+		
+		let id = form.id.value;
+		let taskId = form.taskId.value;
+		let title = form.title.value.trim();
+		if (title.length == 0) {
+      return;
+    }
+    
+    let durationTimeInput = form.duration.value;
+    if (isNumber(durationTimeInput)) {
+      // set default to minutes
+      durationTimeInput = `${durationTimeInput}m`;
+    }
+    let durationTime = parseHmsToMs(durationTimeInput);
+    if (durationTime <= 0) return;
+    
+		
+    if (ev.target.id.value.length > 0) {
+      compoTask.UpdateSequence(title, durationTime, taskId, id);
+    } else {
+      compoTask.AddSequence(title, durationTime, taskId);
+    }
+		let modal = document.querySelectorAll('#task-sequence-modal')[0];
+		modal.close();
+		
+    RefreshListSequenceByTaskId(taskId);
+		
   }
   
   function AddSequenceTask(taskId) {

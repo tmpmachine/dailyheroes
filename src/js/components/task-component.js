@@ -8,8 +8,9 @@ let compoTask = (function() {
     GetAllByParentId,
     AddSequence,
     UpdateSequence,
-    DeleteSequenceByEvt,
-    ResetSequenceByEvt,
+    TaskDeleteSequenceById,
+    FocusSequenceById,
+    TaskResetSequenceById,
     GetTotalPriorityPointByParentTaskId,
     StartTimerByTaskId,
   };
@@ -25,7 +26,7 @@ let compoTask = (function() {
       let sequence = compoSequence.GetActive();
       
       if (sequence) {
-        startTimerByTaskSequence(sequence);
+        startTimerByTaskSequence(task.id, sequence);
       } else {
         startTimerByTask(task);
       }
@@ -37,12 +38,20 @@ let compoTask = (function() {
     compoSequence.Pop();
   }
   
-  function startTimerByTaskSequence(task) {
-    if (task.progressTime >= task.targetTime) return;
+  function startTimerByTaskSequence(taskId, item) {
+    if (item.progressTime >= item.targetTime) return;
     
-    let seconds = (task.targetTime - task.progressTime) / 1000;
-    androidClient.StartTimer(seconds, task.title);
-    setTimer(task.targetTime - task.progressTime);
+    let seconds = (item.targetTime - item.progressTime) / 1000;
+    androidClient.StartTimer(seconds, item.title);
+    setTimer(item.targetTime - item.progressTime);
+    
+    // todo : allow close when another sequence is started
+    globalNotification[`${taskId}@${item.id}`] = new Notification(`${item.title}`, {
+      body: `${secondsToHMS(msToSeconds(item.targetTime))} left`, 
+      tag: 'active-sequence-task',
+      requireInteraction: false,
+    });
+    
   }
   
   function startTimerByTask(task) {
@@ -63,18 +72,10 @@ let compoTask = (function() {
     return total;
   }
   
-  async function DeleteSequenceByEvt(evt) {
+  
+  async function TaskDeleteSequenceById(taskId, seqId) {
     
-    let targetEl = evt.target;
-    let taskEl = targetEl.closest('[data-kind="task"]');
-    let seqTaskEl = targetEl.closest('[data-kind="item-sequence-task"]');
-    if (!taskEl) return;
-    if (!seqTaskEl) return;
-    
-    let id = taskEl.dataset.id;
-    let seqId = seqTaskEl.dataset.id;
-    
-    let item = app.GetTaskById(id);
+    let item = app.GetTaskById(taskId);
     
     compoSequence.Stash(item.sequenceTasks);
     
@@ -85,12 +86,10 @@ let compoTask = (function() {
     
     await appData.TaskStoreTask();    
     
-    ui.RefreshListSequenceByTaskId(id);
-    
   }
   
   
-  async function ResetSequenceByEvt(taskId, seqId) {
+  async function TaskResetSequenceById(taskId, seqId) {
     
     let item = app.GetTaskById(taskId);
     
@@ -99,6 +98,22 @@ let compoTask = (function() {
     compoSequence.UpdateById({
       progressTime: 0,
     }, seqId);
+    
+    compoSequence.Commit();
+    
+    await appData.TaskStoreTask();    
+    
+    ui.RefreshListSequenceByTaskId(taskId);
+    
+  }
+  
+  async function FocusSequenceById(taskId, seqId) {
+    
+    let item = app.GetTaskById(taskId);
+    
+    compoSequence.Stash(item.sequenceTasks);
+    
+    compoSequence.SetActiveById(seqId);
     
     compoSequence.Commit();
     

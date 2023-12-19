@@ -2,7 +2,7 @@
   increase below number to trigger service worker update/reactivation
   to deliver latest updates for all users automatically on page visit
   
-  unique numer : 20
+  unique numer : 22
 */
 
 let cacheName = 'dailyheroes-MjQzNTM2OTU';
@@ -134,9 +134,24 @@ self.addEventListener(
           }),
       );
       
-    } else {
-      // User selected (e.g., clicked in) the main body of notification.
-      // clients.openWindow("/inbox");
+    } else if (event.action === 'start-next-sequence') {
+      
+      // Send a message to the client(s)
+      event.waitUntil(
+        clients.matchAll().then(function(clients) {
+          
+          for (const client of clients) {
+            let url = new URL(client.url);
+            if (url.pathname === '/' && 'focus' in client) {
+              client.postMessage('start-next-sequence');
+              return;
+            }
+          }
+          if (clients.openWindow) return clients.openWindow('/');
+          
+        })
+      );
+      
     }
   },
   false,
