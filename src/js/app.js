@@ -367,7 +367,13 @@ async function updateTime(scheduledTime, startTime) {
   
   // is task finished, perform once.
   if (isNegative) {
-
+    
+    // stop updating the timer, it's ended by background script
+    clearInterval(countdonwIntervalId);
+    if (!app.isPlatformChromeExt) {
+      await app.TaskStopActiveTask();
+    }
+    
     // ended few milliseconds ago
     if (distance < 1000) {
       sendNotification();
@@ -376,12 +382,6 @@ async function updateTime(scheduledTime, startTime) {
       if (!app.isPlatformChromeExt) {
         app.TaskPlayAlarmAudio();
       }
-    }
-    
-    // stop updating the timer, it's ended by background script
-    clearInterval(countdonwIntervalId);
-    if (!app.isPlatformChromeExt) {
-      app.TaskStopActiveTask();
     }
     
   }
@@ -426,6 +426,9 @@ async function sendNotification() {
         actions: [{
           action: 'start-next-sequence',
           title: `Start next ${sequenceTaskDurationTimeStr}`.trim(),
+        }, {
+          action: 'open-app',
+          title: 'Open App',
         }]
       });
       
@@ -2542,6 +2545,7 @@ let app = (function () {
       case 'edit': editTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
+      case 'reset-sequence-task': compoTask.ResetSequenceByEvt(id, seqId); break;
       case 'delete-sequence-task': compoTask.DeleteSequenceByEvt(evt); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
