@@ -9,6 +9,7 @@ let compoTask = (function() {
     AddSequence,
     UpdateSequence,
     DeleteSequenceByEvt,
+    ResetSequenceByEvt,
     GetTotalPriorityPointByParentTaskId,
     StartTimerByTaskId,
   };
@@ -85,6 +86,25 @@ let compoTask = (function() {
     await appData.TaskStoreTask();    
     
     ui.RefreshListSequenceByTaskId(id);
+    
+  }
+  
+  
+  async function ResetSequenceByEvt(taskId, seqId) {
+    
+    let item = app.GetTaskById(taskId);
+    
+    compoSequence.Stash(item.sequenceTasks);
+    
+    compoSequence.UpdateById({
+      progressTime: 0,
+    }, seqId);
+    
+    compoSequence.Commit();
+    
+    await appData.TaskStoreTask();    
+    
+    ui.RefreshListSequenceByTaskId(taskId);
     
   }
   
