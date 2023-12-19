@@ -907,13 +907,13 @@ async function taskApplyAllParentTargetTime(parentId, distanceTime) {
 
 async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
   try {
-      let excessTime = task.targetTime - addedTime;
-      if (excessTime < 0 && task.ratio > 0) {
-        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
-      }
-      task.targetTime = Math.max(0, task.targetTime - addedTime);
-    } catch (e) {
-      console.error(e);
+    let excessTime = task.targetTime - addedTime;
+    if (excessTime < 0 && task.ratio > 0) {
+      await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
+    }
+    task.targetTime = Math.max(0, task.targetTime - addedTime);
+  } catch (e) {
+    console.error(e);
   }
 }
 
@@ -929,10 +929,51 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
-    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    
+    if (isCanNavigateSub(task.id)) {
+      distributeTargetTimeInTaskSub(addedTargetTime, task);
+    } else {
+      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    }
+    
   }
 
 }
+
+function isCanNavigateSub(taskId) {
+  return lsdb.data.groups.find(x => x.id == taskId);
+}
+
+function anyTaskHasRatio(tasks) {
+  return ( tasks.filter(task => task.ratio > 0).length > 0 );
+}
+
+async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
+  
+  let tasks = compoTask.GetAllByParentId(parentTask.id);
+  if (tasks.length == 0 || !anyTaskHasRatio(tasks)) {
+    parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+  }
+  
+  let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTask.id);
+  
+  for (let task of tasks) {
+    
+    if (task.ratio === 0) continue;
+    
+    let priorityPoint = task.ratio;
+    let addedTargetTime = Math.round( timeToDistribute * (priorityPoint / totalPriorityPoint) );
+    
+    if (isCanNavigateSub(task.id)) {
+      distributeTargetTimeInTaskSub(addedTargetTime, task);
+    } else {
+      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    }
+    
+  }
+  
+}
+
 
 function addOrInitNumber(variable, numberToAdd) {
   if (variable === null || typeof variable === "undefined") {
@@ -1825,7 +1866,7 @@ let app = (function () {
       if (item.ratio) {
         let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(item.parentId);
         let rop = Math.round(item.ratio / totalPriorityPoint * 10000) / 100;
-        ratioStr = `ROP ${rop.toFixed(2)}%`;
+        ratioStr = `ROP ${rop}%`;
       }
       
       // show mission path

@@ -14,20 +14,23 @@ async function handleNotificationClick(event) {
       await stopByNotification();
       await setStopAlarmIcon();
       break;
+    case 'start-next-sequence': 
+      await startNextSequence(); 
+      break;
     case 'restart':
       await restartTask();
       break;
     case '3m':
-      startNewAlarm(3);
+      startNewAlarmInMinutes(3);
       break;
     case '7m':
-      startNewAlarm(7);
+      startNewAlarmInMinutes(7);
       break;
     case '12m':
-      startNewAlarm(12);
+      startNewAlarmInMinutes(12);
       break;
     case '20m':
-      startNewAlarm(20);
+      startNewAlarmInMinutes(20);
       break;
   }
 }
@@ -159,11 +162,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
 async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
   // update all parent target time
   await taskApplyAllParentTargetTime(task.parentId, distanceTime, tasks);
-  
   // apply target time balancing
-  // if (task.ratio > 0) {
-    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
-  // }
+  await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
 }
 
 function GetTaskById(tasks, id) {
@@ -173,9 +173,7 @@ function GetTaskById(tasks, id) {
 async function taskApplyAllParentTargetTime(parentId, distanceTime, tasks) {
   let task = GetTaskById(tasks, parentId);
   while (task) {
-    // if (task.ratio > 0) {
-      await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
-    // }
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
     task = GetTaskById(tasks, task.parentId);
   }
 }
@@ -196,16 +194,57 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
   if (typeof(ratio) != 'number') return;
   
+  let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentId);
   let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
 
-  let remainingRatio = 100 - ratio;
-  let timeToDistribute = ( addedTime *  ( remainingRatio / 100 ) ) / ( ratio / 100 );
+  let remainingRatio = totalPriorityPoint - ratio;
+  let timeToDistribute = ( addedTime *  ( remainingRatio / totalPriorityPoint ) ) / ( ratio / totalPriorityPoint );
 
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
-    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    
+    if (isCanNavigateSub(task.id)) {
+        distributeTargetTimeInTaskSub(addedTargetTime, task);
+    } else {
+      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    }
+    
   }
 
+}
+
+function isCanNavigateSub(taskId) {
+  return lsdb.data.groups.find(x => x.id == taskId);
+}
+
+function anyTaskHasRatio(tasks) {
+  return ( tasks.filter(task => task.ratio > 0).length > 0 );
+}
+
+async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
+  
+  let tasks = compoTask.GetAllByParentId(parentTask.id);
+  if (tasks.length == 0 || !anyTaskHasRatio(tasks)) {
+    parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+  }
+  
+  let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTask.id);
+  
+  for (let task of tasks) {
+    
+    if (task.ratio === 0) continue;
+    
+    let priorityPoint = task.ratio;
+    let addedTargetTime = Math.round( timeToDistribute * (priorityPoint / totalPriorityPoint) );
+    
+    if (isCanNavigateSub(task.id)) {
+      distributeTargetTimeInTaskSub(addedTargetTime, task);
+    } else {
+      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    }
+    
+  }
+  
 }
 
 function addOrInitNumber(variable, numberToAdd) {
@@ -291,10 +330,13 @@ async function onAlarmEnded(alarm) {
 
   // get task
   let isRepeatCountFinished = false;
+  let isSequenceTask = false;
   let finishCountLeftTxt = '';
   let targetMinutesTxt = '';
   let targetTimeLeftStr = '';
   let timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+  let sequenceTaskTitle = '';
+  let sequenceTaskDurationTimeStr = '';
   
   if (data.activeTask) {
     
@@ -318,23 +360,32 @@ async function onAlarmEnded(alarm) {
         }
         await reduceCountActiveTask();
       }
-
-      // calculate miutes left if has parent task
-      // if (activeTask.parentId) {
-      //   let totalMsProgressChildTask = tasks.filter(x=>x.parentId == activeTask.parentId).reduce((total,item)=>total+item.totalProgressTime, 0);
-      //   let totalChildTaskProgressMinutes = msToMinutes(totalMsProgressChildTask);
-        
-      //   let parentTask = tasks.find(x => x.id == activeTask.parentId);
-      //   let accumulatedMinutesLeft = Math.max(0, parentTask.target - (parentTask.progress + totalChildTaskProgressMinutes));
-      //   finishCountLeftTxt += ` (${accumulatedMinutesLeft}m left)`
-      // }
+      
+      // change notif action if its a sequence task
+      compoSequence.Stash(activeTask.sequenceTasks);
+      let sequenceTask = compoSequence.GetActive();
+      if (sequenceTask) {
+        isSequenceTask = true;
+        sequenceTaskTitle = sequenceTask.title;
+        sequenceTaskDurationTimeStr = secondsToHMS(msToSeconds(sequenceTask.targetTime));
+      }
+      compoSequence.Pop();
 
     }
     
   }
   
   let actions = [];
-  if (!isRepeatCountFinished) {
+  let notifTitle = `Time's up!`;
+  let notifBody = `${targetTimeLeftStr} ${timeStreakStr} ${finishCountLeftTxt}`.trim();
+  
+  if (isSequenceTask) {
+    actions.push({
+      action: 'start-next-sequence',
+      title: `Start next (${sequenceTaskDurationTimeStr})`,
+    });
+    notifBody = `Next : ${sequenceTaskTitle}`;
+  } else if (!isRepeatCountFinished) {
     actions.push({
       action: 'restart',
       title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
@@ -342,7 +393,7 @@ async function onAlarmEnded(alarm) {
   }
   
   // spawn notif
-  spawnNotification(`Time's up! ${targetTimeLeftStr} ${timeStreakStr} ${finishCountLeftTxt}`.trim(), 'limegreen', icon3, true, actions);
+  spawnNotificationV2(notifTitle, notifBody, 'limegreen', icon3, true, actions);
   
   // play alarm audio
   playAudio('audio.html');
@@ -431,27 +482,27 @@ function minutesToHoursAndMinutes(minutes) {
   return timeString;
 }
 
-async function startNewAlarm(minutes) {
-  // await chrome.runtime.sendMessage({message: 'hello'});
-  // spawnNotification('Misi dimulai, Happy farming!', 'white', icon1);
-  // chrome.action.setIcon({ path: icon1 })
+async function startNewAlarmInMinutes(minutes) {
+  let aMinute = 60;
+  let miliseconds = 1000;
+  let durationTime = parseInt(minutes) * aMinute * miliseconds;
+  await startNewAlarm(durationTime);
+}
+
+async function startNewAlarm(durationTime, isSequenceTask = false) {
   
   let data = await chrome.storage.local.get(["history", "start"]);
   let distanceMinutes = 0;
   if (typeof(data.start) != 'undefined') {
     distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
   }
+
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
-  
-  // document.querySelector('#history').textContent = data.history + distanceMinutes;
-  
   await chrome.alarms.clearAll();
   
-  let aMinute = 60;
-  let miliseconds = 1000;
   let now = new Date().getTime();
-  let triggerTime = now + parseInt(minutes) * aMinute * miliseconds;
+  let triggerTime = now + durationTime;
   
   await chrome.storage.local.set({ 'start': now  });
   
@@ -461,16 +512,82 @@ async function startNewAlarm(minutes) {
   await chrome.alarms.create('main', {
       when: triggerTime
   }); 
-  // await chrome.alarms.create('halfway', {
-  //     when: triggerTime - Math.floor(parseInt(minutes)/2) * aMinute * miliseconds
-  // });
-  if (triggerTime - 3 * aMinute * miliseconds > 0) {
+  
+  let threeMinThresholdInMs = 3 * 60 * 1000;
+  
+  if (!isSequenceTask && triggerTime - threeMinThresholdInMs > 0) {
     await chrome.alarms.create('3m', {
-	      when: triggerTime - 3 * aMinute * miliseconds
+	      when: triggerTime - threeMinThresholdInMs
     });
   }
   updateTime();
   
+}
+
+async function startNextSequence() {
+  
+  let tasks = await getTask();
+  let data = await chrome.storage.local.get(['activeTask']);
+  if (!data.activeTask) return;
+
+  let activeTask = tasks.find(x => x.id == data.activeTask);
+  if (!activeTask) return;
+  
+  let alarmDurationTime = minuteToMs(activeTask.target);
+  let isSequenceTask = true;
+  
+  // get target time from sequence
+  compoSequence.Stash(activeTask.sequenceTasks);
+  let sequenceTask = compoSequence.GetActive();
+  if (sequenceTask) {
+    isSequenceTask = true;
+    alarmDurationTime = sequenceTask.targetTime;
+    
+    // notify next task name
+    const notification = registration.showNotification(`${sequenceTask.title}`, { 
+      body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
+      icon4,
+      tag: 'active-sequence-task',
+    });
+    
+  }
+  compoSequence.Pop();
+  
+  startNewAlarm(alarmDurationTime, isSequenceTask);
+  
+}
+
+function minuteToMs(minutes) {
+  return minutes * 60 * 1000;
+}
+
+function secondsToHMS(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainderSeconds = seconds % 60;
+  let timeString = '';
+
+  if (hours > 0) {
+    timeString += `${hours}h`;
+  }
+
+  if (minutes > 0 || hours > 0) {
+    timeString += `${minutes}m`;
+  }
+
+  if (remainderSeconds > 0 || (hours === 0 && minutes === 0)) {
+    timeString += `${remainderSeconds}s`;
+  }
+
+  if (seconds === 0) {
+    timeString = '0s';
+  }
+
+  return timeString;
+}
+
+function msToSeconds(milliseconds) {
+  return Math.floor(milliseconds / 1000);
 }
 
 async function restartTask() {
@@ -484,11 +601,11 @@ async function restartTask() {
   activeTask.progress = 0;
   activeTask.progressTime = 0;
   await storeTask(tasks);
-  startNewAlarm(activeTask.target);
+  startNewAlarmInMinutes(activeTask.target);
 }
 
 let canvas = new OffscreenCanvas(280, 5);
-let c = canvas.getContext('2d')
+let c = canvas.getContext('2d');
 let progress = 280;
 let clockInterval;
 
@@ -510,10 +627,10 @@ let icon2 = 'data:image/webp;base64,UklGRhwDAABXRUJQVlA4TA8DAAAvH8AHEP/juJEkRaqG
 let icon3 = 'data:image/webp;base64,UklGRtwCAABXRUJQVlA4TM8CAAAvH8AHEP/jIJIkRZrFZ1uv/W0wM8NOtQ0HkSQpUj0zo4b38v4dMDPNdEOOJEmRFDnLqL9ijE9muuvuqar5DwPIghMODATDgRMwBwrm76yRffzz8A0Fo6i4a7l0h3ZWhbG776aa+Pnfm4/mwinefrv77u0PCk4OKhgUAjUHIkhAUAqGMpAigQQBT0gShWZIkGGGgBnDBkZVqI5eJyRQJbWIlFKKSIh+kJGFbkGsBC+HQVGS0S1IBV0kGglYAQlEJIKxllrUvt/k/y8+n3/H+9nnlvx+RYvadrf3/SbIIZP64blN3oO77yrcK1eH48n5evNrfN1uDy7zKX1hoyqQs3DY2a9FXwkhsVip9ORF8XdipZr/UJptaW7KpDJZXsjB0yDXa4tB2m1batsozMwMGjNKM1KYmZmZaSK7qEqlH9+YSp/fjej/BCj/n8kEkAuJ56dnK4l32ZJHu9g/uLp/tWQiK/IIe9/zv377sXfzYsksODbJxBF2tr/v7l08WzIT1x7FUADPH+6Od3cOT28eLZmWi9Gxni5Cny8UfHd3hpPT64dEOm7Dz3y1W2Xo6YInFHl/eQa6fZKpnK2u8vwm9qbaxbyRj3eX5+m4W/VNZfnlbxUAhSzw5ZaerBTu5kpRZ0cTWHkeFRSWNvZVtrDOz68WJVJsTVSWVDMAhR2V+cUtalEL67OtNJzVlX6V/VrV1lLTorZXMsC2SCopJmfW1ieG+1WGktbu3uZaX8CTwZQ2ML60sjTM0FVdUlEX9Id9zLakkmo2LmJRDM0vLo0M+wLBkNA8qk1KGnNxwU1AD03Oj4VjGhdRtmAr6cxrhtDJMAESMF5MGWIrTjpk6ybXDRMCACjxwkMjG25aTsQUmiGIm4YAJTX4lx0lfVeQbhpcJ8EJSR6d2HQzIICbQouZGhefTBpctZXMHdiCk/bi6BSfdpTsAoAGnWsO5dAGQMq/FAA=';
 
 function spawnNotification(body, color, icon, requireInteraction = false, actions = []) {
-  c.canvas.width = 280
-  c.canvas.height = 5
-  c.fillStyle = color
-  c.fillRect(0,0,progress,30)
+  c.canvas.width = 280;
+  c.canvas.height = 5;
+  c.fillStyle = color;
+  c.fillRect(0,0,progress,30);
   const notification = registration.showNotification('', { 
     body, 
     icon,
@@ -526,6 +643,23 @@ function spawnNotification(body, color, icon, requireInteraction = false, action
   // if (useClickAction) {
     // notification.onclick = function(x) { focus(); this.close() };
   // }
+}
+
+function spawnNotificationV2(notifId, body, color, icon, requireInteraction = false, actions = []) {
+
+  c.canvas.width = 280;
+  c.canvas.height = 5;
+  c.fillStyle = color;
+  c.fillRect(0, 0, progress, 30);
+
+  const notification = registration.showNotification(notifId, { 
+    body, 
+    icon,
+    actions,
+    tag: 'progress',
+    renotify: true,
+    requireInteraction: requireInteraction,
+  });
 }
 
 

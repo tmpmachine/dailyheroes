@@ -25,7 +25,14 @@ export let compoSequence = (function() {
       id: -1,
     },
     activeId: null,
-    items: [],
+    items: [
+      /*
+        id,
+        title,
+        progressTime: 0,
+        targetTime: 0,
+      */
+    ],
   };
   let data = null;
   
