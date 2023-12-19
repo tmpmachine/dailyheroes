@@ -372,7 +372,10 @@ async function updateTime(scheduledTime, startTime) {
     if (distance < 1000) {
       sendNotification();
       ui.TurnOnScreen();
-      app.TaskPlayAlarmAudio();
+      // avoid overlapped alarm played by extension
+      if (!app.isPlatformChromeExt) {
+        app.TaskPlayAlarmAudio();
+      }
     }
     
     // stop updating the timer, it's ended by background script
@@ -402,8 +405,10 @@ async function sendNotification() {
   
   compoSequence.Stash(task.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
+  let sequenceTaskDurationTimeStr = '';
   if (sequenceTask) {
     isNotifSequence = true;  
+    sequenceTaskDurationTimeStr = `(${ secondsToHMS(msToSeconds(sequenceTask.targetTime)) })`;
   }
   compoSequence.Pop();
   
@@ -411,12 +416,16 @@ async function sendNotification() {
     
     navigator.serviceWorker.ready.then((registration) => {
       
-      registration.showNotification(`Time's up!`, {
-        body: `${sequenceTask.title}`,
+        
+      let notifTitle = `Time's up!`;
+      let notifBody = `Next : ${sequenceTask.title}`;
+      
+      registration.showNotification(notifTitle, {
+        body: notifBody,
         requireInteraction: true,
         actions: [{
-          action: 'next-task',
-          title: 'Start next task',
+          action: 'start-next-sequence',
+          title: `Start next ${sequenceTaskDurationTimeStr}`.trim(),
         }]
       });
       
