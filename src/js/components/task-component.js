@@ -3,17 +3,31 @@ let compoTask = (function() {
   'use strict';
   
   let SELF = {
+    Add,
     GetAll,
     GetById,
     GetAllByParentId,
+    GetTotalPriorityPointByParentTaskId,
+    StartTimerByTaskId,
+    ResetProgressById,
+    
+    // sequence
     AddSequence,
     UpdateSequence,
     TaskDeleteSequenceById,
     FocusSequenceById,
     TaskResetSequenceById,
-    GetTotalPriorityPointByParentTaskId,
-    StartTimerByTaskId,
   };
+  
+  async function ResetProgressById(id) {
+    let task = tasks.find(x => x.id == id);
+    task.progress = 0;
+    task.progressTime = 0;
+    task.finishCountProgress = task.finishCount;
+    await appData.TaskStoreTask();
+    await app.TaskListTask();  
+    loadSearch();
+  }
   
   async function StartTimerByTaskId(id) {
     let task = GetById(id);
@@ -201,16 +215,15 @@ let compoTask = (function() {
     data = noReferenceData;
   }
   
-  function Add(title) {
+  function Add(inputData) {
+
     let id = uuidV4Util.Generate();
-    let group = {
+    let item = {...lsdb.new('task', {
       id,
-      title,
-      progressTime: 0,
-    };
-    data.items.push(group);
-    
-    return group;
+    }), ...inputData};
+    tasks.splice(0, 0, item);
+
+    return item;
   }
   
   function SetActiveById(id) {

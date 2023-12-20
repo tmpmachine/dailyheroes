@@ -23,6 +23,7 @@ let compoMission = (function() {
     
     // # mission
     AddMission,
+    CreateItemMission,
     RemoveMissionById,
     
   };
@@ -103,12 +104,20 @@ let compoMission = (function() {
     return true;
   }
   
-  function AddMission(missionData) {
+  function CreateItemMission(taskId) {
+    return {
+      id: taskId,
+      lastStarredDate: null,
+      lastUpdatedDate: new Date().getTime(),
+      createdDate: new Date().getTime(),
+    };
+  }
+  
+  function AddMission(item) {
     let group = GetActiveGroup();
     if (group == null) return false;
     
-    group.missionIds.push(missionData);
-    commitData();
+    group.missionIds.push(item);
   }
   
   function GetMissions() {

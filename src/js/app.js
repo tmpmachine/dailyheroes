@@ -412,12 +412,19 @@ async function sendNotification() {
   }
   compoSequence.Pop();
   
+  let timeStreakStr = '';
+  let timeStreak = compoTimeStreak.GetActive();
+  if (timeStreak) {
+    timeStreakStr = ` (${secondsToHMS(msToSeconds(timeStreak.totalTimeStreak))} total) `;
+  }
+  
+  
   if (isNotifSequence) {
     
     navigator.serviceWorker.ready.then((registration) => {
       
         
-      let notifTitle = `Time's up!`;
+      let notifTitle = `Time's up! ${timeStreakStr}`.trim();
       let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTask.title}`;
       
       registration.showNotification(notifTitle, {
@@ -857,13 +864,9 @@ function taskAddToMission(id, parentEl) {
     }
   } else {
     // add to mission
-    let missionData = {
-      id,
-      lastStarredDate: null,
-      lastUpdatedDate: new Date().getTime(),
-      createdDate: new Date().getTime(),
-    };
+    let missionData = compoMission.CreateItemMission(id);
     compoMission.AddMission(missionData);
+    compoMission.Commit();
     parentEl.stateList.add('--is-mission');
   }
 
@@ -1127,16 +1130,6 @@ async function finishTask(id) {
   await appData.TaskStoreTask();
   let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
   $('#tasklist-completed').append(taskEl);
-}
-
-async function restartTask(id) {
-  let task = tasks.find(x => x.id == id);
-  task.progress = 0;
-  task.progressTime = 0;
-  task.finishCountProgress = task.finishCount;
-  await appData.TaskStoreTask();
-  await app.TaskListTask();  
-  loadSearch();
 }
 
 async function addNote(form) {
@@ -1500,6 +1493,8 @@ async function taskOpenTaskIntoView() {
 
 
 let app = (function () {
+  
+  let $$ = document.querySelectorAll.bind(document);
 
   let SELF = {
     // app init
@@ -2023,7 +2018,60 @@ let app = (function () {
     $('#tasklist-completed').innerHTML = '';
     $('#tasklist-completed').append(docFragCompleted);
     
+    for (let el of $$('[data-container="sequence-tasks"]')) {
+      new Sortable(el, {
+        handle: '.handle', // handle's class
+        animation: 150,
+        onEnd: onEndSortSequence,
+      });
+    }
+    
+    
+    
+    
     await setActiveTask();
+  }
+  
+  function onEndSortSequence(evt) {
+    console.log(evt.target.closest('[data-obj="task"]').dataset.id)
+		UpdateNoteIndex(evt.oldIndex, evt.newIndex);
+		// compoWorkspace.Commit();
+		// appSettings.Save();
+  }
+  
+  function UpdateNoteIndex(oldIndex, newIndex) {
+    
+    // compoSequence.Stash(activeTask.sequenceTasks);
+    // let sequenceTask = compoSequence.GetActive();
+    // if (sequenceTask) {
+    //     let item = compoSequence.GetNext();
+    //     compoSequence.SetActiveById(item.id);  
+    // }
+    // compoSequence.Pop();
+
+// use commit to save changes
+// compoSequence.Commit();
+    
+    // console.log(oldIndex,newIndex)
+    // let workspace = GetActiveGroup();
+    // let noteIds = 
+    // console.log(workspace)
+    // moveItemInArray(workspace.noteIds, oldIndex, newIndex);
+  }
+  
+  function moveItemInArray(array, oldIndex, newIndex) {
+    if (oldIndex === newIndex || oldIndex < 0 || oldIndex >= array.length || newIndex < 0 || newIndex >= array.length) {
+      // No change needed or invalid index
+      return array;
+    }
+  
+    // Remove the item from the old position
+    const [movedItem] = array.splice(oldIndex, 1);
+  
+    // Insert the item at the new position
+    array.splice(newIndex, 0, movedItem);
+  
+    return array;
   }
   
   async function TaskStopActiveTask() {
@@ -2575,7 +2623,7 @@ let app = (function () {
         updateUI();
       break;
       case 'unarchive': await taskUnarchive(id); break;
-      case 'restart': await restartTask(id); break;
+      case 'restart': await compoTask.ResetProgressById(id); break;
       case 'take-note': showModalNote(id); break;
       case 'start': await StartTaskTimer(parentEl, id); break;
       case 'stop': await app.TaskStopActiveTask(); break;
@@ -2630,12 +2678,9 @@ let app = (function () {
     }
   
     let taskId;
-    let finishCount = form['finishCount'].value ? parseInt(form['finishCount'].value) : null;
     try {
       let parentId = form['parent-id'].value;
       taskId = addTaskData({
-        finishCount,
-        finishCountProgress: finishCount,
         title: form.title.value,
         target: parseHoursMinutesToMinutes(targetVal),
         parentId: parentId ? parentId : '',

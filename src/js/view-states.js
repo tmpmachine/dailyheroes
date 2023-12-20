@@ -12,6 +12,12 @@ let viewStates = [
     ]
   },
   {
+    group: 'task',
+    states: [
+      'sequence'
+    ]
+  },
+  {
     group: 'task-view-mode',
     states: [
       'task',

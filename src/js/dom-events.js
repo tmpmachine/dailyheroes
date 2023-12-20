@@ -236,6 +236,9 @@ let DOMEvents = (function() {
   	},
   	
   	onclick: {
+  	  'reset-progress-task-from-form': (evt) => ui.ResetProgressTaskFromForm(evt),
+  	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
+  	  'convert-collection-sequence': () => ui.TaskConvertCollectionSequence(),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),
   	  'delete-sequence-from-form': (evt) => ui.DeleteSequenceFromForm(evt),
       'navigate-mission-screen': (evt) => ui.NavigateMissionScreen(evt.target.dataset.tag),

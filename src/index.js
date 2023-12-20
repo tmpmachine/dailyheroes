@@ -39,15 +39,15 @@ window.componentLoader.load([
   },
   {
     urls: [
-      'js/app-data.js',
-      'js/utils/uuidv4-util.js',
+      "js/app-data.js",
+      "js/utils/uuidv4-util.js",
       
       // app components
-      'js/components/task-component.js',
-      'js/components/compo-mission.js',
-      'js/components/compo-tracker.js',
-      'js/components/sequence-component.js',
-      'js/components/compo-time-streak.js',
+      "js/components/task-component.js",
+      "js/components/mission-component.js",
+      "js/components/compo-tracker.js",
+      "js/components/sequence-component.js",
+      "js/components/compo-time-streak.js",
     ],
     callback: function() { 
       
@@ -55,7 +55,8 @@ window.componentLoader.load([
   },
   {
     urls: [
-      'js/app.js',
+      "js/lib/sortable@1.15.1.min.js",
+      "js/app.js",
     ],
     callback: function() {
       

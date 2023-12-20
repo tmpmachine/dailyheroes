@@ -203,6 +203,12 @@
             ][ .mb-m]
           ][ .default-gap]
           
+          <!-- # sequence generator -->
+          [ data-view-group="build" data-view-name="dev"
+            [btn 'Convert collection to sequence' data-onclick="convert-collection-sequence"]
+            [ .default-gap]
+          ]
+          
           <!-- # filter by target time -->
           [ data-view-group="task-view-mode" data-view-name="task"
             [ .d-flex .align-items-center .user-select-none
@@ -541,7 +547,7 @@
   <template id="tmp-task">
     <!-- # container task -->
     
-  	[ .container-item data-obj="task" data-id="?" data-kind="task"
+  	[ .container-item data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="sequence"
   	  
   	  <!-- # task body -->
   	  [ {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
@@ -620,12 +626,13 @@
       	]
   	  ]
   	  
-  	  <!-- ## running task indicator -->
+  	  <!-- # running task indicator -->
     	<div class="task-progress-bar-container">
         <div class="task-progress-bar"></div>
       </div>
       
-      [ data-container="sequence-tasks"]
+  	  <!-- # sequence container -->
+      [ data-container="sequence-tasks" data-view-group="task" data-view-name="sequence"]
       
   	]
   </template>
@@ -633,7 +640,12 @@
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
     [ .item-sequence data-kind="item-sequence-task" 
-      [ {p:4px} .d-flex .justify-content-between {gap:0.5rem}
+      [ {p:4px} .d-grid {cols:auto 1fr auto} {gap:0.5rem}
+        [ .d-flex .align-items-center .handle
+          [ data-view-group="build" data-view-name="dev"
+            [s .icon-mate 'drag_indicator']
+          ]
+        ]
         [ .word-break-word .flex-1
           [small
             [s data-slot="title"]
@@ -680,7 +692,7 @@
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
           [ {pr:0.3rem} data-group="not-running"]
-          <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
+          <!--<button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>-->
         ]
       ]
     ]
@@ -757,9 +769,19 @@
             ]
             [ .mb-m]
             
-            [ .d-flex .justify-content-end
-              <button data-role='btn-add' data-view-group="form-task" data-view-name="add">Add</button>
-              <button data-role="btn-edit" data-view-group="form-task" data-view-name="edit">Update</button>
+            [ 
+              [ data-view-group="form-task" data-view-name="add"
+                [btn 'Add' data-role="btn-add"]
+              ]
+              [ data-view-group="form-task" data-view-name="edit"
+                [ .d-flex .justify-content-between
+                  [ data-view-group="build" data-view-name="dev"
+                    [btn 'delete' .icon-mate title="Delete" type="button" data-onclick="delete-task-from-form"]
+                    [btn 'Reset progress' title="Reset progress" type="button" data-onclick="reset-progress-task-from-form"]
+                  ]
+                  [btn 'Update' data-role="btn-edit"]
+                ]
+              ]
             ]
             
           </form>

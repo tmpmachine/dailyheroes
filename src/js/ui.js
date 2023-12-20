@@ -3,7 +3,9 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
+    DeleteTaskFromForm,
     DeleteSequenceFromForm,
     NavigateMissionScreen,
     ShowModalAddTask,
@@ -39,6 +41,48 @@ let ui = (function () {
     HandleInputPrioritySlider,
   };
   
+  async function TaskConvertCollectionSequence() {
+    
+    let collectionTaskIds = compoMission.GetMissions().map(x => x.id);
+    
+    if (collectionTaskIds.length == 0) return;
+    
+    let task = compoTask.Add({
+      title: 'Untitled sequence',
+      target: 1,
+      parentId: '',
+    });
+    
+    compoSequence.Stash(task.sequenceTasks);
+    
+    let sequenceIds = [];
+    
+
+    for (let id of collectionTaskIds) {
+      // remove from current collection
+      compoMission.RemoveMissionById(id);
+      
+      // add linked task sequence
+      let task = compoTask.GetById(id);
+      let targetTime = task.target * 60 * 1000;
+      let sequenceTask = compoSequence.AddLinkedTask(task.id, targetTime);  
+      sequenceIds.push(sequenceTask.id);
+    }
+    
+    let success = compoSequence.SetActiveById(sequenceIds[0]);
+
+    let missionData = compoMission.CreateItemMission(task.id);
+    compoMission.AddMission(missionData);
+    
+    compoSequence.Commit();
+    compoMission.Commit();
+    
+    await appData.TaskStoreTask();
+    
+    await app.TaskListTask();
+    
+  }
+  
   function ResetProgressSequenceFromForm(evt) {
     let form = evt.target.form;
     let seqId = form.id.value;
@@ -59,6 +103,36 @@ let ui = (function () {
     
     $('#task-sequence-modal').close();
     ui.RefreshListSequenceByTaskId(taskId);
+  }
+  
+  function DeleteTaskFromForm(evt) {
+    let form = evt.target.form;
+    let id = form.id.value;
+    
+    // console.log(id)
+    let taskEl = $(`[data-obj="task"][data-id="${id}"]`);
+    if (!taskEl) {
+      alert('failed');
+      return;
+    }
+    
+    app.TaskDeleteTask(id, taskEl);
+    $('#projects-modal').close();
+  }
+  
+  function ResetProgressTaskFromForm(evt) {
+    let form = evt.target.form;
+    let id = form.id.value;
+    
+    // console.log(id)
+    let taskEl = $(`[data-obj="task"][data-id="${id}"]`);
+    if (!taskEl) {
+      alert('failed');
+      return;
+    }
+    
+    app.TaskDeleteTask(id, taskEl);
+    $('#projects-modal').close();
   }
   
   function NavigateMissionScreen(screenName) {
@@ -109,8 +183,18 @@ let ui = (function () {
   	let activeId = compoSequence.GetActiveId();
   	let items = compoSequence.GetAll();
     let docFrag = document.createDocumentFragment();
+    
+    // if (items.length > 0) {
+    //   console.log(container)
+    //   viewStateUtil.Add('task', ['sequence'], container)
+    // }
   	
     for (let item of items) {
+      
+      let linkedTask = null;
+      if  (item.linkedTaskId) {
+        linkedTask = compoTask.GetById(item.linkedTaskId);
+      }
       
       // time left info
       let timeLeftStr = '';
@@ -121,7 +205,7 @@ let ui = (function () {
       
       let el = window.templateSlot.fill({
         data: {
-          title: item.title,
+          title: linkedTask ? linkedTask.title : item.title,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
           timeLeftStr: ` -- ${timeLeftStr} left`,
         }, 
@@ -138,7 +222,7 @@ let ui = (function () {
   }
   
   function SetGlobalTimer() {
-    $('#txt-global-preset-timer').textContent = app.GetGlobalTimerStr()
+    $('#txt-global-preset-timer').textContent = app.GetGlobalTimerStr();
   }
   
   function ChangeGlobalPresetTimer() {

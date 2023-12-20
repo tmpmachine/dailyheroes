@@ -11,6 +11,7 @@ let compoSequence = (function() {
     GetActiveId,
     SetActiveById,
     Add,
+    AddLinkedTask,
     UpdateById,
     DeleteById,
     CountAll,
@@ -25,16 +26,19 @@ let compoSequence = (function() {
       id: -1,
     },
     activeId: null,
-    items: [
-    /*
-      id,
-      title,
-      progressTime: 0,
-      targetTime: 0,
-    */
-    ],
+    items: [],
   };
   let data = null;
+  
+  let dataModel = {
+    items: {
+      id: '',
+      linkedTaskId: '',
+      title: '',
+      progressTime: 0,
+      targetTime: 0,
+    }
+  };
   
   let local = {
     dataSource: null,
@@ -61,9 +65,23 @@ let compoSequence = (function() {
   })();
   
   function Add(title, durationTime) {
+    let linkedTaskId = null;
+    let item = addItem(title, durationTime, linkedTaskId);
+    return item;
+  }
+  
+  function AddLinkedTask(taskId, durationTime) {
+    let linkedTaskId = taskId;
+    let title = null;
+    let item = addItem(title, durationTime, linkedTaskId);
+    return item;
+  }
+  
+  function addItem(title, durationTime, linkedTaskId) {
     let id = __idGenerator.next(data.counter);
     let item = {
       id,
+      linkedTaskId,
       title,
       progressTime: 0,
       targetTime: durationTime,
@@ -72,7 +90,7 @@ let compoSequence = (function() {
     
     return item;
   }
-  
+   
   function SetActiveById(id) {
     let item = GetById(id);
     if (item == null) return false;

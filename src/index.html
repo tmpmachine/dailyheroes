@@ -203,6 +203,12 @@
             </div><div class="mb-m"></div>
           </div><div class="default-gap"></div>
           
+          <!-- # sequence generator -->
+          <div data-view-group="build" data-view-name="dev">
+            <button data-onclick="convert-collection-sequence">Convert collection to sequence</button>
+            <div class="default-gap"></div>
+          </div>
+          
           <!-- # filter by target time -->
           <div data-view-group="task-view-mode" data-view-name="task">
             <div class="d-flex align-items-center user-select-none">
@@ -541,7 +547,7 @@
   <template id="tmp-task">
     <!-- # container task -->
     
-  	<div class="container-item" data-obj="task" data-id="?" data-kind="task">
+  	<div class="container-item" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="sequence">
   	  
   	  <!-- # task body -->
   	  <div style="padding:0.3rem 0.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;">
@@ -620,12 +626,13 @@
       	</div>
   	  </div>
   	  
-  	  <!-- ## running task indicator -->
+  	  <!-- # running task indicator -->
     	<div class="task-progress-bar-container">
         <div class="task-progress-bar"></div>
       </div>
       
-      <div data-container="sequence-tasks"></div>
+  	  <!-- # sequence container -->
+      <div data-container="sequence-tasks" data-view-group="task" data-view-name="sequence"></div>
       
   	</div>
   </template>
@@ -633,7 +640,12 @@
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
     <div class="item-sequence" data-kind="item-sequence-task">
-      <div class="d-flex justify-content-between" style="padding:4px;gap:0.5rem;">
+      <div class="d-grid" style="padding:4px;grid-template-columns:auto 1fr auto;gap:0.5rem;">
+        <div class="d-flex align-items-center handle">
+          <div data-view-group="build" data-view-name="dev">
+            <span class="icon-mate">drag_indicator</span>
+          </div>
+        </div>
         <div class="word-break-word flex-1">
           <small>
             <span data-slot="title"></span>
@@ -680,7 +692,7 @@
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
           <div data-group="not-running" style="padding-right:0.3rem;"></div>
-          <button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>
+          <!--<button data-role='delete' class="icon-mate" data-group="not-running" title='Delete'>delete</button>-->
         </div>
       </div>
     </div>
@@ -757,9 +769,19 @@
             </div>
             <div class="mb-m"></div>
             
-            <div class="d-flex justify-content-end">
-              <button data-role='btn-add' data-view-group="form-task" data-view-name="add">Add</button>
-              <button data-role="btn-edit" data-view-group="form-task" data-view-name="edit">Update</button>
+            <div>
+              <div data-view-group="form-task" data-view-name="add">
+                <button data-role="btn-add">Add</button>
+              </div>
+              <div data-view-group="form-task" data-view-name="edit">
+                <div class="d-flex justify-content-between">
+                  <div data-view-group="build" data-view-name="dev">
+                    <button class="icon-mate" title="Delete" type="button" data-onclick="delete-task-from-form">delete</button>
+                    <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                  </div>
+                  <button data-role="btn-edit">Update</button>
+                </div>
+              </div>
             </div>
             
           </form>

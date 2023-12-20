@@ -17,8 +17,8 @@ let viewStateUtil = (function() {
     viewStateMap: {}
   };
   
-  function Toggle(viewGroupName, viewNames) {
-    let groupEl = GetViewGroupNode(viewGroupName);
+  function Toggle(viewGroupName, viewNames, el) {
+    let groupEl = GetViewGroupNode(viewGroupName, el);
     let viewStates = groupEl.dataset.viewStates.split(' ');
     
     for (let viewName of viewNames) {
@@ -37,10 +37,10 @@ let viewStateUtil = (function() {
     return viewStates.filter(item => item != viewName);
   }
   
-  function Add(viewGroupName, viewNames) {
-    let groupEl = GetViewGroupNode(viewGroupName);
+  function Add(viewGroupName, viewNames, el) {
+    let groupEl = GetViewGroupNode(viewGroupName, el);
     let viewStates = groupEl.dataset.viewStates.split(' ');
-    
+
     for (let viewName of viewNames) {
       viewStates.push(viewName);
     }
@@ -93,7 +93,10 @@ let viewStateUtil = (function() {
     groupEl.dataset.viewStates = viewStates.join(' ').trim();
   }
   
-  function GetViewGroupNode(groupName) {
+  function GetViewGroupNode(groupName, el) {
+    if (el) {
+      return el;
+    }
     return $(`[data-view-group~="${groupName}"][data-view-states]`);
   }
   
