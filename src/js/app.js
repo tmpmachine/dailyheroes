@@ -2020,43 +2020,30 @@ let app = (function () {
     
     for (let el of $$('[data-container="sequence-tasks"]')) {
       new Sortable(el, {
-        handle: '.handle', // handle's class
+        handle: '.handle',
         animation: 150,
         onEnd: onEndSortSequence,
       });
     }
     
-    
-    
-    
     await setActiveTask();
   }
   
   function onEndSortSequence(evt) {
-    console.log(evt.target.closest('[data-obj="task"]').dataset.id)
-		UpdateNoteIndex(evt.oldIndex, evt.newIndex);
-		// compoWorkspace.Commit();
-		// appSettings.Save();
+    let taskId = evt.target.closest('[data-obj="task"]').dataset.id;
+		UpdateNoteIndex(taskId, evt.oldIndex, evt.newIndex);
   }
   
-  function UpdateNoteIndex(oldIndex, newIndex) {
+  function UpdateNoteIndex(taskId, oldIndex, newIndex) {
+    let task = compoTask.GetById(taskId);
     
-    // compoSequence.Stash(activeTask.sequenceTasks);
-    // let sequenceTask = compoSequence.GetActive();
-    // if (sequenceTask) {
-    //     let item = compoSequence.GetNext();
-    //     compoSequence.SetActiveById(item.id);  
-    // }
-    // compoSequence.Pop();
-
-// use commit to save changes
-// compoSequence.Commit();
+    compoSequence.Stash(task.sequenceTasks);
     
-    // console.log(oldIndex,newIndex)
-    // let workspace = GetActiveGroup();
-    // let noteIds = 
-    // console.log(workspace)
-    // moveItemInArray(workspace.noteIds, oldIndex, newIndex);
+    moveItemInArray(compoSequence.GetAll(), oldIndex, newIndex);
+    
+    compoSequence.Commit();
+    
+    appData.TaskStoreTask();
   }
   
   function moveItemInArray(array, oldIndex, newIndex) {
