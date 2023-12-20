@@ -19,6 +19,7 @@ let compoSequence = (function() {
     GetNext,
     GetPrevious,
     GetIndexById,
+    ResetAllCounter,
   };
   
   let dataTemplate = {
@@ -32,11 +33,15 @@ let compoSequence = (function() {
   
   let dataModel = {
     items: {
-      id: '',
-      linkedTaskId: '',
-      title: '',
+      id: null,
+      linkedTaskId: null,
+      title: null,
       progressTime: 0,
       targetTime: 0,
+      repeatCount: 0,
+      counter: {
+        repeatCount: 0,
+      }
     }
   };
   
@@ -52,6 +57,14 @@ let compoSequence = (function() {
     return data.items;
   }
   
+  function ResetAllCounter() {
+    let items = GetAll();
+    for (let item of items) {
+      item = GetById(item.id);
+      item.counter.repeatCount = 0;
+    }
+  }
+  
   const __idGenerator = (function() {
       
       function next(counterObj) {
@@ -64,27 +77,32 @@ let compoSequence = (function() {
       
   })();
   
-  function Add(title, durationTime) {
+  function Add(title, durationTime, repeatCount) {
     let linkedTaskId = null;
-    let item = addItem(title, durationTime, linkedTaskId);
+    let item = addItem(title, durationTime, repeatCount, linkedTaskId);
     return item;
   }
   
   function AddLinkedTask(taskId, durationTime) {
     let linkedTaskId = taskId;
     let title = null;
-    let item = addItem(title, durationTime, linkedTaskId);
+    let repeatCount = 0;
+    let item = addItem(title, durationTime, repeatCount, linkedTaskId);
     return item;
   }
   
-  function addItem(title, durationTime, linkedTaskId) {
+  function addItem(title, durationTime, repeatCount, linkedTaskId) {
     let id = __idGenerator.next(data.counter);
     let item = {
       id,
       linkedTaskId,
       title,
+      repeatCount,
       progressTime: 0,
       targetTime: durationTime,
+      counter: {
+        repeatCount: 0,
+      }
     };
     data.items.push(item);
     
@@ -129,6 +147,11 @@ let compoSequence = (function() {
     let item = GetById(id);
     if (!item) return null;
     
+    if (item.linkedTaskId) {
+      // linked task title must not be changed
+      delete incomingData['title'];
+    }
+    
     for (let key in incomingData) {
       if (typeof(item[key]) != 'undefined' && typeof(item[key]) == typeof(incomingData[key])) {
         item[key] = incomingData[key];
@@ -155,10 +178,21 @@ let compoSequence = (function() {
   }
   
   function GetById(id) {
-    let group = data.items.find(x => x.id == id);
-    if (group !== undefined) return group;
+    let item = data.items.find(x => x.id == id);
+    if (item === undefined) return null;
     
-    return null;
+    // reflect data model
+    for (let key in dataModel.items) {
+      if (typeof(item[key]) == 'undefined') {
+        if (typeof(dataModel[key]) == 'object') {
+          item[key] = clearReference(dataModel.items[key]);
+        } else {
+          item[key] = dataModel.items[key];
+        }
+      }
+    }
+    
+    return item;
   }
   
   function GetActive() {

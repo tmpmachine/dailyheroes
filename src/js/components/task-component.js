@@ -10,14 +10,31 @@ let compoTask = (function() {
     GetTotalPriorityPointByParentTaskId,
     StartTimerByTaskId,
     ResetProgressById,
+    AddTotalProgressByTaskId,
     
     // sequence
     AddSequence,
     UpdateSequence,
+    GetSequenceById,
     TaskDeleteSequenceById,
     FocusSequenceById,
     TaskResetSequenceById,
   };
+  
+  async function AddTotalProgressByTaskId(id, addedTime) {
+    let task = GetById(id);
+    if (!task) return;
+  
+    if (typeof(task.totalProgressTime) == 'undefined') {
+      task.totalProgressTime = 0;  
+    }
+    task.totalProgressTime += addedTime;
+      
+    await taskApplyNecessaryTaskUpdates(task, addedTime);
+      
+    app.AddProgressTimeToRootMission(task.parentId, addedTime);
+  }
+
   
   async function ResetProgressById(id) {
     let task = tasks.find(x => x.id == id);
@@ -40,6 +57,12 @@ let compoTask = (function() {
       let sequence = compoSequence.GetActive();
       
       if (sequence) {
+        
+        if (sequence.counter.repeatCount == sequence.repeatCount) {
+          sequence.counter.repeatCount = 0;
+        }
+        compoSequence.Commit();
+        
         startTimerByTaskSequence(task.id, sequence);
       } else {
         startTimerByTask(task);
@@ -59,8 +82,18 @@ let compoTask = (function() {
     androidClient.StartTimer(seconds, item.title);
     setTimer(item.targetTime - item.progressTime);
     
+    let taskTitle = item.title;
+    
+    // get linked task title
+    if (item.linkedTaskId) {
+      let linkedTask = GetById(item.linkedTaskId);
+      if (linkedTask) {
+        taskTitle = linkedTask.title;
+      }
+    }
+    
     // todo : allow close when another sequence is started
-    globalNotification[`${taskId}@${item.id}`] = new Notification(`${item.title}`, {
+    globalNotification[`${taskId}@${item.id}`] = new Notification(`${taskTitle}`, {
       body: `${secondsToHMS(msToSeconds(item.targetTime))} left`, 
       tag: 'active-sequence-task',
       requireInteraction: false,
@@ -98,7 +131,7 @@ let compoTask = (function() {
     
     compoSequence.Commit();
     
-    await appData.TaskStoreTask();    
+    await appData.TaskStoreTask();
     
   }
   
@@ -165,12 +198,13 @@ let compoTask = (function() {
     return tasks.filter(task => task.parentId == parentId);
   }
   
-  function AddSequence(title, durationTime, taskId) {
+  function AddSequence(inputData, taskId) {
+    let {title, durationTime, repeatCount} = inputData;
     let item = app.GetTaskById(taskId);
 
     compoSequence.Stash(item.sequenceTasks);
     
-    let seqItem = compoSequence.Add(title, durationTime);
+    let seqItem = compoSequence.Add(title, durationTime, repeatCount);
     if (compoSequence.CountAll() == 1) {
       compoSequence.SetActiveById(seqItem.id);
     }
@@ -179,19 +213,32 @@ let compoTask = (function() {
     appData.TaskStoreTask();
   }
   
-  function UpdateSequence(title, durationTime, taskId, seqId) {
+  function UpdateSequence(inputData, taskId, seqId) {
+    let {title, durationTime, repeatCount} = inputData;
     let item = app.GetTaskById(taskId);
 
     compoSequence.Stash(item.sequenceTasks);
     
     compoSequence.UpdateById({
       title,
+      repeatCount,
       targetTime: durationTime,
     }, seqId);
     
     compoSequence.Commit();
     appData.TaskStoreTask();
   }
+  
+  function GetSequenceById(taskId, seqId) {
+    
+    let task = app.GetTaskById(taskId);
+    
+    compoSequence.Stash(task.sequenceTasks);
+    let sequenceTask = compoSequence.GetById(seqId);
+    compoSequence.Pop();
+    
+    return sequenceTask;
+  } 
   
   const __idGenerator = (function() {
       

@@ -646,11 +646,16 @@
             <span class="icon-mate">drag_indicator</span>
           </div>
         </div>
-        <div class="word-break-word flex-1">
-          <small>
-            <span data-slot="title"></span>
-            (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
-          </small>
+        <div class="word-break-word flex-1 align-items-center d-flex">
+          <div class="d-flex justify-content-between w-100">
+            <small>
+              <span data-slot="title"></span>
+              (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
+            </small>
+            <small>
+              <mark class="word-break-keep-all" data-slot="ratioTimeLeftStr" style="font-size:0.7rem;"></mark>
+            </small>
+          </div>
         </div>
         <div>
           <button class="icon-mate" data-role="focus-sequence-task" title="Start from here">track_changes</button>
@@ -661,7 +666,7 @@
   </template>
   
   <template id="tmp-mission-buttons">
-
+    <!-- # tmp-mission-buttons -->
     <div class="d-inline-flex" style="gap:0.2rem;">
       <button class="icon-mate" data-role="add-sequence-task" title="Add sequence task">expand_more</button>
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
@@ -680,7 +685,6 @@
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
         <div class="d-inline-flex" style="gap:0.2rem;">
           <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Change target'>schedule</button>
-          <button data-role='edit' class="icon-mate" data-group="not-running" title='Setting'>edit</button>
           <div class="d-none">
             <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
             <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
@@ -688,6 +692,8 @@
           <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
           <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">add</button>
+          <div style="padding:0.2rem;"></div>
+          <button data-role='edit' class="icon-mate" data-group="not-running" title='Setting'>edit</button>
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -752,23 +758,29 @@
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             <input type="hidden" name="id"/>
-            <div>
-              Title <input type="text" name='title' class="input-style-default"/>
-            </div>
-            <div>
-              Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
-            </div>
-            <div>
-              Target <input type="text" name='targetTime' class="input-style-default"/>
-            </div>
-            <div class="d-none">
-              Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
-            </div>
-            <div data-view-group="form-task" data-view-name="edit">
-              Parent Id <input type="text" name='parent-id' class="input-style-default"/>
+            
+            <div class="d-grid" style="gap:0.5rem;">
+              <div>
+                Title <input type="text" name='title' class="input-style-default"/>
+              </div>
+              <div>
+                Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
+              </div>
+              <div>
+                Target <input type="text" name='targetTime' class="input-style-default"/>
+              </div>
+              <div class="d-none">
+                Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
+              </div>
+              <div data-view-group="form-task" data-view-name="edit">
+                Parent Id <input type="text" name='parent-id' class="input-style-default"/>
+              </div>
             </div>
             <div class="mb-m"></div>
             
+            <div class="default-gap"></div>
+            
+            <!-- # task modal : form actions -->
             <div>
               <div data-view-group="form-task" data-view-name="add">
                 <button data-role="btn-add">Add</button>
@@ -776,8 +788,10 @@
               <div data-view-group="form-task" data-view-name="edit">
                 <div class="d-flex justify-content-between">
                   <div data-view-group="build" data-view-name="dev">
-                    <button class="icon-mate" title="Delete" type="button" data-onclick="delete-task-from-form">delete</button>
-                    <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                    <div class="d-flex align-items-center" style="gap:0.5rem;">
+                      <button class="icon-mate" title="Delete" type="button" data-onclick="delete-task-from-form">delete</button>
+                      <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                    </div>
                   </div>
                   <button data-role="btn-edit">Update</button>
                 </div>
@@ -803,15 +817,33 @@
           
           <div class="default-gap"></div>
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
+            
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskId"/>
-            <div>
-              Title <input type="text" name="title" class="input-style-default"/>
-            </div>
-            <div>
-              Duration <input type="text" name="duration" placeholder="example: 30s, 45m, 1h30m" class="input-style-default"/>
-            </div>
-            <div class="mb-m"></div>
+            <div class="d-grid" style="gap:0.5rem;">
+              <div>
+                Title <input type="text" name="title" class="input-style-default"/>
+              </div>
+              <div>
+                Duration <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+              </div>
+              <hr/>
+              
+              <!-- repeat options -->
+              <div>
+                <label class="user-select-none">
+                  <input type="checkbox" name="useRepeat"/> 
+                  Repeat this task
+                </label>
+              </div>
+              <div>
+                Repeat count <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
+              </div>
+              <div>
+                Repeat rest duration <input type="text" name="repeatRestDurationTimeStr" placeholder="e.g. 30s, 3m, 15m20s" class="input-style-default"/>
+              </div>
+              
+            </div><div class="mb-m"></div>
             
             <div data-view-group="form-task-sequence" data-view-name="add">
               <div class="d-flex justify-content-end">
@@ -819,11 +851,14 @@
               </div>
             </div>
             
+            <div class="default-gap"></div>
+            
+            <!-- # sequence task modal : form action -->
             <div data-view-group="form-task-sequence" data-view-name="edit">
               <div class="d-flex justify-content-between">
-                <div>
+                <div class="d-flex align-items-center" style="gap:0.5rem;">
+                  <button class="icon-mate" type="button" data-onclick="delete-sequence-from-form">delete</button>
                   <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
-                  <button type="button" data-onclick="delete-sequence-from-form">Delete</button>
                 </div>
                 <div>
                   <button data-role="btn-edit">Update</button>

@@ -118,24 +118,74 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let activeTask = tasks.find(x => x.id == data.activeTask);
   if (!activeTask) return;
   
-  activeTask.progress += addedMinutes;
-  activeTask.progressTime += distanceTime;
-  if (typeof(activeTask.totalProgressTime) == 'undefined') {
-    activeTask.totalProgressTime = 0;  
-  }
-  activeTask.totalProgressTime += distanceTime;
   
-  // apply target time balancing
-  await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks);
+  let isUpdateCurrentActiveTask = true;
+  
   
   // set active next sequence task
   compoSequence.Stash(activeTask.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
   if (sequenceTask) {
-    let item = compoSequence.GetNext();
-    compoSequence.SetActiveById(item.id);  
+    
+    if (sequenceTask.linkedTaskId) {
+      let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
+      if (linkedTask) {
+        isUpdateCurrentActiveTask = false;
+        linkedTask.totalProgressTime += distanceTime;
+        await taskApplyNecessaryTaskUpdates(linkedTask, distanceTime, tasks);
+      }
+    }
+  
+    let isFinished = false;
+    let changeTask = false;
+    
+    sequenceTask.progressTime += distanceTime;
+    
+    // reset sequence if finished
+    if (sequenceTask.progressTime >= sequenceTask.targetTime) {
+      sequenceTask.progressTime = 0;
+      isFinished = true;
+    }
+    
+    // update repeat count
+    let isRepeat = (isFinished && sequenceTask.repeatCount > 0 && sequenceTask.counter.repeatCount < sequenceTask.repeatCount);
+    
+    if (isRepeat) {
+      sequenceTask.counter.repeatCount += 1;
+      changeTask = (sequenceTask.counter.repeatCount == sequenceTask.repeatCount);
+    } else {
+      sequenceTask.counter.repeatCount = 0;
+      if (isFinished) {
+        changeTask = true;
+      }
+    }
+    
+    if (changeTask) {
+      let nextItem = compoSequence.GetNext();
+      compoSequence.SetActiveById(nextItem.id);  
+      
+      let seqIndex = compoSequence.GetIndexById(nextItem.id);
+      if (seqIndex == 0 && compoSequence.CountAll() > 1) {
+        compoSequence.ResetAllCounter();
+      }
+    }
+    
   }
   compoSequence.Commit();
+  
+  
+  if (isUpdateCurrentActiveTask) {
+    
+    activeTask.progress += addedMinutes;
+    activeTask.progressTime += distanceTime;
+    if (typeof(activeTask.totalProgressTime) == 'undefined') {
+      activeTask.totalProgressTime = 0;  
+    }
+    activeTask.totalProgressTime += distanceTime;
+    
+    // apply target time balancing
+    await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks);
+  }
   
   
   // store task history to accumultas the progress on parent mission later
@@ -342,7 +392,7 @@ async function onAlarmEnded(alarm) {
   let timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
-  
+  let repeatCountStr = ''
   if (data.activeTask) {
     
     let tasks = await getTask();
@@ -370,9 +420,23 @@ async function onAlarmEnded(alarm) {
       compoSequence.Stash(activeTask.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
       if (sequenceTask) {
+        
         isSequenceTask = true;
         sequenceTaskTitle = sequenceTask.title;
         sequenceTaskDurationTimeStr = secondsToHMS(msToSeconds(sequenceTask.targetTime));
+        
+        // get title from task if linked
+        if (sequenceTask.linkedTaskId) {
+          let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
+          if (linkedTask) {
+            sequenceTaskTitle = linkedTask.title;
+          }
+        }
+        
+        // change title if is repeating
+        if (sequenceTask.repeatCount > 0) {
+          // repeatCountStr = `[${sequenceTask.counter.repeatCount} of ${sequenceTask.repeatCount}]`;
+        }
       }
       compoSequence.Pop();
 
@@ -391,7 +455,7 @@ async function onAlarmEnded(alarm) {
       title: `Start next (${sequenceTaskDurationTimeStr})`,
     });
     tag = 'active-sequence-task';
-    notifTitle = `Time's up! ${timeStreakStr}`.trim();
+    notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
     notifBody = `Next : ${sequenceTaskTitle}`;
   } else if (!isRepeatCountFinished) {
     actions.push({
@@ -547,12 +611,23 @@ async function startNextSequence() {
   // get target time from sequence
   compoSequence.Stash(activeTask.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
+  
   if (sequenceTask) {
+    
     isSequenceTask = true;
+    let sequenceTaskTitle = sequenceTask.title;
     alarmDurationTime = sequenceTask.targetTime;
     
+    // get title from task if linked
+    if (sequenceTask.linkedTaskId) {
+      let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
+      if (linkedTask) {
+        sequenceTaskTitle = linkedTask.title;
+      }
+    }
+    
     // notify next task name
-    const notification = registration.showNotification(`${sequenceTask.title}`, { 
+    const notification = registration.showNotification(`${sequenceTaskTitle}`, { 
       body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
       icon4,
       tag: 'active-sequence-task',

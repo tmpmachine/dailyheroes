@@ -1,5 +1,5 @@
 let tasks = [];
-let globalNotification = {}
+let globalNotification = {};
 
 function copyToClipboard(text) {
   var node  = document.createElement('textarea');
@@ -405,8 +405,18 @@ async function sendNotification() {
   
   compoSequence.Stash(task.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
+  let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
   if (sequenceTask) {
+    sequenceTaskTitle = sequenceTask.title;
+    
+    if (sequenceTask.linkedTaskId) {
+      let linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
+      if (linkedTask) {
+        sequenceTaskTitle = linkedTask.title;
+      }
+    }
+    
     isNotifSequence = true;  
     sequenceTaskDurationTimeStr = `(${ secondsToHMS(msToSeconds(sequenceTask.targetTime)) })`;
   }
@@ -425,7 +435,7 @@ async function sendNotification() {
       
         
       let notifTitle = `Time's up! ${timeStreakStr}`.trim();
-      let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTask.title}`;
+      let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle}`;
       
       registration.showNotification(notifTitle, {
         body: notifBody,
@@ -1827,7 +1837,7 @@ let app = (function () {
             targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
           }
           if (targetTime > 0) {
-            ratioTimeLeftStr = `${minutesToHoursAndMinutes(msToMinutes(targetTime))}`;
+            ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(targetTime)) }`;
           }
         }
         
@@ -1862,7 +1872,7 @@ let app = (function () {
           }
           
           if (targetTime > 0) {
-            ratioTimeLeftStr = `${minutesToHoursAndMinutes(msToMinutes(targetTime))}`;
+            ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(targetTime)) }`;
           }
           
         }
@@ -1888,10 +1898,12 @@ let app = (function () {
       
       // show total task progress (self + child tasks)
       let totalProgressStr = '';
-      let totalProgressMinutes = msToMinutes(item.totalProgressTime);
       {
         let totalMsProgressChildTask = sumAllChildProgress(item.id);
-        totalProgressStr = `(${minutesToHoursAndMinutes( totalProgressMinutes + msToMinutes(totalMsProgressChildTask) )} total)`;
+        let totalProgressTime = item.totalProgressTime + totalMsProgressChildTask;
+        if (totalProgressTime > 0) {
+          totalProgressStr = `(${secondsToHMS(msToSeconds( totalProgressTime ))} total)`;
+        }
       }
   
   
@@ -2078,14 +2090,15 @@ let app = (function () {
       let distanceTime = new Date().getTime() - data.start;
       await window.service.SetData({ 'history': data.history + distanceMinutes });
       await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
-      await updateProgressActiveTask(distanceMinutes, distanceTime);
       await compoTimeStreak.TaskUpdateTaskTimeStreak(distanceTime, data.activeTask);
       
+      let isUpdateCurrentActiveTask = true;
       
       // set active next sequence task
       let task = await getActiveTask();
       compoSequence.Stash(task.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
+      
       if (sequenceTask) {
         
         // close sequence notif
@@ -2096,22 +2109,67 @@ let app = (function () {
           delete globalNotification[seqNotifId];
         }
         
+        // update sequence progress time
         sequenceTask.progressTime += distanceTime;
+        
+        let isFinished = false;
+        let changeTask = false;
+
+        // reset sequence if finished
         if (sequenceTask.progressTime >= sequenceTask.targetTime) {
           sequenceTask.progressTime = 0;
-          let item = compoSequence.GetNext();
-          compoSequence.SetActiveById(item.id);
+          isFinished = true;
         }
+        
+        // repeat if set to repeat
+        let isRepeat = (isFinished && sequenceTask.repeatCount > 0 && sequenceTask.counter.repeatCount < sequenceTask.repeatCount);
+        
+        if (isRepeat) {
+          sequenceTask.counter.repeatCount += 1;
+          changeTask = (sequenceTask.counter.repeatCount == sequenceTask.repeatCount);
+        } else {
+          sequenceTask.counter.repeatCount = 0;
+          
+          if (isFinished) {
+            changeTask = true;
+          }
+        }
+        
+        // set next active sequence task
+        if (changeTask) {
+          let nextItem = compoSequence.GetNext();
+          compoSequence.SetActiveById(nextItem.id);  
+          
+          let seqIndex = compoSequence.GetIndexById(nextItem.id);
+          if (seqIndex == 0 && compoSequence.CountAll() > 1) {
+            compoSequence.ResetAllCounter();
+          }
+          
+        }
+        
+        // update total progress linked task & apply ROP balancing
+        if (sequenceTask.linkedTaskId) {
+          isUpdateCurrentActiveTask = false;
+          compoTask.AddTotalProgressByTaskId(sequenceTask.linkedTaskId, distanceTime);
+        }
+        
       }
       compoSequence.Commit();
       
       await compoTimeStreak.TaskCommit();
       
+      // update progress active task & apply ROP balancing
+      if (isUpdateCurrentActiveTask) {
+        await updateProgressActiveTask(distanceMinutes, distanceTime);
+      }
+      
       // update active tracker
       updateActiveTrackerProgress(distanceTime);
       saveAppData();
       await appData.TaskStoreTask();
-    }
+    } 
+    
+    
     await window.service.RemoveData(['start']);
     
     updateUI();
@@ -2419,7 +2477,7 @@ let app = (function () {
     {
       let isExistsMission = compoMission.GetMissionById(id);
       if (isExistsMission) {
-        compoMission.RemoveMissionById(id)
+        compoMission.RemoveMissionById(id);
       }
     }
   

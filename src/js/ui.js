@@ -191,21 +191,35 @@ let ui = (function () {
   	
     for (let item of items) {
       
+      let ratioTimeLeftStr = '';
+      
       let linkedTask = null;
       if  (item.linkedTaskId) {
         linkedTask = compoTask.GetById(item.linkedTaskId);
+        if (linkedTask) {
+          ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(linkedTask.targetTime)) }`;
+        }
       }
       
       // time left info
       let timeLeftStr = '';
+      
       {
         let timeLeft = Math.max(0, item.targetTime - item.progressTime);
         timeLeftStr = secondsToHMS(msToSeconds(timeLeft));
       }
       
+      
+      let title = linkedTask ? linkedTask.title : item.title;
+      
+      if (item.repeatCount > 0) {
+        title = `[${item.counter.repeatCount}/${item.repeatCount}] ${title}`;
+      }
+      
       let el = window.templateSlot.fill({
         data: {
-          title: linkedTask ? linkedTask.title : item.title,
+          title,
+          ratioTimeLeftStr,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
           timeLeftStr: ` -- ${timeLeftStr} left`,
         }, 
@@ -715,10 +729,7 @@ let ui = (function () {
 		let id = form.id.value;
 		let taskId = form.taskId.value;
 		let title = form.title.value.trim();
-		if (title.length == 0) {
-      return;
-    }
-    
+		
     let durationTimeInput = form.duration.value;
     if (isNumber(durationTimeInput)) {
       // set default to minutes
@@ -727,12 +738,27 @@ let ui = (function () {
     let durationTime = parseHmsToMs(durationTimeInput);
     if (durationTime <= 0) return;
     
-		
-    if (ev.target.id.value.length > 0) {
-      compoTask.UpdateSequence(title, durationTime, taskId, id);
-    } else {
-      compoTask.AddSequence(title, durationTime, taskId);
+    // repeat data
+    let repeatCount = 0;
+    let repeatRestDurationTime = 0;
+    if (form.useRepeat.checked) {
+      repeatCount = parseInt(form.repeatCount.value);
+      repeatRestDurationTime = parseHmsToMs(form.repeatRestDurationTimeStr.value);
     }
+		
+    let inputData = {
+      title,
+      durationTime,
+      repeatCount,
+      repeatRestDurationTime,
+    };
+    
+    if (ev.target.id.value.length > 0) {
+      compoTask.UpdateSequence(inputData, taskId, id);
+    } else {
+      compoTask.AddSequence(inputData, taskId);
+    }
+    
 		let modal = document.querySelectorAll('#task-sequence-modal')[0];
 		modal.close();
 		
@@ -752,15 +778,22 @@ let ui = (function () {
     let task = compoTask.GetById(taskId);
     compoSequence.Stash(task.sequenceTasks);
     let sequenceTask = compoSequence.GetById(id);
+    let linkedTask = null;
+    
+    if (sequenceTask.linkedTaskId) {
+      linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
+    }
     
     let defaultValue = {
       id,
       taskId,
-      title: sequenceTask.title,
+      useRepeat: sequenceTask.repeatCount > 0,
+      repeatCount: sequenceTask.repeatCount > 0 ? sequenceTask.repeatCount : 2,
+      title: linkedTask ? linkedTask.title : sequenceTask.title,
       duration: secondsToHMS(msToSeconds(sequenceTask.targetTime)),
     };
     
-    ShowModalAddSequence(defaultValue);
+    let form = ShowModalAddSequence(defaultValue);
   }
   
   function ShowModalAddSequence(defaultValue = {}) {
@@ -789,12 +822,19 @@ let ui = (function () {
       viewStateUtil.Set('form-task-sequence', ['add']);
     }
     
+    
     for (let key in defaultValue) {
       let inputEl = form.querySelector(`[name="${key}"]`);
       if (!inputEl) continue;
       
-      inputEl.value = defaultValue[key];
+      if (inputEl.type == 'checkbox') {
+        inputEl.checked = defaultValue[key];
+      } else {
+        inputEl.value = defaultValue[key];
+      }
     }
+    
+    return form;
     
   }
   
