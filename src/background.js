@@ -392,7 +392,7 @@ async function onAlarmEnded(alarm) {
   let timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
-  let repeatCountStr = ''
+  let repeatCountStr = '';
   if (data.activeTask) {
     
     let tasks = await getTask();
@@ -465,6 +465,7 @@ async function onAlarmEnded(alarm) {
   }
   
   // spawn notif
+  await TaskClearNotif();
   spawnNotificationV2(notifTitle, notifBody, 'limegreen', icon3, true, actions, tag);
   
   // play alarm audio
@@ -514,6 +515,17 @@ function messageHandler(request, sender, sendResponse) {
   }
 }
 
+async function TaskClearNotif() {
+  return new Promise(resolve => {
+    self.registration.getNotifications().then(function(notifications) {
+      for (let notif of notifications) {
+        notif.close();
+      }
+      resolve();
+    });
+  });
+}
+
 function clearPersistentNotif() {
   // Get all active notifications
   self.registration.getNotifications().then(function(notifications) {
@@ -555,6 +567,7 @@ function minutesToHoursAndMinutes(minutes) {
 }
 
 async function startNewAlarmInMinutes(minutes) {
+  await TaskClearNotif();
   let aMinute = 60;
   let miliseconds = 1000;
   let durationTime = parseInt(minutes) * aMinute * miliseconds;
@@ -587,7 +600,7 @@ async function startNewAlarm(durationTime, isSequenceTask = false) {
   
   let threeMinThresholdInMs = 3 * 60 * 1000;
   
-  if (!isSequenceTask && triggerTime - threeMinThresholdInMs > 0) {
+  if (!isSequenceTask && triggerTime - (now + threeMinThresholdInMs) > 0) {
     await chrome.alarms.create('3m', {
 	      when: triggerTime - threeMinThresholdInMs
     });
@@ -778,13 +791,13 @@ function OneTime() {
 
 async function updateTime() {
 
-  let alarms = await chrome.alarms.getAll()
+  let alarms = await chrome.alarms.getAll();
   if (alarms.length === 0) {
     return;
   } 
-  let mainAlarm = alarms.find(x => x.name=='main')
+  let mainAlarm = alarms.find(x => x.name=='main');
   if (!mainAlarm) {
-    drawMinutesLeft(-1)
+    drawMinutesLeft(-1);
     return;
   }
   
@@ -803,7 +816,7 @@ async function updateTime() {
   let distance = mainAlarm.scheduledTime - new Date().getTime();
   let minutesLeft = Math.min(60, Math.floor(distance / (1000 * 60)));
   
-  drawMinutesLeft(minutesLeft, finishCountProgress)
+  drawMinutesLeft(minutesLeft, finishCountProgress);
 }
 
 function drawMinutesLeft(minutesLeft, finishCountProgress = 0) {

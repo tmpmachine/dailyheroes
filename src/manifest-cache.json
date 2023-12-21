@@ -24,9 +24,12 @@
     "js/lib/sweetalert2@11.js",
     "js/lib/templateslot.min.js",
     "js/lib/lsdb.js",
+    "js/lib/idb-keyval@6.js",
     
     "js/dom-events.js",
     "js/view-states.js",
+    "js/utils/view-state-util.js",
+    "modal-v2-utils.js",
     
     "js/component-loader.js",
     "js/app-data.js",

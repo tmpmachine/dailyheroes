@@ -20,6 +20,7 @@ let compoSequence = (function() {
     GetPrevious,
     GetIndexById,
     ResetAllCounter,
+    ResetRepeatCountById,
   };
   
   let dataTemplate = {
@@ -63,6 +64,11 @@ let compoSequence = (function() {
       item = GetById(item.id);
       item.counter.repeatCount = 0;
     }
+  }
+  
+  function ResetRepeatCountById(id) {
+    let item = GetById(id);
+    item.counter.repeatCount = 0;
   }
   
   const __idGenerator = (function() {

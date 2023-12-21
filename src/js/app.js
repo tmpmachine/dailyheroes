@@ -139,11 +139,13 @@ async function setTimer(duration) {
     await chrome.alarms.create('main', {
       when: triggerTime,
     });
-    if (triggerTime - 3 * aMinute * milliseconds > 0) {
+    
+    if ( triggerTime - (now + 3 * aMinute * milliseconds) > 0 ) {
       await chrome.alarms.create('3m', {
   	      when: triggerTime - 3 * aMinute * milliseconds
       });
     }
+    
     await chrome.runtime.sendMessage({message: 'start-timer'});
   }
   
@@ -431,8 +433,12 @@ async function sendNotification() {
   
   if (isNotifSequence) {
     
-    navigator.serviceWorker.ready.then((registration) => {
+    navigator.serviceWorker.ready.then(async (registration) => {
       
+      let existingNotifs = await registration.getNotifications();
+      for (let notif of existingNotifs) {
+        notif.close();
+      }
         
       let notifTitle = `Time's up! ${timeStreakStr}`.trim();
       let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle}`;
@@ -1285,6 +1291,7 @@ async function editTask(taskId) {
   let {id, parentId, title, target, targetTime, finishCount} = task;
   let defaultVal = {
     id,
+    readOnlyId: id,
     title,
     target: minutesToHoursAndMinutes(target),
     targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
@@ -2128,8 +2135,6 @@ let app = (function () {
           sequenceTask.counter.repeatCount += 1;
           changeTask = (sequenceTask.counter.repeatCount == sequenceTask.repeatCount);
         } else {
-          sequenceTask.counter.repeatCount = 0;
-          
           if (isFinished) {
             changeTask = true;
           }
@@ -2638,6 +2643,8 @@ let app = (function () {
     let seqId = seqEl ? seqEl.dataset.id : null;
 
     switch (actionRole) {
+      case 'reset-count-active-seq': compoTask.TaskResetSequenceCountByTaskId(id); break;
+      case 'link-task-to-sequence': ui.TaskLinkTaskToSequenceByTaskId(id); break;
       case 'add-sequence-task': ui.AddSequenceTask(id); break;
       case 'edit-sequence-task': ui.EditSequenceTask(id, seqId); break;
       case 'navigate-mission': app.TaskNavigateToMission(id); break;

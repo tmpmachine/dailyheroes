@@ -3,13 +3,13 @@ window.$ = document.querySelector.bind(document);
 window.componentLoader.load([
   {
     urls: [
-      'js/view-states.js',
-      'js/dom-events.js',
-      'js/utils/view-state-util.js',
-      'js/ui.js',
-      'js/ui-mission.js',
-      'js/ui-tracker.js',
-      'js/lib/lsdb.js',
+      "js/view-states.js",
+      "js/dom-events.js",
+      "js/utils/view-state-util.js",
+      "js/ui.js",
+      "js/ui-mission.js",
+      "js/ui-tracker.js",
+      "js/lib/lsdb.js",
     ],
     callback: function() { 
       
@@ -79,7 +79,7 @@ window.componentLoader.load([
   },
   {
     urls: [
-      'js/lib/idb-keyval@6.js',
+      "js/lib/idb-keyval@6.js",
     ]
   },
   {

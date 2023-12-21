@@ -3,6 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    TaskLinkTaskToSequenceByTaskId,
     TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
     DeleteTaskFromForm,
@@ -41,6 +42,29 @@ let ui = (function () {
     HandleInputPrioritySlider,
   };
   
+  async function TaskLinkTaskToSequenceByTaskId(id) {
+    let linkedTaskId = window.prompt('Task ID');
+    if (!linkedTaskId) return;
+    
+    let task = compoTask.GetById(id);
+    let linkedTask = compoTask.GetById(linkedTaskId);
+    if (!linkedTask) {
+      alert('Task not found');
+      return;
+    }
+    
+    compoSequence.Stash(task.sequenceTasks);
+    
+    let targetTime = linkedTask.target * 60 * 1000;
+    compoSequence.AddLinkedTask(linkedTask.id, targetTime);  
+    
+    compoSequence.Commit();
+    
+    await appData.TaskStoreTask();
+      
+    await app.TaskListTask();
+  }
+  
   async function TaskConvertCollectionSequence() {
     
     let collectionTaskIds = compoMission.GetMissions().map(x => x.id);
@@ -77,6 +101,7 @@ let ui = (function () {
     compoSequence.Commit();
     compoMission.Commit();
     
+    appData.Save();
     await appData.TaskStoreTask();
     
     await app.TaskListTask();
@@ -169,9 +194,15 @@ let ui = (function () {
   function RefreshListSequenceByTaskId(id, container) {
     
     let item = app.GetTaskById(id);
+    let taskEl = null;
+    
+    if (container) {
+      taskEl = container.closest('[data-obj="task"]');
+    }
     
     if (!container) {
       container = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
+      taskEl = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"]`);
     }
     
     if (!container) return;
@@ -184,11 +215,6 @@ let ui = (function () {
   	let items = compoSequence.GetAll();
     let docFrag = document.createDocumentFragment();
     
-    // if (items.length > 0) {
-    //   console.log(container)
-    //   viewStateUtil.Add('task', ['sequence'], container)
-    // }
-  	
     for (let item of items) {
       
       let ratioTimeLeftStr = '';
@@ -233,6 +259,11 @@ let ui = (function () {
     }
     
     container.append(docFrag);
+    
+    if (taskEl) {
+      taskEl.dataset.viewStates = (items.length > 0 ? 'sequence' : '');
+    }
+    
   }
   
   function SetGlobalTimer() {

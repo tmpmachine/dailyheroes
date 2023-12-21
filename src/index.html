@@ -204,8 +204,11 @@
           </div><div class="default-gap"></div>
           
           <!-- # sequence generator -->
-          <div data-view-group="build" data-view-name="dev">
-            <button data-onclick="convert-collection-sequence">Convert collection to sequence</button>
+          <div data-view-group="task-view-mode" data-view-name="mission">
+            <button data-onclick="convert-collection-sequence">Convert collection to sequence *</button>
+            <div>
+              <small>*) Root task only</small>
+            </div>
             <div class="default-gap"></div>
           </div>
           
@@ -547,7 +550,7 @@
   <template id="tmp-task">
     <!-- # container task -->
     
-  	<div class="container-item" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="sequence">
+  	<div class="container-item" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="">
   	  
   	  <!-- # task body -->
   	  <div style="padding:0.3rem 0.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;">
@@ -632,7 +635,14 @@
       </div>
       
   	  <!-- # sequence container -->
-      <div data-container="sequence-tasks" data-view-group="task" data-view-name="sequence"></div>
+  	  <div data-view-group="task" data-view-name="sequence">
+        <div data-container="sequence-tasks"></div>
+        <!-- # sequence toolbar -->
+        <div style="padding:0.5rem;">
+          <button data-role="reset-count-active-seq">Reset repeat count</button>
+          <button data-role="link-task-to-sequence">Link a task</button>
+        </div>
+  	  </div>
       
   	</div>
   </template>
@@ -642,9 +652,7 @@
     <div class="item-sequence" data-kind="item-sequence-task">
       <div class="d-grid" style="padding:4px;grid-template-columns:auto 1fr auto;gap:0.5rem;">
         <div class="d-flex align-items-center handle">
-          <div data-view-group="build" data-view-name="dev">
-            <span class="icon-mate">drag_indicator</span>
-          </div>
+          <span class="icon-mate">drag_indicator</span>
         </div>
         <div class="word-break-word flex-1 align-items-center d-flex">
           <div class="d-flex justify-content-between w-100">
@@ -775,6 +783,9 @@
               <div data-view-group="form-task" data-view-name="edit">
                 Parent Id <input type="text" name='parent-id' class="input-style-default"/>
               </div>
+              <div>
+                Task Id <input type="text" disabled name="readOnlyId" class="input-style-default"/>
+              </div>
             </div>
             <div class="mb-m"></div>
             
@@ -839,7 +850,7 @@
               <div>
                 Repeat count <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
               </div>
-              <div>
+              <div data-view-group="build" data-view-name="dev">
                 Repeat rest duration <input type="text" name="repeatRestDurationTimeStr" placeholder="e.g. 30s, 3m, 15m20s" class="input-style-default"/>
               </div>
               

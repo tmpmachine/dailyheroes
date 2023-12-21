@@ -19,6 +19,7 @@ let compoTask = (function() {
     TaskDeleteSequenceById,
     FocusSequenceById,
     TaskResetSequenceById,
+    TaskResetSequenceCountByTaskId,
   };
   
   async function AddTotalProgressByTaskId(id, addedTime) {
@@ -62,6 +63,7 @@ let compoTask = (function() {
           sequence.counter.repeatCount = 0;
         }
         compoSequence.Commit();
+        await appData.TaskStoreTask();
         
         startTimerByTaskSequence(task.id, sequence);
       } else {
@@ -93,10 +95,18 @@ let compoTask = (function() {
     }
     
     // todo : allow close when another sequence is started
-    globalNotification[`${taskId}@${item.id}`] = new Notification(`${taskTitle}`, {
-      body: `${secondsToHMS(msToSeconds(item.targetTime))} left`, 
-      tag: 'active-sequence-task',
-      requireInteraction: false,
+    // globalNotification[`${taskId}@${item.id}`] = new Notification(`${taskTitle}`, {
+    //   body: `${secondsToHMS(msToSeconds(item.targetTime))} left`, 
+    //   tag: 'active-sequence-task',
+    //   requireInteraction: false,
+    // });
+    
+    
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.showNotification(`${taskTitle}`, {
+        body: `${secondsToHMS(msToSeconds(item.targetTime))} left`,
+        tag: 'active-sequence-task',
+      });
     });
     
   }
@@ -145,6 +155,23 @@ let compoTask = (function() {
     compoSequence.UpdateById({
       progressTime: 0,
     }, seqId);
+    
+    compoSequence.Commit();
+    
+    await appData.TaskStoreTask();    
+    
+    ui.RefreshListSequenceByTaskId(taskId);
+    
+  }
+  
+  async function TaskResetSequenceCountByTaskId(taskId) {
+    
+    let item = app.GetTaskById(taskId);
+    
+    compoSequence.Stash(item.sequenceTasks);
+    
+    let seqId = compoSequence.GetActiveId();
+    compoSequence.ResetRepeatCountById(seqId);
     
     compoSequence.Commit();
     
