@@ -17,6 +17,9 @@ async function handleNotificationClick(event) {
     case 'start-next-sequence': 
       await startNextSequence(); 
       break;
+    case 'take-a-break':
+      await takeBreakTime();
+      break;
     case 'restart':
       await restartTask();
       break;
@@ -467,6 +470,16 @@ async function onAlarmEnded(alarm) {
       action: 'start-next-sequence',
       title: `Start next (${sequenceTaskDurationTimeStr})`,
     });
+    
+    /*
+    if (repeatCountData && repeatCountData.counter.repeatCount < repeatCountData.repeatCount) {
+      actions.push({
+        action: 'take-a-break',
+        title: `Take a break (25s)`,
+      });
+    }
+    */
+    
     tag = 'active-sequence-task';
     notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
     notifBody = `Next : ${sequenceTaskTitle}`;
@@ -664,6 +677,19 @@ async function startNextSequence() {
   
   startNewAlarm(alarmDurationTime, isSequenceTask);
   
+}
+async function takeBreakTime() {
+  let seconds = 10;
+  let alarmDurationTime = seconds * 1000; // 25 seconds
+  let isSequenceTask = true;
+  
+  const notification = registration.showNotification(`Take a break!`, { 
+    body: `${seconds}s left`, 
+    icon4,
+    tag: 'active-sequence-task',
+  });
+  
+  startNewAlarm(alarmDurationTime, isSequenceTask);
 }
 
 function minuteToMs(minutes) {

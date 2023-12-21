@@ -6,6 +6,7 @@ let ui = (function () {
     TaskLinkTaskToSequenceByTaskId,
     TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
+    OpenLinkedSequenceFromForm,
     DeleteTaskFromForm,
     DeleteSequenceFromForm,
     NavigateMissionScreen,
@@ -119,6 +120,15 @@ let ui = (function () {
     ui.RefreshListSequenceByTaskId(taskId);
   }
   
+  function OpenLinkedSequenceFromForm(evt) {
+    let form = evt.target.form;
+    let taskId = form.taskId.value;
+    
+    app.TaskNavigateToMission(taskId);
+    
+    $('#task-sequence-modal').close();
+  }
+  
   function DeleteSequenceFromForm(evt) {
     let form = evt.target.form;
     let seqId = form.id.value;
@@ -218,12 +228,16 @@ let ui = (function () {
     for (let item of items) {
       
       let ratioTimeLeftStr = '';
+      let linkedTaskPath = '';
       
       let linkedTask = null;
       if  (item.linkedTaskId) {
         linkedTask = compoTask.GetById(item.linkedTaskId);
         if (linkedTask) {
           ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(linkedTask.targetTime)) }`;
+          
+          // show mission path
+          linkedTaskPath = getAndComputeMissionPath(linkedTask.parentId);
         }
       }
       
@@ -246,12 +260,16 @@ let ui = (function () {
         data: {
           title,
           ratioTimeLeftStr,
+          linkedTaskPath,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
           timeLeftStr: ` -- ${timeLeftStr} left`,
         }, 
         template: document.querySelector('#tmp-list-sequence-task').content.cloneNode(true), 
       });
       
+      if (linkedTask) {
+        el.querySelector('[data-kind="item-sequence-task"]').dataset.viewStates = 'linked-task';
+      }
       el.querySelector('[data-kind="item-sequence-task"]').dataset.id = item.id;
       el.querySelector('[data-kind="item-sequence-task"]').classList.toggle('is-active', (item.id == activeId));
       
@@ -823,11 +841,14 @@ let ui = (function () {
       title: linkedTask ? linkedTask.title : sequenceTask.title,
       duration: secondsToHMS(msToSeconds(sequenceTask.targetTime)),
     };
+    let options = {
+      isLinkedTask: (linkedTask != null),
+    };
     
-    let form = ShowModalAddSequence(defaultValue);
+    let form = ShowModalAddSequence(defaultValue, options);
   }
   
-  function ShowModalAddSequence(defaultValue = {}) {
+  function ShowModalAddSequence(defaultValue = {}, options = {}) {
     
     let formValue = {
     };
@@ -851,6 +872,12 @@ let ui = (function () {
       viewStateUtil.Set('form-task-sequence', ['edit']);
     } else {
       viewStateUtil.Set('form-task-sequence', ['add']);
+    }
+    
+    if (options.isLinkedTask) {
+      viewStateUtil.Add('form-task-sequence', ['linked-task']);
+    } else {
+      viewStateUtil.Remove('form-task-sequence', ['linked-task']);
     }
     
     

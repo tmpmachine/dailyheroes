@@ -649,21 +649,25 @@
 
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
-    <div class="item-sequence" data-kind="item-sequence-task">
+    <div class="item-sequence" data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states="">
       <div class="d-grid" style="grid-template-columns:auto 1fr auto;gap:0.3rem;">
         <div class="d-flex align-items-center handle" style="padding:4px;">
           <span class="icon-mate">drag_indicator</span>
         </div>
         <!-- # sequence title -->
-        <div class="word-break-word flex-1 align-items-center d-flex" data-closest="title" style="padding:4px;">
+        <div class="word-break-word flex-1 align-items-center d-flex user-select-none" data-closest="title" style="padding:4px;">
           <div class="d-flex justify-content-between w-100">
-            <small class="user-select-none">
-              <span data-slot="title"></span>
-              (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
-            </small>
-            <small>
+            <div>
+              <div data-slot="linkedTaskPath" data-slot-html></div>
+              <small>
+                <span data-slot="title"></span>
+                (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
+              </small>
+            </div>
+            <div class="d-flex align-items-center" style="gap:0.4rem;">
+              <small class="icon-mate" data-view-group="sequence-item" data-view-name="linked-task" title="Linked task" style="opacity:0.4;font-size:0.8em;">link</small>
               <mark class="word-break-keep-all" data-slot="ratioTimeLeftStr" style="font-size:0.7rem;"></mark>
-            </small>
+            </div>
           </div>
         </div>
         <div style="padding:4px;">
@@ -867,13 +871,21 @@
             
             <!-- # sequence task modal : form action -->
             <div data-view-group="form-task-sequence" data-view-name="edit">
-              <div class="d-flex justify-content-between">
-                <div class="d-flex align-items-center" style="gap:0.5rem;">
-                  <button class="icon-mate" type="button" data-onclick="delete-sequence-from-form">delete</button>
-                  <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
+              <div class="d-grid" style="gap:0.5rem;">
+                <div class="d-flex justify-content-between">
+                  <div class="d-flex align-items-center" style="gap:0.5rem;">
+                    <button class="icon-mate" type="button" data-onclick="delete-sequence-from-form">delete</button>
+                    <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
+                  </div>
+                  <div>
+                    <button data-role="btn-edit">Update</button>
+                  </div>
                 </div>
-                <div>
-                  <button data-role="btn-edit">Update</button>
+                <!-- open linked sequence -->
+                <div data-view-group="build" data-view-name="dev">
+                  <div data-view-group="form-task-sequence" data-view-name="linked-task">
+                    <button class="icon-mate" type="button" data-onclick="open-linked-sequence-from-form">open_in_new</button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -649,19 +649,23 @@
 
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
-    [ .item-sequence data-kind="item-sequence-task" 
+    [ .item-sequence data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states=""
       [ .d-grid {cols:auto 1fr auto} {gap:0.3rem}
         [ .d-flex .align-items-center .handle {p:4px}
           [s .icon-mate 'drag_indicator']
         ]
         <!-- # sequence title -->
-        [ .word-break-word .flex-1 .align-items-center .d-flex data-closest="title" {p:4px}
-          [ .d-flex .justify-content-between .w-100
-            [small .user-select-none
-              [s data-slot="title"]
-              ([s data-slot="targetTimeStr"]) [s data-slot="timeLeftStr"]
+        [ .word-break-word .flex-1 .align-items-center .d-flex data-closest="title" {p:4px} .user-select-none
+          [ .d-flex .justify-content-between .w-100 
+            [
+              [ data-slot="linkedTaskPath" data-slot-html]
+              [small 
+                [s data-slot="title"]
+                ([s data-slot="targetTimeStr"]) [s data-slot="timeLeftStr"]
+              ]
             ]
-            [small
+            [ .d-flex .align-items-center {gap:0.4rem}
+              [small .icon-mate 'link' {op:0.4} {fs:0.8em} data-view-group="sequence-item" data-view-name="linked-task" title="Linked task"]
               [mark data-slot="ratioTimeLeftStr" {fs:0.7rem} .word-break-keep-all]
             ]
           ]
@@ -867,13 +871,21 @@
             
             <!-- # sequence task modal : form action -->
             [ data-view-group="form-task-sequence" data-view-name="edit"
-              [ .d-flex .justify-content-between
-                [ .d-flex .align-items-center {gap:0.5rem}
-                  [btn 'delete' .icon-mate type="button" data-onclick="delete-sequence-from-form"]
-                  [btn 'Reset progress' type="button" data-onclick="reset-progress-sequence-from-form"]
+              [ .d-grid {gap:0.5rem}
+                [ .d-flex .justify-content-between
+                  [ .d-flex .align-items-center {gap:0.5rem}
+                    [btn 'delete' .icon-mate type="button" data-onclick="delete-sequence-from-form"]
+                    [btn 'Reset progress' type="button" data-onclick="reset-progress-sequence-from-form"]
+                  ]
+                  [
+                    <button data-role="btn-edit">Update</button>
+                  ]
                 ]
-                [
-                  <button data-role="btn-edit">Update</button>
+                <!-- open linked sequence -->
+                [ data-view-group="build" data-view-name="dev"
+                  [ data-view-group="form-task-sequence" data-view-name="linked-task"
+                    [btn 'open_in_new' .icon-mate type="button" data-onclick="open-linked-sequence-from-form"]
+                  ]
                 ]
               ]
             ]

@@ -6,6 +6,12 @@ let viewStates = [
     ]
   },
   {
+    group: 'sequence-item',
+    states: [
+      'linked-task'
+    ]
+  },
+  {
     group: 'active-task-info',
     states: [
       'on-streak'
@@ -64,7 +70,7 @@ let viewStates = [
   {
     group: 'form-task-sequence',
     states: [
-      'add', 'edit',
+      'add', 'edit', 'linked-task',
     ],
   },
 ];

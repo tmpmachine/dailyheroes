@@ -236,6 +236,7 @@ let DOMEvents = (function() {
   	},
   	
   	onclick: {
+  	  'open-linked-sequence-from-form': (evt) => ui.OpenLinkedSequenceFromForm(evt),
   	  'reset-progress-task-from-form': (evt) => ui.ResetProgressTaskFromForm(evt),
   	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
   	  'convert-collection-sequence': () => ui.TaskConvertCollectionSequence(),

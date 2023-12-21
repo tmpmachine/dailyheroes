@@ -422,3 +422,8 @@ body[data-state~="--timer-running"] .task-progress-bar {
 #tasklist [data-obj="task"][data-state~="--active"] .item-sequence.is-active { 
   background: var(--text-light);
 }
+.item-sequence {outline: 1px solid #ebe9e96b;}
+[data-slot="linkedTaskPath"] {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
