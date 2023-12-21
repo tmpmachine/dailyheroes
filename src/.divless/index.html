@@ -650,13 +650,14 @@
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
     [ .item-sequence data-kind="item-sequence-task" 
-      [ {p:4px} .d-grid {cols:auto 1fr auto} {gap:0.5rem}
-        [ .d-flex .align-items-center .handle
+      [ .d-grid {cols:auto 1fr auto} {gap:0.3rem}
+        [ .d-flex .align-items-center .handle {p:4px}
           [s .icon-mate 'drag_indicator']
         ]
-        [ .word-break-word .flex-1 .align-items-center .d-flex
+        <!-- # sequence title -->
+        [ .word-break-word .flex-1 .align-items-center .d-flex data-closest="title" {p:4px}
           [ .d-flex .justify-content-between .w-100
-            [small
+            [small .user-select-none
               [s data-slot="title"]
               ([s data-slot="targetTimeStr"]) [s data-slot="timeLeftStr"]
             ]
@@ -665,7 +666,7 @@
             ]
           ]
         ]
-        [
+        [ {p:4px}
           [btn 'track_changes' data-role="focus-sequence-task" .icon-mate title="Start from here"]
           [btn 'edit' data-role="edit-sequence-task" .icon-mate title="Edit"]
         ]

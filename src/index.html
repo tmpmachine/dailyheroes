@@ -650,13 +650,14 @@
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
     <div class="item-sequence" data-kind="item-sequence-task">
-      <div class="d-grid" style="padding:4px;grid-template-columns:auto 1fr auto;gap:0.5rem;">
-        <div class="d-flex align-items-center handle">
+      <div class="d-grid" style="grid-template-columns:auto 1fr auto;gap:0.3rem;">
+        <div class="d-flex align-items-center handle" style="padding:4px;">
           <span class="icon-mate">drag_indicator</span>
         </div>
-        <div class="word-break-word flex-1 align-items-center d-flex">
+        <!-- # sequence title -->
+        <div class="word-break-word flex-1 align-items-center d-flex" data-closest="title" style="padding:4px;">
           <div class="d-flex justify-content-between w-100">
-            <small>
+            <small class="user-select-none">
               <span data-slot="title"></span>
               (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
             </small>
@@ -665,7 +666,7 @@
             </small>
           </div>
         </div>
-        <div>
+        <div style="padding:4px;">
           <button class="icon-mate" data-role="focus-sequence-task" title="Start from here">track_changes</button>
           <button class="icon-mate" data-role="edit-sequence-task" title="Edit">edit</button>
         </div>

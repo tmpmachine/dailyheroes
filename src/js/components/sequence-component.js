@@ -40,6 +40,7 @@ let compoSequence = (function() {
       progressTime: 0,
       targetTime: 0,
       repeatCount: 0,
+      enabled: true,
       counter: {
         repeatCount: 0,
       }

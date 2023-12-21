@@ -111,6 +111,9 @@ async function reduceCountActiveTask() {
 }
 
 async function updateProgressActiveTask(addedMinutes, distanceTime) {
+  
+  let repeatCountData = null;
+  
   let data = await chrome.storage.local.get(['activeTask']);
   if (!data.activeTask) return;
   
@@ -153,6 +156,12 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     if (isRepeat) {
       sequenceTask.counter.repeatCount += 1;
       changeTask = (sequenceTask.counter.repeatCount == sequenceTask.repeatCount);
+      repeatCountData = {
+        counter: {
+          repeatCount: sequenceTask.counter.repeatCount,
+        },
+        repeatCount: sequenceTask.repeatCount,
+      };
     } else {
       sequenceTask.counter.repeatCount = 0;
       if (isFinished) {
@@ -171,6 +180,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     }
     
   }
+  
   compoSequence.Commit();
   
   
@@ -206,7 +216,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   }
   
   await storeTask(tasks);
-      
+  
+  return repeatCountData;
 }
 
 async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
@@ -373,6 +384,7 @@ async function onAlarmEnded(alarm) {
   let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId']);
   let distanceMinutes = 0;
   let distanceTime = 0;
+  
   if (typeof(data.start) != 'undefined') {
     distanceMinutes = Math.floor((new Date().getTime() - data.start) / (60 * 1000));
     distanceTime = new Date().getTime() - data.start;
@@ -380,7 +392,7 @@ async function onAlarmEnded(alarm) {
   
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
-  await updateProgressActiveTask(distanceMinutes, distanceTime);
+  let repeatCountData = await updateProgressActiveTask(distanceMinutes, distanceTime);
 
 
   // get task
@@ -393,6 +405,7 @@ async function onAlarmEnded(alarm) {
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
   let repeatCountStr = '';
+  
   if (data.activeTask) {
     
     let tasks = await getTask();
@@ -434,8 +447,8 @@ async function onAlarmEnded(alarm) {
         }
         
         // change title if is repeating
-        if (sequenceTask.repeatCount > 0) {
-          // repeatCountStr = `[${sequenceTask.counter.repeatCount} of ${sequenceTask.repeatCount}]`;
+        if (repeatCountData) {
+          repeatCountStr = `[${repeatCountData.counter.repeatCount} of ${repeatCountData.repeatCount}]`;
         }
       }
       compoSequence.Pop();

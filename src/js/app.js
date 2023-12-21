@@ -2641,6 +2641,12 @@ let app = (function () {
     let seqEl = el.closest('[data-kind="item-sequence-task"]');
     let id = parentEl.dataset.id;
     let seqId = seqEl ? seqEl.dataset.id : null;
+    
+    let seqTitleEl = evt.target.closest(['[data-closest="title"]']);
+    if (seqTitleEl) {
+      compoTask.FocusSequenceById(id, seqId);
+      return;
+    }
 
     switch (actionRole) {
       case 'reset-count-active-seq': compoTask.TaskResetSequenceCountByTaskId(id); break;
