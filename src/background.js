@@ -384,7 +384,7 @@ async function alarmHandler(alarm) {
 
 async function onAlarmEnded(alarm) {
   
-  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId']);
+  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak']);
   let distanceMinutes = 0;
   let distanceTime = 0;
   
@@ -393,9 +393,18 @@ async function onAlarmEnded(alarm) {
     distanceTime = new Date().getTime() - data.start;
   }
   
+  if (data.isTakeBreak) {
+    distanceMinutes = 0;
+    distanceTime = 0;
+    await chrome.storage.local.remove('isTakeBreak');
+  }
+  
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
-  let repeatCountData = await updateProgressActiveTask(distanceMinutes, distanceTime);
+  let repeatCountData = null;
+  if (!data.isTakeBreak) {
+    await updateProgressActiveTask(distanceMinutes, distanceTime);
+  }
 
 
   // get task
@@ -404,7 +413,10 @@ async function onAlarmEnded(alarm) {
   let finishCountLeftTxt = '';
   let targetMinutesTxt = '';
   let targetTimeLeftStr = '';
-  let timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+  let timeStreakStr = '';
+  if (!data.isTakeBreak) {
+    timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask)
+  }
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
   let repeatCountStr = '';
@@ -471,15 +483,6 @@ async function onAlarmEnded(alarm) {
       title: `Start next (${sequenceTaskDurationTimeStr})`,
     });
     
-    /*
-    if (repeatCountData && repeatCountData.counter.repeatCount < repeatCountData.repeatCount) {
-      actions.push({
-        action: 'take-a-break',
-        title: `Take a break (25s)`,
-      });
-    }
-    */
-    
     tag = 'active-sequence-task';
     notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
     notifBody = `Next : ${sequenceTaskTitle}`;
@@ -489,6 +492,11 @@ async function onAlarmEnded(alarm) {
       title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
     });
   }
+  
+  actions.push({
+    action: 'take-a-break',
+    title: `Take a break (20s)`,
+  });
   
   // spawn notif
   await TaskClearNotif();
@@ -679,7 +687,7 @@ async function startNextSequence() {
   
 }
 async function takeBreakTime() {
-  let seconds = 10;
+  let seconds = 20;
   let alarmDurationTime = seconds * 1000; // 25 seconds
   let isSequenceTask = true;
   
@@ -687,6 +695,11 @@ async function takeBreakTime() {
     body: `${seconds}s left`, 
     icon4,
     tag: 'active-sequence-task',
+  });
+  
+  // store storage
+  await chrome.storage.local.set({
+  	isTakeBreak: true,
   });
   
   startNewAlarm(alarmDurationTime, isSequenceTask);
