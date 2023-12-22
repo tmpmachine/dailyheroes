@@ -8,12 +8,13 @@ modal-v2.modal--active {
     height: 100%;
 }
 .modal {
-    background: white;
+    background: linear-gradient(180deg, white 90%, #d3ecff);
     border-radius: 3px;
     font-family: sans-serif;
     display: grid;
     grid-template-rows: auto 1fr;
     overflow: hidden;
+    border-bottom: 3px solid dodgerblue;
 } 
 .modal-default-padding {
     padding: 12px 16px;

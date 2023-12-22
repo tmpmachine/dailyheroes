@@ -11,7 +11,10 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed */
 }
+.mt-0{margin-top:0}
 .word-break-all{word-break:break-all}.word-break-word{word-break:break-word}.word-break-keep-all{word-break:keep-all}
+
+.bg-white{background:white}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
@@ -92,7 +95,7 @@ html, body, .container-app, .container-app-inner {
 }
 
 .container-app {
-    padding: 0.6rem 0.6rem 0;
+  padding: 0rem 0.6rem 0.6rem;
 }
 
 [data-obj="live-progress"], #live-history {
@@ -126,6 +129,35 @@ button {
 }
 button:hover{
   background-color:#ccc;
+}
+.btn-primary {
+  background: #6ad591;
+  color: white;
+  border-color: #7cad8e;
+}
+.btn-nav {
+  color: white;
+  border: none;
+}
+.btn-nav:hover {
+  background-color: #3e3e3e;
+}
+.btn-border-0 {
+  border: 0;
+}
+.btn-timer-start {
+  background: #58d758;
+  color: white;
+  border: none;
+  box-shadow: 0 0 4px 0px #00000026;
+}
+
+/* # separator */
+.separator-vertical {
+    border-right: 1px solid #dedede;
+}
+.separator-hr {
+  border-color: #0e0e0e0f;
 }
 
 /* ## add task */
@@ -230,6 +262,13 @@ button:hover{
 
 /* # active task, progress bar, task countdown */
 
+.container-active-task {
+  padding: 0.5rem;
+    box-shadow: 0 0 8px 0px #00000026;
+    border-radius: 4px;
+        background: linear-gradient(180deg, #d2edf9, transparent);
+} 
+
 .NzE2ODYyNQ-progress-bar-container {
   width: 100%;
   height: 15px;
@@ -328,6 +367,11 @@ body[data-state~="--timer-running"] .task-progress-bar {
   border-color: #fff900;
 }
 
+/* # task view */
+.container-task-view {
+  background: #f2f2f2;
+}
+
 /* # task */
 [data-kind="task"] .title {
   word-break: break-word;
@@ -365,7 +409,9 @@ body[data-state~="--timer-running"] .task-progress-bar {
 }
 .container-view-mode button.is-active {
   font-weight: bold;
-  border-bottom: 3px solid black
+  border-bottom: 3px solid black;
+  background: #474d5e;
+  color: white;
 }
 .container-view-mode button:not(.is-active) {
   opacity: 0.6;
@@ -420,4 +466,30 @@ body[data-state~="--timer-running"] .task-progress-bar {
 [data-slot="linkedTaskPath"] {
   font-size: 0.7em;
   opacity: 0.7;
+}
+
+
+/* # screen title */
+.container-screen-title {
+  background: #3e3e3e;
+  color: #e0e0e0;
+  padding: 0.7rem 0;
+}
+
+/* # nav bar */
+.main-nav-bar {
+  background: #0a1128bf;
+  padding: 0.4rem 0rem;
+}
+
+.main-nav-bar button {
+    color: white;
+    border: 0;
+}
+
+.main-nav-bar button:hover {
+    background: #0a1128bf;
+}
+.main-nav-bar .separator-vertical {
+    border-color: #908888;
 }

@@ -1,9 +1,12 @@
 [data-obj="task"] {
   border: 1px solid #00000014;
-  /*border-radius: 0.6rem;*/
+  /*border-radius: 0.4rem;*/
   margin-bottom: 0.6rem;
-  box-shadow: 0 0 3px 2px #0000001a;
+  box-shadow: 4px 4px 0px -1px #00000024;
   overflow: hidden;
+  background: white;
+  border-right: 1px solid #a8aaac;
+  border-bottom: 1px solid #878c91;
 }
 
 [data-obj="task"] button {
@@ -21,9 +24,13 @@
 
 [data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
 [data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
-#tasklist [data-obj="task"][data-state~="--active"] { background: var(--active-task-bg); }
+#tasklist [data-obj="task"][data-state~="--active"] { 
+  /*background: var(--active-task-bg); */
+  background: linear-gradient(180deg, #ff8b8b, #ffca81); 
+}
 #tasklist [data-obj="task"]:not([data-state~="--active"]) .btn-start { 
   background: #e2e2e2; 
+  /*background: linear-gradient(180deg, #ff8b8b, #ffca81)*/
 }
 [data-obj="task"][data-state~="--is-mission"] [data-role="remove-mission"] {
   background: #ffcece;

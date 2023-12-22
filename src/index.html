@@ -43,7 +43,7 @@
       <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
         
         <!-- # navigations-->
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between main-nav-bar">
           <div>
             <button class="clickable d-flex align-items-center" data-callback="turn-off-screen" data-view-group="platform" data-view-name="web" style="gap:0.3rem;">
               Fake screen off <span class="icon-mate">bolt</span>
@@ -51,10 +51,11 @@
           </div>
           <div class="d-flex" style="gap:0.3rem;">
             <!-- # tracker timer -->
-            <button class="clickable d-flex align-items-center" data-callback="navigate-screen" data-view-target="trackers" style="gap:0.3rem;">
+            <button class="clickable d-flex align-items-center btn-border-0" data-callback="navigate-screen" data-view-target="trackers" style="gap:0.3rem;">
               Trackers <span class="icon-mate">timer</span>
             </button>
-            <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="settings">settings</button>
+            <div class="separator-vertical"></div>
+            <button class="clickable icon-mate btn-border-0" data-callback="navigate-screen" data-view-target="settings">settings</button>
           </div>
         </div><div class="default-gap"></div>
 
@@ -65,7 +66,7 @@
         <div class="default-gap"></div>
         
         <!-- # active task container -->
-        <div class="d-flex" style="gap:0.5rem;">
+        <div class="d-flex container-active-task" style="gap:0.5rem;">
           
           <!-- # progress bar -->
           <div data-view-group="active-task-info" data-view-states="" style="flex-grow:1;">
@@ -90,7 +91,7 @@
             
             <!-- # open task button -->
             <div>
-              <button class="clickable" data-callback="open-task-into-view">
+              <button class="clickable bg-white" data-callback="open-task-into-view">
                 <small class="icon-mate">open_in_new</small>
               </button>
             </div>
@@ -106,7 +107,7 @@
                   Stop 
                   <span class="icon-mate">stop</span>
                 </button>
-                <button class='clickable btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
+                <button class='clickable btn-timer-start btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
                   Start
                   <span class="icon-mate">play_arrow</span>
                 </button>
@@ -171,13 +172,14 @@
         </div>
         
         <!-- # container task view mode-->
-        <section data-view-group="task-view-mode" data-view-states="task">
-          
+        <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
+        <div style="padding:0.5rem;">
           
           <!-- # view mode tabs -->
           <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr auto;">
             <button class="clickable" data-callback="view-tasks" data-id="task">All Tasks</button>
-            <button class="clickable" data-callback="view-mission" data-id="mission">
+            <button class="clickable d-flex align-items-center justify-content-center" data-callback="view-mission" data-id="mission" style="gap:0.5rem;">
+              <span class="icon-mate">list</span>
               <span>Collection</span>
             </button>
           </div>
@@ -227,7 +229,7 @@
             <div class="d-flex justify-content-between">
               <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
               <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-                <button class="clickable d-flex align-items-center" data-callback="open-priority-mapper" style="gap:0.3rem;">
+                <button class="bg-white" class="clickable d-flex align-items-center" data-callback="open-priority-mapper" style="gap:0.3rem;">
                   <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
                 </button>
               </div>
@@ -255,7 +257,8 @@
             </div>
             <div style="margin-bottom:0.5rem;"></div>
           </div>
-          
+        
+        </div>
         </section>
         
         <div class="d-flex justify-content-between">
@@ -345,8 +348,8 @@
       <!-- # trackers screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="trackers">
         
-        <div class="d-flex align-items-center" style="gap:1rem;">
-          <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+        <div class="d-flex align-items-center container-screen-title" style="gap:1rem;">
+          <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Trackers</div>
         </div>
         
@@ -363,8 +366,8 @@
       <!-- # priority mapper screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="priority-mapper">
         
-        <div class="d-flex align-items-center" style="gap:1rem;">
-          <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+        <div class="d-flex align-items-center container-screen-title" style="gap:1rem;">
+          <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Priority Mapper</div>
         </div>
         
@@ -392,8 +395,8 @@
       <!-- # settings screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="settings">
         
-        <div class="d-flex align-items-center" style="gap:1rem;">
-          <button class="clickable icon-mate" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+        <div class="d-flex align-items-center container-screen-title" style="gap:1rem;">
+          <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Settings</div>
         </div>
         
@@ -765,8 +768,10 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          <span data-view-group="form-task" data-view-name="add">New task :</span>
-          <span data-view-group="form-task" data-view-name="edit">Edit task :</span>
+          <div class="text-center">
+            <h2 class="mt-0" data-view-group="form-task" data-view-name="add">New Task</h2>
+            <h2 class="mt-0" data-view-group="form-task" data-view-name="edit">Edit Task</h2>
+          </div>
           
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
@@ -799,7 +804,9 @@
             <!-- # task modal : form actions -->
             <div>
               <div data-view-group="form-task" data-view-name="add">
-                <button data-role="btn-add">Add</button>
+                <div class="d-flex justify-content-end">
+                  <button class="btn-primary" data-role="btn-add">Add</button>
+                </div>
               </div>
               <div data-view-group="form-task" data-view-name="edit">
                 <div class="d-flex justify-content-between">
@@ -809,7 +816,7 @@
                       <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
                     </div>
                   </div>
-                  <button data-role="btn-edit">Update</button>
+                  <button class="btn-primary" data-role="btn-edit">Update</button>
                 </div>
               </div>
             </div>
@@ -828,8 +835,11 @@
       <div class="ov-auto">
         <div style="padding:1rem;">
 
-          <span data-view-group="form-task-sequence" data-view-name="add">Add sequence task :</span>
-          <span data-view-group="form-task-sequence" data-view-name="edit">Edit sequence task :</span>
+          <div class="text-center">
+            <h2 class="mt-0" data-view-group="form-task-sequence" data-view-name="add">Add Sequence Task</h2>
+            <h2 class="mt-0" data-view-group="form-task-sequence" data-view-name="edit">Edit Sequence Task</h2>
+          </div>
+          <hr class="separator-hr"/>
           
           <div class="default-gap"></div>
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
@@ -863,7 +873,7 @@
             
             <div data-view-group="form-task-sequence" data-view-name="add">
               <div class="d-flex justify-content-end">
-                <button data-role="btn-add">Add</button>
+                <button class="btn-primary" data-role="btn-add">Add</button>
               </div>
             </div>
             
@@ -878,7 +888,7 @@
                     <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
                   </div>
                   <div>
-                    <button data-role="btn-edit">Update</button>
+                    <button class="btn-primary" data-role="btn-edit">Update</button>
                   </div>
                 </div>
                 <!-- open linked sequence -->
