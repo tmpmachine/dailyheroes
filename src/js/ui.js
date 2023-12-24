@@ -699,7 +699,7 @@ let ui = (function () {
         pressed[key] = false;
       }
       
-      return false
+      return false;
     }
     
     function blur() {
@@ -718,7 +718,10 @@ let ui = (function () {
   function keyHandler(event) {
     if (event.key == 's') {
       if (onePress.watch(event.type, event.key)) {
-        if (event.altKey) {
+        if (event.ctrlKey && event.altKey) {
+          app.ToggleStartTimerAvailableTime();
+          event.preventDefault();
+        } else if (event.altKey) {
           toggleStartTimer();
           event.preventDefault();
         }
@@ -726,16 +729,20 @@ let ui = (function () {
     }
   }
 
-  function ShowModalAddTask(defaultValue = {}) {
+  function ShowModalAddTask(modalData = {}) {
     
     let formValue = {
       parentId: lsdb.data.activeGroupId,
       target: app.GetGlobalTimerStr(),
     };
     
-    defaultValue = Object.assign(formValue, defaultValue)
+    let formData = Object.assign(formValue, modalData.formData);
     
     let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+    
+    // fill modal data
+    modal.querySelector('[data-id="readOnlyId"]').textContent = modalData.readOnlyId;
+    
     let form = modal.querySelector('form');
     form.reset();
     form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
@@ -747,25 +754,25 @@ let ui = (function () {
     ui.SetFocusEl(modal.querySelector('input[type="text"]'));
 
     // set default value
-    if (typeof(defaultValue.parentId) == 'string') {
-      modal.querySelector('[name="parent-id"]').value = defaultValue.parentId;
+    if (typeof(formData.parentId) == 'string') {
+      modal.querySelector('[name="parent-id"]').value = formData.parentId;
     }
     
     // set form add/edit mode
     viewStateUtil.Remove('form-task', ['edit', 'add']);
     
-    let isEditMode = (defaultValue.id !== undefined);
+    let isEditMode = (formData.id !== undefined);
     if (isEditMode) {
       viewStateUtil.Add('form-task', ['edit']);
     } else {
       viewStateUtil.Add('form-task', ['add']);
     }
     
-    for (let key in defaultValue) {
+    for (let key in formData) {
       let inputEl = form.querySelector(`[name="${key}"]`);
       if (!inputEl) continue;
       
-      inputEl.value = defaultValue[key];
+      inputEl.value = formData[key];
     }
     
   }

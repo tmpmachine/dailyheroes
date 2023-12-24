@@ -229,7 +229,7 @@
             <div class="d-flex justify-content-between">
               <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
               <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-                <button class="bg-white" class="clickable d-flex align-items-center" data-callback="open-priority-mapper" style="gap:0.3rem;">
+                <button class="clickable d-flex align-items-center bg-white" data-callback="open-priority-mapper" style="gap:0.3rem;">
                   <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
                 </button>
               </div>
@@ -775,6 +775,15 @@
           
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
+            
+            <div data-view-group="form-task" data-view-name="edit">
+              <div class="text-right">
+                <small>
+                  <span>ID : </span><span data-id="readOnlyId"></span>
+                </small>
+              </div>
+            </div>
+            
             <input type="hidden" name="id"/>
             
             <div class="d-grid" style="gap:0.5rem;">
@@ -792,9 +801,6 @@
               </div>
               <div data-view-group="form-task" data-view-name="edit">
                 Parent Id <input type="text" name='parent-id' class="input-style-default"/>
-              </div>
-              <div>
-                Task Id <input type="text" disabled name="readOnlyId" class="input-style-default"/>
               </div>
             </div>
             <div class="mb-m"></div>

@@ -297,13 +297,13 @@ function toggleStartTimer() {
   }
 }
 
-async function startOrRestartTask() {
+async function startOrRestartTask(options) {
   let task = await getActiveTask();
   if (!task) return;
   
   await app.TaskStopActiveTask();
   await app.TaskContinueTask(task.id);
-  await compoTask.StartTimerByTaskId(task.id);
+  await compoTask.StartTimerByTaskId(task.id, options);
 }
 
 async function finishTimer() {
@@ -1091,10 +1091,12 @@ async function switchActiveTask(taskEl, id, persistent = false) {
 }
 
 function addSubTimer(taskId) {
-  let defaultVal = {
-    parentId: taskId,
+  let modalData = {
+    formData: {
+      parentId: taskId,
+    }
   };
-  ui.ShowModalAddTask(defaultVal);
+  ui.ShowModalAddTask(modalData);
 }
 
 
@@ -1289,16 +1291,18 @@ async function setTaskTarget(id) {
 async function editTask(taskId) {
   let task = await app.getTaskById(taskId);
   let {id, parentId, title, target, targetTime, finishCount} = task;
-  let defaultVal = {
-    id,
+  let modalData = {
     readOnlyId: id,
-    title,
-    target: minutesToHoursAndMinutes(target),
-    targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
-    finishCount,
-    parentId,
+    formData: {
+      id,
+      title,
+      target: minutesToHoursAndMinutes(target),
+      targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
+      finishCount,
+      parentId,
+    }
   };
-  ui.ShowModalAddTask(defaultVal);
+  ui.ShowModalAddTask(modalData);
 }
 
 async function removeActiveTask() {
@@ -1559,6 +1563,7 @@ let app = (function () {
     
     TaskNavigateToMission,
     StartTaskTimer,
+    ToggleStartTimerAvailableTime,
   };
   
   let data = {
@@ -1567,6 +1572,18 @@ let app = (function () {
     
     globalTimer: 12, // 15 minutes
   };
+  
+  function ToggleStartTimerAvailableTime() {
+    let isTimerRunning = document.body.stateList.contains('--timer-running');
+    if (isTimerRunning) {
+      app.TaskStopActiveTask();
+    } else {
+      let options = {
+        isStartAvailableTime: true,
+      };
+      startOrRestartTask(options);
+    }
+  }
   
   async function StartTaskTimer(parentEl, id) {
 

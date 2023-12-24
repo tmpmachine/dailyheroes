@@ -229,7 +229,7 @@
             [ .d-flex .justify-content-between
               [ #container-breadcrumbs .container-breadcrumbs]
               [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-                [btn class="clickable d-flex align-items-center" data-callback="open-priority-mapper" style="gap:0.3rem;" .bg-white
+                [btn .clickable .d-flex .align-items-center data-callback="open-priority-mapper" style="gap:0.3rem;" .bg-white
                   [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
                 ]
               ]
@@ -422,8 +422,8 @@
             [ .d-flex {gap:0.3rem}
               <button class="clickable" data-callback="authorize">Authorize</button>
               [ data-view-group="auth" data-view-name="authorized"
-                [btn class="clickable" data-callback="backup-to-cloud" 'Backup' #btn-cloud-backup]
-                [btn class="clickable" data-callback="restore-from-cloud" 'Restore' #btn-cloud-restore]
+                [btn .clickable data-callback="backup-to-cloud" 'Backup' #btn-cloud-backup]
+                [btn .clickable data-callback="restore-from-cloud" 'Restore' #btn-cloud-restore]
               ]
             ]
             [
@@ -775,6 +775,15 @@
           
           <div class="default-gap"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
+            
+            [ data-view-group="form-task" data-view-name="edit"
+              [ .text-right
+                [small
+                  [s 'ID : '][s data-id="readOnlyId"]
+                ]
+              ]
+            ]
+            
             <input type="hidden" name="id"/>
             
             [ .d-grid {gap:0.5rem}
@@ -792,9 +801,6 @@
               ]
               [ data-view-group="form-task" data-view-name="edit"
                 Parent Id <input type="text" name='parent-id' class="input-style-default"/>
-              ]
-              [ 
-                Task Id <input type="text" disabled name="readOnlyId" class="input-style-default"/>
               ]
             ]
             [ .mb-m]

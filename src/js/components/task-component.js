@@ -47,7 +47,7 @@ let compoTask = (function() {
     loadSearch();
   }
   
-  async function StartTimerByTaskId(id) {
+  async function StartTimerByTaskId(id, timerOptions) {
     let task = GetById(id);
     
     // check sequence tasks
@@ -65,9 +65,9 @@ let compoTask = (function() {
         compoSequence.Commit();
         await appData.TaskStoreTask();
         
-        startTimerByTaskSequence(task.id, sequence);
+        startTimerByTaskSequence(task.id, sequence, timerOptions);
       } else {
-        startTimerByTask(task);
+        startTimerByTask(task, timerOptions);
       }
       
     } catch (err) {
@@ -77,22 +77,31 @@ let compoTask = (function() {
     compoSequence.Pop();
   }
   
-  function startTimerByTaskSequence(taskId, item) {
+  function startTimerByTaskSequence(taskId, item, timerOptions) {
     if (item.progressTime >= item.targetTime) return;
     
-    let seconds = (item.targetTime - item.progressTime) / 1000;
-    androidClient.StartTimer(seconds, item.title);
-    setTimer(item.targetTime - item.progressTime);
-    
     let taskTitle = item.title;
-    
+    let targetTime = item.targetTime;
+
     // get linked task title
     if (item.linkedTaskId) {
       let linkedTask = GetById(item.linkedTaskId);
       if (linkedTask) {
         taskTitle = linkedTask.title;
+        
+        if (timerOptions && timerOptions.isStartAvailableTime) {
+          if (linkedTask.targetTime > 0) {
+            targetTime = linkedTask.targetTime;
+          }
+        }
+        
       }
     }
+    
+    
+    let seconds = (targetTime - item.progressTime) / 1000;
+    androidClient.StartTimer(seconds, item.title);
+    setTimer(targetTime - item.progressTime);
     
     // todo : allow close when another sequence is started
     // globalNotification[`${taskId}@${item.id}`] = new Notification(`${taskTitle}`, {
@@ -100,7 +109,6 @@ let compoTask = (function() {
     //   tag: 'active-sequence-task',
     //   requireInteraction: false,
     // });
-    
     
     navigator.serviceWorker.ready.then((registration) => {
       registration.showNotification(`${taskTitle}`, {
@@ -111,7 +119,7 @@ let compoTask = (function() {
     
   }
   
-  function startTimerByTask(task) {
+  function startTimerByTask(task, timerOptions) {
     if (task.progress >= task.target) return;
     
     let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
