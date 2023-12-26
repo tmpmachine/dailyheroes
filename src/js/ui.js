@@ -36,12 +36,86 @@ let ui = (function () {
     
     SetGlobalTimer,
     RefreshListSequenceByTaskId,
+    HotReloadListSequenceByTaskId,
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
     OpenPriorityMapper,
     TaskSavePriorityMapper,
     HandleInputPrioritySlider,
+    PickCollection,
+    TaskSaveTaskWithIdToSequence,
+    ToggleManageSequenceByTaskId,
+    ToggleExpandSequenceTask,
   };
+  
+  function ToggleManageSequenceByTaskId(taskId) {
+    let el = $(`[data-obj="task"][data-id="${taskId}"]`);
+    if (!el) return;
+    
+    let items = Array.from(new Set(el.dataset.viewStates.replace(/ +/g,' ').trim().split(' ')));
+    if (items.includes('manage-sequence')) {
+      items = items.filter(item => item != 'manage-sequence');
+    } else {
+      items.push('manage-sequence');
+    }
+
+    el.dataset.viewStates = items.join(' ');
+  }
+  
+  function ToggleExpandSequenceTask(taskId) {
+    let el = $(`[data-obj="task"][data-id="${taskId}"]`);
+    if (!el) return;
+    
+    let items = Array.from(new Set(el.dataset.viewStates.replace(/ +/g,' ').trim().split(' ')));
+    if (items.includes('sequence')) {
+      items = items.filter(item => item != 'sequence');
+    } else {
+      items.push('sequence');
+    }
+
+    el.dataset.viewStates = items.join(' ');
+  }
+  
+  async function TaskSaveTaskWithIdToSequence(linkedTaskId) {
+    
+    if (!data.prePickCollectionId) {
+      alert('You have not set sequence task ID');
+      return;
+    }
+    
+    if (linkedTaskId == data.prePickCollectionId) {
+      alert(`Could not add task as it's own sequence task`);
+      return;
+    }
+    
+    let task = compoTask.GetById(data.prePickCollectionId);
+    let linkedTask = compoTask.GetById(linkedTaskId);
+    
+    compoSequence.Stash(task.sequenceTasks);
+    
+    let targetTime = linkedTask.target * 60 * 1000;
+    compoSequence.AddLinkedTask(linkedTask.id, targetTime);  
+    
+    compoSequence.Commit();
+    
+    await appData.TaskStoreTask();
+      
+    await app.TaskListTask();
+    
+  }
+  
+  function PickCollection() {
+    let userVal = window.prompt('Set sequence task ID');
+    if (!userVal) return;
+    
+    let task = app.GetTaskById(userVal);
+    if (!task) {
+      alert('Task not found');
+      return;
+    }
+    
+    data.prePickCollectionId = userVal;
+  }
   
   async function TaskLinkTaskToSequenceByTaskId(id) {
     let linkedTaskId = window.prompt('Task ID');
@@ -199,6 +273,28 @@ let ui = (function () {
     } else {
       viewStateUtil.Remove('active-task-info', ['on-streak']);
     }
+  }
+  
+  function HotReloadListSequenceByTaskId(id) {
+    
+    let item = app.GetTaskById(id);
+    let container = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
+    let taskEl = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"]`);
+    
+    if (!container) return;
+    
+    compoSequence.Stash(item.sequenceTasks);
+  	
+  	let activeId = compoSequence.GetActiveId();
+  	let items = compoSequence.GetAll();
+    let docFrag = document.createDocumentFragment();
+    
+    for (let item of items) {
+      // toggle active
+      let el = container.querySelector(`[data-kind="item-sequence-task"][data-id="${item.id}"]`);
+      el.classList.toggle('is-active', (item.id == activeId));
+    }
+    
   }
   
   function RefreshListSequenceByTaskId(id, container) {
@@ -1060,6 +1156,10 @@ let ui = (function () {
   });
   
   // #
+  
+  let data = {
+    prePickCollectionId: null,
+  };
   
   return SELF;
   

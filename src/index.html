@@ -600,19 +600,28 @@
       	  </div>
       	  
     	  </div>
-    	  <!-- ### play button -->
-    	  <div class="d-flex align-items-center">
-          <button class="btn-start icon-mate" data-role='start' data-group="active not-running" title='Start'>
-            play_arrow
-          </button>
-          <button class="btn-stop icon-mate" data-role='stop' data-group="active" title='Stop'>
-            stop
-          </button>
+    	  
+    	  <div class="d-grid align-items-center" style="gap:0.5rem;">
+    	    
+    	    <!-- # collection save button -->
+    	    <div class="d-flex" data-view-group="task" data-view-name-not="sequence">
+      	    <button data-role="save-to-collection">Save to</button>
+      	    <button class="icon-mate" data-role="pick-collection">expand_more</button>
+    	    </div>
+    	    
+    	    <!-- # start timer button -->
+    	    <div class="d-flex justify-content-end">
+            <button class="btn-start icon-mate" data-role='start' data-group="active not-running" title='Start'>
+              play_arrow
+            </button>
+            <button class="btn-stop icon-mate" data-role='stop' data-group="active" title='Stop'>
+              stop
+            </button>
+    	    </div>
+    	    
     	  </div>
   	  
   	  </div>
-	    <!-- ## -->
-  	  
   	  
   	  <!-- # task footer information -->
   	  
@@ -642,8 +651,10 @@
         <div data-container="sequence-tasks"></div>
         <!-- # sequence toolbar -->
         <div style="padding:0.5rem;">
-          <button data-role="reset-count-active-seq">Reset repeat count</button>
+          <button data-role="add-sequence-task">New sequence task</button>
           <button data-role="link-task-to-sequence">Link a task</button>
+          <button data-role="reset-count-active-seq">Reset repeat count</button>
+          <button data-role="manage-sequence">Manage</button>
         </div>
   	  </div>
       
@@ -653,18 +664,25 @@
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
     <div class="item-sequence" data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states="">
-      <div class="d-grid" style="grid-template-columns:auto 1fr auto;gap:0.3rem;">
-        <div class="d-flex align-items-center handle" style="padding:4px;">
-          <span class="icon-mate">drag_indicator</span>
+      <div class="d-flex">
+        
+        <!-- # sequence drag handle -->
+        <div data-view-group="task" data-view-name="manage-sequence">
+          <div class="d-flex align-items-center handle h-100" style="padding-left:4px;">
+            <span class="icon-mate">drag_indicator</span>
+          </div>
         </div>
+        
         <!-- # sequence title -->
-        <div class="word-break-word flex-1 align-items-center d-flex user-select-none" data-closest="title" style="padding:4px;">
+        <div class="word-break-word flex-1 align-items-center d-flex user-select-none" data-closest="title" style="padding:4px 10px;">
           <div class="d-flex justify-content-between w-100">
             <div>
               <div data-slot="linkedTaskPath" data-slot-html></div>
               <small>
                 <span data-slot="title"></span>
-                (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
+                <div>
+                  (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
+                </div>
               </small>
             </div>
             <div class="d-flex align-items-center" style="gap:0.4rem;">
@@ -674,8 +692,13 @@
             </div>
           </div>
         </div>
-        <div style="padding:4px;">
-          <button class="icon-mate" data-role="focus-sequence-task" title="Start from here">track_changes</button>
+        
+        <!-- # sequence manage actions -->
+        <div data-view-group="task" data-view-name="manage-sequence" style="padding:4px 8px;">
+          <div class="d-none">
+            <button class="icon-mate" data-role="focus-sequence-task" title="Start from here">track_changes</button>
+          </div>
+          <button class="icon-mate" data-role="delete-sequence-task" title="Delete">delete</button>
           <button class="icon-mate" data-role="edit-sequence-task" title="Edit">edit</button>
         </div>
       </div>
@@ -685,7 +708,8 @@
   <template id="tmp-mission-buttons">
     <!-- # tmp-mission-buttons -->
     <div class="d-inline-flex" style="gap:0.2rem;">
-      <button class="icon-mate" data-role="add-sequence-task" title="Add sequence task">expand_more</button>
+      <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence">expand_less</button>
+      <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence">expand_more</button>
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
         <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
       </div> 

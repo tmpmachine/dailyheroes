@@ -201,7 +201,7 @@ let compoTask = (function() {
     
     await appData.TaskStoreTask();    
     
-    ui.RefreshListSequenceByTaskId(taskId);
+    ui.HotReloadListSequenceByTaskId(taskId);
     
   }
   

@@ -17,12 +17,13 @@ let viewStates = [
       'on-streak'
     ]
   },
+  // task item
   {
     group: 'task',
-    states: [
-      'sequence'
-    ]
+    states: ['sequence', 'manage-sequence'],
+    inverseStates: ['sequence', 'manage-sequence']
   },
+  // task lists
   {
     group: 'task-view-mode',
     states: [

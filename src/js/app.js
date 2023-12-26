@@ -2666,9 +2666,17 @@ let app = (function () {
     }
 
     switch (actionRole) {
+      case 'save-to-collection': ui.TaskSaveTaskWithIdToSequence(id); break;
+      case 'pick-collection': ui.PickCollection(); break;
       case 'reset-count-active-seq': compoTask.TaskResetSequenceCountByTaskId(id); break;
+      case 'manage-sequence': ui.ToggleManageSequenceByTaskId(id); break;
+      case 'toggle-expand-sequence-task': ui.ToggleExpandSequenceTask(id); break;
       case 'link-task-to-sequence': ui.TaskLinkTaskToSequenceByTaskId(id); break;
       case 'add-sequence-task': ui.AddSequenceTask(id); break;
+      case 'delete-sequence-task': 
+        compoTask.TaskDeleteSequenceById(id, seqId); 
+        ui.RefreshListSequenceByTaskId(id);
+      break;
       case 'edit-sequence-task': ui.EditSequenceTask(id, seqId); break;
       case 'navigate-mission': app.TaskNavigateToMission(id); break;
       case 'navigate-sub': 
