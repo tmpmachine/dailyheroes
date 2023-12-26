@@ -1,6 +1,7 @@
 .justify-content-center{justify-content:center}.align-items-center{align-items:center}.justify-content-end{justify-content:end}.flex-column{flex-direction:column}.justify-content-between{justify-content:space-between}
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .flex-1{flex:1}
+.font-weight-bold{font-weight:bold}
 .text-center{text-align:center}.text-right{text-align:right}
 .w-100{width:100%}
 .ov-auto{overflow:auto}
@@ -461,7 +462,8 @@ body[data-state~="--timer-running"] .task-progress-bar {
   background: var(--border-lighter);
 }
 #tasklist [data-obj="task"][data-state~="--active"] .item-sequence.is-active { 
-  background: var(--text-light);
+  /*background: var(--text-light);*/
+  background: #d6eef7;
 }
 .item-sequence {outline: 1px solid #ebe9e96b;}
 [data-slot="linkedTaskPath"] {

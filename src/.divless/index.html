@@ -299,7 +299,7 @@
             ]
           ]
           
-          <button class="clickable btn-add-task" data-callback="show-modal-add-task">
+          <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
             [s .icon-mate 'add' {fs:2.2rem}]
             [ .pos-absolute {b:-17px}
               [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center]
@@ -556,7 +556,7 @@
   	[ .container-item data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states=""
   	  
   	  <!-- # task body -->
-  	  [ {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
+  	  [ .task-body-main {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
   	  
   	    <!-- # task top info -->
   	    [
@@ -670,6 +670,7 @@
             [ .d-flex .align-items-center {gap:0.4rem}
               [small .icon-mate 'link' {op:0.4} {fs:0.8em} data-view-group="sequence-item" data-view-name="linked-task" title="Linked task"]
               [mark data-slot="ratioTimeLeftStr" {fs:0.7rem} .word-break-keep-all]
+              [small data-slot="repeatCountProgressLabel" {fs:0.7rem} .font-weight-bold]
             ]
           ]
         ]
@@ -686,7 +687,7 @@
     [ .d-inline-flex {gap:0.2rem}
       [button 'expand_more' class="icon-mate" data-role="add-sequence-task" title="Add sequence task"]
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-        [button 'star' class="btn-star icon-mate" data-role='star-task' title="Star this task"]
+        [btn 'star' class="btn-star icon-mate" data-role='star-task' title="Star this task"]
       ] 
       [ .d-flex
         <button data-role='add-to-mission' class="icon-mate" title='Add to collection'>playlist_add</button>

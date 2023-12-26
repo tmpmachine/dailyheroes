@@ -251,9 +251,9 @@ let ui = (function () {
       
       
       let title = linkedTask ? linkedTask.title : item.title;
-      
+      let repeatCountProgressLabel = '';
       if (item.repeatCount > 0) {
-        title = `[${item.counter.repeatCount}/${item.repeatCount}] ${title}`;
+        repeatCountProgressLabel = `${item.counter.repeatCount}/${item.repeatCount}`;
       }
       
       let el = window.templateSlot.fill({
@@ -261,6 +261,7 @@ let ui = (function () {
           title,
           ratioTimeLeftStr,
           linkedTaskPath,
+          repeatCountProgressLabel,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
           timeLeftStr: ` -- ${timeLeftStr} left`,
         }, 

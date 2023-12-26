@@ -403,7 +403,7 @@ async function onAlarmEnded(alarm) {
   await chrome.storage.local.remove(['start']);
   let repeatCountData = null;
   if (!data.isTakeBreak) {
-    await updateProgressActiveTask(distanceMinutes, distanceTime);
+    repeatCountData = await updateProgressActiveTask(distanceMinutes, distanceTime);
   }
 
 
@@ -448,7 +448,6 @@ async function onAlarmEnded(alarm) {
       compoSequence.Stash(activeTask.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
       if (sequenceTask) {
-        
         isSequenceTask = true;
         sequenceTaskTitle = sequenceTask.title;
         sequenceTaskDurationTimeStr = secondsToHMS(msToSeconds(sequenceTask.targetTime));

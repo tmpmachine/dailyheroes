@@ -299,7 +299,7 @@
             </div>
           </div>
           
-          <button class="clickable btn-add-task" data-callback="show-modal-add-task">
+          <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
             <span class="icon-mate" style="font-size:2.2rem;">add</span>
             <div class="pos-absolute" style="bottom:-17px;">
               <small class="text-center" data-view-group="platform" data-view-name="web">(Alt+N)</small>
@@ -556,7 +556,7 @@
   	<div class="container-item" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="">
   	  
   	  <!-- # task body -->
-  	  <div style="padding:0.3rem 0.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;">
+  	  <div class="task-body-main" style="padding:0.3rem 0.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;">
   	  
   	    <!-- # task top info -->
   	    <div>
@@ -670,6 +670,7 @@
             <div class="d-flex align-items-center" style="gap:0.4rem;">
               <small class="icon-mate" data-view-group="sequence-item" data-view-name="linked-task" title="Linked task" style="opacity:0.4;font-size:0.8em;">link</small>
               <mark class="word-break-keep-all" data-slot="ratioTimeLeftStr" style="font-size:0.7rem;"></mark>
+              <small class="font-weight-bold" data-slot="repeatCountProgressLabel" style="font-size:0.7rem;"></small>
             </div>
           </div>
         </div>
