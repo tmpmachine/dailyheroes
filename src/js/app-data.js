@@ -2,7 +2,7 @@ let storageName = 'appdata-NzkwMTI0NA';
 
 window.lsdb = new Lsdb(storageName, {
   root: {
-    viewMode: 'tasks',
+    viewMode: 'mission', // tasks, mission
     
     start: null,
     history: 0,
@@ -53,6 +53,7 @@ window.lsdb = new Lsdb(storageName, {
     lastUpdated: 0,
     untracked: false,
     activeSubTaskId: null,
+    type: '',
     
     sequenceTasks: {
       counter: {

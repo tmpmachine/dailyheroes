@@ -2,10 +2,7 @@ let uiMission = (function() {
   
   let SELF = {
     ListGroup,
-    NewGroup,
-    RenameActiveGroup,
     OnChangeGroup,
-    DeleteGroupByName,
   };
   
   function ListGroup() {
@@ -33,17 +30,6 @@ let uiMission = (function() {
     $('#in-sel-mission-group').append(docFrag);
   }
   
-  function NewGroup() {
-    
-    let title = __promptUser();
-    if (!title) return;
-    
-    compoMission.AddGroup(title);
-    
-    __saveAppData();
-    __refreshGroupList();
-  }
-  
   function __saveAppData() {
     lsdb.save();
   }
@@ -54,24 +40,6 @@ let uiMission = (function() {
   
   function __confirmUser(groupName) {
     return window.confirm(`Are you sure to delete this collection : ${groupName}?`);
-  }
-    
-  function RenameActiveGroup() {
-    
-    let group = compoMission.GetActiveGroup();
-
-    let title = __promptUser(group.title);
-    if (!title) return;
-    
-    let id = group.id;
-    let success = compoMission.UpdateGroupTitle(id, title);
-    
-    if (success) {
-      __saveAppData();
-      __refreshGroupList();
-    } else {
-      console.log('failed to rename group');
-    }
   }
     
   function OnChangeGroup(inputSelectEvt) {
@@ -88,22 +56,6 @@ let uiMission = (function() {
       console.log('failed to change group');
     }
   }
-  
-  function DeleteGroupByName() {
-    let title = __promptUser();
-    if (!title) return;
-    
-    let group = compoMission.GetGroupByName(title);
-    if (!group) return;
-    
-    if (group.id == compoMission.GetActiveGroupId()) {
-      alert('Cannot delete active collection');
-      return;
-    }
-    
-    RemoveGroup(group);
-  }
-  
   
   function __resetMissionView() {
     resetActiveGroupId();

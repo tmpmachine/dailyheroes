@@ -171,11 +171,10 @@ let compoMission = (function() {
   function Commit() {
     commitData();
   }
-  
     
   function RemoveMissionById(id) {
     let activeGroupId = GetActiveGroupId();
-    let isSuccess = RemoveMissionByIdFromGroup(id, activeGroupId);
+    let isSuccess = removeMissionByIdFromGroup(id, activeGroupId);
     return isSuccess;
   }
   
@@ -215,7 +214,7 @@ let compoMission = (function() {
     return data.activeGroupId;
   }
     
-  function RemoveMissionByIdFromGroup(missionId, groupId) {
+  function removeMissionByIdFromGroup(missionId, groupId) {
     let group = GetGroupById(groupId);
     if (group == null) {
       console.log('group not found');
@@ -226,7 +225,6 @@ let compoMission = (function() {
     if (delIndex < 0) return false;
     
     group.missionIds.splice(delIndex, 1);
-    commitData();
 
     return true;
   }

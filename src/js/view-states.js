@@ -21,7 +21,7 @@ let viewStates = [
   {
     group: 'task',
     states: ['sequence', 'manage-sequence'],
-    inverseStates: ['sequence', 'manage-sequence']
+    inverseStates: ['sequence', 'manage-sequence', 'collection-only']
   },
   // task lists
   {
@@ -47,13 +47,11 @@ let viewStates = [
       'authorized',
     ],
   },
+  // app screens
   {
     group: 'screens',
     states: [
-      'home',
-      'settings',
-      'trackers',
-      'priority-mapper',
+      'home', 'settings', 'trackers', 'priority-mapper', 'collections', 
     ],
   },
   {
@@ -62,10 +60,14 @@ let viewStates = [
       'web',
     ],
   },
+  // form task
   {
     group: 'form-task',
     states: [
-      'add', 'edit',
+      'add', 'edit', 'mission-tab',
+    ],
+    inverseStates: [
+      'collection-only',
     ],
   },
   {

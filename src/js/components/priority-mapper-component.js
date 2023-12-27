@@ -146,7 +146,7 @@ let compoPriorityMapper = (function() {
   
   function Stash(activeTaskParentId) {
     linkedData.parentTask = compoTask.GetById(activeTaskParentId);
-    linkedData.tasks = compoTask.GetAllByParentId(activeTaskParentId);
+    linkedData.tasks = compoTask.GetAllByParentId(activeTaskParentId).filter(x => x.type != 'M');
     
     data.parentTaskId = linkedData.parentTask ? linkedData.parentTask.id : '';
     data.items = clearReference(linkedData.tasks);

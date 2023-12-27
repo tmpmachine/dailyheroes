@@ -97,11 +97,6 @@ let DOMEvents = (function() {
   	  },
   	  
   	  
-  	  // # mission groups 
-      'new-mission-group': () => uiMission.NewGroup(),
-      'rename-active-mission-group': () => uiMission.RenameActiveGroup(),
-      'delete-mission-group': () => uiMission.DeleteGroupByName(),
-      
       'pick-audio': () => app.SetAlarmAudio(), 
       'remove-audio': () => app.RemoveAlarmAudio(), 
       'test-audio': () => app.TaskPlayAlarmAudio(), 
@@ -181,32 +176,23 @@ let DOMEvents = (function() {
   	      alert('Time format not recognized. Try: 10m, 1h, 1h20m, 1AM, 1:30PM');
   	    }
   	  },
-  	  'submit-task': (ev) => {
-    		ev.preventDefault();
-  	    if (ev.target.id.value.length > 0) {
-  	      app.TaskUpdateTask(ev.target);
-  	    } else {
-  	      app.TaskAddTask(ev.target);
-  	    }
-    		let modal = document.querySelectorAll('#projects-modal')[0].toggle();
-    		modal.close();
-  	  },
+  	  'submit-task': (evt) => ui.OnSubmitTask(evt),
   	  'submit-sequence-task': (evt) => ui.OnSubmitSequenceTask(evt),
   	  'add-note': (ev) => {
   	    ev.preventDefault();
-  		let form = ev.target;
-  		addNote(form);
-  		let modal = form.closest('.is-modal');
-  		modal.close();
-        },
+    		let form = ev.target;
+    		addNote(form);
+    		let modal = form.closest('.is-modal');
+    		modal.close();
+      },
   	  'import-tasks': async (ev) => {
   	    ev.preventDefault();
   	    let form = ev.target;
   		const formData = new FormData(form);
-  		let taskString = formData.get('tasksString')
+  		let taskString = formData.get('tasksString');
   		let tasksList = taskString.trim().split('\n')
   		.map(x => x.trim().split('- [ ] ')[1]);
-  		let data = parseList(tasksList)
+  		let data = parseList(tasksList);
   		
   		for (let d of data) {
   			addTaskData({
@@ -236,13 +222,14 @@ let DOMEvents = (function() {
   	},
   	
   	onclick: {
+  	  'new-collection': () => uiCollection.NewItem(),
+  	  'handle-click-list-collection': (evt) => uiCollection.HandleClickListContainer(evt),
   	  'open-linked-sequence-from-form': (evt) => ui.OpenLinkedSequenceFromForm(evt),
   	  'reset-progress-task-from-form': (evt) => ui.ResetProgressTaskFromForm(evt),
   	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
   	  'convert-collection-sequence': () => ui.TaskConvertCollectionSequence(),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),
   	  'delete-sequence-from-form': (evt) => ui.DeleteSequenceFromForm(evt),
-      'navigate-mission-screen': (evt) => ui.NavigateMissionScreen(evt.target.dataset.tag),
   	}
   	
   };

@@ -9,12 +9,12 @@ let ui = (function () {
     OpenLinkedSequenceFromForm,
     DeleteTaskFromForm,
     DeleteSequenceFromForm,
-    NavigateMissionScreen,
     ShowModalAddTask,
     ShowModalAddSequence,
     AddSequenceTask,
     EditSequenceTask,
     OnSubmitSequenceTask,
+    OnSubmitTask,
     
     // groups
     Navigate,
@@ -36,6 +36,7 @@ let ui = (function () {
     
     SetGlobalTimer,
     RefreshListSequenceByTaskId,
+    RemoveElSequenceById,
     HotReloadListSequenceByTaskId,
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
@@ -121,12 +122,18 @@ let ui = (function () {
     let linkedTaskId = window.prompt('Task ID');
     if (!linkedTaskId) return;
     
+    if (linkedTaskId == id) {
+      alert('Cannot self-linking task as sequence. Try entering another task ID.');
+      return;
+    }
+    
     let task = compoTask.GetById(id);
     let linkedTask = compoTask.GetById(linkedTaskId);
     if (!linkedTask) {
-      alert('Task not found');
+      alert('Task not found.');
       return;
     }
+    
     
     compoSequence.Stash(task.sequenceTasks);
     
@@ -226,7 +233,7 @@ let ui = (function () {
     }
     
     app.TaskDeleteTask(id, taskEl);
-    $('#projects-modal').close();
+    $('#task-modal').close();
   }
   
   function ResetProgressTaskFromForm(evt) {
@@ -241,13 +248,10 @@ let ui = (function () {
     }
     
     app.TaskDeleteTask(id, taskEl);
-    $('#projects-modal').close();
+    $('#task-modal').close();
   }
   
-  function NavigateMissionScreen(screenName) {
-    console.log(screenName);
-  }
-  
+
   async function TaskSetActiveTaskInfo() {
     $('#txt-active-task-name').textContent = '';
     
@@ -295,6 +299,16 @@ let ui = (function () {
       el.classList.toggle('is-active', (item.id == activeId));
     }
     
+  }
+  
+  function RemoveElSequenceById(id, taskId) {
+    let container = $(`#tasklist-container [data-obj="task"][data-id="${taskId}"] [data-container="sequence-tasks"]`);
+    if (!container) return;
+    
+    let seqEl = container.querySelector(`[data-kind="item-sequence-task"][data-id="${id}"]`);
+    if (!seqEl) return;
+    
+    seqEl.remove();
   }
   
   function RefreshListSequenceByTaskId(id, container) {
@@ -375,8 +389,8 @@ let ui = (function () {
     
     container.append(docFrag);
     
-    if (taskEl) {
-      taskEl.dataset.viewStates = (items.length > 0 ? 'sequence' : '');
+    if (taskEl && items.length > 0) {
+      viewStateUtil.Add('task', ['sequence'], taskEl);
     }
     
   }
@@ -782,15 +796,15 @@ let ui = (function () {
   
   function OnePress() {
 
-    let pressed = {}
+    let pressed = {};
     
     function watch(type, key) {
       if (type == 'keydown') {
         if (pressed[key]) {
           
         } else {
-          pressed[key] = true
-          return true
+          pressed[key] = true;
+          return true;
         }
       } else {
         pressed[key] = false;
@@ -828,14 +842,40 @@ let ui = (function () {
 
   function ShowModalAddTask(modalData = {}) {
     
+    viewStateUtil.RemoveAll('form-task');
+    
     let formValue = {
       parentId: lsdb.data.activeGroupId,
       target: app.GetGlobalTimerStr(),
+      taskType: 'T',
     };
     
     let formData = Object.assign(formValue, modalData.formData);
     
-    let modal = document.querySelectorAll('#projects-modal')[0].toggle();
+    let isEditMode = (formData.id !== undefined);
+    
+    if (!isEditMode) {
+      if (isViewModeMission()) {
+        formValue.taskType = 'M';
+      }
+    }
+    
+    if (formValue.taskType == 'M') {
+      viewStateUtil.Add('form-task', ['collection-only']);
+    }
+    
+    // set form add/edit mode
+    if (isEditMode) {
+      viewStateUtil.Add('form-task', ['edit']);
+    } else {
+      viewStateUtil.Add('form-task', ['add']);
+    }
+    
+    if (viewStateUtil.HasViewState('task-view-mode', 'mission')) {
+      viewStateUtil.Add('form-task', ['mission-tab']);
+    }
+    
+    let modal = document.querySelectorAll('#task-modal')[0].toggle();
     
     // fill modal data
     modal.querySelector('[data-id="readOnlyId"]').textContent = modalData.readOnlyId;
@@ -855,16 +895,6 @@ let ui = (function () {
       modal.querySelector('[name="parent-id"]').value = formData.parentId;
     }
     
-    // set form add/edit mode
-    viewStateUtil.Remove('form-task', ['edit', 'add']);
-    
-    let isEditMode = (formData.id !== undefined);
-    if (isEditMode) {
-      viewStateUtil.Add('form-task', ['edit']);
-    } else {
-      viewStateUtil.Add('form-task', ['add']);
-    }
-    
     for (let key in formData) {
       let inputEl = form.querySelector(`[name="${key}"]`);
       if (!inputEl) continue;
@@ -872,6 +902,59 @@ let ui = (function () {
       inputEl.value = formData[key];
     }
     
+  }
+  
+  async function OnSubmitTask(ev) {
+  
+		ev.preventDefault();
+		
+    let form = ev.target;
+    
+    if (form.id.value.length > 0) {
+      
+      let task = await app.TaskUpdateTask(form);
+      
+      await appData.TaskStoreTask();
+      partialUpdateUITask(task.id, task);
+      form.reset();
+      
+      app.SyncGroupName(task.id, task.title, task.parentId);
+        
+    } else {
+      
+      let taskId = await app.TaskAddTask(form);
+      
+      if (isViewModeMission()) {
+        let missionData = compoMission.CreateItemMission(taskId);
+        compoMission.AddMission(missionData);
+  
+        compoMission.Commit();
+  
+        appData.Save();
+      }
+      
+      // set as active task if none is active
+      let data = await window.service.GetData('start');
+      if (!data.start && taskId) {
+        await window.service.SetData({'activeTask': taskId});
+      }
+      await appData.TaskStoreTask();
+      await app.TaskListTask();
+    
+      form.reset();
+      updateUI();
+      
+    }
+    
+		let modal = document.querySelectorAll('#task-modal')[0].toggle();
+		modal.close();
+		
+  }
+  
+  function partialUpdateUITask(id, task) {
+    let el = $(`[data-obj="task"][data-id="${id}"]`);
+    el.querySelector('[data-slot="title"]').textContent = task.title;
+    el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes(msToMinutes(task.targetTime));
   }
   
   function OnSubmitSequenceTask(ev) {
@@ -922,6 +1005,7 @@ let ui = (function () {
   function AddSequenceTask(taskId) {
     let defaultValue = {
       taskId,
+      duration: '7m',
     };
     ShowModalAddSequence(defaultValue);
   }

@@ -197,12 +197,6 @@ async function clearTaskTotalProgressTime() {
   await appData.TaskStoreTask();
 }
 
-function partialUpdateUITask(id, task) {
-  let el = $(`[data-obj="task"][data-id="${id}"]`);
-  el.querySelector('[data-slot="title"]').textContent = task.title;
-  el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes(msToMinutes(task.targetTime));
-}
-
 function CheckAndCreateGroups(title, id) {
   let data = lsdb.data.groups.find(x => x.id == id);
   if (!data) {
@@ -724,9 +718,9 @@ function isTopMissionPath(id) {
 
 function getAndComputeMissionPath(groupId) {
     
-    let breadcrumbs = []
+    let breadcrumbs = [];
     
-    let activeGroup = lsdb.data.groups.find(x => x.id == groupId)
+    let activeGroup = lsdb.data.groups.find(x => x.id == groupId);
     if (activeGroup) {
       breadcrumbs.push(activeGroup);
       
@@ -869,8 +863,10 @@ function resetActiveGroupId() {
   lsdb.data.activeGroupId = '';
 }
 
-function taskAddToMission(id, parentEl) {
+async function taskAddToMission(id, parentEl) {
   let isExists = compoMission.IsExistsMissionId(id);
+  let isTaskDeleted = false;
+  
   if (isExists) {
     // remove from mission
     compoMission.RemoveMissionById(id);
@@ -878,15 +874,28 @@ function taskAddToMission(id, parentEl) {
     if (isViewModeMission()) {
       parentEl.remove();
     }
+    
+    let task = compoTask.GetById(id);
+    if (task.type == 'M') {
+      isTaskDeleted = true;
+    }
+    
   } else {
     // add to mission
     let missionData = compoMission.CreateItemMission(id);
     compoMission.AddMission(missionData);
-    compoMission.Commit();
     parentEl.stateList.add('--is-mission');
   }
 
-  lsdb.save();
+  compoMission.Commit();
+
+  appData.Save();
+  
+  if (isTaskDeleted) {
+    let isBypassConfirm = true;
+    await app.TaskDeleteTask(id, parentEl, isBypassConfirm);
+  }
+  
 }
 
 function isViewModeMission() {
@@ -1267,7 +1276,7 @@ async function setTaskTarget(id) {
   let task = tasks.find(x => x.id == id);
   
   const { value: userVal } = await Swal.fire({
-      title: 'Set mission target',
+      title: 'Set task duration',
       input: 'text',
       inputLabel: 'example: 1h, 30m, or 1h30m',
       inputValue: minutesToHoursAndMinutes(task.target),
@@ -1290,7 +1299,7 @@ async function setTaskTarget(id) {
 
 async function editTask(taskId) {
   let task = await app.getTaskById(taskId);
-  let {id, parentId, title, target, targetTime, finishCount} = task;
+  let {id, parentId, title, target, targetTime, finishCount, type} = task;
   let modalData = {
     readOnlyId: id,
     formData: {
@@ -1300,6 +1309,7 @@ async function editTask(taskId) {
       targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
       finishCount,
       parentId,
+      taskType: type,
     }
   };
   ui.ShowModalAddTask(modalData);
@@ -1539,6 +1549,7 @@ let app = (function () {
     getTaskById: GetTaskById,
     TaskAddTask,
     TaskUpdateTask,
+    SyncGroupName,
     TaskDeleteTask,
     TaskStarTask,
     TaskAddProgressManually,
@@ -1724,11 +1735,11 @@ let app = (function () {
   
   function filterTaskByTargetTime() {
     // 10 min threshold
-    return tasks.filter(x => x.targetTime > 10*60*1000);
+    return tasks.filter(x => x.targetTime > 10*60*1000 && x.type != 'M');
   }
   
   function filterTaskByPath() {
-    let filteredTasks = tasks;
+    let filteredTasks = tasks.filter(x => x.type != 'M');
     
     if (lsdb.data.activeGroupId === '') {
       filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
@@ -1976,6 +1987,10 @@ let app = (function () {
     	  data: fillData, 
     	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
     	});
+  
+      if (fillData.type == 'M') {
+        viewStateUtil.Add('task', ['collection-only'], el.querySelector('[data-view-group="task"]'));
+      }
   
       // el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
   
@@ -2382,9 +2397,9 @@ let app = (function () {
     if (!task) return;
     
     const { value: userVal } = await Swal.fire({
-      title: 'Progress in minutes',
+      title: 'Add progress manually (in minutes)',
       input: 'text',
-      inputLabel: 'example: 10, 15, 30',
+      inputLabel: 'example : 10, 15, 30',
       showCancelButton: true,
       inputValidator: (value) => {
         if (!value) {
@@ -2475,10 +2490,13 @@ let app = (function () {
     return missionsTask;
   }
   
-  async function TaskDeleteTask(id, taskEl) {
+  async function TaskDeleteTask(id, taskEl, isBypassConfirm = false) {
   
-    let isConfirm = await ui.ShowConfirm();
-    if (!isConfirm) return; 
+    if (!isBypassConfirm) {
+      let isConfirm = await ui.ShowConfirm();
+      if (!isConfirm) return; 
+      
+    }
     
     let totalDeletedProgressTime = 0;
     
@@ -2568,7 +2586,6 @@ let app = (function () {
   async function taskRestoreComponentsData() {
     // google sign in
     {
-      
       let data = appSettings.GetComponentData('compoGsiChrome');
       new Promise(async resolve => {
         await waitUntil(() => {
@@ -2577,6 +2594,12 @@ let app = (function () {
         compoGsiChrome.InitData(data);
         resolve();
       });
+    }
+    
+    // missions
+    {
+      compoMission.Init();
+      uiCollection.ReloadList();
     }
     
     // time streak
@@ -2675,7 +2698,9 @@ let app = (function () {
       case 'add-sequence-task': ui.AddSequenceTask(id); break;
       case 'delete-sequence-task': 
         compoTask.TaskDeleteSequenceById(id, seqId); 
-        ui.RefreshListSequenceByTaskId(id);
+        // ui.RefreshListSequenceByTaskId(id);
+        ui.RemoveElSequenceById(seqId, id);
+        ui.HotReloadListSequenceByTaskId(id);
       break;
       case 'edit-sequence-task': ui.EditSequenceTask(id, seqId); break;
       case 'navigate-mission': app.TaskNavigateToMission(id); break;
@@ -2732,15 +2757,10 @@ let app = (function () {
     task.finishCount = parseInt(form['finishCount'].value);
     task.finishCountProgress = parseInt(form['finishCount'].value);
     task.parentId = form['parent-id'].value;
-    
-    await appData.TaskStoreTask();
-    partialUpdateUITask(task.id, task);
-    form.reset();
-    
-    syncGroupName(task.id, task.title, task.parentId);
+    return task;
   }
   
-  function syncGroupName(id, newTitle, parentId) {
+  function SyncGroupName(id, newTitle, parentId) {
     let group = lsdb.data.groups.find(x => x.id == id);
     if (!group) return;
     
@@ -2750,6 +2770,7 @@ let app = (function () {
   }
   
   async function TaskAddTask(form)  {
+    
     if (form.title.value.trim().length == 0) {
       return;
     }
@@ -2767,6 +2788,7 @@ let app = (function () {
         title: form.title.value,
         target: parseHoursMinutesToMinutes(targetVal),
         parentId: parentId ? parentId : '',
+        type: form.taskType.value,
       });
       
       if (parentId) {
@@ -2779,18 +2801,8 @@ let app = (function () {
       return;
     }
     
-    form.reset();
-  
-    // set as active task if none is active
-    let data = await window.service.GetData('start');
-    if (!data.start && taskId) {
-      await window.service.SetData({'activeTask': taskId});
-    }
-  
-    await appData.TaskStoreTask();
-    await app.TaskListTask();
+    return taskId;
     
-    updateUI();
   }
   
   return SELF;

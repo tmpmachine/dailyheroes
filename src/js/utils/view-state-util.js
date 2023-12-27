@@ -8,6 +8,8 @@ let viewStateUtil = (function() {
     
     Set: SetState,
     Toggle,
+    GetViewStates,
+    HasViewState,
     Add,
     Remove,
     RemoveAll,
@@ -16,6 +18,23 @@ let viewStateUtil = (function() {
   let data = {
     viewStateMap: {}
   };
+  
+  function HasViewState(viewGroupName, viewName) {
+    let viewStates = GetViewStates(viewGroupName);
+    
+    return viewStates.includes(viewName);
+  }
+  
+  function GetViewStates(viewGroupName) {
+    let el = null;
+    let groupEl = GetViewGroupNode(viewGroupName, el);
+    if (!groupEl) return [];
+    
+    let viewStates = groupEl.dataset.viewStates;
+    if (!viewStates) return [];
+    
+    return viewStates.split(' ');
+  }
   
   function Toggle(viewGroupName, viewNames, el) {
     let groupEl = GetViewGroupNode(viewGroupName, el);
@@ -46,7 +65,7 @@ let viewStateUtil = (function() {
     }
     viewStates = Array.from(new Set(viewStates));
     
-    SetViewState(viewGroupName, viewStates);
+    SetViewState(viewGroupName, viewStates, groupEl);
   }
   
   function Remove(viewGroupName, viewNames) {
@@ -88,8 +107,12 @@ let viewStateUtil = (function() {
     SetViewState(viewGroupName, viewStates);
   }
   
-  function SetViewState(viewGroupName, viewStates) {
-    let groupEl = GetViewGroupNode(viewGroupName);
+  function SetViewState(viewGroupName, viewStates, groupEl) {
+    if (!groupEl) {
+      groupEl = GetViewGroupNode(viewGroupName);
+    }
+    if (!groupEl) return;
+    
     groupEl.dataset.viewStates = viewStates.join(' ').trim();
   }
   

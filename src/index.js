@@ -8,6 +8,7 @@ window.componentLoader.load([
       "js/utils/view-state-util.js",
       "js/ui.js",
       "js/ui-mission.js",
+      "js/ui-collection.js",
       "js/ui-tracker.js",
       "js/lib/lsdb.js",
     ],
@@ -45,7 +46,7 @@ window.componentLoader.load([
       // app components
       "js/components/task-component.js",
       "js/components/mission-component.js",
-      "js/components/compo-tracker.js",
+      "js/components/tracker-component.js",
       "js/components/sequence-component.js",
       "js/components/compo-time-streak.js",
     ],
@@ -63,9 +64,6 @@ window.componentLoader.load([
       if (!window.modeChromeExtension) {
         initServiceWorker();
       }
-      
-      // init component first
-      compoMission.Init();
       
       // init app
       app.Init();
@@ -86,7 +84,7 @@ window.componentLoader.load([
     urls: [
       "js/lib/drive-api.js",
       "js/components/compo-gsi-chrome.js",
-      "js/components/compo-backup.js",
+      "js/components/backup-component.js",
     ],
     callback: function() {
       
