@@ -3,7 +3,8 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
-    TaskLinkTaskToSequenceByTaskId,
+    TaskLinkTaskWithIdToActiveSequence,
+    TaskLinkTaskToSequenceByTaskIdInteractiveMode,
     TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
     OpenLinkedSequenceFromForm,
@@ -47,7 +48,13 @@ let ui = (function () {
     TaskSaveTaskWithIdToSequence,
     ToggleManageSequenceByTaskId,
     ToggleExpandSequenceTask,
+    FinishInteractiveSequencePick,
   };
+  
+  function FinishInteractiveSequencePick() {
+    data.prePickCollectionId = null;
+    viewStateUtil.Remove('features', ['interactive-sequence-task-pick']);
+  }
   
   function ToggleManageSequenceByTaskId(taskId) {
     let el = $(`[data-obj="task"][data-id="${taskId}"]`);
@@ -118,22 +125,20 @@ let ui = (function () {
     data.prePickCollectionId = userVal;
   }
   
-  async function TaskLinkTaskToSequenceByTaskId(id) {
-    let linkedTaskId = window.prompt('Task ID');
-    if (!linkedTaskId) return;
-    
-    if (linkedTaskId == id) {
-      alert('Cannot self-linking task as sequence. Try entering another task ID.');
+  async function TaskLinkTaskToSequenceByTaskIdInteractiveMode(id) {
+    data.prePickCollectionId = id;
+    viewStateUtil.Add('features', ['interactive-sequence-task-pick']);
+  }
+  
+  async function TaskLinkTaskWithIdToActiveSequence(id) {
+
+    if (data.prePickCollectionId == id) {
+      alert('Cannot self-linking task as sequence. Try picking another task.');
       return;
     }
     
-    let task = compoTask.GetById(id);
-    let linkedTask = compoTask.GetById(linkedTaskId);
-    if (!linkedTask) {
-      alert('Task not found.');
-      return;
-    }
-    
+    let task = compoTask.GetById(data.prePickCollectionId);
+    let linkedTask = compoTask.GetById(id);
     
     compoSequence.Stash(task.sequenceTasks);
     
@@ -144,7 +149,9 @@ let ui = (function () {
     
     await appData.TaskStoreTask();
       
-    await app.TaskListTask();
+    let taskEl = $(`#tasklist-container [data-obj="task"][data-id="${id}"]`);
+    viewStateUtil.Add('task', ['sequence-added'], taskEl);
+    
   }
   
   async function TaskConvertCollectionSequence() {

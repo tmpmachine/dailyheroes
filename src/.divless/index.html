@@ -152,16 +152,27 @@
           </form>
         </div>
         
-        [ .d-none
-          [ {d:grid} {cols:1fr 1fr} {pb:1rem}
-            [btn 'Active' .clickable data-callback="show-active"]
-            [btn 'Completed' .clickable data-callback="show-completed"]
-          ]
-        ]
         [ .mb-m]
         [ .default-gap]
 
-
+        <!-- # interactive sequence task pick -->
+        [ data-view-group="features" data-view-name="interactive-sequence-task-pick" .padding-container
+          [ {bg:#bfdfff} {rad:4px;p:0.5rem}
+            [ {fs:0.7rem}
+              [s 'Sequence Task Linking' {fw:bold}] [mark 'beta' {p:2px 4px;} {rad:4px}]
+            ]
+            [ .default-gap]
+            [ .d-flex {gap:0.5rem}
+              [small .flex-1
+                Instruction : Browse and pick tasks to add as sequence, then click <b>Finish</b>.
+              ]
+              [btn 'Finish' .btn data-onclick="finish-interactive-sequence-pick"]
+            ]
+          ]
+          [ .default-gap]
+          [ .default-gap]
+        ]
+        
         <!-- # search -->
         [ .padding-container
           <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
@@ -678,25 +689,27 @@
     	  [ .d-grid .align-items-center {gap:0.5rem}
     	    
     	    <!-- # collection save button (old) -->
-    	    [ .d-none
-    	    [ .d-flex data-view-group="task" data-view-name-not="sequence" .justify-content-end
-      	    [btn 'Save to' data-role="save-to-collection"]
-      	    [btn .icon-mate 'expand_more' data-role="pick-collection"]
-    	    ]
+    	    [ data-view-group="features" data-view-name="interactive-sequence-task-pick"
+      	    [ .d-flex .justify-content-end
+        	    [btn 'Add to sequence' data-role="add-to-sequence" data-view-group="task" data-view-name-not="sequence-added"]
+        	    [btn 'Added' data-view-group="task" data-view-name="sequence-added"]
+      	    ]
     	    ]
     	    
-    	    [ .d-flex .justify-content-end {gap:0.5rem}
-            
-    	      <!-- # start timer button -->
-            [ data-view-group="task-view-mode" data-view-name="mission"
-              [btn .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
-                play_arrow
+    	    [ data-view-group="features" data-view-name-not="interactive-sequence-task-pick"
+      	    [ .d-flex .justify-content-end {gap:0.5rem}
+              
+      	      <!-- # start timer button -->
+              [ data-view-group="task-view-mode" data-view-name="mission"
+                [btn .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
+                  play_arrow
+                ]
+                [btn .btn-stop data-role="stop" data-group="active" title="Stop" .icon-mate
+                  stop
+                ]
               ]
-              [btn .btn-stop data-role="stop" data-group="active" title="Stop" .icon-mate
-                stop
-              ]
-            ]
-            
+              
+      	    ]
     	    ]
     	    
     	  ]
@@ -732,7 +745,7 @@
         <!-- # sequence toolbar -->
         [ {p:0.5rem} .d-flex .flex-wrap {gap:0.3rem}
           [btn '+ New' data-role="add-sequence-task"]
-          [btn 'Link a task' data-role="link-task-to-sequence"]
+          [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
           [btn 'Reset repeat count' data-role="reset-count-active-seq"]
           [btn 'Manage' data-role="manage-sequence"]
         ]

@@ -37,8 +37,6 @@ let DOMEvents = (function() {
       },
       
       'open-task-into-view': () => taskOpenTaskIntoView(),
-  		'show-active': () => document.body.stateList.toggle('--list-mission-archived', false),
-  		'show-completed': () => document.body.stateList.toggle('--list-mission-archived', true),
   		'export-tasks': () => exportTasks(),
   		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
@@ -222,6 +220,7 @@ let DOMEvents = (function() {
   	},
   	
   	onclick: {
+  	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),
   	  'new-collection': () => uiCollection.NewItem(),
   	  'handle-click-list-collection': (evt) => uiCollection.HandleClickListContainer(evt),
   	  'open-linked-sequence-from-form': (evt) => ui.OpenLinkedSequenceFromForm(evt),

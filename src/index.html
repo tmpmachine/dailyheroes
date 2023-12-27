@@ -152,16 +152,27 @@
           </form>
         </div>
         
-        <div class="d-none">
-          <div style="display:grid;grid-template-columns:1fr 1fr;padding-bottom:1rem;">
-            <button class="clickable" data-callback="show-active">Active</button>
-            <button class="clickable" data-callback="show-completed">Completed</button>
-          </div>
-        </div>
         <div class="mb-m"></div>
         <div class="default-gap"></div>
 
-
+        <!-- # interactive sequence task pick -->
+        <div class="padding-container" data-view-group="features" data-view-name="interactive-sequence-task-pick">
+          <div style="background:#bfdfff;border-radius:4px;padding:0.5rem;">
+            <div style="font-size:0.7rem;">
+              <span style="font-weight:bold;">Sequence Task Linking</span> <mark style="padding:2px 4px;border-radius:4px;">beta</mark>
+            </div>
+            <div class="default-gap"></div>
+            <div class="d-flex" style="gap:0.5rem;">
+              <small class="flex-1">
+                Instruction : Browse and pick tasks to add as sequence, then click <b>Finish</b>.
+              </small>
+              <button class="btn" data-onclick="finish-interactive-sequence-pick">Finish</button>
+            </div>
+          </div>
+          <div class="default-gap"></div>
+          <div class="default-gap"></div>
+        </div>
+        
         <!-- # search -->
         <div class="padding-container">
           <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
@@ -678,25 +689,27 @@
     	  <div class="d-grid align-items-center" style="gap:0.5rem;">
     	    
     	    <!-- # collection save button (old) -->
-    	    <div class="d-none">
-    	    <div class="d-flex justify-content-end" data-view-group="task" data-view-name-not="sequence">
-      	    <button data-role="save-to-collection">Save to</button>
-      	    <button class="icon-mate" data-role="pick-collection">expand_more</button>
-    	    </div>
+    	    <div data-view-group="features" data-view-name="interactive-sequence-task-pick">
+      	    <div class="d-flex justify-content-end">
+        	    <button data-role="add-to-sequence" data-view-group="task" data-view-name-not="sequence-added">Add to sequence</button>
+        	    <button data-view-group="task" data-view-name="sequence-added">Added</button>
+      	    </div>
     	    </div>
     	    
-    	    <div class="d-flex justify-content-end" style="gap:0.5rem;">
-            
-    	      <!-- # start timer button -->
-            <div data-view-group="task-view-mode" data-view-name="mission">
-              <button class="btn-start icon-mate" data-role="start" data-group="active not-running" title="Start">
-                play_arrow
-              </button>
-              <button class="btn-stop icon-mate" data-role="stop" data-group="active" title="Stop">
-                stop
-              </button>
-            </div>
-            
+    	    <div data-view-group="features" data-view-name-not="interactive-sequence-task-pick">
+      	    <div class="d-flex justify-content-end" style="gap:0.5rem;">
+              
+      	      <!-- # start timer button -->
+              <div data-view-group="task-view-mode" data-view-name="mission">
+                <button class="btn-start icon-mate" data-role="start" data-group="active not-running" title="Start">
+                  play_arrow
+                </button>
+                <button class="btn-stop icon-mate" data-role="stop" data-group="active" title="Stop">
+                  stop
+                </button>
+              </div>
+              
+      	    </div>
     	    </div>
     	    
     	  </div>
@@ -732,7 +745,7 @@
         <!-- # sequence toolbar -->
         <div class="d-flex flex-wrap" style="padding:0.5rem;gap:0.3rem;">
           <button data-role="add-sequence-task">+ New</button>
-          <button data-role="link-task-to-sequence">Link a task</button>
+          <button data-role="link-task-to-sequence-interactive-mode">Link a task</button>
           <button data-role="reset-count-active-seq">Reset repeat count</button>
           <button data-role="manage-sequence">Manage</button>
         </div>

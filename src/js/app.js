@@ -2689,16 +2689,16 @@ let app = (function () {
     }
 
     switch (actionRole) {
+      case 'add-to-sequence': ui.TaskLinkTaskWithIdToActiveSequence(id); break;
       case 'save-to-collection': ui.TaskSaveTaskWithIdToSequence(id); break;
       case 'pick-collection': ui.PickCollection(); break;
       case 'reset-count-active-seq': compoTask.TaskResetSequenceCountByTaskId(id); break;
       case 'manage-sequence': ui.ToggleManageSequenceByTaskId(id); break;
       case 'toggle-expand-sequence-task': ui.ToggleExpandSequenceTask(id); break;
-      case 'link-task-to-sequence': ui.TaskLinkTaskToSequenceByTaskId(id); break;
+      case 'link-task-to-sequence-interactive-mode': ui.TaskLinkTaskToSequenceByTaskIdInteractiveMode(id); break;
       case 'add-sequence-task': ui.AddSequenceTask(id); break;
       case 'delete-sequence-task': 
         compoTask.TaskDeleteSequenceById(id, seqId); 
-        // ui.RefreshListSequenceByTaskId(id);
         ui.RemoveElSequenceById(seqId, id);
         ui.HotReloadListSequenceByTaskId(id);
       break;
@@ -2725,7 +2725,6 @@ let app = (function () {
         if (activeTask && activeTask.id == id) {
           await TaskStopActiveTask();
         }
-        // await finishTask(id);
         await taskArchiveTask(id);
         await removeActiveTaskIfExists(id);
         updateUI();

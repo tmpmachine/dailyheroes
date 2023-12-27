@@ -118,10 +118,7 @@ body[data-state~="--sleep-time"] #txt-time-before-sleep {color:red}
 /* # section: display none */
 
 /* mission tab menu */
-/* body[data-state~="--list-mission-archived"] #tasklist, */
-/* body:not([data-state~="--list-mission-archived"]) #tasklist-completed, */
 /* etc. */
-/*body:not([data-state~="--timer-running"]) [data-obj="stop-timer"],*/
 body:not([data-state~="--timer-running"]) .btn-timer-control-stop,
 body[data-state~="--timer-running"] .btn-timer-control-start,
 body[data-state~="--timer-running"] .container-task [data-state~="--active"] [data-group~="not-running"],

@@ -20,8 +20,8 @@ let viewStates = [
   // task item
   {
     group: 'task',
-    states: ['sequence', 'manage-sequence'],
-    inverseStates: ['sequence', 'manage-sequence', 'collection-only']
+    states: ['sequence', 'manage-sequence', 'sequence-added'],
+    inverseStates: ['sequence', 'manage-sequence', 'collection-only', 'sequence-added']
   },
   // task lists
   {
@@ -35,11 +35,15 @@ let viewStates = [
       'filter-target',
     ],
   },
+  // features
   {
     group: 'features',
     states: [
-      'tracker-overlay',
+      'tracker-overlay', 'interactive-sequence-task-pick',
     ],
+    inverseStates: [
+      'interactive-sequence-task-pick',  
+    ]
   },
   {
     group: 'auth',
