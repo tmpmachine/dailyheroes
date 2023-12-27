@@ -49,37 +49,6 @@ function parseList(list) {
   return parsedList;
 }
 
-function calculateMinutesUntilTime(timeStr) {
-  
-  // Split the time string into hours, minutes, and AM/PM
-  const [hours, minutes = "00", meridian] = timeStr.trim().match(/(\d{1,2})(?::(\d{2}))?\s*([AP]M)/).slice(1);
-
-
-  // Convert hours to 24-hour format if necessary
-  let hours24 = parseInt(hours, 10);
-  if (meridian === "PM" && hours24 !== 12) {
-    hours24 += 12;
-  } else if (meridian === "AM" && hours24 === 12) {
-    hours24 = 0;
-  }
-
-  // Calculate the duration in minutes
-  const inputMinutes = hours24 * 60 + parseInt(minutes, 10);
-  
-  // Get the current time in minutes
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  
-  // Calculate the difference in minutes between the input time and current time
-  let difference = inputMinutes - currentMinutes;
-  
-  // If the input time is earlier than the current time, add a day's worth of minutes
-  if (difference < 0) {
-    difference += 24 * 60;
-  }
-  
-  return difference;
-}
 
 function timeStringToMinutes(timeStr) {
   try {
@@ -101,9 +70,6 @@ function timeStringToMinutes(timeStr) {
   return null;
 }
 
-async function setTimerByMinutes(minutes) {
-  await setTimer(minutes * 60 * 1000);
-}
 
 async function setTimer(duration) {
   let data = await window.service.GetData(["history", "start"]);
@@ -181,18 +147,6 @@ async function clearTaskHistory() {
   for (let task of tasks) {
     task.progress = 0;
     task.progressTime = 0;
-  }
-  await appData.TaskStoreTask();
-}
-
-async function clearTaskTotalProgressTime() {
-  for (let task of tasks) {
-    task.totalProgressTime = 0;
-    if (task.note) {
-      for (let note of task.note) {
-        note.totalProgressTime = 0;
-      }
-    }
   }
   await appData.TaskStoreTask();
 }
@@ -528,55 +482,8 @@ function detectKeyPressS() {
 
 detectKeyPressS();
 
-function navigate2x2GridButtons(buttons) {
-  let index = 0;
-
-  function handleKeyDown(event) {
-    let isContained = false;
-    const key = event.key;
-    
-    buttons.forEach((element) => {
-      if (element.contains(event.target)) {
-        isContained = true;
-      }
-    });
-    if (!isContained) {
-      
-      if (key == 'ArrowUp' && event.target.matches('[data-callback="stop-timer"]')) {
-        buttons.forEach((element) => {
-          if (element.matches('[data-time="25"]')) {
-            // isContained = true;
-            element.focus();
-          }
-        }); 
-      }
-      
-      return;
-    }
-    
-    if (key === 'ArrowRight') {
-      index = (index + 1) % buttons.length;
-      event.preventDefault();
-    } else if (key === 'ArrowLeft') {
-      index = (index - 1 + buttons.length) % buttons.length;
-      event.preventDefault();
-    } else if (key === 'ArrowUp' && index >= 2) {
-      index = (index - 2) % buttons.length;
-      event.preventDefault();
-    } else if (key === 'ArrowDown' && index <= 1) {
-      index = (index + 2) % buttons.length;
-      event.preventDefault();
-    }
-  
-    buttons[index].focus();
-  }
 
 
-  document.addEventListener('keydown', handleKeyDown);
-}
-
-const buttons = document.querySelectorAll('#preset-button button');
-navigate2x2GridButtons(buttons);
 
 async function setActiveTask() {
   let data = await window.service.GetData(['activeTask', 'start']);
@@ -1474,14 +1381,6 @@ function parseHmsToMs(timeString) {
   }
 
   return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
-}
-
-function RatioSettings() {
-  let currentSettings = localStorage.getItem('ratio-label-settings') || 'main';
-  let label = window.prompt('Labels to check', currentSettings);
-  if (!label) return;
-  
-  localStorage.setItem('ratio-label-settings', label);
 }
 
 let timeLeftRatio = [];
@@ -2711,7 +2610,6 @@ let app = (function () {
       case 'edit': editTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
-      case 'focus-sequence-task': compoTask.FocusSequenceById(id, seqId); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-timer': addSubTimer(id); break;

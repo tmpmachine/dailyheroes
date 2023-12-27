@@ -306,63 +306,11 @@
         ]
         </section>
         
-        [ .d-flex .justify-content-between
-          [ .d-none
-            [btn 'Settings' .clickable data-callback='ratio-settings']
-            [btn 'Ratio' .clickable data-callback='ratio-config']
-          ]
-          [btn 'Reset history' .clickable data-callback='reset-history' .d-none]
-        ]
-        
-        <!-- # ratio config -->
-        [ .d-grid {gap:0.2rem} {mt:1rem} .container-ratio-config .d-none
-          [small 'Ratio config']
-          [t {h:200px} #in-ratio-settings]
-          [btn 'Save' .clickable data-callback='save-ratio']
-        ]
-        
         <!-- # add task -->
         <!-- empty gap for floating button -->
         [ {h:76px}] 
         
       </section>
-      
-      <section class="d-none">
-        
-        Set timer (T) :
-        <div>
-          <small>Duration or time. e.g. 1h30m or 04:30PM</small>
-        </div>
-        <div class="default-gap"></div>
-        <form class="submittable" data-callback='set-timer'>
-          <div style="display:flex;gap:0.3rem;">
-            <div>
-              <input type="text" name="target" class="input-style-default"/>
-            </div>
-            <button>Set</button>
-          </div>
-        </form>
-        <div class="default-gap"></div>
-        
-        Timer preset :
-        <div class="default-gap"></div>
-        <div id="preset-button" style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
-          <button autofocus class='clickable' data-callback='set-alarm' data-time='12'>12m</button>
-          <button class='clickable' data-callback='set-alarm' data-time='20'>20m</button>
-          <button class='clickable' data-callback='set-alarm' data-time='25'>25m</button>
-          <button class='clickable' data-callback='set-alarm' data-time='30'>30m</button>
-        </div>
-        <div class="default-gap"></div>
-        
-        
-        <!--Set mode : -->
-        <!--<button class="clickable" data-callback='mode-work-day'>work day</button>-->
-        <!--<button class="clickable" data-callback='mode-day-off'>day off</button>-->
-        
-        <!--<div style="padding-top:1rem;"></div>-->
-        
-      </section>
-      
       
       <!-- # collections screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="collections">
@@ -788,9 +736,6 @@
         
         <!-- # sequence manage actions -->
         [ {p:4px 8px} data-view-group="task" data-view-name="manage-sequence"
-          [ .d-none
-            [btn 'track_changes' data-role="focus-sequence-task" .icon-mate title="Start from here"]
-          ]
           [btn 'delete' data-role="delete-sequence-task" .icon-mate title="Delete"]
           [btn 'edit' data-role="edit-sequence-task" .icon-mate title="Edit"]
         ]

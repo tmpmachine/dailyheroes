@@ -306,63 +306,11 @@
         </div>
         </section>
         
-        <div class="d-flex justify-content-between">
-          <div class="d-none">
-            <button class="clickable" data-callback='ratio-settings'>Settings</button>
-            <button class="clickable" data-callback='ratio-config'>Ratio</button>
-          </div>
-          <button class="clickable d-none" data-callback='reset-history'>Reset history</button>
-        </div>
-        
-        <!-- # ratio config -->
-        <div class="d-grid container-ratio-config d-none" style="gap:0.2rem;margin-top:1rem;">
-          <small>Ratio config</small>
-          <textarea id="in-ratio-settings" style="height:200px;"></textarea>
-          <button class="clickable" data-callback='save-ratio'>Save</button>
-        </div>
-        
         <!-- # add task -->
         <!-- empty gap for floating button -->
         <div style="height:76px;"></div> 
         
       </section>
-      
-      <section class="d-none">
-        
-        Set timer (T) :
-        <div>
-          <small>Duration or time. e.g. 1h30m or 04:30PM</small>
-        </div>
-        <div class="default-gap"></div>
-        <form class="submittable" data-callback='set-timer'>
-          <div style="display:flex;gap:0.3rem;">
-            <div>
-              <input type="text" name="target" class="input-style-default"/>
-            </div>
-            <button>Set</button>
-          </div>
-        </form>
-        <div class="default-gap"></div>
-        
-        Timer preset :
-        <div class="default-gap"></div>
-        <div id="preset-button" style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
-          <button autofocus class='clickable' data-callback='set-alarm' data-time='12'>12m</button>
-          <button class='clickable' data-callback='set-alarm' data-time='20'>20m</button>
-          <button class='clickable' data-callback='set-alarm' data-time='25'>25m</button>
-          <button class='clickable' data-callback='set-alarm' data-time='30'>30m</button>
-        </div>
-        <div class="default-gap"></div>
-        
-        
-        <!--Set mode : -->
-        <!--<button class="clickable" data-callback='mode-work-day'>work day</button>-->
-        <!--<button class="clickable" data-callback='mode-day-off'>day off</button>-->
-        
-        <!--<div style="padding-top:1rem;"></div>-->
-        
-      </section>
-      
       
       <!-- # collections screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="collections">
@@ -788,9 +736,6 @@
         
         <!-- # sequence manage actions -->
         <div data-view-group="task" data-view-name="manage-sequence" style="padding:4px 8px;">
-          <div class="d-none">
-            <button class="icon-mate" data-role="focus-sequence-task" title="Start from here">track_changes</button>
-          </div>
           <button class="icon-mate" data-role="delete-sequence-task" title="Delete">delete</button>
           <button class="icon-mate" data-role="edit-sequence-task" title="Edit">edit</button>
         </div>

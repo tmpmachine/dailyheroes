@@ -41,16 +41,6 @@ let DOMEvents = (function() {
   		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
   		
-  		// bottom buttons
-  		'ratio-settings': () => RatioSettings(),
-  		'ratio-config': () => {
-  		  $('.container-ratio-config').classList.toggle('d-none');
-  		},
-  		'save-ratio': () => {
-  		  let settingsJSON = $('#in-ratio-settings').value.trim();
-  		  localStorage.setItem('ratio-settings', settingsJSON);
-  		},
-  		
   		'reset-progress': async () => {
   			// if (!window.confirm('Are you sure?')) return;
   			
@@ -64,36 +54,13 @@ let DOMEvents = (function() {
   				location.reload();
   			}
   		},
-  		'reset-history': async () => {
-  			if (!window.confirm('Are you sure?')) return;
-  
-  			clearTaskTotalProgressTime();
-  			if (window.modeChromeExtension) {
-  			window.close();
-  			} else {
-  				await app.TaskListTask();
-  				location.reload();
-  			}
-  		},
-  		'mode-day-off': async () => {
-  			await window.service.SetData({ 'target': (3+8)*60 + 20 });
-  			updateUI();
-  		},
-  		'mode-work-day': async () => {
-  			await window.service.SetData({ 'target': 3*60 + 20 });
-  			updateUI();
-  		},
-    	'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
+  		'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
   		
   		'stop-timer': () => app.TaskStopActiveTask(),
   		'start-or-restart-timer': () => startOrRestartTask(),
   		
   		'finish-timer': () => finishTimer(),
-  		'set-alarm': async (ev) => {
-  		  let duration = parseInt(ev.target.dataset.time); // in minutes
-  		  await setTimerByMinutes(duration);
-  	  },
-  	  
+  		
   	  
       'pick-audio': () => app.SetAlarmAudio(), 
       'remove-audio': () => app.RemoveAlarmAudio(), 
@@ -151,29 +118,6 @@ let DOMEvents = (function() {
   	
   	submittable: {
   	  
-  	  'set-timer': async (ev) => {
-  	    ev.preventDefault();
-  	    let form = ev.target;
-  	    let formData = new FormData(form);
-  	    let val = formData.get('target');
-  	    
-  	    let isValidFormat = false;
-  	    let duration;
-  	    try {
-  	      duration = parseHoursMinutesToMinutes(val);
-  	      isValidFormat = true;
-  	    } catch(e) {}
-  	    try {
-  	      duration = calculateMinutesUntilTime(val);
-  	      isValidFormat = true;
-  	    } catch(e) {}
-  	    
-  	    if (isValidFormat) {
-    		  await setTimerByMinutes(duration);
-        } else {
-  	      alert('Time format not recognized. Try: 10m, 1h, 1h20m, 1AM, 1:30PM');
-  	    }
-  	  },
   	  'submit-task': (evt) => ui.OnSubmitTask(evt),
   	  'submit-sequence-task': (evt) => ui.OnSubmitSequenceTask(evt),
   	  'add-note': (ev) => {
