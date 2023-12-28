@@ -176,7 +176,7 @@ function addTaskData(inputData) {
   let data = {...lsdb.new('task', {
     id,
   }), ...inputData};
-  tasks.splice(0, 0, data);
+  tasks.push(data);
   
   return id;
 }
@@ -770,41 +770,6 @@ function resetActiveGroupId() {
   lsdb.data.activeGroupId = '';
 }
 
-async function taskAddToMission(id, parentEl) {
-  let isExists = compoMission.IsExistsMissionId(id);
-  let isTaskDeleted = false;
-  
-  if (isExists) {
-    // remove from mission
-    compoMission.RemoveMissionById(id);
-    parentEl.stateList.remove('--is-mission');
-    if (isViewModeMission()) {
-      parentEl.remove();
-    }
-    
-    let task = compoTask.GetById(id);
-    if (task.type == 'M') {
-      isTaskDeleted = true;
-    }
-    
-  } else {
-    // add to mission
-    let missionData = compoMission.CreateItemMission(id);
-    compoMission.AddMission(missionData);
-    parentEl.stateList.add('--is-mission');
-  }
-
-  compoMission.Commit();
-
-  appData.Save();
-  
-  if (isTaskDeleted) {
-    let isBypassConfirm = true;
-    await app.TaskDeleteTask(id, parentEl, isBypassConfirm);
-  }
-  
-}
-
 function isViewModeMission() {
   return lsdb.data.viewMode == 'mission';
 }
@@ -1357,30 +1322,37 @@ function parseHoursMinutesToMinutes(timeString) {
 
 
 function parseHmsToMs(timeString) {
-  if (!timeString) {
-    return null;
+  
+  if (!timeString) return 0;
+
+  try {
+    const regex = /^(\d+h)?(\d+m)?(\d+s)?$/;
+    const match = regex.exec(timeString);
+  
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+  
+    if (match[1]) {
+      hours = parseInt(match[1].slice(0, -1));
+    }
+  
+    if (match[2]) {
+      minutes = parseInt(match[2].slice(0, -1));
+    }
+  
+    if (match[3]) {
+      seconds = parseInt(match[3].slice(0, -1));
+    }
+  
+    return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
+    
+  } catch (e) {
+    console.error(e);
   }
-
-  const regex = /^(\d+h)?(\d+m)?(\d+s)?$/;
-  const match = regex.exec(timeString);
-
-  let hours = 0;
-  let minutes = 0;
-  let seconds = 0;
-
-  if (match[1]) {
-    hours = parseInt(match[1].slice(0, -1));
-  }
-
-  if (match[2]) {
-    minutes = parseInt(match[2].slice(0, -1));
-  }
-
-  if (match[3]) {
-    seconds = parseInt(match[3].slice(0, -1));
-  }
-
-  return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
+  
+  return 0;
+  
 }
 
 let timeLeftRatio = [];
@@ -1474,6 +1446,8 @@ let app = (function () {
     TaskNavigateToMission,
     StartTaskTimer,
     ToggleStartTimerAvailableTime,
+    TaskAddToMission,
+    TaskRemoveTaskFromMission,
   };
   
   let data = {
@@ -1482,6 +1456,62 @@ let app = (function () {
     
     globalTimer: 12, // 15 minutes
   };
+  
+  async function TaskRemoveTaskFromMission(id) {
+    
+    let isExists = compoMission.IsExistsMissionId(id);
+    if (!isExists) return false;
+    
+    compoMission.RemoveMissionById(id);
+  
+    compoMission.Commit();
+  
+    appData.Save();
+    
+    let task = compoTask.GetById(id);
+    if (task.type == 'M') {
+      let deleteIndex = tasks.findIndex(x => x.id == id);
+      tasks.splice(deleteIndex, 1);
+      await appData.TaskStoreTask();
+    }
+    
+  }
+  
+  async function TaskAddToMission(id, parentEl) {
+    
+    let isExists = compoMission.IsExistsMissionId(id);
+    let isTaskDeleted = false;
+    
+    if (isExists) {
+      // remove from mission
+      compoMission.RemoveMissionById(id);
+      parentEl.stateList.remove('--is-mission');
+      if (isViewModeMission()) {
+        parentEl.remove();
+      }
+      
+      let task = compoTask.GetById(id);
+      if (task.type == 'M') {
+        isTaskDeleted = true;
+      }
+      
+    } else {
+      // add to mission
+      let missionData = compoMission.CreateItemMission(id);
+      compoMission.AddMission(missionData);
+      parentEl.stateList.add('--is-mission');
+    }
+  
+    compoMission.Commit();
+  
+    appData.Save();
+    
+    if (isTaskDeleted) {
+      let isBypassConfirm = true;
+      await app.TaskDeleteTask(id, parentEl, isBypassConfirm);
+    }
+    
+  }
   
   function ToggleStartTimerAvailableTime() {
     let isTimerRunning = document.body.stateList.contains('--timer-running');
@@ -1970,11 +2000,20 @@ let app = (function () {
     
     for (let el of $$('[data-container="sequence-tasks"]')) {
       new Sortable(el, {
+        group: 'shared',
         handle: '.handle',
         animation: 150,
         onEnd: onEndSortSequence,
       });
     }
+    
+    // new Sortable($('#tasklist'), {
+    //   group: 'shared',
+    //   // handle: '.handle',
+    //   sort: false,
+    //   animation: 150,
+    //   // onEnd: onEndSortSequence,
+    // });
     
     await setActiveTask();
   }
@@ -2589,6 +2628,7 @@ let app = (function () {
 
     switch (actionRole) {
       case 'add-to-sequence': ui.TaskLinkTaskWithIdToActiveSequence(id); break;
+      case 'move-to-sequence': ui.TaskMoveTaskWithIdToActiveSequence(id); break;
       case 'save-to-collection': ui.TaskSaveTaskWithIdToSequence(id); break;
       case 'pick-collection': ui.PickCollection(); break;
       case 'reset-count-active-seq': compoTask.TaskResetSequenceCountByTaskId(id); break;
@@ -2615,8 +2655,8 @@ let app = (function () {
       case 'add-sub-timer': addSubTimer(id); break;
       case 'add-progress-minutes': await app.TaskAddProgressManually(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
-      case 'remove-mission': taskAddToMission(id, parentEl); break;
-      case 'add-to-mission': taskAddToMission(id, parentEl); break;
+      case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
+      case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;
       case 'set-target': await setTaskTarget(id); break;
       case 'archive':
         let activeTask = await getActiveTask();
@@ -2684,6 +2724,7 @@ let app = (function () {
       taskId = addTaskData({
         title: form.title.value,
         target: parseHoursMinutesToMinutes(targetVal),
+        targetTime: parseHmsToMs(form.targetTime.value),
         parentId: parentId ? parentId : '',
         type: form.taskType.value,
       });

@@ -20,16 +20,14 @@ let viewStates = [
   // task item
   {
     group: 'task',
-    states: ['sequence', 'manage-sequence', 'sequence-added'],
+    states: ['sequence', 'manage-sequence', 'sequence-added', 'collection-only'],
     inverseStates: ['sequence', 'manage-sequence', 'collection-only', 'sequence-added']
   },
   // task lists
   {
     group: 'task-view-mode',
     states: [
-      'task',
-      'mission',
-      'filter-target',
+      'task', 'mission', 'filter-target',
     ],
     inverseStates: [
       'filter-target',
@@ -68,7 +66,7 @@ let viewStates = [
   {
     group: 'form-task',
     states: [
-      'add', 'edit', 'mission-tab',
+      'add', 'edit', 'collection-only',
     ],
     inverseStates: [
       'collection-only',

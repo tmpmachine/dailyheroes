@@ -1,5 +1,9 @@
-.justify-content-center{justify-content:center}.align-items-center{align-items:center}.justify-content-end{justify-content:end}.flex-column{flex-direction:column}.justify-content-between{justify-content:space-between}
-.d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-none{display:none}.d-block{display:block}.d-inline-flex{display:inline-flex}
+.justify-content-center{justify-content:center}.justify-content-end{justify-content:end}.justify-content-between{justify-content:space-between}
+.align-items-center{align-items:center}.align-items-baseline{align-items:baseline}
+.flex-column{flex-direction:column}
+.d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-block{display:block}.d-inline-flex{display:inline-flex}
+.d-none{display:none}
+.obsoletes{display:none!important;height:0!important;width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important}
 .flex-wrap{flex-wrap:wrap}
 .flex-1{flex:1}
 .font-weight-bold{font-weight:bold}

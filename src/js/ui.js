@@ -4,6 +4,7 @@ let ui = (function () {
   
   let SELF = {
     TaskLinkTaskWithIdToActiveSequence,
+    TaskMoveTaskWithIdToActiveSequence,
     TaskLinkTaskToSequenceByTaskIdInteractiveMode,
     TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
@@ -50,6 +51,13 @@ let ui = (function () {
     ToggleExpandSequenceTask,
     FinishInteractiveSequencePick,
   };
+  
+  function removeTaskEl(id) {
+    let el = $(`[data-obj="task"][data-id="${id}"]`);
+    if (!el) return;
+    
+    el.remove();
+  }
   
   function FinishInteractiveSequencePick() {
     data.prePickCollectionId = null;
@@ -130,6 +138,19 @@ let ui = (function () {
     viewStateUtil.Add('features', ['interactive-sequence-task-pick']);
   }
   
+  async function TaskMoveTaskWithIdToActiveSequence(id) {
+    
+    if (data.prePickCollectionId == id) {
+      alert('Cannot self-linking task as sequence. Try picking another task.');
+      return;
+    }
+    
+    await TaskLinkTaskWithIdToActiveSequence(id);
+    
+    await app.TaskRemoveTaskFromMission(id);
+    removeTaskEl(id);
+  }
+  
   async function TaskLinkTaskWithIdToActiveSequence(id) {
 
     if (data.prePickCollectionId == id) {
@@ -151,6 +172,8 @@ let ui = (function () {
       
     let taskEl = $(`#tasklist-container [data-obj="task"][data-id="${id}"]`);
     viewStateUtil.Add('task', ['sequence-added'], taskEl);
+    
+    RefreshListSequenceByTaskId(data.prePickCollectionId);
     
   }
   

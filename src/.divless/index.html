@@ -215,7 +215,7 @@
           ][ .default-gap]
           
           <!-- # sequence generator -->
-          [ data-view-group="task-view-mode" data-view-name="mission"
+          [ data-view-group="task-view-mode" data-view-name="mission" .obsoletes
             [btn 'Convert collection to sequence *' data-onclick="convert-collection-sequence"]
             [
               [small '*) Root task only']
@@ -595,19 +595,21 @@
   	    [
   	    
   	      <!-- # task info (title) -->
-      	  <div class="d-flex justify-content-between">
-      	    [
+      	  [ .d-flex .justify-content-between {gap:0.3rem}
+      	    [ .flex-1
         	    [ data-slot="missionPath" data-slot-html]
         	    <span class="title" data-slot="title"></span>
       	    ]
-      	    [ .d-none
-      	      <span data-slot="label"></span>
+      	    [ .obsoletes
+        	    [ .d-none
+        	      <span data-slot="label"></span>
+        	    ]
+              [ {fs:0.7rem}
+                <span data-slot="rankLabel"></span>
+                [s .label-finish-count]
+              ]
       	    ]
-            [ {fs:0.7rem}
-              <span data-slot="rankLabel"></span>
-              [s .label-finish-count]
-            ]
-      	  </div>
+      	  ]
       	  
       	  [ .mb-m]
       	  
@@ -638,9 +640,9 @@
     	    
     	    <!-- # collection save button (old) -->
     	    [ data-view-group="features" data-view-name="interactive-sequence-task-pick"
-      	    [ .d-flex .justify-content-end
-        	    [btn 'Add to sequence' data-role="add-to-sequence" data-view-group="task" data-view-name-not="sequence-added"]
-        	    [btn 'Added' data-view-group="task" data-view-name="sequence-added"]
+      	    [ .d-flex .justify-content-end .flex-column {gap:0.3rem}
+        	    [btn 'Add to sequence' data-role="add-to-sequence"]
+        	    [btn 'Move to sequence' data-role="move-to-sequence" data-view-group="task-view-mode" data-view-name="mission"]
       	    ]
     	    ]
     	    
@@ -708,7 +710,7 @@
       [ .d-flex
         
         <!-- # sequence drag handle -->
-        [ data-view-group="task" data-view-name="manage-sequence"
+        [ 
           [ .d-flex .align-items-center .handle {pl:4px} .h-100
             [s .icon-mate 'drag_indicator']
           ]
@@ -735,8 +737,10 @@
         ]
         
         <!-- # sequence manage actions -->
-        [ {p:4px 8px} data-view-group="task" data-view-name="manage-sequence"
-          [btn 'delete' data-role="delete-sequence-task" .icon-mate title="Delete"]
+        [ {p:4px 8px} .d-flex {gap:0.3rem} .align-items-center
+          [ data-view-group="task" data-view-name="manage-sequence"
+            [btn 'delete' data-role="delete-sequence-task" .icon-mate title="Delete"]
+          ]
           [btn 'edit' data-role="edit-sequence-task" .icon-mate title="Edit"]
         ]
       ]
@@ -753,8 +757,13 @@
       ] 
       <!-- # actions mission -->
       [ .d-flex 
-        <button data-role='add-to-mission' class="icon-mate" title='Add to collection'>playlist_add</button>
-        <button data-role='remove-mission' class="icon-mate" title='Remove from collection'>playlist_remove</button>
+        [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection"]
+        [ data-view-group="task" data-view-name-not="collection-only"
+          [btn 'playlist_remove' data-role="remove-mission" class="icon-mate" title="Remove from collection"]
+        ]
+        [ data-view-group="task" data-view-name="collection-only"
+          [btn 'delete' data-role="remove-mission" class="icon-mate" title="Remove from collection"]
+        ]
       ]
       
       [ .d-none
@@ -863,10 +872,10 @@
                 Title <input type="text" name='title' class="input-style-default"/>
               ]
               [
-                Target <input type="text" name='targetTime' class="input-style-default"/>
+                Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
               ]
               [
-                Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
+                Target <input type="text" name='targetTime' class="input-style-default"/>
               ]
               [ .d-none
                 Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
@@ -880,7 +889,7 @@
             [ .default-gap]
             
             <!-- # modal notes -->
-            [small data-view-group="form-task" data-view-name="mission-tab" {fs:0.75rem}
+            [small data-view-group="form-task" data-view-name="collection-only" {fs:0.75rem}
               Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
             ]
             [ .default-gap]
@@ -950,7 +959,7 @@
               [
                 Repeat count <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
               ]
-              [ data-view-group="build" data-view-name="dev"
+              [ data-view-group="build" data-view-name="dev" .obsoletes
                 Repeat rest duration <input type="text" name="repeatRestDurationTimeStr" placeholder="e.g. 30s, 3m, 15m20s" class="input-style-default"/>
               ]
               
