@@ -29,6 +29,10 @@
   box-sizing: border-box;
 }
 
+/* # z-index */
+.main-nav-bar{z-index:1}
+modal-v2{z-index:99}
+
 /* # themes */
 :root {
   --dark: #201e1e;
@@ -48,10 +52,8 @@
   --text-light-color: #22ff3f;
 }
 
-
 body {
   margin: 0;
-  background: white;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif!important ;
 }
 
@@ -93,12 +95,8 @@ body {
   direction: ltr;
 }
 
-html,body{
-  height: max-content;
-}
-
-html, body, .container-app, .container-app-inner {
-  height: 100%;
+.container-app {
+  min-height: 600px;
 }
 
 .padding-container {
@@ -379,11 +377,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
   border-color: #fff900;
 }
 
-/* # task view */
-.container-task-view {
-  background: #f2f2f2;
-}
-
 /* # task */
 [data-kind="task"] .title {
   word-break: break-word;
@@ -433,9 +426,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
 }
 .container-view-mode button.is-active {
   font-weight: bold;
-  border-bottom: 3px solid black;
-  background: #474d5e;
-  color: white;
 }
 .container-view-mode button:not(.is-active) {
   opacity: 0.6;
@@ -503,7 +493,8 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 /* # nav bar */
 .main-nav-bar {
-  background: #0a1128bf;
+  position: sticky;
+  top: 0;
   padding: 0.4rem 0rem;
 }
 

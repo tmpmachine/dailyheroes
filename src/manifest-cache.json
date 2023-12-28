@@ -3,6 +3,12 @@
     "js/lib/sortable@1.15.1.min.js",
     "js/lib/drive-api.js"
   ],
+  "images": [
+    "img/watermark/magic-hero.jpg",
+    "img/watermark/hero-sword.jpg",
+    "img/watermark/hero-shield.jpg",
+    "img/watermark/book-star.jpg"
+  ],
   "components": [
     "js/components/compo-gsi-chrome.js",
     "js/components/tracker-component.js",
@@ -45,6 +51,7 @@
     "css/modal-v2.css",
     
     "css/app.css",
+    "css/theme.css",
     "css/style.css"
   ],
   "root": [

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-100">
 <head>
 
   <title>DailyHeroes</title>
@@ -11,6 +11,7 @@
   <!-- pwa manifest -->
   <link rel="manifest" href="manifest.json"/>
   
+  <link href="css/theme.css" rel="stylesheet"/>
   <link href="css/style.css" rel="stylesheet"/>
   <link href="css/app.css" rel="stylesheet"/>
   
@@ -33,14 +34,14 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body data-view-group="platform auth build" data-view-states="">
+<body data-view-group="platform auth build" data-view-states="" class="h-100 ov-hidden">
   
-  <div class="container-app" style="max-width:500px;margin:auto;">
+  <div class="container-app ov-auto h-100" style="max-width:500px;margin:auto;">
 
-    <div class="d-grid container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:360px;margin:auto;">
+    <div class="d-grid h-100 container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:360px;margin:auto;">
     
       <!-- # screen : home -->
-      <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
+      <section class="container-screen pos-relative container-screen-home" data-view-group="screens" data-view-name="home">
         
         <!-- # navigations-->
         <div class="d-flex justify-content-between main-nav-bar">
@@ -59,18 +60,19 @@
             <div class="separator-vertical"></div>
             <button class="clickable icon-mate btn-border-0" data-callback="navigate-screen" data-view-target="settings">settings</button>
           </div>
-        </div><div class="default-gap"></div>
+        </div>
 
         
         <!-- # screen body -->
       
-        <div class="d-flex justify-content-between">
-          <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
-        </div>
-        <div class="default-gap"></div>
+        <div class="padding-container bg-white">
         
-        <div class="padding-container">
-        
+          <div class="default-gap"></div>
+          <div class="d-flex justify-content-between">
+            <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
+          </div>
+          <div class="default-gap"></div>
+          
           <!-- # active task container -->
           <div class="d-flex container-active-task" style="gap:0.5rem;">
             
@@ -128,20 +130,25 @@
           
           </div>
           
-        </div>
-        
-        <div class="mb-xs"></div>
-        
-        
-        <div class="d-none">
-          <div style="height:2px;"></div>
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-bar-fill"></div>
-              <span class="progress-bar-text"><span id="percentage"></span></span>
+          <div class="mb-xs"></div>
+          
+          
+          <div class="d-none">
+            <div style="height:2px;"></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar">
+                <div class="progress-bar-fill"></div>
+                <span class="progress-bar-text"><span id="percentage"></span></span>
+              </div>
             </div>
           </div>
+          
+          <div class="default-gap"></div>
+          
         </div>
+        <div class="default-gap"></div>
+        <div class="default-gap"></div>
+        
         
         <!-- TASK LIST -->
         <div data-section="import">
@@ -151,9 +158,6 @@
             <button>import</button>
           </form>
         </div>
-        
-        <div class="mb-m"></div>
-        <div class="default-gap"></div>
 
         <!-- # interactive sequence task pick -->
         <div class="padding-container" data-view-group="features" data-view-name="interactive-sequence-task-pick">
@@ -185,7 +189,6 @@
         
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
-        <div style="padding:0.5rem;">
           
           <!-- # view mode tabs -->
           <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr auto;">
@@ -197,18 +200,20 @@
           </div>
           <div class="default-gap"></div>
           
+        <div class="padding-container">
+        
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
             <div class="d-grid align-items-center" style="gap:0.3rem;grid-template-columns:1fr auto;">
               
               <div class="ov-auto">
-                Collection <select id="in-sel-mission-group" class="changeable" data-callback='on-mission-group-change'></select>
+                <span class="txt">Collection</span> <select id="in-sel-mission-group" class="changeable" data-callback='on-mission-group-change'></select>
                 <div class="mb-xs"></div>
               </div>
               
               <div class="d-flex" style="gap:0.3rem;">
-                <button class="icon-mate" data-onclick="new-collection">add</button>
-                <button class="clickable" data-callback="navigate-screen" data-view-target="collections">Manage</button>
+                <button class="icon-mate bg-white" data-onclick="new-collection">add</button>
+                <button class="clickable bg-white" data-callback="navigate-screen" data-view-target="collections">Manage</button>
               </div>
               
             </div><div class="mb-m"></div>
@@ -228,7 +233,7 @@
             <div class="d-flex align-items-center user-select-none">
               <input class="inputable" type='checkbox' id='labeled-by-showtarget' data-callback="toggle-show-target-only"/> 
               <label class="d-flex align-items-center" for='labeled-by-showtarget'>
-                <small>Show only task with target time (>= 10m)</small>
+                <small class="txt">Show only task with target time (>= 10m)</small>
               </label>
             </div>
             <div style="margin-bottom:0.5rem;"></div>
@@ -261,7 +266,7 @@
             <div class="d-flex align-items-center user-select-none">
               <input class="inputable" type='checkbox' id='labeled-by-sortbyprogress' data-callback="toggle-sort-by-progress"/> 
               <label class="d-flex align-items-center" for='labeled-by-sortbyprogress'>
-                <small>Ascending sort by total progress time</small>
+                <small class="txt">Ascending sort by total progress time</small>
               </label>
             </div>
             <div style="margin-bottom:0.5rem;"></div>
@@ -293,8 +298,8 @@
               <div>
                 <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
                   <span class="icon-mate" style="font-size:2.2rem;">add</span>
-                  <div class="pos-absolute" style="bottom:-17px;">
-                    <small class="text-center" data-view-group="platform" data-view-name="web">(Alt+N)</small>
+                  <div class="pos-absolute" style="bottom:6px;">
+                    <small class="text-center" data-view-group="platform" data-view-name="web" style="font-size:0.5rem;">(Alt+N)</small>
                   </div>
                 </button>
               </div>
@@ -304,36 +309,45 @@
           </div>
         
         </div>
-        </section>
         
         <!-- # add task -->
         <!-- empty gap for floating button -->
         <div style="height:76px;"></div> 
         
+        </section>
+        
+        
       </section>
       
       <!-- # collections screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="collections">
+      <div class="d-grid h-100 pos-relative" style="grid-template-rows:auto 1fr;">
+      
+        <!-- # overlay background -->
+        <div class="overlay-bg-default overlay-bg-collections"></div>
         
-        <div class="d-flex align-items-center container-screen-title" style="gap:1rem;">
+        <div class="d-flex align-items-center container-screen-title pos-relative" style="gap:1rem;">
           <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Collections</div>
         </div>
         
-        <div class="default-gap"></div>
-        <div class="default-gap"></div>
-
-
         <!-- ## screen body -->
-        <div class="padding-container">
+        <div class="padding-container pos-relative">
+        
+          <div class="default-gap"></div>
+          <div class="default-gap"></div>
+          
           <button data-onclick='new-collection'>New collection</button>
+          
+          <div class="default-gap"></div>
+          <div class="default-gap"></div>
+          
+          <!-- ### list collection -->
+          <div data-container="list-collection" data-onclick="handle-click-list-collection"></div>
+          
         </div>
-        <div class="default-gap"></div>
-        <div class="default-gap"></div>
-        
-        <!-- ### list collection -->
-        <div data-container="list-collection" data-onclick="handle-click-list-collection"></div>
-        
+      
+      </div>
       </section>
         
       
@@ -344,13 +358,13 @@
           <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Trackers</div>
         </div>
-        
-        <div class="default-gap"></div>
-        <div class="default-gap"></div>
 
         <!-- # screen body -->
-        <div class="padding-container">
+        <div class="padding-container bg-white">
         
+          <div class="default-gap"></div>
+          <div class="default-gap"></div>
+          
           <button class="clickable" data-callback='new-tracker'>New tracker</button>
           
           <!-- # container trackers -->
@@ -361,48 +375,58 @@
       </section>
       
       <!-- # priority mapper screen -->
-      <section class="container-screen" data-view-group="screens" data-view-name="priority-mapper">
+      <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="priority-mapper">
+      <div class="d-grid h-100" style="grid-template-rows:auto 1fr;">
+      
+        <!-- # overlay background -->
+        <div class="overlay-bg-default overlay-bg-priority-mapper"></div>
         
-        <div class="d-flex align-items-center container-screen-title" style="gap:1rem;">
+        <div class="d-flex align-items-center container-screen-title pos-relative" style="gap:1rem;">
           <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Priority Mapper</div>
         </div>
         
-        <div class="default-gap"></div>
-        <div class="default-gap"></div>
+        <!-- # screen body -->
+        <div class="padding-container pos-relative">
         
-        <div class="padding-container">
-        
-          <div class="d-flex justify-content-end">
-            <button class="clickable" data-callback='save-priority-mapper'>Save</button>
-          </div>
-          <div class="default-gap"></div>
-          
-          <small>Guide : Adjust the slider for each task to determine its priority relative to the other tasks.</small>
           <div class="default-gap"></div>
           <div class="default-gap"></div>
           
-          <!-- # priority mapper items container -->
-          <div class="d-flex justify-content-end">
-            <small style="font-weight:bold;">ROP (Ratio Of Priority)</small>
+          <div class="pos-relative">
+            <div class="d-flex justify-content-end">
+              <button class="clickable" data-callback='save-priority-mapper'>Save</button>
+            </div>
+            <div class="default-gap"></div>
+            
+            <small>Guide : Adjust the slider for each task to determine its priority relative to the other tasks.</small>
+            <div class="default-gap"></div>
+            <div class="default-gap"></div>
+            
+            <!-- # priority mapper items container -->
+            <div class="d-flex justify-content-end">
+              <small style="font-weight:bold;">ROP (Ratio Of Priority)</small>
+            </div>
+            <div style="border-bottom:1px solid grey;margin:4px 0;opacity:0.2;"></div>
+            <div class="inputable" data-container="list-priority-mapper" data-callback="handle-input-priority-slider"></div>
           </div>
-          <div style="border-bottom:1px solid grey;margin:4px 0;opacity:0.2;"></div>
-          <div class="inputable" data-container="list-priority-mapper" data-callback="handle-input-priority-slider"></div>
-        
+          
         </div>
-        
+      
+      </div>
       </section>
       
       <!-- # settings screen -->
-      <section class="container-screen" data-view-group="screens" data-view-name="settings">
-      
-        <div class="d-flex align-items-center container-screen-title" style="gap:1rem;">
+      <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="settings">
+      <div class="d-grid h-100 pos-relative" style="grid-template-rows:auto 1fr;">
+        
+        <div class="d-flex align-items-center container-screen-title pos-relative" style="gap:1rem;">
           <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
           <div style="font-weight:bold;">Settings</div>
         </div>
         
+        
         <!-- # screen body -->
-        <div class="padding-container">
+        <div class="padding-container pos-relative">
         
           <div class="default-gap"></div>
           <div class="default-gap"></div>
@@ -490,6 +514,8 @@
           <div class="default-gap"></div>
         
         </div>
+        
+      </div>
       </section>
       
     
@@ -843,9 +869,14 @@
   <!-- # task modal -->
   <modal-v2 id="task-modal" data-view-group="form-task" data-view-states="add">
     <div class="modal" slot="content">
+      
       <!-- modal content-->
-      <div class="ov-auto">
-        <div style="padding:1rem;">
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        <div class="overlay-bg-default overlay-bg-task"></div>
+        
+        <div class="pos-relative" style="padding:1rem;">
 
           <div class="text-center">
             <h2 class="mt-0" data-view-group="form-task" data-view-name="add">New Task</h2>
@@ -918,6 +949,7 @@
           </form>
 
         </div>
+        
       </div>
     </div>
   </modal-v2>
@@ -925,15 +957,19 @@
   <!-- # sequence task modal  -->
   <modal-v2 id="task-sequence-modal" data-view-group="form-task-sequence" data-view-states="add">
     <div class="modal" slot="content">
+      
       <!-- modal content-->
-      <div class="ov-auto">
-        <div style="padding:1rem;">
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        <div class="overlay-bg-default overlay-bg-sequence-task"></div>
+        
+        <div style="padding:1rem;" class="pos-relative">
 
           <div class="text-center">
             <h2 class="mt-0" data-view-group="form-task-sequence" data-view-name="add">Add Sequence Task</h2>
             <h2 class="mt-0" data-view-group="form-task-sequence" data-view-name="edit">Edit Sequence Task</h2>
           </div>
-          <hr class="separator-hr"/>
           
           <div class="default-gap"></div>
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">

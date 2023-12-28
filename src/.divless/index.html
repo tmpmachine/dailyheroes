@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-100">
 <head>
 
   <title>DailyHeroes</title>
@@ -11,6 +11,7 @@
   <!-- pwa manifest -->
   <link rel="manifest" href="manifest.json"/>
   
+  <link href="css/theme.css" rel="stylesheet"/>
   <link href="css/style.css" rel="stylesheet"/>
   <link href="css/app.css" rel="stylesheet"/>
   
@@ -33,14 +34,14 @@
   <script src="js/web-components/modal-v2.js"></script>
   
 </head>
-<body data-view-group="platform auth build" data-view-states="">
+<body data-view-group="platform auth build" data-view-states="" class="h-100 ov-hidden">
   
-  [ {max-width:500px;m:auto} .container-app
+  [ {max-width:500px;m:auto} .container-app .ov-auto .h-100
 
-    [ {max-width:100%;min-width:360px;margin:auto;} .d-grid .container-app-inner data-view-group="screens features" data-view-states="home"
+    [ {max-width:100%;min-width:360px;margin:auto;} .d-grid .h-100 .container-app-inner data-view-group="screens features" data-view-states="home"
     
       <!-- # screen : home -->
-      <section class="container-screen pos-relative" data-view-group="screens" data-view-name="home">
+      <section class="container-screen pos-relative container-screen-home" data-view-group="screens" data-view-name="home">
         
         <!-- # navigations-->
         [ .d-flex .justify-content-between .main-nav-bar
@@ -59,18 +60,19 @@
             [ .separator-vertical]
             [btn .clickable data-callback="navigate-screen" data-view-target="settings" .icon-mate 'settings' .btn-border-0]
           ]
-        ][ .default-gap]
+        ]
 
         
         <!-- # screen body -->
       
-        <div class="d-flex justify-content-between">
-          <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
-        </div>
-        <div class="default-gap"></div>
+        [ .padding-container .bg-white
         
-        [ .padding-container
-        
+          [ .default-gap]
+          <div class="d-flex justify-content-between">
+            <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
+          </div>
+          <div class="default-gap"></div>
+          
           <!-- # active task container -->
           [ .d-flex {gap:0.5rem} .container-active-task
             
@@ -128,20 +130,25 @@
           
           ]
           
-        ]
-        
-        [ .mb-xs]
-        
-        
-        [ .d-none
-          <div style="height:2px;"></div>
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-bar-fill"></div>
-              <span class="progress-bar-text"><span id="percentage"></span></span>
+          [ .mb-xs]
+          
+          
+          [ .d-none
+            <div style="height:2px;"></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar">
+                <div class="progress-bar-fill"></div>
+                <span class="progress-bar-text"><span id="percentage"></span></span>
+              </div>
             </div>
-          </div>
+          ]
+          
+          [ .default-gap]
+          
         ]
+        [ .default-gap]
+        [ .default-gap]
+        
         
         <!-- TASK LIST -->
         <div data-section="import">
@@ -151,9 +158,6 @@
             <button>import</button>
           </form>
         </div>
-        
-        [ .mb-m]
-        [ .default-gap]
 
         <!-- # interactive sequence task pick -->
         [ data-view-group="features" data-view-name="interactive-sequence-task-pick" .padding-container
@@ -185,7 +189,6 @@
         
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
-        [ {p:0.5rem}
           
           <!-- # view mode tabs -->
           [ .d-grid {cols:1fr 1fr auto} .container-view-mode
@@ -197,18 +200,20 @@
           ]
           <div class="default-gap"></div>
           
+        [ .padding-container
+        
           <!-- # mission collection -->
           [ data-view-group="task-view-mode" data-view-name="mission"
             [ .d-grid {gap:0.3rem} {cols:1fr auto} .align-items-center
               
               [ .ov-auto
-                Collection [sel #in-sel-mission-group .changeable data-callback='on-mission-group-change']
+                [s .txt 'Collection'] [sel #in-sel-mission-group .changeable data-callback='on-mission-group-change']
                 [ .mb-xs]
               ]
               
               [ .d-flex {gap:0.3rem}
-                [btn data-onclick="new-collection" .icon-mate 'add']
-                [btn 'Manage' data-callback="navigate-screen" data-view-target="collections" .clickable]
+                [btn data-onclick="new-collection" .icon-mate 'add' .bg-white]
+                [btn 'Manage' data-callback="navigate-screen" data-view-target="collections" .clickable .bg-white]
               ]
               
             ][ .mb-m]
@@ -228,7 +233,7 @@
             [ .d-flex .align-items-center .user-select-none
               [in type='checkbox' id='labeled-by-showtarget' .inputable data-callback="toggle-show-target-only"] 
               [l for='labeled-by-showtarget' .d-flex .align-items-center
-                [small 'Show only task with target time (>= 10m)']
+                [small .txt 'Show only task with target time (>= 10m)']
               ]
             ]
             [ {mb:0.5rem}]
@@ -261,7 +266,7 @@
             [ .d-flex .align-items-center .user-select-none
               [in type='checkbox' id='labeled-by-sortbyprogress' .inputable data-callback="toggle-sort-by-progress"] 
               [l for='labeled-by-sortbyprogress' .d-flex .align-items-center
-                [small 'Ascending sort by total progress time']
+                [small .txt 'Ascending sort by total progress time']
               ]
             ]
             [ {mb:0.5rem}]
@@ -293,8 +298,8 @@
               [
                 <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
                   [s .icon-mate 'add' {fs:2.2rem}]
-                  [ .pos-absolute {b:-17px}
-                    [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center]
+                  [ .pos-absolute {b:6px}
+                    [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center {fs:0.5rem}]
                   ]
                 </button>
               ]
@@ -304,36 +309,45 @@
           ]
         
         ]
-        </section>
         
         <!-- # add task -->
         <!-- empty gap for floating button -->
         [ {h:76px}] 
         
+        </section>
+        
+        
       </section>
       
       <!-- # collections screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="collections">
+      [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
+      
+        <!-- # overlay background -->
+        [ .overlay-bg-default .overlay-bg-collections]
         
-        [ .d-flex {gap:1rem} .align-items-center .container-screen-title
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-relative
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Collections' {fw:bold}]
         ]
         
-        [ .default-gap]
-        [ .default-gap]
-
-
         <!-- ## screen body -->
-        [ .padding-container
+        [ .padding-container .pos-relative
+        
+          [ .default-gap]
+          [ .default-gap]
+          
           [btn 'New collection' data-onclick='new-collection']
+          
+          [ .default-gap]
+          [ .default-gap]
+          
+          <!-- ### list collection -->
+          [ data-container="list-collection" data-onclick="handle-click-list-collection"]
+          
         ]
-        [ .default-gap]
-        [ .default-gap]
-        
-        <!-- ### list collection -->
-        [ data-container="list-collection" data-onclick="handle-click-list-collection"]
-        
+      
+      ]
       </section>
         
       
@@ -344,13 +358,13 @@
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Trackers' {fw:bold}]
         ]
-        
-        [ .default-gap]
-        [ .default-gap]
 
         <!-- # screen body -->
-        [ .padding-container
+        [ .padding-container .bg-white
         
+          [ .default-gap]
+          [ .default-gap]
+          
           [btn 'New tracker' .clickable data-callback='new-tracker']
           
           <!-- # container trackers -->
@@ -361,48 +375,58 @@
       </section>
       
       <!-- # priority mapper screen -->
-      <section class="container-screen" data-view-group="screens" data-view-name="priority-mapper">
+      <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="priority-mapper">
+      [ .d-grid .h-100 {rows:auto 1fr}
+      
+        <!-- # overlay background -->
+        [ .overlay-bg-default .overlay-bg-priority-mapper]
         
-        [ .d-flex {gap:1rem} .align-items-center .container-screen-title
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-relative
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Priority Mapper' {fw:bold}]
         ]
         
-        [ .default-gap]
-        [ .default-gap]
+        <!-- # screen body -->
+        [ .padding-container .pos-relative
         
-        [ .padding-container
-        
-          [ .d-flex .justify-content-end
-            [btn 'Save' .clickable data-callback='save-priority-mapper']
-          ]
-          [ .default-gap]
-          
-          [small 'Guide : Adjust the slider for each task to determine its priority relative to the other tasks.']
           [ .default-gap]
           [ .default-gap]
           
-          <!-- # priority mapper items container -->
-          [ .d-flex .justify-content-end
-            [small 'ROP (Ratio Of Priority)' {fw:bold}]
+          [ .pos-relative
+            [ .d-flex .justify-content-end
+              [btn 'Save' .clickable data-callback='save-priority-mapper']
+            ]
+            [ .default-gap]
+            
+            [small 'Guide : Adjust the slider for each task to determine its priority relative to the other tasks.']
+            [ .default-gap]
+            [ .default-gap]
+            
+            <!-- # priority mapper items container -->
+            [ .d-flex .justify-content-end
+              [small 'ROP (Ratio Of Priority)' {fw:bold}]
+            ]
+            [ {border-bottom:1px solid grey} {m:4px 0} {op:0.2}]
+            [ data-container="list-priority-mapper" .inputable data-callback="handle-input-priority-slider"]
           ]
-          [ {border-bottom:1px solid grey} {m:4px 0} {op:0.2}]
-          [ data-container="list-priority-mapper" .inputable data-callback="handle-input-priority-slider"]
-        
+          
         ]
-        
+      
+      ]
       </section>
       
       <!-- # settings screen -->
-      <section class="container-screen" data-view-group="screens" data-view-name="settings">
-      
-        [ .d-flex {gap:1rem} .align-items-center .container-screen-title
+      <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="settings">
+      [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
+        
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-relative
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Settings' {fw:bold}]
         ]
         
+        
         <!-- # screen body -->
-        [ .padding-container
+        [ .padding-container .pos-relative
         
           [ .default-gap]
           [ .default-gap]
@@ -490,6 +514,8 @@
           [ .default-gap]
         
         ]
+        
+      ]
       </section>
       
     
@@ -843,9 +869,14 @@
   <!-- # task modal -->
   <modal-v2 id="task-modal" data-view-group="form-task" data-view-states="add">
     <div class="modal" slot="content">
+      
       <!-- modal content-->
-      <div class="ov-auto">
-        <div style="padding:1rem;">
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        [ .overlay-bg-default .overlay-bg-task]
+        
+        [ {p:1rem} .pos-relative
 
           [ .text-center
             [h2 'New Task' data-view-group="form-task" data-view-name="add" .mt-0]
@@ -917,7 +948,8 @@
             
           </form>
 
-        </div>
+        ]
+        
       </div>
     </div>
   </modal-v2>
@@ -925,15 +957,19 @@
   <!-- # sequence task modal  -->
   <modal-v2 id="task-sequence-modal" data-view-group="form-task-sequence" data-view-states="add">
     <div class="modal" slot="content">
+      
       <!-- modal content-->
-      <div class="ov-auto">
-        <div style="padding:1rem;">
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        [ .overlay-bg-default .overlay-bg-sequence-task]
+        
+        <div style="padding:1rem;" class="pos-relative">
 
           [ .text-center
             [h2 'Add Sequence Task' data-view-group="form-task-sequence" data-view-name="add" .mt-0]
             [h2 'Edit Sequence Task' data-view-group="form-task-sequence" data-view-name="edit" .mt-0]
           ]
-          [hr .separator-hr]
           
           <div class="default-gap"></div>
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
