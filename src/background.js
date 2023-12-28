@@ -420,6 +420,7 @@ async function onAlarmEnded(alarm) {
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
   let repeatCountStr = '';
+  let taskTargetTimeStr = '';
   
   if (data.activeTask) {
     
@@ -457,6 +458,7 @@ async function onAlarmEnded(alarm) {
           let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
           if (linkedTask) {
             sequenceTaskTitle = linkedTask.title;
+            taskTargetTimeStr = `(${ secondsToHMS(msToSeconds(linkedTask.targetTime)) } left)`;
           }
         }
         
@@ -484,7 +486,7 @@ async function onAlarmEnded(alarm) {
     
     tag = 'active-sequence-task';
     notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
-    notifBody = `Next : ${sequenceTaskTitle}`;
+    notifBody = `Next : ${sequenceTaskTitle} ${taskTargetTimeStr}`.trim();
   } else if (!isRepeatCountFinished) {
     actions.push({
       action: 'restart',

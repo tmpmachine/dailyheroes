@@ -357,6 +357,8 @@ async function sendNotification() {
   let sequenceTask = compoSequence.GetActive();
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
+  let taskTargetTimeStr = '';
+  
   if (sequenceTask) {
     sequenceTaskTitle = sequenceTask.title;
     
@@ -364,6 +366,7 @@ async function sendNotification() {
       let linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
       if (linkedTask) {
         sequenceTaskTitle = linkedTask.title;
+        taskTargetTimeStr = `(${ secondsToHMS(msToSeconds(linkedTask.targetTime)) } left)`;
       }
     }
     
@@ -388,8 +391,8 @@ async function sendNotification() {
         notif.close();
       }
         
-      let notifTitle = `Time's up! ${timeStreakStr}`.trim();
-      let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle}`;
+      let notifTitle = `Time's up! ${timeStreakStr}`.replace(/ +/g,' ').trim();
+      let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle} ${taskTargetTimeStr}`.replace(/ +/g,' ').trim();
       
       registration.showNotification(notifTitle, {
         body: notifBody,
