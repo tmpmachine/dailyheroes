@@ -36,24 +36,9 @@ let DOMEvents = (function() {
         app.TaskListTask();
       },
       
-      'open-task-into-view': () => taskOpenTaskIntoView(),
-  		'export-tasks': () => exportTasks(),
-  		'import-tasks': () => document.body.stateList.toggle('--import-mode'),
+      'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
   		
-  		'reset-progress': async () => {
-  			// if (!window.confirm('Are you sure?')) return;
-  			
-  			await window.service.SetData({ 'history': 0 });
-  			await window.service.RemoveData('rest');
-  			clearTaskHistory();
-  			if (window.modeChromeExtension) {
-  				await app.TaskListTask();
-  			} else {
-  				await app.TaskListTask();
-  				location.reload();
-  			}
-  		},
   		'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
   		
   		'stop-timer': () => app.TaskStopActiveTask(),
@@ -125,31 +110,6 @@ let DOMEvents = (function() {
     		addNote(form);
     		let modal = form.closest('.is-modal');
     		modal.close();
-      },
-  	  'import-tasks': async (ev) => {
-  	    ev.preventDefault();
-  	    let form = ev.target;
-  		const formData = new FormData(form);
-  		let taskString = formData.get('tasksString');
-  		let tasksList = taskString.trim().split('\n')
-  		.map(x => x.trim().split('- [ ] ')[1]);
-  		let data = parseList(tasksList);
-  		
-  		for (let d of data) {
-  			addTaskData({
-  			title: d.title,
-  			target: parseHoursMinutesToMinutes(d.duration),
-  			});
-  		}
-  		
-  		form.reset();
-  		await appData.TaskStoreTask();
-  		app.TaskListTask();
-  		// const data = {};
-  		// data.title = formData.get('title') || null;
-  		// data.ratio = parseFloat(formData.get('ratio')) || null;
-  		// data.duration = parseInt(formData.get('duration')) || null;
-  		// return data;
       },
   	  
   	},

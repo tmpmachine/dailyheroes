@@ -51,7 +51,18 @@ let ui = (function () {
     ToggleManageSequenceByTaskId,
     ToggleExpandSequenceTask,
     FinishInteractiveSequencePick,
+    TaskOpenTaskIntoView,
   };
+  
+  async function TaskOpenTaskIntoView() {
+    let activeTask = await getActiveTask();
+    if (!activeTask) return;
+    
+    lsdb.data.viewMode = 'tasks';
+    lsdb.save();
+    ui.Navigate(activeTask.parentId);
+    await app.TaskListTask();
+  }
   
   function removeTaskEl(id) {
     let el = getTaskElById(id);

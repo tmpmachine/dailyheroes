@@ -68,9 +68,6 @@
         [ .padding-container .bg-white
         
           [ .default-gap]
-          <div class="d-flex justify-content-between">
-            <button class='clickable d-none' data-callback='reset-progress'>Reset Progress</button>
-          </div>
           <div class="default-gap"></div>
           
           <!-- # active task container -->
@@ -148,16 +145,6 @@
         ]
         [ .default-gap]
         [ .default-gap]
-        
-        
-        <!-- TASK LIST -->
-        <div data-section="import">
-          import goes here
-          <form class="submittable d-grid" data-callback='import-tasks'>
-            <textarea name='tasksString'></textarea>
-            <button>import</button>
-          </form>
-        </div>
 
         <!-- # interactive sequence task pick -->
         [ data-view-group="features" data-view-name="interactive-sequence-task-pick" .padding-container

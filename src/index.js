@@ -40,6 +40,7 @@ window.componentLoader.load([
   },
   {
     urls: [
+      "js/utils/helper.js",
       "js/app-data.js",
       "js/utils/uuidv4-util.js",
       
@@ -48,7 +49,7 @@ window.componentLoader.load([
       "js/components/mission-component.js",
       "js/components/tracker-component.js",
       "js/components/sequence-component.js",
-      "js/components/compo-time-streak.js",
+      "js/components/time-streak-component.js",
     ],
     callback: function() { 
       
@@ -83,7 +84,7 @@ window.componentLoader.load([
   {
     urls: [
       "js/lib/drive-api.js",
-      "js/components/compo-gsi-chrome.js",
+      "js/components/gsi-chrome-component.js",
       "js/components/backup-component.js",
     ],
     callback: function() {

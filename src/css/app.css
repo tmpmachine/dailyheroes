@@ -116,9 +116,9 @@ body[data-state~="--timer-running"] .container-task [data-state~="--active"] [da
 #tasklist [data-group~="archived"],
 #tasklist-completed [data-group~="unarchived"],
 #tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
-#tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"],
-body:not([data-state~="--import-mode"]) [data-section="import"],
-_ {
+#tasklist-container:not([data-state~="--manage-mode"]) [data-role="manage"]
+/*body:not([data-state~="--import-mode"]) [data-section="import"],*/
+{
   display:none
 }
 

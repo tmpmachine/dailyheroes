@@ -1,23 +1,6 @@
 let tasks = [];
 let globalNotification = {};
 
-function copyToClipboard(text) {
-  var node  = document.createElement('textarea');
-  node.value = text;
-  document.body.append(node);
-  node.select();
-  node.setSelectionRange(0, node.value.length);
-  document.execCommand("copy");
-  node.remove();
-  
-  alert('Copied to clipboard');
-}
-
-function exportTasks() {
-  // let listTaskStringExport = tasks.map(task => `- [ ] 1 PM | ${task.title} (${minutesToHoursAndMinutes(task.target)})`).join('\n');
-  let dataString = JSON.stringify(tasks, null, 2);
-  copyToClipboard(dataString);
-}
 
 function generateUniqueId() {
   // Generate a random 8 character string
@@ -32,46 +15,8 @@ function generateUniqueId() {
   return uniqueId;
 }
 
-function parseList(list) {
-  const parsedList = [];
-
-  for (const item of list) {
-    const [time, info] = item.split(" | ");
-    const [title, duration] = info.split(" (");
-
-    parsedList.push({
-      title,
-      duration: duration.replace(")", ""),
-      time,
-    });
-  }
-
-  return parsedList;
-}
-
-
-function timeStringToMinutes(timeStr) {
-  try {
-    const [hours, minutes = "00", meridian] = timeStr.trim().match(/(\d{1,2})(?::(\d{2}))?\s*([AP]M)/).slice(1);
-    // Convert hours to 24-hour format if necessary
-    let hours24 = parseInt(hours, 10);
-    if (meridian === "PM" && hours24 !== 12) {
-      hours24 += 12;
-    } else if (meridian === "AM" && hours24 === 12) {
-      hours24 = 0;
-    }
-  
-    // Calculate the duration in minutes
-    const totalminutes = hours24 * 60 + parseInt(minutes, 10);
-    return totalminutes;
-  } catch (e) {
-    
-  }
-  return null;
-}
-
-
 async function setTimer(duration) {
+  
   let data = await window.service.GetData(["history", "start"]);
   let distanceMinutes = 0;
   let distanceTime = 0;
@@ -116,6 +61,7 @@ async function setTimer(duration) {
   }
   
   updateUI();  
+  
 }
 
 let androidClient = (() => {
@@ -143,42 +89,9 @@ let androidClient = (() => {
   
 })();
 
-async function clearTaskHistory() {
-  for (let task of tasks) {
-    task.progress = 0;
-    task.progressTime = 0;
-  }
-  await appData.TaskStoreTask();
-}
-
-function CheckAndCreateGroups(title, id) {
-  let data = lsdb.data.groups.find(x => x.id == id);
-  if (!data) {
-    let group = lsdb.new('groups', {
-      id,
-      name: title,
-      parentId: lsdb.data.activeGroupId,
-    });
-    lsdb.data.groups.push(group);
-    lsdb.save();
-  } else {
-    console.log('exists');
-  }
-}
 
 function isNumber(input) {
   return /^[0-9]+$/.test(input);
-}
-
-function addTaskData(inputData) {
-
-  let id = generateUniqueId();
-  let data = {...lsdb.new('task', {
-    id,
-  }), ...inputData};
-  tasks.push(data);
-  
-  return id;
 }
 
 function loadSearch() {
@@ -1172,24 +1085,6 @@ async function setTaskTarget(id) {
   loadSearch();
 }
 
-async function editTask(taskId) {
-  let task = await app.getTaskById(taskId);
-  let {id, parentId, title, target, targetTime, finishCount, type} = task;
-  let modalData = {
-    readOnlyId: id,
-    formData: {
-      id,
-      title,
-      target: minutesToHoursAndMinutes(target),
-      targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
-      finishCount,
-      parentId,
-      taskType: type,
-    }
-  };
-  ui.ShowModalAddTask(modalData);
-}
-
 async function removeActiveTask() {
   await window.service.RemoveData(['activeTask']);
 }
@@ -1274,126 +1169,20 @@ function disableAllActive() {
   }
 }
 
-function getActionRole(el) {
-  return (el.matches('[data-role]') ? el.dataset.role : '');
-}
-
-function getObjEl(id) {
-  let els = document.querySelectorAll(`[data-obj="${id}"]`);
-  if (els.length > 0) {
-    if (els.length > 1) {
-      console.error(`Found ${els.length} elements with [data-obj="${id}"]. Returning the first one`);
-    }
-    return els[0];
-  }
-  return null;
-}
-
-function minutesToTimeString(timeInMinutes) {
-  const hours = Math.floor(timeInMinutes / 60);
-  const minutes = timeInMinutes % 60;
-  const period = hours >= 12 ? "PM" : "AM";
-
-  // Convert to 12-hour clock
-  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-
-  return `${('00'+formattedHours).slice(-2)}:${('00'+formattedMinutes).slice(-2)} ${period}`;
-}
 
 function parseHoursMinutesToMinutes(timeString) {
-  if (!timeString) {
-    return null;
-  }
-  
-  const regex = /^(\d+h)?(\d+m)?$/;
-  const match = regex.exec(timeString);
-  
-  let hours = 0;
-  let minutes = 0;
-  
-  if (match[1]) {
-    hours = parseInt(match[1].slice(0, -1));
-  }
-  
-  if (match[2]) {
-    minutes = parseInt(match[2].slice(0, -1));
-  }
-  
-  return (hours * 60) + minutes;
+  return helper.ParseHoursMinutesToMinutes(timeString);
 }
 
 
 function parseHmsToMs(timeString) {
-  
-  if (!timeString) return 0;
-
-  try {
-    const regex = /^(\d+h)?(\d+m)?(\d+s)?$/;
-    const match = regex.exec(timeString);
-  
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
-  
-    if (match[1]) {
-      hours = parseInt(match[1].slice(0, -1));
-    }
-  
-    if (match[2]) {
-      minutes = parseInt(match[2].slice(0, -1));
-    }
-  
-    if (match[3]) {
-      seconds = parseInt(match[3].slice(0, -1));
-    }
-  
-    return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
-    
-  } catch (e) {
-    console.error(e);
-  }
-  
-  return 0;
-  
+  return helper.ParseHmsToMs(timeString);
 }
 
 let timeLeftRatio = [];
 
-
-
 function getGroupById(id) {
-  return lsdb.data.groups.find(x => x.id == id)
-}
-
-
-function getTotalProgressTimeByParentId(parentId) {
-  
-  let taskIds = [];
-  let total = tasks.reduce((a, b) => {
-    if (b.parentId == parentId) {
-      taskIds.push(b.id);
-      return a + b.totalProgressTime;
-    }
-    return a;
-  }, 0);
-  
-  // count until last child
-  for (let id of taskIds) {
-    total += getTotalProgressTimeByParentId(id);    
-  }
-  
-  return total;
-}
-
-async function taskOpenTaskIntoView() {
-  let activeTask = await getActiveTask();
-  if (!activeTask) return;
-  
-  lsdb.data.viewMode = 'tasks';
-  lsdb.save();
-  ui.Navigate(activeTask.parentId);
-  await app.TaskListTask();
+  return lsdb.data.groups.find(x => x.id == id);
 }
 
 
@@ -2173,6 +1962,7 @@ let app = (function () {
   }
   
   async function ResetData() {
+    
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -2199,6 +1989,7 @@ let app = (function () {
       }
       
     });
+    
   }
   
   async function BackupData() {
@@ -2504,7 +2295,6 @@ let app = (function () {
     
   }
   
-    
   async function taskInitAppData() {
     let result = window.service.GetData(['history']);
     if (typeof(result.history) == 'undefined') {
@@ -2618,6 +2408,10 @@ let app = (function () {
     SELF.isCanNotify = isCanNotify;
   }
   
+  function getActionRole(el) {
+    return (el.matches('[data-role]') ? el.dataset.role : '');
+  }
+  
   async function TaskClickHandler(evt, el) {
 
     let actionRole = getActionRole(el);
@@ -2688,6 +2482,24 @@ let app = (function () {
     
   }
   
+  async function editTask(taskId) {
+    let task = await app.getTaskById(taskId);
+    let {id, parentId, title, target, targetTime, finishCount, type} = task;
+    let modalData = {
+      readOnlyId: id,
+      formData: {
+        id,
+        title,
+        target: minutesToHoursAndMinutes(target),
+        targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
+        finishCount,
+        parentId,
+        taskType: type,
+      }
+    };
+    ui.ShowModalAddTask(modalData);
+  }
+  
   function GetTaskById(id) {
     return compoTask.GetById(id);
   }
@@ -2737,7 +2549,7 @@ let app = (function () {
       
       if (parentId) {
         let parentTask = await app.GetTaskById(parentId);
-        await CheckAndCreateGroups(parentTask.title, parentId);
+        await checkAndCreateGroups(parentTask.title, parentId);
       }
     } catch (e) {
       console.error(e);
@@ -2747,6 +2559,32 @@ let app = (function () {
     
     return taskId;
     
+  }
+  
+  function checkAndCreateGroups(title, id) {
+    let data = lsdb.data.groups.find(x => x.id == id);
+    if (!data) {
+      let group = lsdb.new('groups', {
+        id,
+        name: title,
+        parentId: lsdb.data.activeGroupId,
+      });
+      lsdb.data.groups.push(group);
+      lsdb.save();
+    } else {
+      console.log('exists');
+    }
+  }
+  
+  function addTaskData(inputData) {
+  
+    let id = generateUniqueId();
+    let data = {...lsdb.new('task', {
+      id,
+    }), ...inputData};
+    tasks.push(data);
+    
+    return id;
   }
   
   return SELF;
