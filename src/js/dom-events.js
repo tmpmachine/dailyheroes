@@ -74,7 +74,6 @@ let DOMEvents = (function() {
       'stop-tracker': () => uiTracker.StopTracker(),
       'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
       
-      'open-priority-mapper': () => ui.OpenPriorityMapper(),      
       'save-priority-mapper': () => ui.TaskSavePriorityMapper(),
   	},
   	
@@ -164,10 +163,12 @@ let DOMEvents = (function() {
   	},
   	
   	onclick: {
+  	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
   	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),
   	  'new-collection': () => uiCollection.NewItem(),
   	  'handle-click-list-collection': (evt) => uiCollection.HandleClickListContainer(evt),
   	  'open-linked-sequence-from-form': (evt) => ui.OpenLinkedSequenceFromForm(evt),
+  	  'open-linked-sequence-priority-mapper': (evt) => ui.OpenLinkedSequenceInPriorityMapper(evt),
   	  'reset-progress-task-from-form': (evt) => ui.ResetProgressTaskFromForm(evt),
   	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
   	  'convert-collection-sequence': () => ui.TaskConvertCollectionSequence(),

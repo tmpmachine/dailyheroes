@@ -26,10 +26,6 @@
   background: #e2e2e2; 
   /*background: linear-gradient(180deg, #ff8b8b, #ffca81)*/
 }
-[data-obj="task"][data-state~="--is-mission"] [data-role="remove-mission"] {
-  background: #ffcece;
-  border-color: #e59f9f;
-}
 
 [data-obj="task"]:not([data-state~="--is-mission"]) [data-role="remove-mission"],
 [data-obj="task"][data-state~="--is-mission"] [data-role="add-to-mission"],

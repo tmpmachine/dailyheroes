@@ -9,6 +9,7 @@ let ui = (function () {
     TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
     OpenLinkedSequenceFromForm,
+    OpenLinkedSequenceInPriorityMapper,
     DeleteTaskFromForm,
     DeleteSequenceFromForm,
     ShowModalAddTask,
@@ -53,10 +54,17 @@ let ui = (function () {
   };
   
   function removeTaskEl(id) {
-    let el = $(`[data-obj="task"][data-id="${id}"]`);
+    let el = getTaskElById(id);
     if (!el) return;
     
     el.remove();
+  }
+  
+  function getTaskElById(id) {
+    let el = $(`[data-obj="task"][data-id="${id}"]`);
+    if (!el) return null;
+    
+    return el;
   }
   
   function FinishInteractiveSequencePick() {
@@ -231,7 +239,7 @@ let ui = (function () {
     ui.RefreshListSequenceByTaskId(taskId);
   }
   
-  function OpenLinkedSequenceFromForm(evt) {
+  async function OpenLinkedSequenceFromForm(evt) {
     let form = evt.target.form;
     let seqId = form.id.value;
     let taskId = form.taskId.value;
@@ -243,9 +251,39 @@ let ui = (function () {
     let linkedTask = compoTask.GetById(item.linkedTaskId);
     compoSequence.Pop();
     
-    app.TaskNavigateToMission(linkedTask.id);
+    await app.TaskNavigateToMission(linkedTask.id);
+    focusTaskById(linkedTask.id);
     
     $('#task-sequence-modal').close();
+  }
+  
+  async function OpenLinkedSequenceInPriorityMapper(evt) {
+    let form = evt.target.closest('form');
+    let seqId = form.id.value;
+    let taskId = form.taskId.value;
+    
+    let task = compoTask.GetById(taskId);
+    
+    compoSequence.Stash(task.sequenceTasks);
+    let item = compoSequence.GetById(seqId);
+    let linkedTask = compoTask.GetById(item.linkedTaskId);
+    compoSequence.Pop();
+    
+    openPriorityMapperByParentId(linkedTask.parentId);
+    
+    $('#task-sequence-modal').close();
+  }
+  
+  function focusTaskById(id) {
+    let taskEl = getTaskElById(id);
+    if (!taskEl) return;
+    
+    taskEl.classList.add('focused');
+    
+    const container = $('.container-app'); 
+    const targetElement = taskEl;
+    const scrollPosition = targetElement.offsetTop - container.offsetTop;
+    container.scrollTop = scrollPosition;
   }
   
   function DeleteSequenceFromForm(evt) {
@@ -461,14 +499,15 @@ let ui = (function () {
     viewStateUtil.Set('screens', [viewTarget]);
   }
   
-  function OpenPriorityMapper() {
+  function openPriorityMapperByParentId(id) {
     viewStateUtil.Set('screens', ['priority-mapper']);
-    
-    let activeTaskParentId = appData.GetActiveTaskParentId();
-    
-    compoPriorityMapper.Stash(activeTaskParentId);
-    
+    compoPriorityMapper.Stash(id);
     refreshListPriorityItems();
+  }
+  
+  function OpenPriorityMapper() {
+    let activeTaskParentId = appData.GetActiveTaskParentId();
+    openPriorityMapperByParentId(activeTaskParentId);
   }
   
   function HandleInputPrioritySlider(evt) {

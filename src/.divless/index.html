@@ -184,6 +184,7 @@
             Filter by label :
             [in .inputable .input-style-default data-callback="save-label-filter" #in-filter-search-label]
           ]
+          [ .default-gap]
         ]
         <div class="default-gap"></div>
         
@@ -202,6 +203,8 @@
           
         [ .padding-container
         
+          [ .default-gap]
+        
           <!-- # mission collection -->
           [ data-view-group="task-view-mode" data-view-name="mission"
             [ .d-grid {gap:0.3rem} {cols:1fr auto} .align-items-center
@@ -211,13 +214,14 @@
                 [ .mb-xs]
               ]
               
+              <!-- # collection actions -->
               [ .d-flex {gap:0.3rem}
-                [btn data-onclick="new-collection" .icon-mate 'add' .bg-white]
-                [btn 'Manage' data-callback="navigate-screen" data-view-target="collections" .clickable .bg-white]
+                [btn data-onclick="new-collection" .icon-mate 'add' .btn-glass]
+                [btn 'Manage' data-callback="navigate-screen" data-view-target="collections" .clickable .btn-glass]
               ]
               
             ][ .mb-m]
-          ][ .default-gap]
+          ]
           
           <!-- # sequence generator -->
           [ data-view-group="task-view-mode" data-view-name="mission" .obsoletes
@@ -243,7 +247,8 @@
             [ .d-flex .justify-content-between
               [ #container-breadcrumbs .container-breadcrumbs]
               [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-                [btn .clickable .d-flex .align-items-center data-callback="open-priority-mapper" style="gap:0.3rem;" .bg-white
+                <!-- # nav : priority mapper -->
+                [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
                   [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
                 ]
               ]
@@ -435,79 +440,97 @@
             
             <!-- application data -->
             [
-              [ 'Application Data' {fw:bold}][ .mb-m]
-              [
-                <button class="clickable" data-callback="reset-data">Reset data</button>
-              ][ .mb-m]
+              [ 'Application Data' .settings-group-title]
+              [ .mb-m]
+              [ .settings-card-inner
+                [
+                  <button class="clickable" data-callback="reset-data">Reset data</button>
+                ]
+              ]
               
             ][ .default-gap] 
             
             <!-- backup and restore -->
             [
-              [ 'Backup and Restore' {fw:bold}][ .mb-m]
+              [ 'Backup and Restore' .settings-group-title]
+              [ .mb-m]
               
-              [small 'Backup to Google Drive.'][ .mb-m]
-              [ .d-flex {gap:0.3rem}
-                <button class="clickable" data-callback="authorize">Authorize</button>
-                [ data-view-group="auth" data-view-name="authorized"
-                  [btn .clickable data-callback="backup-to-cloud" 'Backup' #btn-cloud-backup]
-                  [btn .clickable data-callback="restore-from-cloud" 'Restore' #btn-cloud-restore]
+              [ .settings-card-inner
+                [small 'Backup to Google Drive.'][ .mb-m]
+                [ .d-flex {gap:0.3rem}
+                  <button class="clickable" data-callback="authorize">Authorize</button>
+                  [ data-view-group="auth" data-view-name="authorized"
+                    [btn .clickable data-callback="backup-to-cloud" 'Backup' #btn-cloud-backup]
+                    [btn .clickable data-callback="restore-from-cloud" 'Restore' #btn-cloud-restore]
+                  ]
+                ]
+                [
+                  [ #txt-backup-status]
+                  [ #txt-restore-status]
+                ][ .mb-m]
+                
+                [small 'Local backup.'][ .mb-m]
+                [ .d-flex {gap:0.3rem}
+                  <button class="clickable" data-callback='backup-data'>Backup</button>
+                  <button class="clickable" data-callback='restore-data'>Restore</button>
                 ]
               ]
-              [
-                [ #txt-backup-status]
-                [ #txt-restore-status]
-              ][ .mb-m]
               
-              [small 'Local backup.'][ .mb-m]
-              [ .d-flex {gap:0.3rem}
-                <button class="clickable" data-callback='backup-data'>Backup</button>
-                <button class="clickable" data-callback='restore-data'>Restore</button>
-              ]
             ][ .default-gap] 
             
             <!-- global preset timer -->
             [
-              [ 'Global Preset Timer' {fw:bold}][ .mb-m]
-              [
+              [ 'Global Preset Timer' .settings-group-title]
+              [ .mb-m]
+              [ .settings-card-inner
                 [s #txt-global-preset-timer] <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
-              ][ .mb-m]
+              ]
               
             ][ .default-gap] 
             
             <!-- sound -->
             [
-              [ 'Alarm Sound' {fw:bold}][ .mb-m]
-              [ .d-flex {gap:0.3rem}
-                <button class="clickable" data-callback='pick-audio'>Set audio</button>
-                <button class="clickable" data-callback='remove-audio'>Remove audio</button>
-                <button class="clickable" data-callback='test-audio'>Test audio</button>
-              ][ .mb-m]
+              [ 'Alarm Sound' .settings-group-title]
+              [ .mb-m]
+              [ .settings-card-inner
+                [ .d-flex {gap:0.3rem}
+                  <button class="clickable" data-callback='pick-audio'>Set audio</button>
+                  <button class="clickable" data-callback='remove-audio'>Remove audio</button>
+                  <button class="clickable" data-callback='test-audio'>Test audio</button>
+                ]
+              ]
             ][ .default-gap]
             
             <!-- web app installation -->
             [ data-view-group="platform" data-view-name="web" .d-grid {gap:0.3rem}
               [
-                [ 'Web App' {fw:bold}][ .mb-m]
-                [btn #buttonInstall 'Install'][ .default-gap]
+                [ 'Web App' .settings-group-title]
+                [ .mb-m]
+                [ .settings-card-inner
+                  [btn #buttonInstall 'Install'][ .default-gap]
+                ]
               ]
             ][ .default-gap]
             
             <!-- app cache -->
             [ data-view-group="platform" data-view-name="web"
-              [ 'Updates & Offline Access' {fw:bold}]
+              [ 'Updates & Offline Access' .settings-group-title]
               [ .default-gap]
               
-              [ .d-grid {gap:0.3rem}
-                [
-                  <button onclick="pwaCacher.update()">Check for updates</button>
+              [ .settings-card-inner
+              
+                [ .d-grid {gap:0.3rem}
+                  [
+                    <button onclick="pwaCacher.update()">Check for updates</button>
+                  ]
+                  [
+                    <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
+                  ]
                 ]
-                [
-                  <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
-                ]
+                [ .default-gap]
+                [small '*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.']
+              
               ]
-              [ .default-gap]
-              [small '*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.']
             ]
           ]
           
@@ -878,9 +901,14 @@
         
         [ {p:1rem} .pos-relative
 
-          [ .text-center
-            [h2 'New Task' data-view-group="form-task" data-view-name="add" .mt-0]
-            [h2 'Edit Task' data-view-group="form-task" data-view-name="edit" .mt-0]
+          [ .modal-header .justify-content-between .d-flex
+            [ .flex-1 .align-items-center .d-flex
+              [h2 'New Task' data-view-group="form-task" data-view-name="add" .m-0 .heading]
+              [h2 'Edit Task' data-view-group="form-task" data-view-name="edit" .m-0 .heading]
+            ]
+            [
+              [btn 'close' .icon-mate .toggler .btn-glass]
+            ]
           ]
           
           
@@ -898,7 +926,8 @@
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskType"/>
             
-            [ .d-grid {gap:0.5rem}
+            [ .d-grid {gap:0.5rem} .form-card-inner
+              
               [
                 Title <input type="text" name='title' class="input-style-default"/>
               ]
@@ -914,35 +943,57 @@
               [ data-view-group="form-task" data-view-name="edit" data-view-name-not="collection-only"
                 Parent ID <input type="text" name='parent-id' class="input-style-default"/>
               ]
+              
             ]
             [ .mb-m]
             
             [ .default-gap]
             
             <!-- # modal notes -->
-            [small data-view-group="form-task" data-view-name="collection-only" {fs:0.75rem}
-              Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
+            [ data-view-group="form-task" data-view-name="collection-only" 
+              [small {fs:0.75rem}
+                Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
+              ]
+              [ .default-gap]
+              [ .default-gap]
             ]
-            [ .default-gap]
-            [ .default-gap]
             
             <!-- # task modal : form actions -->
             [ 
               [ data-view-group="form-task" data-view-name="add"
                 [ .d-flex .justify-content-end
-                  [btn 'Add' data-role="btn-add" .btn-primary]
+                  [ 
+                    [btn 'Cancel' .toggler]
+                    [btn 'Add' data-role="btn-add" .btn-primary]
+                  ]
                 ]
               ]
-              [ data-view-group="form-task" data-view-name="edit"
-                [ .d-flex .justify-content-between
-                  [ data-view-group="build" data-view-name="dev"
-                    [ .d-flex .align-items-center {gap:0.5rem}
-                      [btn 'delete' .icon-mate title="Delete" type="button" data-onclick="delete-task-from-form"]
-                      [btn 'Reset progress' title="Reset progress" type="button" data-onclick="reset-progress-task-from-form"]
+              [ data-view-group="form-task" data-view-name="edit" 
+                
+                [ .d-grid {gap:0.5rem}
+                
+                  [ .d-flex .justify-content-between
+                    [ data-view-group="build" data-view-name="dev"
+                      [ .d-flex .align-items-center {gap:0.5rem}
+                        [btn 'delete' .icon-mate title="Delete" type="button" data-onclick="delete-task-from-form"]
+                      ]
+                    ]
+                    [ 
+                      [btn 'Cancel' .toggler]
+                      [btn 'Update' data-role="btn-edit" .btn-primary]
                     ]
                   ]
-                  [btn 'Update' data-role="btn-edit" .btn-primary]
+                  
+                  [ .d-flex .justify-content-between
+                    [ data-view-group="build" data-view-name="dev"
+                      [ .d-flex .align-items-center {gap:0.5rem}
+                        [btn 'Reset progress' title="Reset progress" type="button" data-onclick="reset-progress-task-from-form"]
+                      ]
+                    ]
+                  ]
+                
                 ]
+                
               ]
             ]
             
@@ -966,9 +1017,14 @@
         
         <div style="padding:1rem;" class="pos-relative">
 
-          [ .text-center
-            [h2 'Add Sequence Task' data-view-group="form-task-sequence" data-view-name="add" .mt-0]
-            [h2 'Edit Sequence Task' data-view-group="form-task-sequence" data-view-name="edit" .mt-0]
+          [ .modal-header .justify-content-between .d-flex
+            [ .flex-1 .align-items-center .d-flex
+              [h2 'Add Sequence Task' data-view-group="form-task-sequence" data-view-name="add" .m-0 .heading]
+              [h2 'Edit Sequence Task' data-view-group="form-task-sequence" data-view-name="edit" .m-0 .heading]
+            ]
+            [
+              [btn 'close' .icon-mate .toggler .btn-glass]
+            ]
           ]
           
           <div class="default-gap"></div>
@@ -976,7 +1032,9 @@
             
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskId"/>
-            [ .d-grid {gap:0.5rem}
+            
+            [ .d-grid {gap:0.5rem} .form-card-inner
+            
               [
                 Title <input type="text" name="title" class="input-style-default"/>
               ]
@@ -1002,7 +1060,8 @@
             ][ .mb-m]
             
             [ data-view-group="form-task-sequence" data-view-name="add"
-              [ .d-flex .justify-content-end
+              [ .text-right
+                [btn 'Cancel' .toggler]
                 [btn 'Add' data-role="btn-add" .btn-primary]
               ]
             ]
@@ -1011,23 +1070,41 @@
             
             <!-- # sequence task modal : form action -->
             [ data-view-group="form-task-sequence" data-view-name="edit"
+
               [ .d-grid {gap:0.5rem}
+                
                 [ .d-flex .justify-content-between
                   [ .d-flex .align-items-center {gap:0.5rem}
                     [btn 'delete' .icon-mate type="button" data-onclick="delete-sequence-from-form"]
-                    [btn 'Reset progress' type="button" data-onclick="reset-progress-sequence-from-form"]
                   ]
                   [
+                    [btn 'Cancel' .toggler]
                     [btn 'Update' data-role="btn-edit" .btn-primary]
                   ]
                 ]
-                <!-- open linked sequence -->
-                [ data-view-group="build" data-view-name="dev"
-                  [ data-view-group="form-task-sequence" data-view-name="linked-task"
-                    [btn 'open_in_new' .icon-mate type="button" data-onclick="open-linked-sequence-from-form"]
+                
+                [ .d-flex .flex-column {gap:0.5rem} .form-footer-card .padding-container
+                
+                  [ .d-flex .justify-content-between
+                    [btn 'Reset progress' type="button" data-onclick="reset-progress-sequence-from-form"]
                   ]
+                  <!-- open linked sequence -->
+                  [ data-view-group="build" data-view-name="dev"
+                    [ data-view-group="form-task-sequence" data-view-name="linked-task"
+                      [ .d-flex {gap:0.5rem}
+                        [btn 'open_in_new' .icon-mate type="button" data-onclick="open-linked-sequence-from-form"]
+                        [btn type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="open-linked-sequence-priority-mapper"
+                          [s 'Open in Priority mapper'] [s .icon-mate 'linear_scale']
+                        ]
+                      ]
+                    ]
+                    [ .default-gap]
+                  ]
+                
                 ]
+                
               ]
+              
             ]
             
           </form>

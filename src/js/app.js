@@ -1558,10 +1558,11 @@ let app = (function () {
     
     changeViewModeConfig('tasks');
     ui.Navigate(task.parentId);
-    app.TaskListTask();
     
     app.Commit();
     saveConfig();
+    
+    await app.TaskListTask();
   }
   
   function SetGlobalTimer(minutes) { data.globalTimer = minutes; }
@@ -2499,7 +2500,7 @@ let app = (function () {
     // web platform notification support
     setWebPlatformNotificationSupport();
     
-    runTests();
+    initTests();
     
   }
   
@@ -2567,12 +2568,14 @@ let app = (function () {
     });
   }
   
-  async function runTests() {
+  async function initTests() {
     // return;
     // let $$ = document.querySelectorAll.bind(document);
     
     // # change initial screens
+    // viewStateUtil.Set('screens', ['settings']);
     // viewStateUtil.Set('screens', ['priority-mapper']);
+    
     // await waitUntil(() => {
     //   return compoPriorityMapper;
     // });

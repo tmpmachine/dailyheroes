@@ -184,6 +184,7 @@
             Filter by label :
             <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
           </div>
+          <div class="default-gap"></div>
         </div>
         <div class="default-gap"></div>
         
@@ -202,6 +203,8 @@
           
         <div class="padding-container">
         
+          <div class="default-gap"></div>
+        
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
             <div class="d-grid align-items-center" style="gap:0.3rem;grid-template-columns:1fr auto;">
@@ -211,13 +214,14 @@
                 <div class="mb-xs"></div>
               </div>
               
+              <!-- # collection actions -->
               <div class="d-flex" style="gap:0.3rem;">
-                <button class="icon-mate bg-white" data-onclick="new-collection">add</button>
-                <button class="clickable bg-white" data-callback="navigate-screen" data-view-target="collections">Manage</button>
+                <button class="icon-mate btn-glass" data-onclick="new-collection">add</button>
+                <button class="clickable btn-glass" data-callback="navigate-screen" data-view-target="collections">Manage</button>
               </div>
               
             </div><div class="mb-m"></div>
-          </div><div class="default-gap"></div>
+          </div>
           
           <!-- # sequence generator -->
           <div class="obsoletes" data-view-group="task-view-mode" data-view-name="mission">
@@ -243,7 +247,8 @@
             <div class="d-flex justify-content-between">
               <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
               <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-                <button class="clickable d-flex align-items-center bg-white" data-callback="open-priority-mapper" style="gap:0.3rem;">
+                <!-- # nav : priority mapper -->
+                <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
                   <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
                 </button>
               </div>
@@ -435,79 +440,97 @@
             
             <!-- application data -->
             <div>
-              <div style="font-weight:bold;">Application Data</div><div class="mb-m"></div>
-              <div>
-                <button class="clickable" data-callback="reset-data">Reset data</button>
-              </div><div class="mb-m"></div>
+              <div class="settings-group-title">Application Data</div>
+              <div class="mb-m"></div>
+              <div class="settings-card-inner">
+                <div>
+                  <button class="clickable" data-callback="reset-data">Reset data</button>
+                </div>
+              </div>
               
             </div><div class="default-gap"></div> 
             
             <!-- backup and restore -->
             <div>
-              <div style="font-weight:bold;">Backup and Restore</div><div class="mb-m"></div>
+              <div class="settings-group-title">Backup and Restore</div>
+              <div class="mb-m"></div>
               
-              <small>Backup to Google Drive.</small><div class="mb-m"></div>
-              <div class="d-flex" style="gap:0.3rem;">
-                <button class="clickable" data-callback="authorize">Authorize</button>
-                <div data-view-group="auth" data-view-name="authorized">
-                  <button id="btn-cloud-backup" class="clickable" data-callback="backup-to-cloud">Backup</button>
-                  <button id="btn-cloud-restore" class="clickable" data-callback="restore-from-cloud">Restore</button>
+              <div class="settings-card-inner">
+                <small>Backup to Google Drive.</small><div class="mb-m"></div>
+                <div class="d-flex" style="gap:0.3rem;">
+                  <button class="clickable" data-callback="authorize">Authorize</button>
+                  <div data-view-group="auth" data-view-name="authorized">
+                    <button id="btn-cloud-backup" class="clickable" data-callback="backup-to-cloud">Backup</button>
+                    <button id="btn-cloud-restore" class="clickable" data-callback="restore-from-cloud">Restore</button>
+                  </div>
+                </div>
+                <div>
+                  <div id="txt-backup-status"></div>
+                  <div id="txt-restore-status"></div>
+                </div><div class="mb-m"></div>
+                
+                <small>Local backup.</small><div class="mb-m"></div>
+                <div class="d-flex" style="gap:0.3rem;">
+                  <button class="clickable" data-callback='backup-data'>Backup</button>
+                  <button class="clickable" data-callback='restore-data'>Restore</button>
                 </div>
               </div>
-              <div>
-                <div id="txt-backup-status"></div>
-                <div id="txt-restore-status"></div>
-              </div><div class="mb-m"></div>
               
-              <small>Local backup.</small><div class="mb-m"></div>
-              <div class="d-flex" style="gap:0.3rem;">
-                <button class="clickable" data-callback='backup-data'>Backup</button>
-                <button class="clickable" data-callback='restore-data'>Restore</button>
-              </div>
             </div><div class="default-gap"></div> 
             
             <!-- global preset timer -->
             <div>
-              <div style="font-weight:bold;">Global Preset Timer</div><div class="mb-m"></div>
-              <div>
+              <div class="settings-group-title">Global Preset Timer</div>
+              <div class="mb-m"></div>
+              <div class="settings-card-inner">
                 <span id="txt-global-preset-timer"></span> <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
-              </div><div class="mb-m"></div>
+              </div>
               
             </div><div class="default-gap"></div> 
             
             <!-- sound -->
             <div>
-              <div style="font-weight:bold;">Alarm Sound</div><div class="mb-m"></div>
-              <div class="d-flex" style="gap:0.3rem;">
-                <button class="clickable" data-callback='pick-audio'>Set audio</button>
-                <button class="clickable" data-callback='remove-audio'>Remove audio</button>
-                <button class="clickable" data-callback='test-audio'>Test audio</button>
-              </div><div class="mb-m"></div>
+              <div class="settings-group-title">Alarm Sound</div>
+              <div class="mb-m"></div>
+              <div class="settings-card-inner">
+                <div class="d-flex" style="gap:0.3rem;">
+                  <button class="clickable" data-callback='pick-audio'>Set audio</button>
+                  <button class="clickable" data-callback='remove-audio'>Remove audio</button>
+                  <button class="clickable" data-callback='test-audio'>Test audio</button>
+                </div>
+              </div>
             </div><div class="default-gap"></div>
             
             <!-- web app installation -->
             <div class="d-grid" data-view-group="platform" data-view-name="web" style="gap:0.3rem;">
               <div>
-                <div style="font-weight:bold;">Web App</div><div class="mb-m"></div>
-                <button id="buttonInstall">Install</button><div class="default-gap"></div>
+                <div class="settings-group-title">Web App</div>
+                <div class="mb-m"></div>
+                <div class="settings-card-inner">
+                  <button id="buttonInstall">Install</button><div class="default-gap"></div>
+                </div>
               </div>
             </div><div class="default-gap"></div>
             
             <!-- app cache -->
             <div data-view-group="platform" data-view-name="web">
-              <div style="font-weight:bold;">Updates & Offline Access</div>
+              <div class="settings-group-title">Updates & Offline Access</div>
               <div class="default-gap"></div>
               
-              <div class="d-grid" style="gap:0.3rem;">
-                <div>
-                  <button onclick="pwaCacher.update()">Check for updates</button>
+              <div class="settings-card-inner">
+              
+                <div class="d-grid" style="gap:0.3rem;">
+                  <div>
+                    <button onclick="pwaCacher.update()">Check for updates</button>
+                  </div>
+                  <div>
+                    <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
+                  </div>
                 </div>
-                <div>
-                  <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
-                </div>
+                <div class="default-gap"></div>
+                <small>*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.</small>
+              
               </div>
-              <div class="default-gap"></div>
-              <small>*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.</small>
             </div>
           </div>
           
@@ -878,9 +901,14 @@
         
         <div class="pos-relative" style="padding:1rem;">
 
-          <div class="text-center">
-            <h2 class="mt-0" data-view-group="form-task" data-view-name="add">New Task</h2>
-            <h2 class="mt-0" data-view-group="form-task" data-view-name="edit">Edit Task</h2>
+          <div class="modal-header justify-content-between d-flex">
+            <div class="flex-1 align-items-center d-flex">
+              <h2 class="m-0 heading" data-view-group="form-task" data-view-name="add">New Task</h2>
+              <h2 class="m-0 heading" data-view-group="form-task" data-view-name="edit">Edit Task</h2>
+            </div>
+            <div>
+              <button class="icon-mate toggler btn-glass">close</button>
+            </div>
           </div>
           
           
@@ -898,7 +926,8 @@
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskType"/>
             
-            <div class="d-grid" style="gap:0.5rem;">
+            <div class="d-grid form-card-inner" style="gap:0.5rem;">
+              
               <div>
                 Title <input type="text" name='title' class="input-style-default"/>
               </div>
@@ -914,35 +943,57 @@
               <div data-view-group="form-task" data-view-name="edit" data-view-name-not="collection-only">
                 Parent ID <input type="text" name='parent-id' class="input-style-default"/>
               </div>
+              
             </div>
             <div class="mb-m"></div>
             
             <div class="default-gap"></div>
             
             <!-- # modal notes -->
-            <small data-view-group="form-task" data-view-name="collection-only" style="font-size:0.75rem;">
-              Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
-            </small>
-            <div class="default-gap"></div>
-            <div class="default-gap"></div>
+            <div data-view-group="form-task" data-view-name="collection-only">
+              <small style="font-size:0.75rem;">
+                Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
+              </small>
+              <div class="default-gap"></div>
+              <div class="default-gap"></div>
+            </div>
             
             <!-- # task modal : form actions -->
             <div>
               <div data-view-group="form-task" data-view-name="add">
                 <div class="d-flex justify-content-end">
-                  <button class="btn-primary" data-role="btn-add">Add</button>
+                  <div>
+                    <button class="toggler">Cancel</button>
+                    <button class="btn-primary" data-role="btn-add">Add</button>
+                  </div>
                 </div>
               </div>
               <div data-view-group="form-task" data-view-name="edit">
-                <div class="d-flex justify-content-between">
-                  <div data-view-group="build" data-view-name="dev">
-                    <div class="d-flex align-items-center" style="gap:0.5rem;">
-                      <button class="icon-mate" title="Delete" type="button" data-onclick="delete-task-from-form">delete</button>
-                      <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                
+                <div class="d-grid" style="gap:0.5rem;">
+                
+                  <div class="d-flex justify-content-between">
+                    <div data-view-group="build" data-view-name="dev">
+                      <div class="d-flex align-items-center" style="gap:0.5rem;">
+                        <button class="icon-mate" title="Delete" type="button" data-onclick="delete-task-from-form">delete</button>
+                      </div>
+                    </div>
+                    <div>
+                      <button class="toggler">Cancel</button>
+                      <button class="btn-primary" data-role="btn-edit">Update</button>
                     </div>
                   </div>
-                  <button class="btn-primary" data-role="btn-edit">Update</button>
+                  
+                  <div class="d-flex justify-content-between">
+                    <div data-view-group="build" data-view-name="dev">
+                      <div class="d-flex align-items-center" style="gap:0.5rem;">
+                        <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                      </div>
+                    </div>
+                  </div>
+                
                 </div>
+                
               </div>
             </div>
             
@@ -966,9 +1017,14 @@
         
         <div style="padding:1rem;" class="pos-relative">
 
-          <div class="text-center">
-            <h2 class="mt-0" data-view-group="form-task-sequence" data-view-name="add">Add Sequence Task</h2>
-            <h2 class="mt-0" data-view-group="form-task-sequence" data-view-name="edit">Edit Sequence Task</h2>
+          <div class="modal-header justify-content-between d-flex">
+            <div class="flex-1 align-items-center d-flex">
+              <h2 class="m-0 heading" data-view-group="form-task-sequence" data-view-name="add">Add Sequence Task</h2>
+              <h2 class="m-0 heading" data-view-group="form-task-sequence" data-view-name="edit">Edit Sequence Task</h2>
+            </div>
+            <div>
+              <button class="icon-mate toggler btn-glass">close</button>
+            </div>
           </div>
           
           <div class="default-gap"></div>
@@ -976,7 +1032,9 @@
             
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskId"/>
-            <div class="d-grid" style="gap:0.5rem;">
+            
+            <div class="d-grid form-card-inner" style="gap:0.5rem;">
+            
               <div>
                 Title <input type="text" name="title" class="input-style-default"/>
               </div>
@@ -1002,7 +1060,8 @@
             </div><div class="mb-m"></div>
             
             <div data-view-group="form-task-sequence" data-view-name="add">
-              <div class="d-flex justify-content-end">
+              <div class="text-right">
+                <button class="toggler">Cancel</button>
                 <button class="btn-primary" data-role="btn-add">Add</button>
               </div>
             </div>
@@ -1011,23 +1070,41 @@
             
             <!-- # sequence task modal : form action -->
             <div data-view-group="form-task-sequence" data-view-name="edit">
+
               <div class="d-grid" style="gap:0.5rem;">
+                
                 <div class="d-flex justify-content-between">
                   <div class="d-flex align-items-center" style="gap:0.5rem;">
                     <button class="icon-mate" type="button" data-onclick="delete-sequence-from-form">delete</button>
-                    <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
                   </div>
                   <div>
+                    <button class="toggler">Cancel</button>
                     <button class="btn-primary" data-role="btn-edit">Update</button>
                   </div>
                 </div>
-                <!-- open linked sequence -->
-                <div data-view-group="build" data-view-name="dev">
-                  <div data-view-group="form-task-sequence" data-view-name="linked-task">
-                    <button class="icon-mate" type="button" data-onclick="open-linked-sequence-from-form">open_in_new</button>
+                
+                <div class="d-flex flex-column form-footer-card padding-container" style="gap:0.5rem;">
+                
+                  <div class="d-flex justify-content-between">
+                    <button type="button" data-onclick="reset-progress-sequence-from-form">Reset progress</button>
                   </div>
+                  <!-- open linked sequence -->
+                  <div data-view-group="build" data-view-name="dev">
+                    <div data-view-group="form-task-sequence" data-view-name="linked-task">
+                      <div class="d-flex" style="gap:0.5rem;">
+                        <button class="icon-mate" type="button" data-onclick="open-linked-sequence-from-form">open_in_new</button>
+                        <button type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="open-linked-sequence-priority-mapper">
+                          <span>Open in Priority mapper</span> <span class="icon-mate">linear_scale</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="default-gap"></div>
+                  </div>
+                
                 </div>
+                
               </div>
+              
             </div>
             
           </form>

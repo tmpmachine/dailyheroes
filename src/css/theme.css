@@ -55,3 +55,10 @@ body {
   background-position: center center;
   background-repeat: no-repeat;
 }
+
+
+[data-obj="task"][data-state~="--is-mission"] [data-role="remove-mission"] {
+  background: #e96e98;
+  /*border-color: #e59f9f;*/
+  color: white;
+}
