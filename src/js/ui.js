@@ -233,9 +233,17 @@ let ui = (function () {
   
   function OpenLinkedSequenceFromForm(evt) {
     let form = evt.target.form;
+    let seqId = form.id.value;
     let taskId = form.taskId.value;
     
-    app.TaskNavigateToMission(taskId);
+    let task = compoTask.GetById(taskId);
+    
+    compoSequence.Stash(task.sequenceTasks);
+    let item = compoSequence.GetById(seqId);
+    let linkedTask = compoTask.GetById(item.linkedTaskId);
+    compoSequence.Pop();
+    
+    app.TaskNavigateToMission(linkedTask.id);
     
     $('#task-sequence-modal').close();
   }
