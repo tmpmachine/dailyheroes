@@ -49,19 +49,19 @@ let uiMission = (function() {
     
     let success = compoMission.SetActiveGroupById(id);
     if (success) {
-      __resetMissionView();
+      // __resetMissionView();
       __saveAppData();
       __refreshMissionList();
     } else {
       console.log('failed to change group');
     }
   }
-  
+  /*
   function __resetMissionView() {
-    resetActiveGroupId();
+    ui.resetActiveGroupId();
     ui.BuildBreadcrumbs();
   }
-  
+  */
   function __refreshMissionList() {
     app.TaskListTask();
   }

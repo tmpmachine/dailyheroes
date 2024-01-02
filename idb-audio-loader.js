@@ -15,8 +15,20 @@ async function retrieveAudioFile() {
   
   let audioFile = await retrieveAudioFile();
   if (audioFile) {
-    document.querySelector('#audio').src = URL.createObjectURL(audioFile);
-    document.querySelector('#audio').play();
+    
+    // load volume preferences
+    let alarmVolume = localStorage.getItem('alarm-audio-volume');
+    if (alarmVolume === null) {
+      alarmVolume = 1;
+    } else {
+      alarmVolume = parseFloat(alarmVolume);
+    }
+    
+    // play alarm
+    let audioEl = document.querySelector('#audio');
+    audioEl.src = URL.createObjectURL(audioFile);
+    audioEl.volume = alarmVolume;
+    audioEl.play();
   }
   
 })();

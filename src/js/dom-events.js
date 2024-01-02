@@ -21,20 +21,8 @@ let DOMEvents = (function() {
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'show-modal-add-sequence': () => ui.ShowModalAddSequence(),
       
-      'view-mission': () => {
-        changeViewModeConfig('mission');
-        resetActiveGroupId();
-        lsdb.save();
-        ui.BuildBreadcrumbs();
-        app.TaskListTask();
-      },
-      'view-tasks': () => {
-        changeViewModeConfig('tasks');
-        resetActiveGroupId();
-        lsdb.save();
-        ui.BuildBreadcrumbs();
-        app.TaskListTask();
-      },
+      'view-mission': () => ui.NavigateViewMission(),
+      'view-tasks': () => ui.NavigateViewTask(),
       
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
@@ -48,8 +36,9 @@ let DOMEvents = (function() {
   		
   	  
       'pick-audio': () => app.SetAlarmAudio(), 
-      'remove-audio': () => app.RemoveAlarmAudio(), 
+      'remove-audio': () => app.TaskRemoveAlarmAudio(), 
       'test-audio': () => app.TaskPlayAlarmAudio(), 
+      'stop-test-audio': () => app.StopTestAlarmAudio(), 
       
       'change-global-preset-timer': () => ui.ChangeGlobalPresetTimer(),
       
@@ -122,6 +111,9 @@ let DOMEvents = (function() {
   	  
   	},
   	
+  	oninput: {
+  	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
+  	},
   	onclick: {
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
   	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),
@@ -134,7 +126,7 @@ let DOMEvents = (function() {
   	  'convert-collection-sequence': () => ui.TaskConvertCollectionSequence(),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),
   	  'delete-sequence-from-form': (evt) => ui.DeleteSequenceFromForm(evt),
-  	}
+  	},
   	
   };
   
@@ -156,6 +148,7 @@ let DOMEvents = (function() {
     listenOn('.changeable', 'change', eventsMap.changeable);
     
     listening('[data-onclick]', 'onclick', 'click', eventsMap.onclick);
+    listening('[data-oninput]', 'oninput', 'input', eventsMap.oninput);
   }
   
   return {

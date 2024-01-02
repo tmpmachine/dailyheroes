@@ -67,8 +67,8 @@
       
         [ .padding-container .bg-white
         
-          [ .default-gap]
-          <div class="default-gap"></div>
+          [ .pb-half]
+          [ .pb-half]
           
           <!-- # active task container -->
           [ .d-flex {gap:0.5rem} .container-active-task
@@ -140,11 +140,11 @@
             </div>
           ]
           
-          [ .default-gap]
+          [ .pb-half]
           
         ]
-        [ .default-gap]
-        [ .default-gap]
+        [ .pb-half]
+        [ .pb-half]
 
         <!-- # interactive sequence task pick -->
         [ data-view-group="features" data-view-name="interactive-sequence-task-pick" .padding-container
@@ -152,7 +152,7 @@
             [ {fs:0.7rem}
               [s 'Sequence Task Linking' {fw:bold}] [mark 'beta' {p:2px 4px;} {rad:4px}]
             ]
-            [ .default-gap]
+            [ .pb-half]
             [ .d-flex {gap:0.5rem}
               [small .flex-1
                 Instruction : Browse and pick tasks to add as sequence, then click <b>Finish</b>.
@@ -160,8 +160,8 @@
               [btn 'Finish' .btn data-onclick="finish-interactive-sequence-pick"]
             ]
           ]
-          [ .default-gap]
-          [ .default-gap]
+          [ .pb-half]
+          [ .pb-half]
         ]
         
         <!-- # search -->
@@ -171,9 +171,9 @@
             Filter by label :
             [in .inputable .input-style-default data-callback="save-label-filter" #in-filter-search-label]
           ]
-          [ .default-gap]
+          [ .pb-half]
         ]
-        <div class="default-gap"></div>
+        <div class="pb-half"></div>
         
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
@@ -186,11 +186,11 @@
             ]
             [btn 'My Tasks' .clickable data-callback="view-tasks" data-id="task"]
           ]
-          <div class="default-gap"></div>
+          <div class="pb-half"></div>
           
         [ .padding-container
         
-          [ .default-gap]
+          [ .pb-half]
         
           <!-- # mission collection -->
           [ data-view-group="task-view-mode" data-view-name="mission"
@@ -216,7 +216,7 @@
             [
               [small '*) Root task only']
             ]
-            [ .default-gap]
+            [ .pb-half]
           ]
           
           <!-- # filter by target time -->
@@ -243,7 +243,7 @@
             [ {mb:0.3rem}]
           ]
                 
-          <div class="default-gap"></div>
+          <div class="pb-half"></div>
           
           
           <!-- # task list container -->
@@ -326,13 +326,13 @@
         <!-- ## screen body -->
         [ .padding-container .pos-relative
         
-          [ .default-gap]
-          [ .default-gap]
+          [ .pb-half]
+          [ .pb-half]
           
           [btn 'New collection' data-onclick='new-collection']
           
-          [ .default-gap]
-          [ .default-gap]
+          [ .pb-half]
+          [ .pb-half]
           
           <!-- ### list collection -->
           [ data-container="list-collection" data-onclick="handle-click-list-collection"]
@@ -354,8 +354,8 @@
         <!-- # screen body -->
         [ .padding-container .bg-white
         
-          [ .default-gap]
-          [ .default-gap]
+          [ .pb-half]
+          [ .pb-half]
           
           [btn 'New tracker' .clickable data-callback='new-tracker']
           
@@ -381,18 +381,18 @@
         <!-- # screen body -->
         [ .padding-container .pos-relative
         
-          [ .default-gap]
-          [ .default-gap]
+          [ .pb-half]
+          [ .pb-half]
           
           [ .pos-relative
             [ .d-flex .justify-content-end
               [btn 'Save' .clickable data-callback='save-priority-mapper']
             ]
-            [ .default-gap]
+            [ .pb-half]
             
             [small 'Guide : Adjust the slider for each task to determine its priority relative to the other tasks.']
-            [ .default-gap]
-            [ .default-gap]
+            [ .pb-half]
+            [ .pb-half]
             
             <!-- # priority mapper items container -->
             [ .d-flex .justify-content-end
@@ -420,8 +420,8 @@
         <!-- # screen body -->
         [ .padding-container .pos-relative
         
-          [ .default-gap]
-          [ .default-gap]
+          [ .pb-half]
+          [ .pb-half]
           
           [ .d-grid {gap:0.3rem}
             
@@ -435,7 +435,7 @@
                 ]
               ]
               
-            ][ .default-gap] 
+            ][ .pb-half] 
             
             <!-- backup and restore -->
             [
@@ -463,7 +463,7 @@
                 ]
               ]
               
-            ][ .default-gap] 
+            ][ .pb-half] 
             
             <!-- global preset timer -->
             [
@@ -473,20 +473,28 @@
                 [s #txt-global-preset-timer] <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
               ]
               
-            ][ .default-gap] 
+            ][ .pb-half] 
             
             <!-- sound -->
             [
               [ 'Alarm Sound' .settings-group-title]
               [ .mb-m]
               [ .settings-card-inner
-                [ .d-flex {gap:0.3rem}
-                  <button class="clickable" data-callback='pick-audio'>Set audio</button>
-                  <button class="clickable" data-callback='remove-audio'>Remove audio</button>
-                  <button class="clickable" data-callback='test-audio'>Test audio</button>
+                
+                [ .d-flex .flex-wrap .gap-half
+                  [btn 'Set audio' .clickable data-callback="pick-audio"]
+                  [btn 'Remove audio' .clickable data-callback="remove-audio"]
+                  [btn 'Test audio' .clickable data-callback="test-audio"]
+                  [btn 'Stop test' .clickable data-callback="stop-test-audio"]
                 ]
+                [ .pb-half]
+                
+                [ .d-flex .align-items-center .gap-half
+                  Volume : [in data-jsq="alarm-volume" type="range" min="0.2" max="1" step="0.1" value="1" data-oninput="handle-input-alarm-volume"]
+                ]
+                
               ]
-            ][ .default-gap]
+            ][ .pb-half]
             
             <!-- web app installation -->
             [ data-view-group="platform" data-view-name="web" .d-grid {gap:0.3rem}
@@ -494,15 +502,15 @@
                 [ 'Web App' .settings-group-title]
                 [ .mb-m]
                 [ .settings-card-inner
-                  [btn #buttonInstall 'Install'][ .default-gap]
+                  [btn #buttonInstall 'Install'][ .pb-half]
                 ]
               ]
-            ][ .default-gap]
+            ][ .pb-half]
             
             <!-- app cache -->
             [ data-view-group="platform" data-view-name="web"
               [ 'Updates & Offline Access' .settings-group-title]
-              [ .default-gap]
+              [ .pb-half]
               
               [ .settings-card-inner
               
@@ -514,14 +522,14 @@
                     <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
                   ]
                 ]
-                [ .default-gap]
+                [ .pb-half]
                 [small '*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.']
               
               ]
             ]
           ]
           
-          [ .default-gap]
+          [ .pb-half]
         
         ]
         
@@ -899,7 +907,7 @@
           ]
           
           
-          <div class="default-gap"></div>
+          <div class="pb-half"></div>
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             
             [ data-view-group="form-task" data-view-name="edit"
@@ -934,15 +942,15 @@
             ]
             [ .mb-m]
             
-            [ .default-gap]
+            [ .pb-half]
             
             <!-- # modal notes -->
             [ data-view-group="form-task" data-view-name="collection-only" 
               [small {fs:0.75rem}
                 Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
               ]
-              [ .default-gap]
-              [ .default-gap]
+              [ .pb-half]
+              [ .pb-half]
             ]
             
             <!-- # task modal : form actions -->
@@ -1014,7 +1022,7 @@
             ]
           ]
           
-          <div class="default-gap"></div>
+          <div class="pb-half"></div>
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
             
             <input type="hidden" name="id"/>
@@ -1053,7 +1061,7 @@
               ]
             ]
             
-            [ .default-gap]
+            [ .pb-half]
             
             <!-- # sequence task modal : form action -->
             [ data-view-group="form-task-sequence" data-view-name="edit"
@@ -1085,7 +1093,7 @@
                         ]
                       ]
                     ]
-                    [ .default-gap]
+                    [ .pb-half]
                   ]
                 
                 ]
@@ -1146,7 +1154,7 @@
         <div style="padding:1rem;">
 
           New Note :
-          <div class="default-gap"></div>
+          <div class="pb-half"></div>
           <form class='submittable default-inline-flex-gap flex-column' data-callback='add-note'>
             <input type="hidden" name="id"/>
             <div>

@@ -672,18 +672,8 @@ async function removeActiveTaskIfExists(id) {
   }
 }
 
-function changeViewModeConfig(mode) {
-  lsdb.data.topMostMissionPath = '';
-  lsdb.data.viewMode = mode;
-  ui.UpdateViewModeState();
-}
-
 function saveConfig() {
   lsdb.save();
-}
-
-function resetActiveGroupId() {
-  lsdb.data.activeGroupId = '';
 }
 
 function isViewModeMission() {
@@ -1191,7 +1181,8 @@ let app = (function () {
   let $$ = document.querySelectorAll.bind(document);
 
   let SELF = {
-    // app init
+    GetAlarmVolume,
+    StopTestAlarmAudio,
     ApplyProgressMadeOutsideApp,
     
     isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
@@ -1223,8 +1214,9 @@ let app = (function () {
     TaskContinueTask,
     
     SetAlarmAudio,
-    RemoveAlarmAudio,
+    TaskRemoveAlarmAudio,
     TaskPlayAlarmAudio,
+    HandleInputAlarmVolume,
     
     IsShowTargetTimeOnly,
     SetViewTargetTimeOnly,
@@ -1247,6 +1239,11 @@ let app = (function () {
     isSortByTotalProgress: false,
     
     globalTimer: 12, // 15 minutes
+    alarmVolume: 1,
+  };
+  
+  let local = {
+    audioPlayer: null,
   };
   
   async function TaskRemoveTaskFromMission(id) {
@@ -1345,7 +1342,7 @@ let app = (function () {
     ui.UpdateViewModeState();
     $('#labeled-by-showtarget').checked = app.IsShowTargetTimeOnly();
     
-    changeViewModeConfig('tasks');
+    ui.ChangeViewModeConfig('tasks');
     ui.Navigate(task.parentId);
     
     app.Commit();
@@ -1369,8 +1366,8 @@ let app = (function () {
     input.remove();
   }
   
-  function RemoveAlarmAudio() {
-    idbKeyval.del('audioFile');
+  function TaskRemoveAlarmAudio() {
+    return idbKeyval.del('audioFile');
   }
   
   async function storeAudioFile(file) {
@@ -1385,7 +1382,7 @@ let app = (function () {
     try {
       const file = await idbKeyval.get('audioFile');
       if (file) {
-        return file
+        return file;
       } else {
         console.error('File Handle not found in IndexedDB.');
       }
@@ -1397,8 +1394,28 @@ let app = (function () {
   async function TaskPlayAlarmAudio() {
     let audioFile = await retrieveAudioFile();
     if (audioFile) {
-      let audio = new Audio(URL.createObjectURL(audioFile));
-      audio.play();
+      
+      let audioURL = URL.createObjectURL(audioFile);
+      
+      if (local.audioPlayer) {
+        local.audioPlayer.pause();
+        local.audioPlayer.src = audioURL;
+      } else {
+        local.audioPlayer = new Audio(audioURL);
+      }
+
+      local.audioPlayer.volume = data.alarmVolume;
+      local.audioPlayer.play();
+
+    }
+  }
+  
+  function HandleInputAlarmVolume(evt) {
+    data.alarmVolume = parseFloat(evt.target.value);
+    localStorage.setItem('alarm-audio-volume', evt.target.value);
+    
+    if (local.audioPlayer) {
+      local.audioPlayer.volume = data.alarmVolume;
     }
   }
   
@@ -1974,7 +1991,13 @@ let app = (function () {
     }).then(async (result) => {
       
       if (result.isConfirmed) {
+        
+        // clear app data
         lsdb.reset();
+        localStorage.removeItem('alarm-audio-volume');
+        await app.TaskRemoveAlarmAudio()
+        
+        // clear tasks in browser extension storage
   	    tasks.length = 0;
   	    await appData.TaskStoreTask();
         
@@ -2295,6 +2318,16 @@ let app = (function () {
     
   }
   
+  function StopTestAlarmAudio() {
+    if (!local.audioPlayer) return;
+    
+    local.audioPlayer.pause();
+  }
+  
+  function GetAlarmVolume() {
+    return data.alarmVolume;
+  }
+  
   async function taskInitAppData() {
     let result = window.service.GetData(['history']);
     if (typeof(result.history) == 'undefined') {
@@ -2313,6 +2346,12 @@ let app = (function () {
     await taskRestoreComponentsData();
     
     compoTracker.Init(lsdb.data.compoTracker);
+    
+    // alarm volume 
+    let alarmVolumePreferences = localStorage.getItem('alarm-audio-volume');
+    if (alarmVolumePreferences !== null) {
+      data.alarmVolume = parseFloat(alarmVolumePreferences);
+    } 
   }
   
   async function taskRestoreComponentsData() {

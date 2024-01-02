@@ -3,6 +3,8 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    NavigateViewTask,
+    NavigateViewMission,
     TaskLinkTaskWithIdToActiveSequence,
     TaskMoveTaskWithIdToActiveSequence,
     TaskLinkTaskToSequenceByTaskIdInteractiveMode,
@@ -52,7 +54,34 @@ let ui = (function () {
     ToggleExpandSequenceTask,
     FinishInteractiveSequencePick,
     TaskOpenTaskIntoView,
+    ChangeViewModeConfig,
   };
+  
+  function NavigateViewTask() {
+    ChangeViewModeConfig('tasks');
+    resetActiveGroupId();
+    lsdb.save();
+    ui.BuildBreadcrumbs();
+    app.TaskListTask();
+  }
+  
+  function NavigateViewMission() {
+    ChangeViewModeConfig('mission');
+    resetActiveGroupId();
+    lsdb.save();
+    ui.BuildBreadcrumbs();
+    app.TaskListTask();
+  }
+  
+  function resetActiveGroupId() {
+    lsdb.data.activeGroupId = '';
+  }
+  
+  function ChangeViewModeConfig(mode) {
+    lsdb.data.topMostMissionPath = '';
+    lsdb.data.viewMode = mode;
+    ui.UpdateViewModeState();
+  }
   
   async function TaskOpenTaskIntoView() {
     let activeTask = await getActiveTask();
@@ -640,6 +669,12 @@ let ui = (function () {
     
     // # trackers
     uiTracker.Init();
+    
+    initAudioSettings();
+  }
+  
+  function initAudioSettings() {
+    $('[data-jsq="alarm-volume"]').value = app.GetAlarmVolume();
   }
   
   async function TaskTurnOffScreen() {

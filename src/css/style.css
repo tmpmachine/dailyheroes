@@ -24,6 +24,8 @@
 .bg-white{background:white}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
+.gap-half{gap:0.5rem}
+.pb-half{padding-top:0.5rem}
 
 * {
   box-sizing: border-box;
@@ -194,9 +196,7 @@ button:hover{
   flex-wrap: wrap;
   gap: 0.2rem;
 }
-.default-gap {
-  padding-top: 0.5rem;
-}
+
 
 
 
