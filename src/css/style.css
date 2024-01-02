@@ -10,7 +10,7 @@
 .text-center{text-align:center}.text-right{text-align:right}
 .w-100{width:100%}.h-100{height:100%}
 .ov-auto{overflow:auto}
-.pos-relative{position:relative}.pos-absolute{position:absolute}
+.pos-relative{position:relative}.pos-absolute{position:absolute}.pos-sticky{position:sticky}
 .user-select-none {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -18,6 +18,8 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed */
 }
+.top-0{top:0}
+.z-index-1{z-index:1}
 .mt-0{margin-top:0}.m-0{margin:0}
 .word-break-all{word-break:break-all}.word-break-word{word-break:break-word}.word-break-keep-all{word-break:keep-all}
 
@@ -25,14 +27,13 @@
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 .gap-half{gap:0.5rem}
-.pb-half{padding-top:0.5rem}
+.pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
 
 * {
   box-sizing: border-box;
 }
 
 /* # z-index */
-.main-nav-bar{z-index:1}
 modal-v2{z-index:99}
 
 
@@ -476,8 +477,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 /* # nav bar */
 .main-nav-bar {
-  position: sticky;
-  top: 0;
   padding: 0.4rem 0rem;
 }
 

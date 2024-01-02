@@ -44,7 +44,7 @@
       <section class="container-screen pos-relative container-screen-home" data-view-group="screens" data-view-name="home">
         
         <!-- # navigations-->
-        [ .d-flex .justify-content-between .main-nav-bar
+        [ .d-flex .justify-content-between .main-nav-bar .z-index-1 .top-0 .pos-sticky
           [ 
             [ data-view-group="platform" data-view-name="web"
               [btn .clickable data-callback="turn-off-screen" .d-flex .align-items-center {gap:0.3rem} 
@@ -318,12 +318,13 @@
         <!-- # overlay background -->
         [ .overlay-bg-default .overlay-bg-collections]
         
-        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-relative
+        <!-- # collection screen nav -->
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Collections' {fw:bold}]
         ]
         
-        <!-- ## screen body -->
+        <!-- # collection screen body -->
         [ .padding-container .pos-relative
         
           [ .pb-half]
@@ -373,12 +374,13 @@
         <!-- # overlay background -->
         [ .overlay-bg-default .overlay-bg-priority-mapper]
         
-        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-relative
+        <!-- # priority mapper screen nav -->
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Priority Mapper' {fw:bold}]
         ]
         
-        <!-- # screen body -->
+        <!-- # priority mapper screen body -->
         [ .padding-container .pos-relative
         
           [ .pb-half]
@@ -411,13 +413,13 @@
       <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="settings">
       [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
         
-        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-relative
+        <!-- # settings nav header -->
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Settings' {fw:bold}]
         ]
         
-        
-        <!-- # screen body -->
+        <!-- # settings screen body -->
         [ .padding-container .pos-relative
         
           [ .pb-half]
@@ -456,10 +458,11 @@
                   [ #txt-restore-status]
                 ][ .mb-m]
                 
-                [small 'Local backup.'][ .mb-m]
+                <!-- # local backup -->
+                [small 'Local backup and restore.'][ .mb-m]
                 [ .d-flex {gap:0.3rem}
-                  <button class="clickable" data-callback='backup-data'>Backup</button>
-                  <button class="clickable" data-callback='restore-data'>Restore</button>
+                  [btn 'Import' .clickable data-callback="backup-data"]
+                  [btn 'Export' .clickable data-callback="restore-data"]
                 ]
               ]
               
@@ -467,10 +470,22 @@
             
             <!-- global preset timer -->
             [
-              [ 'Global Preset Timer' .settings-group-title]
+              [ 'Timer Preset' .settings-group-title]
               [ .mb-m]
               [ .settings-card-inner
-                [s #txt-global-preset-timer] <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
+                
+                [small 'Default task duration (Lowest allowed is 1 minute).']
+                [ .pb-full]
+                
+                [ .d-flex .justify-content-between
+                  [
+                    Task duration : 
+                    [s #txt-global-preset-timer .font-weight-bold] 
+                  ]
+                  <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
+                ]
+                [ .pb-half]
+                
               ]
               
             ][ .pb-half] 
@@ -735,7 +750,6 @@
       
   	  <!-- # sequence container -->
   	  [ data-view-group="task" data-view-name="sequence"
-        [ data-container="sequence-tasks" ]
         <!-- # sequence toolbar -->
         [ {p:0.5rem} .d-flex .flex-wrap {gap:0.3rem}
           [btn '+ New' data-role="add-sequence-task"]
@@ -743,6 +757,7 @@
           [btn 'Reset repeat count' data-role="reset-count-active-seq"]
           [btn 'Manage' data-role="manage-sequence"]
         ]
+        [ data-container="sequence-tasks" ]
   	  ]
       
   	]
@@ -947,7 +962,7 @@
             <!-- # modal notes -->
             [ data-view-group="form-task" data-view-name="collection-only" 
               [small {fs:0.75rem}
-                Note : You're editing/creating collection-only task. To create public task, go to <b>My Tasks</b> then create a new task.
+                Note : You're editing/creating collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
               ]
               [ .pb-half]
               [ .pb-half]

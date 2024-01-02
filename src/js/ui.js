@@ -39,7 +39,6 @@ let ui = (function () {
     TurnOnScreen,
     ChangeGlobalPresetTimer,
     
-    SetGlobalTimer,
     RefreshListSequenceByTaskId,
     RemoveElSequenceById,
     HotReloadListSequenceByTaskId,
@@ -511,12 +510,12 @@ let ui = (function () {
     
   }
   
-  function SetGlobalTimer() {
-    $('#txt-global-preset-timer').textContent = app.GetGlobalTimerStr();
+  function refreshGlobalTimer() {
+    $('#txt-global-preset-timer').textContent = minutesToHoursAndMinutes( app.GetGlobalTimer() );
   }
   
   function ChangeGlobalPresetTimer() {
-    let globalTimerStr = app.GetGlobalTimerStr();
+    let globalTimerStr = minutesToHoursAndMinutes( app.GetGlobalTimer() );
     
     let userVal = window.prompt('Value', globalTimerStr);
     if (!userVal) return;
@@ -527,7 +526,7 @@ let ui = (function () {
     app.SetGlobalTimer(parsedMinutes);
     app.Commit();
     appSettings.Save();
-    SetGlobalTimer();
+    refreshGlobalTimer();
   }
   
   function NavigateScreen(evt) {
@@ -671,6 +670,7 @@ let ui = (function () {
     uiTracker.Init();
     
     initAudioSettings();
+    refreshGlobalTimer();
   }
   
   function initAudioSettings() {
@@ -969,7 +969,7 @@ let ui = (function () {
     
     let formValue = {
       parentId: lsdb.data.activeGroupId,
-      target: app.GetGlobalTimerStr(),
+      target: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
       taskType: 'T',
     };
     
@@ -1128,7 +1128,7 @@ let ui = (function () {
   function AddSequenceTask(taskId) {
     let defaultValue = {
       taskId,
-      duration: '7m',
+      duration: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
     };
     ShowModalAddSequence(defaultValue);
   }

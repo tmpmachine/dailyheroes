@@ -1225,7 +1225,6 @@ let app = (function () {
     
     SetGlobalTimer,
     GetGlobalTimer,
-    GetGlobalTimerStr,
     
     TaskNavigateToMission,
     StartTaskTimer,
@@ -1237,8 +1236,7 @@ let app = (function () {
   let data = {
     isViewTargetTimeOnly: false,
     isSortByTotalProgress: false,
-    
-    globalTimer: 12, // 15 minutes
+    globalTimer: 6, // in minutes
     alarmVolume: 1,
   };
   
@@ -1353,7 +1351,6 @@ let app = (function () {
   
   function SetGlobalTimer(minutes) { data.globalTimer = minutes; }
   function GetGlobalTimer() { return data.globalTimer; }
-  function GetGlobalTimerStr() { return minutesToHoursAndMinutes( GetGlobalTimer() ); }
   
   function SetAlarmAudio() {
     let input = document.createElement('input');
@@ -1470,6 +1467,7 @@ let app = (function () {
     lsdb.data.isFilterTaskByTargetTime = data.isViewTargetTimeOnly;    
     lsdb.data.isSortByTotalProgress = data.isSortByTotalProgress;    
     lsdb.data.globalTimer = data.globalTimer;    
+    lsdb.data.globalSequenceTimer = data.globalSequenceTimer;    
   }
   
   function filterTaskByTargetTime() {
@@ -2340,8 +2338,9 @@ let app = (function () {
     data.isSortByTotalProgress = lsdb.data.isSortByTotalProgress;
     $('#labeled-by-sortbyprogress').checked = data.isSortByTotalProgress;
     
+    // timer setting
     data.globalTimer = lsdb.data.globalTimer;
-    ui.SetGlobalTimer();
+    
     
     await taskRestoreComponentsData();
     

@@ -8,7 +8,9 @@ window.lsdb = new Lsdb(storageName, {
     history: 0,
     historyTime: 0,
     activeTask: '',
-    globalTimer: 12, // 12 minutes
+    
+    // in minutes
+    globalTimer: 7, 
     
     
     isFilterTaskByTargetTime: false,
