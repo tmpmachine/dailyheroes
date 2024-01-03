@@ -49,7 +49,7 @@ let viewStateUtil = (function() {
       }
     }
     
-    SetViewState(viewGroupName, viewStates);
+    SetViewState(viewGroupName, viewStates, groupEl);
   }
   
   function filterViewStates(viewStates, viewName) {
@@ -76,7 +76,7 @@ let viewStateUtil = (function() {
       viewStates = filterViewStates(viewStates, viewName);
     }
     
-    SetViewState(viewGroupName, viewStates);
+    SetViewState(viewGroupName, viewStates, groupEl);
   }
   
   function SetState(viewGroupName, viewNames) {
@@ -104,7 +104,7 @@ let viewStateUtil = (function() {
       viewStates = filterViewStates(viewStates, viewName);
     }
     
-    SetViewState(viewGroupName, viewStates);
+    SetViewState(viewGroupName, viewStates, groupEl);
   }
   
   function SetViewState(viewGroupName, viewStates, groupEl) {
