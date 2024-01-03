@@ -68,8 +68,8 @@ let viewStateUtil = (function() {
     SetViewState(viewGroupName, viewStates, groupEl);
   }
   
-  function Remove(viewGroupName, viewNames) {
-    let groupEl = GetViewGroupNode(viewGroupName);
+  function Remove(viewGroupName, viewNames, el) {
+    let groupEl = GetViewGroupNode(viewGroupName, el);
     let viewStates = groupEl.dataset.viewStates.split(' ');
     
     for (let viewName of viewNames) {
@@ -84,8 +84,8 @@ let viewStateUtil = (function() {
     Add(viewGroupName, viewNames);
   }
   
-  function RemoveAll(viewGroupName) {
-    let groupEl = GetViewGroupNode(viewGroupName);
+  function RemoveAll(viewGroupName, el) {
+    let groupEl = GetViewGroupNode(viewGroupName, el);
     let viewStates = groupEl.dataset.viewStates.split(' ');
     let groupStates = [];
     let group = data.viewStateMap.find(x => x.group == viewGroupName);

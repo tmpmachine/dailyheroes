@@ -21,7 +21,7 @@ let viewStates = [
   {
     group: 'task',
     states: ['sequence', 'manage-sequence', 'sequence-added', 'collection-only'],
-    inverseStates: ['sequence', 'manage-sequence', 'collection-only', 'sequence-added']
+    inverseStates: ['sequence', 'manage-sequence', 'collection-only', 'sequence-added', 'sequence-mode']
   },
   // task lists
   {

@@ -3,6 +3,8 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    TaskDistributeProgressTaskFromForm,
+    TaskResetProgressTaskFromForm,
     NavigateViewTask,
     NavigateViewMission,
     TaskLinkTaskWithIdToActiveSequence,
@@ -351,18 +353,29 @@ let ui = (function () {
     $('#task-modal').close();
   }
   
-  function ResetProgressTaskFromForm(evt) {
+  async function TaskResetProgressTaskFromForm(evt) {
     let form = evt.target.form;
     let id = form.id.value;
     
-    // console.log(id)
-    let taskEl = $(`[data-obj="task"][data-id="${id}"]`);
-    if (!taskEl) {
-      alert('failed');
-      return;
-    }
+    let task = await compoTask.ResetProgressById(id); 
+
+    await appData.TaskStoreTask();
+
+    partialUpdateUITask(task.id, task);
     
-    app.TaskDeleteTask(id, taskEl);
+    $('#task-modal').close();
+  }
+  
+  async function TaskDistributeProgressTaskFromForm(evt) {
+    let form = evt.target.form;
+    let id = form.id.value;
+    
+    let task = await compoTask.ResetProgressById(id); 
+
+    await appData.TaskStoreTask();
+
+    partialUpdateUITask(task.id, task);
+    
     $('#task-modal').close();
   }
   
@@ -412,6 +425,10 @@ let ui = (function () {
       // toggle active
       let el = container.querySelector(`[data-kind="item-sequence-task"][data-id="${item.id}"]`);
       el.classList.toggle('is-active', (item.id == activeId));
+    }
+    
+    if (items.length === 0) {
+      viewStateUtil.Remove('task', ['sequence-mode'], taskEl);
     }
     
   }
@@ -504,8 +521,10 @@ let ui = (function () {
     
     container.append(docFrag);
     
+    viewStateUtil.RemoveAll('task', taskEl);
+    
     if (taskEl && items.length > 0) {
-      viewStateUtil.Add('task', ['sequence'], taskEl);
+      viewStateUtil.Add('task', ['sequence', 'sequence-mode'], taskEl);
     }
     
   }
@@ -1076,8 +1095,10 @@ let ui = (function () {
   
   function partialUpdateUITask(id, task) {
     let el = $(`[data-obj="task"][data-id="${id}"]`);
+    
+    el.querySelector('[data-slot="progress"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.progressTime) );
     el.querySelector('[data-slot="title"]').textContent = task.title;
-    el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes(msToMinutes(task.targetTime));
+    el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.targetTime) );
   }
   
   function OnSubmitSequenceTask(ev) {

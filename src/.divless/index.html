@@ -675,11 +675,15 @@
       	  <!-- # time progress info -->
       	  [ {fs:0.7rem;} .d-flex .justify-content-between
             [ {flex:1} 
-          	  <span data-obj="progress" data-slot="progress"></span>
-          	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+              [s data-view-group="task" data-view-name-not="sequence-mode"
+            	  <span data-obj="progress" data-slot="progress"></span>
+            	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+              ]
           	  <span data-slot="totalProgressStr"></span>
-          	  --
-      	      <span data-slot="targetString"></span> 
+          	  [s data-view-group="task" data-view-name-not="sequence-mode"
+            	  --
+        	      <span data-slot="targetString"></span> 
+          	  ]
       	      <span class="d-none" data-slot="completionPercentage"></span>
         	  ]
         	  [
@@ -832,12 +836,16 @@
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
         [ .d-inline-flex {gap:0.2rem}
-          <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
+          [ data-view-group="task" data-view-name-not="sequence-mode"
+            <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
+          ]
           [ .d-none
             <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
             <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
           ]
-          <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
+          [ .obsoletes
+            <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
+          ]
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
           [btn 'more_time' data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually"]
           [ {p:0.2rem}]
@@ -962,7 +970,7 @@
             <!-- # modal notes -->
             [ data-view-group="form-task" data-view-name="collection-only" 
               [small {fs:0.75rem}
-                Note : You're editing/creating collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+                Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
               ]
               [ .pb-half]
               [ .pb-half]
@@ -993,11 +1001,14 @@
                       [btn 'Update' data-role="btn-edit" .btn-primary]
                     ]
                   ]
+                  [ .pb-half]
                   
+                  <!-- # task modal progress actions -->
                   [ .d-flex .justify-content-between
-                    [ data-view-group="build" data-view-name="dev"
-                      [ .d-flex .align-items-center {gap:0.5rem}
-                        [btn 'Reset progress' title="Reset progress" type="button" data-onclick="reset-progress-task-from-form"]
+                    [ .d-flex .align-items-center .gap-half
+                      [btn 'Reset progress' type="button" data-onclick="reset-progress-task-from-form"]
+                      [ data-view-group="build" data-view-name="dev"
+                        [btn 'Distribute progress' type="button" data-onclick="distribute-progress-task-from-form"]
                       ]
                     ]
                   ]

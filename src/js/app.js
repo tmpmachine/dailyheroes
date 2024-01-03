@@ -2506,7 +2506,11 @@ let app = (function () {
         updateUI();
       break;
       case 'unarchive': await taskUnarchive(id); break;
-      case 'restart': await compoTask.ResetProgressById(id); break;
+      case 'restart': 
+        await compoTask.ResetProgressById(id); 
+        await appData.TaskStoreTask();
+        await TaskListTask();  
+      break;
       case 'take-note': showModalNote(id); break;
       case 'start': await StartTaskTimer(parentEl, id); break;
       case 'stop': await app.TaskStopActiveTask(); break;

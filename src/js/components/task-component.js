@@ -42,9 +42,9 @@ let compoTask = (function() {
     task.progress = 0;
     task.progressTime = 0;
     task.finishCountProgress = task.finishCount;
-    await appData.TaskStoreTask();
-    await app.TaskListTask();  
-    loadSearch();
+    // loadSearch();
+    
+    return task;
   }
   
   async function StartTimerByTaskId(id, timerOptions) {

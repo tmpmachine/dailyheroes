@@ -675,11 +675,15 @@
       	  <!-- # time progress info -->
       	  <div class="d-flex justify-content-between" style="font-size:0.7rem;">
             <div style="flex:1;">
-          	  <span data-obj="progress" data-slot="progress"></span>
-          	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+              <span data-view-group="task" data-view-name-not="sequence-mode">
+            	  <span data-obj="progress" data-slot="progress"></span>
+            	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+              </span>
           	  <span data-slot="totalProgressStr"></span>
-          	  --
-      	      <span data-slot="targetString"></span> 
+          	  <span data-view-group="task" data-view-name-not="sequence-mode">
+            	  --
+        	      <span data-slot="targetString"></span> 
+          	  </span>
       	      <span class="d-none" data-slot="completionPercentage"></span>
         	  </div>
         	  <div>
@@ -832,12 +836,16 @@
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
         <div class="d-inline-flex" style="gap:0.2rem;">
-          <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
+          <div data-view-group="task" data-view-name-not="sequence-mode">
+            <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
+          </div>
           <div class="d-none">
             <button data-role='archive' class="icon-mate" data-group="not-running unarchived" title='Archive'>archive</button>
             <button data-role='unarchive' class="icon-mate" data-group="archived" title='Unarchive'>unarchive</button>
           </div>
-          <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
+          <div class="obsoletes">
+            <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
+          </div>
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
           <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">more_time</button>
           <div style="padding:0.2rem;"></div>
@@ -962,7 +970,7 @@
             <!-- # modal notes -->
             <div data-view-group="form-task" data-view-name="collection-only">
               <small style="font-size:0.75rem;">
-                Note : You're editing/creating collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+                Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
               </small>
               <div class="pb-half"></div>
               <div class="pb-half"></div>
@@ -993,11 +1001,14 @@
                       <button class="btn-primary" data-role="btn-edit">Update</button>
                     </div>
                   </div>
+                  <div class="pb-half"></div>
                   
+                  <!-- # task modal progress actions -->
                   <div class="d-flex justify-content-between">
-                    <div data-view-group="build" data-view-name="dev">
-                      <div class="d-flex align-items-center" style="gap:0.5rem;">
-                        <button title="Reset progress" type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                    <div class="d-flex align-items-center gap-half">
+                      <button type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                      <div data-view-group="build" data-view-name="dev">
+                        <button type="button" data-onclick="distribute-progress-task-from-form">Distribute progress</button>
                       </div>
                     </div>
                   </div>
