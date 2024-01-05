@@ -5,7 +5,7 @@
 .d-none{display:none}
 .obsoletes{display:none!important;height:0!important;width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important}
 .flex-wrap{flex-wrap:wrap}
-.flex-1{flex:1}
+.flex-1,.flex-grow{flex:1}
 .font-weight-bold{font-weight:bold}
 .text-center{text-align:center}.text-right{text-align:right}
 .w-100{width:100%}.h-100{height:100%}

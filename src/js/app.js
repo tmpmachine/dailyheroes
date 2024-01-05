@@ -2312,7 +2312,7 @@ let app = (function () {
     // web platform notification support
     setWebPlatformNotificationSupport();
     
-    initTests();
+    runTests();
     
   }
   
@@ -2396,7 +2396,7 @@ let app = (function () {
     });
   }
   
-  async function initTests() {
+  async function runTests() {
     // return;
     // let $$ = document.querySelectorAll.bind(document);
     
@@ -2404,10 +2404,12 @@ let app = (function () {
     // viewStateUtil.Set('screens', ['settings']);
     // viewStateUtil.Set('screens', ['priority-mapper']);
     
-    // await waitUntil(() => {
-    //   return compoPriorityMapper;
-    // });
-    // ui.OpenPriorityMapper();
+    /*
+    await waitUntil(() => {
+      return compoPriorityMapper;
+    });
+    ui.OpenPriorityMapper();
+    // */
     
     // await waitForElement('[data-role="edit"]');
     // Array.from($$('[data-role="edit"]')).pop().click();

@@ -115,6 +115,7 @@ let DOMEvents = (function() {
   	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
   	},
   	onclick: {
+  	  'open-by-threshold': () => ui.OpenByThreshold(),
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
   	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),
   	  'new-collection': () => uiCollection.NewItem(),

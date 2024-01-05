@@ -46,6 +46,7 @@ let ui = (function () {
     HotReloadListSequenceByTaskId,
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
+    OpenByThreshold,
     OpenPriorityMapper,
     TaskSavePriorityMapper,
     HandleInputPrioritySlider,
@@ -566,6 +567,12 @@ let ui = (function () {
   function OpenPriorityMapper() {
     let activeTaskParentId = appData.GetActiveTaskParentId();
     openPriorityMapperByParentId(activeTaskParentId);
+  }
+  
+  function OpenByThreshold() {
+    viewStateUtil.Set('screens', ['by-threshold']);
+    // let activeTaskParentId = appData.GetActiveTaskParentId();
+    // openPriorityMapperByParentId(activeTaskParentId);
   }
   
   function HandleInputPrioritySlider(evt) {

@@ -227,20 +227,34 @@
                 <small class="txt">Show only task with target time (>= 10m)</small>
               </label>
             </div>
-            <div style="margin-bottom:0.5rem;"></div>
+            <div class="pb-half"></div>
           </div>
-          <!-- # breadcrumbs -->
+          
           <div data-view-group="task-view-mode" data-view-name="task filter-target">
-            <div class="d-flex justify-content-between">
-              <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
-              <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-                <!-- # nav : priority mapper -->
-                <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
-                  <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
+            
+            <div class="justify-content-end d-flex gap-half" data-view-group="task-view-mode" data-view-name-not="filter-target">
+              
+              <!-- # nav : tasks by threshold -->
+              <div data-view-group="build" data-view-name="dev">
+                <button class="d-flex align-items-center btn-glass" data-onclick="open-by-threshold" style="gap:0.3rem;">
+                  <span>By Threshold</span> <span class="icon-mate">flag</span>
                 </button>
               </div>
+              
+              <!-- # nav : priority mapper -->
+              <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
+                <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
+              </button>
+              
+            </div>
+            <div class="pb-half"></div>
+            
+            <!-- # breadcrumbs -->
+            <div class="d-flex justify-content-between">
+              <div id="container-breadcrumbs" class="container-breadcrumbs"></div>
             </div>
             <div style="margin-bottom:0.3rem;"></div>
+            
           </div>
                 
           <div class="pb-half"></div>
@@ -365,6 +379,25 @@
           
         </div>
         
+      </section>
+      
+      <!-- # tasks by threshold screen -->
+      <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="by-threshold">
+      <div class="d-grid h-100" style="grid-template-rows:auto 1fr;">
+      
+        <!-- # Tasks By Threshold screen nav -->
+        <div class="d-flex align-items-center container-screen-title pos-sticky top-0 z-index-1" style="gap:1rem;">
+          <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+          <div style="font-weight:bold;">Tasks by Threshold</div>
+        </div>
+      
+        <!-- # Tasks By Threshold screen body -->
+        <div class="padding-container pos-relative text-center">
+          <div class="pb-full"></div>
+          Comming soon
+        </div>
+        
+      </div>
       </section>
       
       <!-- # priority mapper screen -->

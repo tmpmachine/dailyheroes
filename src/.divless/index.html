@@ -227,20 +227,34 @@
                 [small .txt 'Show only task with target time (>= 10m)']
               ]
             ]
-            [ {mb:0.5rem}]
+            [ .pb-half]
           ]
-          <!-- # breadcrumbs -->
+          
           [ data-view-group="task-view-mode" data-view-name="task filter-target"
-            [ .d-flex .justify-content-between
-              [ #container-breadcrumbs .container-breadcrumbs]
-              [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-                <!-- # nav : priority mapper -->
-                [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
-                  [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
+            
+            [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-end .d-flex .gap-half
+              
+              <!-- # nav : tasks by threshold -->
+              [ data-view-group="build" data-view-name="dev"
+                [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;" .btn-glass
+                  [s 'By Threshold'] [s .icon-mate 'flag']
                 ]
               ]
+              
+              <!-- # nav : priority mapper -->
+              [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
+                [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
+              ]
+              
+            ]
+            [ .pb-half]
+            
+            <!-- # breadcrumbs -->
+            [ .d-flex .justify-content-between
+              [ #container-breadcrumbs .container-breadcrumbs]
             ]
             [ {mb:0.3rem}]
+            
           ]
                 
           <div class="pb-half"></div>
@@ -365,6 +379,25 @@
           
         ]
         
+      </section>
+      
+      <!-- # tasks by threshold screen -->
+      <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="by-threshold">
+      [ .d-grid .h-100 {rows:auto 1fr}
+      
+        <!-- # Tasks By Threshold screen nav -->
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
+          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
+          [ 'Tasks by Threshold' {fw:bold}]
+        ]
+      
+        <!-- # Tasks By Threshold screen body -->
+        [ .padding-container .pos-relative .text-center
+          [ .pb-full]
+          Comming soon
+        ]
+        
+      ]
       </section>
       
       <!-- # priority mapper screen -->
