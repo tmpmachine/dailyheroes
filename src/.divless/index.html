@@ -24,6 +24,7 @@
       font-style: normal;
       font-weight: 400;
       src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');
+      /*src: url(fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2) format('woff2');*/
     }
   
   </style>
@@ -235,10 +236,8 @@
             [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-end .d-flex .gap-half
               
               <!-- # nav : tasks by threshold -->
-              [ data-view-group="build" data-view-name="dev"
-                [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;" .btn-glass
-                  [s 'By Threshold'] [s .icon-mate 'flag']
-                ]
+              [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;" .btn-glass
+                [s 'By Threshold'] [s .icon-mate 'flag']
               ]
               
               <!-- # nav : priority mapper -->
@@ -392,9 +391,9 @@
         ]
       
         <!-- # Tasks By Threshold screen body -->
-        [ .padding-container .pos-relative .text-center
+        [ .padding-container .pos-relative
           [ .pb-full]
-          Comming soon
+          [ #list-tasks-by-threshold data-onclick="task-click-handler"]
         ]
         
       ]
@@ -494,8 +493,8 @@
                 <!-- # local backup -->
                 [small 'Local backup and restore.'][ .mb-m]
                 [ .d-flex {gap:0.3rem}
-                  [btn 'Import' .clickable data-callback="backup-data"]
-                  [btn 'Export' .clickable data-callback="restore-data"]
+                  [btn 'Download' .clickable data-callback="backup-data"]
+                  [btn 'Upload' .clickable data-callback="restore-data"]
                 ]
               ]
               
@@ -799,6 +798,35 @@
       
   	]
   </template>
+  
+  <template id="tmp-task-simple">
+    <!-- # container task simple mode -->
+    
+  	[ .container-item data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="" .pos-relative
+  	  
+  	  <!-- # simple mode : task body -->
+  	  [ .task-body-main {padding:0.3rem 0.5rem;} .d-flex .gap-full
+  	  
+    	  [ .d-flex .justify-content-between {gap:0.3rem} .flex-grow
+    	    [ .flex-1
+      	    [ data-slot="missionPath" data-slot-html]
+      	    <span class="title" data-slot="title"></span>
+    	    ]
+          [small
+            <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
+      	  ]
+    	  ]
+    	  
+    	  <!-- # simple mode : task toolbar -->
+    	  [ .container-task-toolbar .d-flex .gap-full
+      	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons-simple"]
+  	    ]
+    	  
+  	  ]
+  	  
+  	]
+  	
+  </template>
 
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
@@ -915,6 +943,28 @@
       ]
     ]
 	  
+    
+  </template>
+  
+  <template id="tmp-mission-buttons-simple">
+    <!-- # tmp-mission-buttons-simple -->
+    [ .d-inline-flex {gap:0.2rem}
+      <!-- # actions mission -->
+      [ .d-flex .gap-half
+        [
+          [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection"]
+          [ data-view-group="task" data-view-name-not="collection-only"
+            [btn 'playlist_remove' data-role="remove-mission" .bg-danger .icon-mate title="Remove from collection"]
+          ]
+        ]
+        
+        <!-- # simple mode : action locate task -->
+        [
+          [btn data-role='navigate-mission' title='Open mission into view' .icon-mate 'open_in_new']
+        ]
+      ]
+      
+    ]
     
   </template>
   

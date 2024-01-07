@@ -1211,6 +1211,7 @@ let app = (function () {
     AddProgressTimeToRootMission,
     TaskStopActiveTask,
     TaskListTask,
+    TaskListTasksByThreshold,
     TaskContinueTask,
     
     SetAlarmAudio,
@@ -1536,6 +1537,33 @@ let app = (function () {
     });
   }
 
+  async function TaskListTasksByThreshold() {
+    
+    let options = {
+      isSortByTargetTime: true,
+    };
+    // let items = await TaskGetAllTasks(options);
+    let items = filterTaskByTargetTime();
+    if (options.isSortByTargetTime) {
+      items.sort((a,b) => a.targetTime < b.targetTime ? 1 : -1)
+      // sortTaskByTotalProgressTimeAsc(items);
+    }
+    return items;
+  }
+  
+  async function TaskGetAllTasks(options) {
+    
+    // filter tasks
+    let items = await filterListTask(options.isMissionView);
+    
+    // sort tasks
+    if (options.isSortByTotalProgress) {
+      sortTaskByTotalProgressTimeAsc(items);
+    }
+    
+    return items;
+  }
+
   async function TaskListTask() {
     
     let isMissionView = (lsdb.data.viewMode == 'mission');
@@ -1562,23 +1590,11 @@ let app = (function () {
     }
     
     // filter tasks
-    let filteredTasks = await filterListTask(isMissionView);
-    
-    // sort tasks
-    if (data.isSortByTotalProgress) {
-      sortTaskByTotalProgressTimeAsc(filteredTasks);
-    }
+    let filteredTasks = await TaskGetAllTasks({
+      isMissionView,
+      isSortByTotalProgress: data.isSortByTotalProgress,
+    })
 
-    // temporary store total priority point in a level
-    let tempTotalPriorityPoint = [
-      /*
-        {
-          parentId: '',
-          totalPriorityPoint: 0,
-        }
-      */
-    ];
-    
     // let rankLabel = 1;
     for (let item of filteredTasks) {
       
@@ -2404,6 +2420,8 @@ let app = (function () {
     // viewStateUtil.Set('screens', ['settings']);
     // viewStateUtil.Set('screens', ['priority-mapper']);
     
+    // ui.OpenByThreshold()
+    
     /*
     await waitUntil(() => {
       return compoPriorityMapper;
@@ -2482,8 +2500,15 @@ let app = (function () {
         ui.HotReloadListSequenceByTaskId(id);
       break;
       case 'edit-sequence-task': ui.EditSequenceTask(id, seqId); break;
-      case 'navigate-mission': app.TaskNavigateToMission(id); break;
-      case 'navigate-sub': 
+      case 'navigate-mission': 
+        viewStateUtil.RemoveAll('screens');
+        viewStateUtil.Add('screens', ['home']);
+        
+        await app.TaskNavigateToMission(id); 
+        ui.FocusTaskById(id);
+        
+        break;
+      case 'navigate-sub':
         ui.Navigate(id);
         app.TaskListTask();
         break;

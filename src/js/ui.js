@@ -3,6 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    FocusTaskById,
     TaskDistributeProgressTaskFromForm,
     TaskResetProgressTaskFromForm,
     NavigateViewTask,
@@ -294,7 +295,7 @@ let ui = (function () {
     compoSequence.Pop();
     
     await app.TaskNavigateToMission(linkedTask.id);
-    focusTaskById(linkedTask.id);
+    FocusTaskById(linkedTask.id);
     
     $('#task-sequence-modal').close();
   }
@@ -316,7 +317,7 @@ let ui = (function () {
     $('#task-sequence-modal').close();
   }
   
-  function focusTaskById(id) {
+  function FocusTaskById(id) {
     let taskEl = getTaskElById(id);
     if (!taskEl) return;
     
@@ -569,10 +570,121 @@ let ui = (function () {
     openPriorityMapperByParentId(activeTaskParentId);
   }
   
-  function OpenByThreshold() {
+  async function OpenByThreshold() {
     viewStateUtil.Set('screens', ['by-threshold']);
-    // let activeTaskParentId = appData.GetActiveTaskParentId();
-    // openPriorityMapperByParentId(activeTaskParentId);
+    
+    let items = await app.TaskListTasksByThreshold();
+    let taskItems = buildTaskItemData(items);
+    displayListTasksByThreshold(taskItems);
+  }
+  
+  function buildTaskItemData(items) {
+    
+    let fillDatas = [];
+    
+    for (let item of items) {
+      
+      let liveProgress = 0;
+      let liveProgressTime = 0;
+      
+      let targetMinutesLeft = item.target - msToMinutes(item.progressTime) - liveProgress;
+      let progressMinutesLeft = msToMinutes(item.progressTime);
+      
+      // # set ratio time left string
+      let ratioTimeLeftStr = '';
+      
+      // ## handle if self task
+      if (item.ratio > 0 || item.targetTime > 0)
+      {
+        {
+          let targetTime = item.targetTime;
+          if (targetTime > 0) {
+            ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(targetTime)) }`;
+          }
+        }
+        
+
+      
+      }
+      
+      // show mission path
+      let missionPath = '';
+      let isTopPath = isTopMissionPath(item.id);
+      if (isTopPath) {
+        missionPath = getAndComputeMissionPath(item.parentId);
+      }
+      
+      // show total task progress (self + child tasks)
+      let totalProgressStr = '';
+      {
+        let totalMsProgressChildTask = sumAllChildProgress(item.id);
+        let totalProgressTime = item.totalProgressTime + totalMsProgressChildTask;
+        if (totalProgressTime > 0) {
+          totalProgressStr = `(${secondsToHMS(msToSeconds( totalProgressTime ))} total)`;
+        }
+      }
+  
+  
+      let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
+      let fillData = {...item, ...{
+        // targetString: minutesToHoursAndMinutes(item.target),
+        // rankLabel: ` | Rank #${rankLabel}`,
+        missionPath,
+        ratioTimeLeftStr,
+        totalProgressStr,
+        targetString: (targetMinutesLeftStr.trim().length > 0 ? `${targetMinutesLeftStr} left` : ''),
+        allocatedTimeString: minutesToHoursAndMinutes(item.target),
+        progress: progressMinutesLeft ? minutesToHoursAndMinutes(progressMinutesLeft) : '0m',
+      }};
+  
+  
+      // set note progress time label
+      if (fillData.note) {
+        fillData.note.map(item => {
+          if (item.totalProgressTime) {
+            item.progressTimeLabel = minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime))
+          }
+          return item;
+        })
+      }
+  
+      let percentageProgress = 0;
+      let percentageProgressTime = 0;
+      if (item.target) {
+        percentageProgress = Math.min(100, Math.floor((msToMinutes(item.progressTime) + liveProgress)/item.target*10000)/100);
+        percentageProgressTime = Math.min(100, Math.floor((item.progressTime + liveProgressTime) / minutesToMs(item.target) * 10000) / 100);
+        // fillData.completionPercentage = `(${percentageProgressTime}%)`;
+        if (percentageProgressTime == 100) {
+          fillData.completionPercentage = `(completed)`;
+        }
+      }
+      
+      fillDatas.push(fillData)
+      
+    }
+    
+    return fillDatas;  
+  }
+  
+  
+  function displayListTasksByThreshold(items) {
+    
+    $('#list-tasks-by-threshold').innerHTML = '';
+    let docFrag = document.createDocumentFragment();
+
+    for (let item of items) {
+      let el = window.templateSlot.fill({
+    	  data: item, 
+    	  template: document.querySelector('#tmp-task-simple').content.cloneNode(true), 
+    	});
+  	  
+      let taskEl = el.querySelector('[data-obj="task"]');
+    	taskEl.dataset.id = item.id;	
+
+  	  docFrag.append(el);
+    }
+    
+    $('#list-tasks-by-threshold').append(docFrag);
   }
   
   function HandleInputPrioritySlider(evt) {

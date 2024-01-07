@@ -26,7 +26,7 @@
 .bg-white{background:white}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
-.gap-half{gap:0.5rem}
+.gap-half{gap:0.5rem}.gap-full{gap:1rem}
 .pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
 
 * {
@@ -494,8 +494,9 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 
 [data-obj="task"].focused {
-  outline: 2px solid lime;
-  outline-offset: 2px;
+  outline: 3px solid #00ff2b;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .form-card-inner {

@@ -24,6 +24,7 @@
       font-style: normal;
       font-weight: 400;
       src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');
+      /*src: url(fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2) format('woff2');*/
     }
   
   </style>
@@ -235,11 +236,9 @@
             <div class="justify-content-end d-flex gap-half" data-view-group="task-view-mode" data-view-name-not="filter-target">
               
               <!-- # nav : tasks by threshold -->
-              <div data-view-group="build" data-view-name="dev">
-                <button class="d-flex align-items-center btn-glass" data-onclick="open-by-threshold" style="gap:0.3rem;">
-                  <span>By Threshold</span> <span class="icon-mate">flag</span>
-                </button>
-              </div>
+              <button class="d-flex align-items-center btn-glass" data-onclick="open-by-threshold" style="gap:0.3rem;">
+                <span>By Threshold</span> <span class="icon-mate">flag</span>
+              </button>
               
               <!-- # nav : priority mapper -->
               <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
@@ -392,9 +391,9 @@
         </div>
       
         <!-- # Tasks By Threshold screen body -->
-        <div class="padding-container pos-relative text-center">
+        <div class="padding-container pos-relative">
           <div class="pb-full"></div>
-          Comming soon
+          <div id="list-tasks-by-threshold" data-onclick="task-click-handler"></div>
         </div>
         
       </div>
@@ -494,8 +493,8 @@
                 <!-- # local backup -->
                 <small>Local backup and restore.</small><div class="mb-m"></div>
                 <div class="d-flex" style="gap:0.3rem;">
-                  <button class="clickable" data-callback="backup-data">Import</button>
-                  <button class="clickable" data-callback="restore-data">Export</button>
+                  <button class="clickable" data-callback="backup-data">Download</button>
+                  <button class="clickable" data-callback="restore-data">Upload</button>
                 </div>
               </div>
               
@@ -799,6 +798,35 @@
       
   	</div>
   </template>
+  
+  <template id="tmp-task-simple">
+    <!-- # container task simple mode -->
+    
+  	<div class="container-item pos-relative" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="">
+  	  
+  	  <!-- # simple mode : task body -->
+  	  <div class="task-body-main d-flex gap-full" style="padding:0.3rem 0.5rem;">
+  	  
+    	  <div class="d-flex justify-content-between flex-grow" style="gap:0.3rem;">
+    	    <div class="flex-1">
+      	    <div data-slot="missionPath" data-slot-html></div>
+      	    <span class="title" data-slot="title"></span>
+    	    </div>
+          <small>
+            <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
+      	  </small>
+    	  </div>
+    	  
+    	  <!-- # simple mode : task toolbar -->
+    	  <div class="container-task-toolbar d-flex gap-full">
+      	  <div class="d-flex justify-content-between" data-slot="" data-template="#tmp-mission-buttons-simple"></div>
+  	    </div>
+    	  
+  	  </div>
+  	  
+  	</div>
+  	
+  </template>
 
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
@@ -915,6 +943,28 @@
       </div>
     </div>
 	  
+    
+  </template>
+  
+  <template id="tmp-mission-buttons-simple">
+    <!-- # tmp-mission-buttons-simple -->
+    <div class="d-inline-flex" style="gap:0.2rem;">
+      <!-- # actions mission -->
+      <div class="d-flex gap-half">
+        <div>
+          <button data-role="add-to-mission" class="icon-mate" title="Add to collection">playlist_add</button>
+          <div data-view-group="task" data-view-name-not="collection-only">
+            <button class="bg-danger icon-mate" data-role="remove-mission" title="Remove from collection">playlist_remove</button>
+          </div>
+        </div>
+        
+        <!-- # simple mode : action locate task -->
+        <div>
+          <button class="icon-mate" data-role='navigate-mission' title='Open mission into view'>open_in_new</button>
+        </div>
+      </div>
+      
+    </div>
     
   </template>
   
