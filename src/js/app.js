@@ -1725,10 +1725,6 @@ let app = (function () {
     	  template: document.querySelector('#tmp-task').content.cloneNode(true), 
     	});
   
-      if (fillData.type == 'M') {
-        viewStateUtil.Add('task', ['collection-only'], el.querySelector('[data-view-group="task"]'));
-      }
-  
       // el.querySelector('.container-item').classList.toggle('is-child-task', typeof(fillData.parentId) == 'string');
   
       // set finish count label
@@ -1791,6 +1787,10 @@ let app = (function () {
     	
     	// # display sequence tasks
     	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
+    	
+    	if (fillData.type == 'M') {
+        viewStateUtil.Add('task', ['collection-only'], el.querySelector('[data-view-group="task"]'));
+      }
     	
     	if (item.isArchived) {
       	docFragCompleted.append(el);
