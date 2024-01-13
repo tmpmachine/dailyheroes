@@ -115,6 +115,9 @@ let DOMEvents = (function() {
   	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
   	},
   	onclick: {
+  	  'reset-data': () => app.ResetData(),
+  	  'reset-target-time': () => ui.ResetTargetTime(),
+  	  
   	  'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
   	  'open-by-threshold': () => ui.OpenByThreshold(),
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),

@@ -58,7 +58,37 @@ let ui = (function () {
     FinishInteractiveSequencePick,
     TaskOpenTaskIntoView,
     ChangeViewModeConfig,
+    ResetTargetTime,
   };
+  
+  async function ResetTargetTime() {
+    
+    Swal.fire({
+      title: 'Reset all tasks target time?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes'
+    }).then(async (result) => {
+      
+      if (!result.isConfirmed) return;
+      
+      
+      await compoTask.TaskResetTasksTargetTime(); 
+      await appData.TaskStoreTask();
+      await app.TaskListTask();  
+        
+      Swal.fire(
+        'Done!',
+        'Successfully reset all tasks time target.',
+        'success',
+      );
+      
+    });
+    
+  }
   
   function NavigateViewTask() {
     ChangeViewModeConfig('tasks');

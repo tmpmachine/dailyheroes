@@ -20,7 +20,9 @@ let compoTask = (function() {
     FocusSequenceById,
     TaskResetSequenceById,
     TaskResetSequenceCountByTaskId,
+    TaskResetTasksTargetTime,
   };
+
   
   async function AddTotalProgressByTaskId(id, addedTime) {
     let task = GetById(id);
@@ -36,6 +38,11 @@ let compoTask = (function() {
     app.AddProgressTimeToRootMission(task.parentId, addedTime);
   }
 
+  async function TaskResetTasksTargetTime() {
+    for (let task of tasks) {
+      task.targetTime = 0;
+    }
+  }
   
   async function ResetProgressById(id) {
     let task = tasks.find(x => x.id == id);
