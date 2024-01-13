@@ -430,7 +430,16 @@ let ui = (function () {
     viewStateUtil.Remove('active-task-info', ['has-target']);
     if (activeTask.targetTime > 0) {
       viewStateUtil.Add('active-task-info', ['has-target']);
+      
       $('#txt-active-task-target').innerHTML = minutesToHoursAndMinutes( msToMinutes(activeTask.targetTime) );
+      
+      // set quota time 
+      let targetQuotaTime = compoTask.GetTaskQuotaTimeById(activeTask.id);
+      $('#txt-active-task-target-limit').innerHTML = ``;
+      if (targetQuotaTime > 0 && activeTask.parentId != '') {
+        $('#txt-active-task-target-limit').innerHTML = ` -- Quota : ${secondsToHMS( msToSeconds(targetQuotaTime) )}`;
+      }
+      
     }
     
     RefreshTimeStreak();

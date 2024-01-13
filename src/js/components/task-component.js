@@ -21,7 +21,27 @@ let compoTask = (function() {
     TaskResetSequenceById,
     TaskResetSequenceCountByTaskId,
     TaskResetTasksTargetTime,
+    GetTaskQuotaTimeById,
   };
+
+  function GetTaskQuotaTimeById(id) {
+    
+    let task = GetById(id);
+    
+    if (task.parentId == '') {
+      return task.targetTime;
+    }
+    
+    let parentTask = GetById(task.parentId);
+    let safeLoop = 30;
+    
+    while (parentTask.parentId != '' && safeLoop > 0) {
+      parentTask = GetById(parentTask.parentId);
+      safeLoop -= 1;
+    }
+    
+    return parentTask.targetTime;
+  }
 
   
   async function AddTotalProgressByTaskId(id, addedTime) {

@@ -54,6 +54,12 @@
             </div>
           </div>
           <div class="d-flex" style="gap:0.3rem;">
+          
+            <!-- # nav : tasks by threshold -->
+            <button class="d-flex align-items-center" data-onclick="open-by-threshold" style="gap:0.3rem;">
+              <span>Targets</span> <span class="icon-mate">flag</span>
+            </button>
+          
             <!-- # tracker timer -->
             <button class="clickable d-flex align-items-center btn-border-0" data-callback="navigate-screen" data-view-target="trackers" style="gap:0.3rem;">
               Trackers <span class="icon-mate">timer</span>
@@ -88,15 +94,18 @@
               <div>
                 <small>Active task</small> : <span id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></span> 
               </div>
-              <small data-view-group="active-task-info" data-view-name="has-target">
-                Target : <mark id="txt-active-task-target"></mark>
-              </small>
+              <!-- # active time total time streak -->
               <div data-view-group="active-task-info" data-view-name="on-streak">
                 <small>
                   Total time streak : <span id="txt-time-streak"></span>
                 </small>
               </div>
-              <div class="mb-xs"></div>
+              
+              <!-- # active time target time -->
+              <small data-view-group="active-task-info" data-view-name="has-target">
+                Target : <mark id="txt-active-task-target"></mark> <span id="txt-active-task-target-limit"></span>
+              </small>
+              <div class="pb-half"></div>
               
               <!-- # open task button -->
               <div>
@@ -246,11 +255,6 @@
             
             <div class="justify-content-end d-flex gap-half" data-view-group="task-view-mode" data-view-name-not="filter-target">
               
-              <!-- # nav : tasks by threshold -->
-              <button class="d-flex align-items-center btn-glass" data-onclick="open-by-threshold" style="gap:0.3rem;">
-                <span>By Threshold</span> <span class="icon-mate">flag</span>
-              </button>
-              
               <!-- # nav : priority mapper -->
               <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
                 <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
@@ -398,11 +402,16 @@
         <!-- # Tasks By Threshold screen nav -->
         <div class="d-flex align-items-center container-screen-title pos-sticky top-0 z-index-1" style="gap:1rem;">
           <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
-          <div style="font-weight:bold;">Tasks by Threshold</div>
+          <div style="font-weight:bold;">Targets</div>
         </div>
       
         <!-- # Tasks By Threshold screen body -->
         <div class="padding-container pos-relative">
+          <div class="pb-full"></div>
+          
+          <small>
+            Info : only targets above 5m are shown in the list.
+          </small>
           <div class="pb-full"></div>
           
           <div>

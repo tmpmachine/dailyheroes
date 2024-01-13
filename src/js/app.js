@@ -1477,7 +1477,7 @@ let app = (function () {
   
   function filterTaskByTargetTime() {
     // 10 min threshold
-    return tasks.filter(x => x.targetTime > 10*60*1000 && x.type != 'M');
+    return tasks.filter(x => x.targetTime > 5*60*1000 && x.type != 'M');
   }
   
   function filterTaskByPath() {

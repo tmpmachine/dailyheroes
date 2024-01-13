@@ -54,6 +54,12 @@
             ]
           ]
           [ .d-flex {gap:0.3rem}
+          
+            <!-- # nav : tasks by threshold -->
+            [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;"
+              [s 'Targets'] [s .icon-mate 'flag']
+            ]
+          
             <!-- # tracker timer -->
             [btn .clickable .d-flex .align-items-center {gap:0.3rem} data-callback="navigate-screen" data-view-target="trackers" .btn-border-0
               Trackers [s .icon-mate 'timer']
@@ -88,15 +94,18 @@
               [
                 [small 'Active task'] : [s #txt-active-task-name {fw:bold;word-break:break-word}] 
               ]
-              [small data-view-group="active-task-info" data-view-name="has-target"
-                Target : [mark #txt-active-task-target]
-              ]
+              <!-- # active time total time streak -->
               [ data-view-group="active-task-info" data-view-name="on-streak"
                 [small
                   Total time streak : [s #txt-time-streak]
                 ]
               ]
-              [ .mb-xs]
+              
+              <!-- # active time target time -->
+              [small data-view-group="active-task-info" data-view-name="has-target"
+                Target : [mark #txt-active-task-target] [s #txt-active-task-target-limit]
+              ]
+              [ .pb-half]
               
               <!-- # open task button -->
               [ 
@@ -246,11 +255,6 @@
             
             [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-end .d-flex .gap-half
               
-              <!-- # nav : tasks by threshold -->
-              [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;" .btn-glass
-                [s 'By Threshold'] [s .icon-mate 'flag']
-              ]
-              
               <!-- # nav : priority mapper -->
               [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
                 [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
@@ -398,11 +402,16 @@
         <!-- # Tasks By Threshold screen nav -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
-          [ 'Tasks by Threshold' {fw:bold}]
+          [ 'Targets' {fw:bold}]
         ]
       
         <!-- # Tasks By Threshold screen body -->
         [ .padding-container .pos-relative
+          [ .pb-full]
+          
+          [small
+            Info : only targets above 5m are shown in the list.
+          ]
           [ .pb-full]
           
           [
