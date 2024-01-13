@@ -184,11 +184,19 @@
           
           <!-- # view mode tabs -->
           [ .d-grid {cols:1fr 1fr auto} .container-view-mode
-            [btn .clickable data-callback="view-mission" data-id="mission" .d-flex .align-items-center {gap:0.5rem} .justify-content-center
-              [s .icon-mate 'list']
-              [s 'Missions']
+            [btn .clickable data-callback="view-mission" data-id="mission"
+              [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
+                [s .icon-mate 'list']
+                [s 'Missions']
+              ]
+              [ .tab-active-indicator]
             ]
-            [btn 'My Tasks' .clickable data-callback="view-tasks" data-id="task"]
+            [btn .clickable data-callback="view-tasks" data-id="task"
+              [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
+                My Tasks
+              ]
+              [ .tab-active-indicator]
+            ]
           ]
           <div class="pb-half"></div>
           
@@ -224,7 +232,7 @@
           ]
           
           <!-- # filter by target time -->
-          [ data-view-group="task-view-mode" data-view-name="task"
+          [ data-view-group="task-view-mode" data-view-name="task" .obsoletes
             [ .d-flex .align-items-center .user-select-none
               [in type='checkbox' id='labeled-by-showtarget' .inputable data-callback="toggle-show-target-only"] 
               [l for='labeled-by-showtarget' .d-flex .align-items-center

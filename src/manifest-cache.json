@@ -44,8 +44,8 @@
     "js/app-data.js",
     "js/app.js",
     "js/ui.js",
-    "js/ui-collection.js",
-    "js/ui-mission.js",
+    "js/uis/ui-collection.js",
+    "js/uis/ui-mission.js",
     "js/ui-tracker.js",
     "js/utils/uuidv4-util.js",
     

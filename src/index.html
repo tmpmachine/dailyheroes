@@ -184,11 +184,19 @@
           
           <!-- # view mode tabs -->
           <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr auto;">
-            <button class="clickable d-flex align-items-center justify-content-center" data-callback="view-mission" data-id="mission" style="gap:0.5rem;">
-              <span class="icon-mate">list</span>
-              <span>Missions</span>
+            <button class="clickable" data-callback="view-mission" data-id="mission">
+              <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                <span class="icon-mate">list</span>
+                <span>Missions</span>
+              </div>
+              <div class="tab-active-indicator"></div>
             </button>
-            <button class="clickable" data-callback="view-tasks" data-id="task">My Tasks</button>
+            <button class="clickable" data-callback="view-tasks" data-id="task">
+              <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                My Tasks
+              </div>
+              <div class="tab-active-indicator"></div>
+            </button>
           </div>
           <div class="pb-half"></div>
           
@@ -224,7 +232,7 @@
           </div>
           
           <!-- # filter by target time -->
-          <div data-view-group="task-view-mode" data-view-name="task">
+          <div class="obsoletes" data-view-group="task-view-mode" data-view-name="task">
             <div class="d-flex align-items-center user-select-none">
               <input class="inputable" type='checkbox' id='labeled-by-showtarget' data-callback="toggle-show-target-only"/> 
               <label class="d-flex align-items-center" for='labeled-by-showtarget'>

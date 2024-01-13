@@ -717,10 +717,10 @@ function deleteAllChildTasksByParentId(id) {
 
 
 
-async function taskApplyAllParentTargetTime(parentId, distanceTime) {
+async function taskApplyAllParentTargetTime(parentId, excessTime) {
   let task = app.GetTaskById(parentId);
   while (task) {
-    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime);
+    await TaskApplyTargetTimeBalanceInGroup(task, excessTime);
     task = app.GetTaskById(task.parentId);
   }
 }
@@ -742,7 +742,9 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
   if (typeof(ratio) != 'number') return;
   
   let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentId);
-  let filteredTasks = tasks.filter(task => ( task.parentId == parentId && typeof(task.ratio) == 'number' && task.id != id ) );
+  
+  // get all task with ROP except self
+  let filteredTasks = tasks.filter(task => ( (task.parentId == parentId)  && typeof(task.ratio) == 'number' && task.id != id) );
 
   let remainingRatio = totalPriorityPoint - ratio;
   let timeToDistribute = ( addedTime *  ( remainingRatio / totalPriorityPoint ) ) / ( ratio / totalPriorityPoint );
@@ -750,10 +752,10 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
     
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    
     if (isCanNavigateSub(task.id)) {
       distributeTargetTimeInTaskSub(addedTargetTime, task);
-    } else {
-      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     }
     
   }
