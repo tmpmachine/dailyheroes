@@ -396,6 +396,13 @@ let ui = (function () {
     
     $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
     
+    // task target
+    viewStateUtil.Remove('active-task-info', ['has-target']);
+    if (activeTask.targetTime > 0) {
+      viewStateUtil.Add('active-task-info', ['has-target']);
+      $('#txt-active-task-target').innerHTML = minutesToHoursAndMinutes( msToMinutes(activeTask.targetTime) );
+    }
+    
     RefreshTimeStreak();
   }
   
@@ -576,6 +583,10 @@ let ui = (function () {
     let items = await app.TaskListTasksByThreshold();
     let taskItems = buildTaskItemData(items);
     displayListTasksByThreshold(taskItems);
+    
+    // total target time
+    let totalTarget = taskItems.map(x => x.targetTime).reduce((a, b) => a + b, 0);
+    $('#txt-total-target-by-threshold').textContent = minutesToHoursAndMinutes( msToMinutes(totalTarget) );
   }
   
   function buildTaskItemData(items) {

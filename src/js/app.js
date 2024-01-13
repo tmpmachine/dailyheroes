@@ -165,6 +165,7 @@ async function startOrRestartTask(options) {
   await app.TaskStopActiveTask();
   await app.TaskContinueTask(task.id);
   await compoTask.StartTimerByTaskId(task.id, options);
+  ui.TaskSetActiveTaskInfo();
 }
 
 async function finishTimer() {
@@ -1331,6 +1332,7 @@ let app = (function () {
     await compoTask.StartTimerByTaskId(id);
     
     ui.RefreshTimeStreak();
+    ui.TaskSetActiveTaskInfo();
   }
   
   async function TaskNavigateToMission(id) {

@@ -3,7 +3,6 @@
 .flex-column{flex-direction:column}
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .d-none{display:none}
-.obsoletes{display:none!important;height:0!important;width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important}
 .flex-wrap{flex-wrap:wrap}
 .flex-1,.flex-grow{flex:1}
 .font-weight-bold{font-weight:bold}
@@ -28,6 +27,8 @@
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 .gap-half{gap:0.5rem}.gap-full{gap:1rem}
 .pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
+
+.obsoletes{display:none!important;height:0!important;width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important}
 
 * {
   box-sizing: border-box;

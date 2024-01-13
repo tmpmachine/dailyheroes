@@ -11,11 +11,10 @@ let viewStates = [
       'linked-task'
     ]
   },
+  // active task info
   {
     group: 'active-task-info',
-    states: [
-      'on-streak'
-    ]
+    states: [ 'on-streak', 'has-target' ]
   },
   // task item
   {

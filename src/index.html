@@ -88,6 +88,9 @@
               <div>
                 <small>Active task</small> : <span id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></span> 
               </div>
+              <small data-view-group="active-task-info" data-view-name="has-target">
+                Target : <mark id="txt-active-task-target"></mark>
+              </small>
               <div data-view-group="active-task-info" data-view-name="on-streak">
                 <small>
                   Total time streak : <span id="txt-time-streak"></span>
@@ -393,6 +396,12 @@
         <!-- # Tasks By Threshold screen body -->
         <div class="padding-container pos-relative">
           <div class="pb-full"></div>
+          
+          <div>
+            Total : <mark id="txt-total-target-by-threshold"></mark>
+          </div>
+          <div class="pb-full"></div>
+          
           <div id="list-tasks-by-threshold" data-onclick="task-click-handler"></div>
         </div>
         

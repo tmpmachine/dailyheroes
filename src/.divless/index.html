@@ -88,6 +88,9 @@
               [
                 [small 'Active task'] : [s #txt-active-task-name {fw:bold;word-break:break-word}] 
               ]
+              [small data-view-group="active-task-info" data-view-name="has-target"
+                Target : [mark #txt-active-task-target]
+              ]
               [ data-view-group="active-task-info" data-view-name="on-streak"
                 [small
                   Total time streak : [s #txt-time-streak]
@@ -393,6 +396,12 @@
         <!-- # Tasks By Threshold screen body -->
         [ .padding-container .pos-relative
           [ .pb-full]
+          
+          [
+            Total : [mark #txt-total-target-by-threshold]
+          ]
+          [ .pb-full]
+          
           [ #list-tasks-by-threshold data-onclick="task-click-handler"]
         ]
         
