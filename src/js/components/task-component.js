@@ -23,6 +23,31 @@ let compoTask = (function() {
     TaskResetTasksTargetTime,
     GetTaskQuotaTimeById,
   };
+  
+  let dataModel = {
+    id: '',
+    progress: 0,
+    progressTime: 0,
+    totalProgressTime: 0,
+    
+    // used by time balancing
+    durationTime: 0,
+    targetTime: 0,
+    ratio: 0,
+
+    lastUpdated: 0,
+    untracked: false,
+    activeSubTaskId: null,
+    type: '',
+    
+    sequenceTasks: {
+      counter: {
+        id: -1,
+      },
+      activeId: null,
+      items: [],
+    },
+  };
 
   function GetTaskQuotaTimeById(id) {
     
@@ -66,7 +91,6 @@ let compoTask = (function() {
   
   async function ResetProgressById(id) {
     let task = tasks.find(x => x.id == id);
-    task.progress = 0;
     task.progressTime = 0;
     task.finishCountProgress = task.finishCount;
     // loadSearch();
@@ -147,11 +171,11 @@ let compoTask = (function() {
   }
   
   function startTimerByTask(task, timerOptions) {
-    if (task.progress >= task.target) return;
+    if (task.progressTime >= task.targetTime) return;
     
-    let seconds = (task.target * 60 * 1000 - task.progressTime) / 1000;
+    let seconds = (task.durationTime - task.progressTime) / 1000;
     androidClient.StartTimer(seconds, task.title);
-    setTimer(task.target * 60 * 1000 - task.progressTime);
+    setTimer(task.durationTime - task.progressTime);
   }
   
   function GetTotalPriorityPointByParentTaskId(parentTaskId) {

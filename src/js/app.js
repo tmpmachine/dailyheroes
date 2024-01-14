@@ -456,6 +456,14 @@ async function integrityCheck(tasks) {
     
     if (typeof(task.targetTime) == 'undefined')
       task.targetTime = 0;
+      
+    if (typeof(task.durationTime) == 'undefined') {
+      if (typeof(task.target) != 'undefined') {
+        task.durationTime = task.target * 60 * 1000; // minutes to ms
+      } else {
+        task.durationTime = 0;
+      }
+    }
     
     if (typeof(task.ratio) == 'undefined')
       task.ratio = 0;
@@ -922,7 +930,6 @@ async function taskArchiveTask(id) {
 async function taskUnarchive(id) {
   let task = tasks.find(x => x.id == id);
   task.isArchived = false;
-  // task.progress = 0;
   // task.progressTime = 0;
   // task.finishCountProgress = task.finishCount;
   await appData.TaskStoreTask();
@@ -933,8 +940,7 @@ async function taskUnarchive(id) {
 // todo: rename to archive
 async function finishTask(id) {
   let task = tasks.find(x => x.id == id);
-  task.progress = task.target;
-  task.progressTime = task.target * 60 * 1000;
+  task.progressTime = task.durationTime;
   await appData.TaskStoreTask();
   let taskEl = $(`[data-kind="task"][data-id="${task.id}"]`);
   $('#tasklist-completed').append(taskEl);
@@ -1052,32 +1058,6 @@ function partialUpdateNoteName(noteEl, desc) {
   }
 }
 
-async function setTaskTarget(id) {
-  
-  let task = tasks.find(x => x.id == id);
-  
-  const { value: userVal } = await Swal.fire({
-      title: 'Set task duration',
-      input: 'text',
-      inputLabel: 'example: 1h, 30m, or 1h30m',
-      inputValue: minutesToHoursAndMinutes(task.target),
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return 'You need to write something!';
-        }
-      }
-  });
-  
-  if (!userVal) return;
-  
-  task.target = Math.max(0, parseHoursMinutesToMinutes(userVal));
-  await appData.TaskStoreTask();
-  await app.TaskListTask();  
-  await updateUI();
-  loadSearch();
-}
-
 async function removeActiveTask() {
   await window.service.RemoveData(['activeTask']);
 }
@@ -1098,7 +1078,6 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   if (data.activeTask) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
-      activeTask.progress += addedMinutes;
       activeTask.progressTime += distanceTime;
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
@@ -1423,10 +1402,9 @@ let app = (function () {
   
   async function TaskContinueTask(id) {
     let task = tasks.find(x => x.id == id);
-    if (task.progressTime < task.target * 60 * 1000) {
+    if (task.progressTime < task.durationTime) {
       return;
     }
-    task.progress = 0;
     task.progressTime = 0;
     task.finishCountProgress = task.finishCount;
     await appData.TaskStoreTask();
@@ -1609,7 +1587,7 @@ let app = (function () {
         liveProgressTime = activeTimerDistanceTime;
       }
       
-      let targetMinutesLeft = item.target - msToMinutes(item.progressTime) - liveProgress;
+      let durationTime = item.durationTime - item.progressTime - liveProgress;
       let progressMinutesLeft = msToMinutes(item.progressTime);
     
       // get total ratio
@@ -1698,8 +1676,7 @@ let app = (function () {
         }
       }
   
-  
-      let targetMinutesLeftStr = minutesToHoursAndMinutes(targetMinutesLeft);
+      let durationTimeStr = helper.ToTimeString(durationTime, 'hms');
       let fillData = {...item, ...{
         // targetString: minutesToHoursAndMinutes(item.target),
         // rankLabel: ` | Rank #${rankLabel}`,
@@ -1707,7 +1684,7 @@ let app = (function () {
         ratio: ratioStr,
         ratioTimeLeftStr,
         totalProgressStr,
-        targetString: (targetMinutesLeftStr.trim().length > 0 ? `${targetMinutesLeftStr} left` : ''),
+        targetString: (durationTimeStr.trim().length > 0 ? `${durationTimeStr} left` : ''),
         allocatedTimeString: minutesToHoursAndMinutes(item.target),
         progress: progressMinutesLeft ? minutesToHoursAndMinutes(progressMinutesLeft) : '0m',
       }};
@@ -2171,9 +2148,9 @@ let app = (function () {
     if (!task) return;
     
     const { value: userVal } = await Swal.fire({
-      title: 'Add progress manually (in minutes)',
+      title: 'Add progress manually (HMS format)',
       input: 'text',
-      inputLabel: 'example : 10, 15, 30',
+      inputLabel: 'example : 10h5m20s, 1h, 15m, 30s',
       showCancelButton: true,
       inputValidator: (value) => {
         if (!value) {
@@ -2185,25 +2162,20 @@ let app = (function () {
     if (!userVal) return;
     
     try {
-      let addedMinutes = parseInt(userVal);
-      let addedTime = addedMinutes * 60 * 1000;
-      task.progress += addedMinutes;
+      let addedTime = helper.ParseHmsToMs(userVal);
       task.progressTime += addedTime;
       task.totalProgressTime += addedTime;
       
       if (!
-        (typeof(task.progress) == 'number' &&
-        typeof(task.progressTime) == 'number' &&
-        typeof(task.totalProgressTime) == 'number')
+        (typeof(task.progressTime) == 'number' && typeof(task.totalProgressTime) == 'number')
       ) {
         throw 'Failed, task data not valid';
       }
       
-      task.progress = Math.max(0, task.progress);
       task.progressTime = Math.max(0, task.progressTime);
       task.totalProgressTime = Math.max(0, task.totalProgressTime);
       
-      await taskApplyNecessaryTaskUpdates(task, addedMinutes * 60 * 1000);
+      await taskApplyNecessaryTaskUpdates(task, addedTime);
       
       AddProgressTimeToRootMission(task.parentId, addedTime);
       
@@ -2526,7 +2498,7 @@ let app = (function () {
       case 'set-active': switchActiveTask(parentEl, id); break;
       case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
       case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;
-      case 'set-target': await setTaskTarget(id); break;
+      case 'set-target': await ui.TaskSetTaskTarget(id); break;
       case 'archive':
         let activeTask = await getActiveTask();
         if (activeTask && activeTask.id == id) {
@@ -2557,14 +2529,14 @@ let app = (function () {
   
   async function editTask(taskId) {
     let task = await app.getTaskById(taskId);
-    let {id, parentId, title, target, targetTime, finishCount, type} = task;
+    let {id, parentId, title, durationTime, targetTime, finishCount, type} = task;
     let modalData = {
       readOnlyId: id,
       formData: {
         id,
         title,
-        target: minutesToHoursAndMinutes(target),
-        targetTime: minutesToHoursAndMinutes(msToMinutes(targetTime)),
+        durationTime: helper.ToTimeString(durationTime, 'hms'),
+        targetTime: helper.ToTimeString(targetTime, 'hms'),
         finishCount,
         parentId,
         taskType: type,
@@ -2580,8 +2552,8 @@ let app = (function () {
   async function TaskUpdateTask(form) {
     let task = tasks.find(x => x.id == form.id.value);
     task.title = form.title.value;
-    task.target = parseHoursMinutesToMinutes(form.target.value);
-    task.targetTime = parseHoursMinutesToMinutes(form.targetTime.value) * 60 * 1000;
+    task.durationTime = helper.ParseHmsToMs(form.durationTime.value);
+    task.targetTime = helper.ParseHmsToMs(form.targetTime.value);
     task.finishCount = parseInt(form['finishCount'].value);
     task.finishCountProgress = parseInt(form['finishCount'].value);
     task.parentId = form['parent-id'].value;
@@ -2603,7 +2575,7 @@ let app = (function () {
       return;
     }
     
-    let targetVal = form.target.value;
+    let targetVal = form.durationTime.value;
     if (isNumber(targetVal)) {
       // set default to minutes
       targetVal = `${targetVal}m`;
@@ -2614,8 +2586,8 @@ let app = (function () {
       let parentId = form['parent-id'].value;
       taskId = addTaskData({
         title: form.title.value,
-        target: parseHoursMinutesToMinutes(targetVal),
-        targetTime: parseHmsToMs(form.targetTime.value),
+        durationTime: helper.ParseHmsToMs(targetVal),
+        targetTime: helper.ParseHmsToMs(form.targetTime.value),
         parentId: parentId ? parentId : '',
         type: form.taskType.value,
       });

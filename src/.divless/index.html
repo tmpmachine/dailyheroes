@@ -70,15 +70,15 @@
         ]
 
         
-        <!-- # screen body -->
+        <!-- # home screen body -->
       
-        [ .padding-container .bg-white
+        [ .padding-container 
         
           [ .pb-half]
           [ .pb-half]
           
           <!-- # active task container -->
-          [ .d-flex {gap:0.5rem} .container-active-task
+          [ .d-flex {gap:0.5rem} .container-active-task .bg-white
             
             <!-- # progress bar -->
             [ {flex-grow:1} data-view-group="active-task-info" data-view-states=""
@@ -229,15 +229,6 @@
               ]
               
             ][ .mb-m]
-          ]
-          
-          <!-- # sequence generator -->
-          [ data-view-group="task-view-mode" data-view-name="mission" .obsoletes
-            [btn 'Convert collection to sequence *' data-onclick="convert-collection-sequence"]
-            [
-              [small '*) Root task only']
-            ]
-            [ .pb-half]
           ]
           
           <!-- # filter by target time -->
@@ -1021,10 +1012,10 @@
   <modal-v2 id="task-modal" data-view-group="form-task" data-view-states="add">
     <div class="modal" slot="content">
       
-      <!-- modal content-->
+      <!-- task modal content-->
       <div class="ov-auto pos-relative">
         
-        <!-- # overlay background -->
+        <!-- # task modal overlay background -->
         [ .overlay-bg-default .overlay-bg-task]
         
         [ {p:1rem} .pos-relative
@@ -1041,6 +1032,7 @@
           
           
           <div class="pb-half"></div>
+          <!-- task modal form -->
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             
             [ data-view-group="form-task" data-view-name="edit"
@@ -1060,7 +1052,7 @@
                 Title <input type="text" name='title' class="input-style-default"/>
               ]
               [
-                Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
+                Duration <input type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
               ]
               [
                 Target <input type="text" name='targetTime' class="input-style-default"/>
@@ -1159,6 +1151,8 @@
           ]
           
           <div class="pb-half"></div>
+          
+          <!-- # form sequence task -->
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
             
             <input type="hidden" name="id"/>

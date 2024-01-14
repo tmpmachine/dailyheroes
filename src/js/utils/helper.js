@@ -3,7 +3,46 @@ let helper = (function() {
   let SELF = {
     ParseHmsToMs,
     ParseHoursMinutesToMinutes,
+    ToTimeString,
   };
+  
+  function ToTimeString(time, format) {
+    if (format == 'hms') {
+      return secondsToHMS( msToSeconds(time) );
+    }
+    
+    console.log('Time format not recognizable');
+    return '';
+  }
+  
+  function msToSeconds(milliseconds) {
+    return Math.floor(milliseconds / 1000);
+  }
+  
+  function secondsToHMS(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainderSeconds = seconds % 60;
+    let timeString = '';
+  
+    if (hours > 0) {
+      timeString += `${hours}h`;
+    }
+  
+    if (minutes > 0 || hours > 0) {
+      timeString += `${minutes}m`;
+    }
+  
+    if (remainderSeconds > 0 || (hours === 0 && minutes === 0)) {
+      timeString += `${remainderSeconds}s`;
+    }
+  
+    if (seconds === 0) {
+      timeString = '0s';
+    }
+  
+    return timeString;
+  }
   
   function ParseHoursMinutesToMinutes(timeString) {
     if (!timeString) {

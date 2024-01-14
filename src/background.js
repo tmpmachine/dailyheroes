@@ -105,7 +105,6 @@ async function reduceCountActiveTask() {
     if (activeTask) {
       activeTask.finishCountProgress -= 1;
       if (activeTask.finishCountProgress > 0) {
-        activeTask.progress = 0;
         activeTask.progressTime = 0;
       }
       await storeTask(tasks);
@@ -189,7 +188,6 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   
   if (isUpdateCurrentActiveTask) {
     
-    activeTask.progress += addedMinutes;
     activeTask.progressTime += distanceTime;
     if (typeof(activeTask.totalProgressTime) == 'undefined') {
       activeTask.totalProgressTime = 0;  
@@ -270,10 +268,10 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
   for (let task of filteredTasks) {
     let addedTargetTime = Math.round(timeToDistribute * (task.ratio / remainingRatio));
     
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    
     if (hasSubTask(task.id, tasks)) {
       distributeTargetTimeInTaskSub(addedTargetTime, task, tasks);
-    } else {
-      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     }
     
   }
@@ -747,7 +745,6 @@ async function restartTask() {
   let activeTask = tasks.find(x => x.id == data.activeTask);
   if (!activeTask) return;
 
-  activeTask.progress = 0;
   activeTask.progressTime = 0;
   await storeTask(tasks);
   startNewAlarmInMinutes(activeTask.target);

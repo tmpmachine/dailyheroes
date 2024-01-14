@@ -1,3 +1,4 @@
+
 .justify-content-center{justify-content:center}.justify-content-end{justify-content:end}.justify-content-between{justify-content:space-between}
 .align-items-center{align-items:center}.align-items-baseline{align-items:baseline}
 .flex-column{flex-direction:column}
@@ -262,7 +263,7 @@ button:hover{
   padding: 0.5rem;
     box-shadow: 0 0 8px 0px #00000026;
     border-radius: 4px;
-        background: linear-gradient(180deg, #d2edf9, transparent);
+        /*background: linear-gradient(180deg, #d2edf9, transparent);*/
 } 
 
 .NzE2ODYyNQ-progress-bar-container {

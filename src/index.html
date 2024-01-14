@@ -70,15 +70,15 @@
         </div>
 
         
-        <!-- # screen body -->
+        <!-- # home screen body -->
       
-        <div class="padding-container bg-white">
+        <div class="padding-container">
         
           <div class="pb-half"></div>
           <div class="pb-half"></div>
           
           <!-- # active task container -->
-          <div class="d-flex container-active-task" style="gap:0.5rem;">
+          <div class="d-flex container-active-task bg-white" style="gap:0.5rem;">
             
             <!-- # progress bar -->
             <div data-view-group="active-task-info" data-view-states="" style="flex-grow:1;">
@@ -229,15 +229,6 @@
               </div>
               
             </div><div class="mb-m"></div>
-          </div>
-          
-          <!-- # sequence generator -->
-          <div class="obsoletes" data-view-group="task-view-mode" data-view-name="mission">
-            <button data-onclick="convert-collection-sequence">Convert collection to sequence *</button>
-            <div>
-              <small>*) Root task only</small>
-            </div>
-            <div class="pb-half"></div>
           </div>
           
           <!-- # filter by target time -->
@@ -1021,10 +1012,10 @@
   <modal-v2 id="task-modal" data-view-group="form-task" data-view-states="add">
     <div class="modal" slot="content">
       
-      <!-- modal content-->
+      <!-- task modal content-->
       <div class="ov-auto pos-relative">
         
-        <!-- # overlay background -->
+        <!-- # task modal overlay background -->
         <div class="overlay-bg-default overlay-bg-task"></div>
         
         <div class="pos-relative" style="padding:1rem;">
@@ -1041,6 +1032,7 @@
           
           
           <div class="pb-half"></div>
+          <!-- task modal form -->
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             
             <div data-view-group="form-task" data-view-name="edit">
@@ -1060,7 +1052,7 @@
                 Title <input type="text" name='title' class="input-style-default"/>
               </div>
               <div>
-                Duration <input type="text" name='target' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
+                Duration <input type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
               </div>
               <div>
                 Target <input type="text" name='targetTime' class="input-style-default"/>
@@ -1159,6 +1151,8 @@
           </div>
           
           <div class="pb-half"></div>
+          
+          <!-- # form sequence task -->
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
             
             <input type="hidden" name="id"/>

@@ -11,7 +11,6 @@ let ui = (function () {
     TaskLinkTaskWithIdToActiveSequence,
     TaskMoveTaskWithIdToActiveSequence,
     TaskLinkTaskToSequenceByTaskIdInteractiveMode,
-    TaskConvertCollectionSequence,
     ResetProgressSequenceFromForm,
     OpenLinkedSequenceFromForm,
     OpenLinkedSequenceInPriorityMapper,
@@ -59,7 +58,34 @@ let ui = (function () {
     TaskOpenTaskIntoView,
     ChangeViewModeConfig,
     ResetTargetTime,
+    TaskSetTaskTarget,
   };
+
+  async function TaskSetTaskTarget(id) {
+    
+    let task = tasks.find(x => x.id == id);
+    
+    const { value: userVal } = await Swal.fire({
+        title: 'Set task duration',
+        input: 'text',
+        inputLabel: 'example: 1h, 30m, or 1h30m',
+        inputValue: helper.ToTimeString(task.durationTime, 'hms'),
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to write something!';
+          }
+        }
+    });
+    
+    if (!userVal) return;
+    
+    task.durationTime = Math.max(0, helper.ParseHmsToMs(userVal));
+    await appData.TaskStoreTask();
+    await app.TaskListTask();  
+    await updateUI();
+    loadSearch();
+  }
   
   async function ResetTargetTime() {
     
@@ -190,7 +216,7 @@ let ui = (function () {
     
     compoSequence.Stash(task.sequenceTasks);
     
-    let targetTime = linkedTask.target * 60 * 1000;
+    let targetTime = linkedTask.durationTime;
     compoSequence.AddLinkedTask(linkedTask.id, targetTime);  
     
     compoSequence.Commit();
@@ -244,7 +270,7 @@ let ui = (function () {
     
     compoSequence.Stash(task.sequenceTasks);
     
-    let targetTime = linkedTask.target * 60 * 1000;
+    let targetTime = linkedTask.durationTime;
     compoSequence.AddLinkedTask(linkedTask.id, targetTime);  
     
     compoSequence.Commit();
@@ -255,49 +281,6 @@ let ui = (function () {
     viewStateUtil.Add('task', ['sequence-added'], taskEl);
     
     RefreshListSequenceByTaskId(data.prePickCollectionId);
-    
-  }
-  
-  async function TaskConvertCollectionSequence() {
-    
-    let collectionTaskIds = compoMission.GetMissions().map(x => x.id);
-    
-    if (collectionTaskIds.length == 0) return;
-    
-    let task = compoTask.Add({
-      title: 'Untitled sequence',
-      target: 1,
-      parentId: '',
-    });
-    
-    compoSequence.Stash(task.sequenceTasks);
-    
-    let sequenceIds = [];
-    
-
-    for (let id of collectionTaskIds) {
-      // remove from current collection
-      compoMission.RemoveMissionById(id);
-      
-      // add linked task sequence
-      let task = compoTask.GetById(id);
-      let targetTime = task.target * 60 * 1000;
-      let sequenceTask = compoSequence.AddLinkedTask(task.id, targetTime);  
-      sequenceIds.push(sequenceTask.id);
-    }
-    
-    let success = compoSequence.SetActiveById(sequenceIds[0]);
-
-    let missionData = compoMission.CreateItemMission(task.id);
-    compoMission.AddMission(missionData);
-    
-    compoSequence.Commit();
-    compoMission.Commit();
-    
-    appData.Save();
-    await appData.TaskStoreTask();
-    
-    await app.TaskListTask();
     
   }
   
@@ -637,7 +620,7 @@ let ui = (function () {
       let liveProgress = 0;
       let liveProgressTime = 0;
       
-      let targetMinutesLeft = item.target - msToMinutes(item.progressTime) - liveProgress;
+      let targetMinutesLeft = item.durationTime - item.progressTime - liveProgress;
       let progressMinutesLeft = msToMinutes(item.progressTime);
       
       // # set ratio time left string
@@ -1157,7 +1140,7 @@ let ui = (function () {
     
     let formValue = {
       parentId: lsdb.data.activeGroupId,
-      target: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
+      durationTime: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
       taskType: 'T',
     };
     
@@ -1512,7 +1495,7 @@ let ui = (function () {
       noteProgressEl.textContent =  `(+${msToMinutes(liveProgressTime)}m)`;
     }
       
-  	taskEl.querySelector('[data-slot="targetString"]').textContent = `${minutesToHoursAndMinutes(task.target - msToMinutes(task.progressTime) - liveProgress)} left`;
+  	taskEl.querySelector('[data-slot="targetString"]').textContent = `${minutesToHoursAndMinutes(task.durationTime - task.progressTime - liveProgress)} left`;
   	taskEl.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
     
   };
