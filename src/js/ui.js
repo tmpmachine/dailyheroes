@@ -156,7 +156,7 @@ let ui = (function () {
   async function ResetTargetTime() {
     
     Swal.fire({
-      title: 'Reset all tasks target time?',
+      title: 'Reset all tasks progress and target?',
       text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
