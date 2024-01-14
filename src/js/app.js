@@ -529,6 +529,10 @@ function sumAllChildProgress(parentId) {
   return tasks.filter(x => x.parentId == parentId).reduce((total, item) => total + item.totalProgressTime + sumAllChildProgress(item.id), 0); 
 }
 
+function sumAllChildTargetTime(parentId) {
+  return tasks.filter(x => x.parentId == parentId).reduce((total, item) => total + item.targetTime + sumAllChildTargetTime(item.id), 0); 
+}
+
 function isSubTaskOf(parentId, findId) {
   let group = getGroupById(parentId);
   while (group) {
@@ -766,7 +770,7 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
     
     task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     
-    if (isCanNavigateSub(task.id)) {
+    if (hasSubTask(task.id)) {
       distributeTargetTimeInTaskSub(addedTargetTime, task);
     }
     
@@ -774,7 +778,7 @@ async function applyTargetTimeBalanceInGroup({id, parentId, ratio, targetMinutes
 
 }
 
-function isCanNavigateSub(taskId) {
+function hasSubTask(taskId) {
   return lsdb.data.groups.find(x => x.id == taskId);
 }
 
@@ -800,7 +804,7 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
     
     task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     
-    if (isCanNavigateSub(task.id)) {
+    if (hasSubTask(task.id)) {
       distributeTargetTimeInTaskSub(addedTargetTime, task);
     }
     
@@ -1192,12 +1196,11 @@ let app = (function () {
     SyncGroupName,
     TaskDeleteTask,
     TaskStarTask,
-    TaskAddProgressManually,
     
     AddProgressTimeToRootMission,
     TaskStopActiveTask,
     TaskListTask,
-    TaskListTasksByThreshold,
+    TaskListTasksByThreshold: TaskListTargets,
     TaskContinueTask,
     
     SetAlarmAudio,
@@ -1523,7 +1526,7 @@ let app = (function () {
     });
   }
 
-  async function TaskListTasksByThreshold() {
+  async function TaskListTargets() {
     
     let options = {
       isSortByTargetTime: true,
@@ -1531,7 +1534,7 @@ let app = (function () {
     // let items = await TaskGetAllTasks(options);
     let items = filterTaskByTargetTime();
     if (options.isSortByTargetTime) {
-      items.sort((a,b) => a.targetTime < b.targetTime ? 1 : -1)
+      items.sort((a,b) => a.targetTime < b.targetTime ? 1 : -1);
       // sortTaskByTotalProgressTimeAsc(items);
     }
     return items;
@@ -1948,8 +1951,8 @@ let app = (function () {
       }
       
       // update active tracker
-      updateActiveTrackerProgress(distanceTime);
-      saveAppData();
+      compoTracker.UpdateActiveTrackerProgress(distanceTime);
+      appData.Save();
       await appData.TaskStoreTask();
     } 
     
@@ -1966,11 +1969,6 @@ let app = (function () {
     
     app.TaskListTask();
     
-  }
-  
-  function updateActiveTrackerProgress(distanceTime) {
-    compoTracker.AppendProgressToActiveTracker(distanceTime);
-    compoTracker.Commit();
   }
   
   function GetDataManager() {
@@ -2110,7 +2108,7 @@ let app = (function () {
       // app.AddProgressTimeToRootMission(parentTaskId, historyData.progressTime);
       
       // # apply progress to active tracker
-      updateActiveTrackerProgress(historyData.progressTime);
+      compoTracker.UpdateActiveTrackerProgress(historyData.progressTime);
     }
     
     await chrome.storage.local.remove('taskProgressHistory');
@@ -2146,60 +2144,7 @@ let app = (function () {
     app.TaskListTask();
   }
   
-  async function TaskAddProgressManually(id) {
-    
-    let task = tasks.find(x => x.id == id);
-    if (!task) return;
-    
-    const { value: userVal } = await Swal.fire({
-      title: 'Add progress manually (HMS format)',
-      input: 'text',
-      inputLabel: 'example : 10h5m20s, 1h, 15m, 30s',
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return 'You need to write something!';
-        }
-      }
-    });
-    
-    if (!userVal) return;
-    
-    try {
-      let addedTime = helper.ParseHmsToMs(userVal);
-      task.progressTime += addedTime;
-      task.totalProgressTime += addedTime;
-      
-      if (!
-        (typeof(task.progressTime) == 'number' && typeof(task.totalProgressTime) == 'number')
-      ) {
-        throw 'Failed, task data not valid';
-      }
-      
-      task.progressTime = Math.max(0, task.progressTime);
-      task.totalProgressTime = Math.max(0, task.totalProgressTime);
-      
-      await taskApplyNecessaryTaskUpdates(task, addedTime);
-      
-      AddProgressTimeToRootMission(task.parentId, addedTime);
-      
-      await appData.TaskStoreTask(); 
-      
-      // update active tracker
-      updateActiveTrackerProgress(addedTime);
-      saveAppData();
-      
-      // ui update
-      app.TaskListTask();
-      uiTracker.RefreshItemList();
-      
-    } catch (e) {
-      console.error(e);
-      alert('Failed');
-      return;
-    }
-    
-  }
+  
   
   function AddProgressTimeToRootMission(parentTaskId, progressTime) {
     try {
@@ -2498,7 +2443,7 @@ let app = (function () {
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-timer': addSubTimer(id); break;
-      case 'add-progress-minutes': await app.TaskAddProgressManually(id); break;
+      case 'add-progress-minutes': await ui.TaskAddProgressManually(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
       case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
       case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;

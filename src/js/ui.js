@@ -59,7 +59,73 @@ let ui = (function () {
     ChangeViewModeConfig,
     ResetTargetTime,
     TaskSetTaskTarget,
+    TaskAddProgressManually,
   };
+  
+  async function TaskAddProgressManually(id) {
+    
+    let task = tasks.find(x => x.id == id);
+    if (!task) return;
+    
+    const { value: userVal } = await Swal.fire({
+      title: 'Add progress manually (HMS format)',
+      input: 'text',
+      inputLabel: 'example : 10h5m20s, 1h, 15m, 30s',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+    });
+    
+    if (!userVal) return;
+    
+    let addedTime = 0;
+    
+    try {
+      helper.ParseHmsToMs(userVal);
+    } catch (e) {
+      // default to minute
+      let parsedVal = parseInt(userVal);
+      parsedVal = isNaN(parsedVal) ? 0 : parsedVal;
+      addedTime = parsedVal * 60 * 1000;
+    }
+    
+    try {
+      task.progressTime += addedTime;
+      task.totalProgressTime += addedTime;
+      
+      if (!
+        (typeof(task.progressTime) == 'number' && typeof(task.totalProgressTime) == 'number')
+      ) {
+        throw 'Failed, task data not valid';
+      }
+      
+      task.progressTime = Math.max(0, task.progressTime);
+      task.totalProgressTime = Math.max(0, task.totalProgressTime);
+      
+      await taskApplyNecessaryTaskUpdates(task, addedTime);
+      
+      app.AddProgressTimeToRootMission(task.parentId, addedTime);
+      
+      await appData.TaskStoreTask(); 
+      
+      // update active tracker
+      compoTracker.UpdateActiveTrackerProgress(addedTime);
+      appData.Save();
+      
+      // ui update
+      app.TaskListTask();
+      uiTracker.RefreshItemList();
+      
+    } catch (e) {
+      console.error(e);
+      alert('Failed');
+      return;
+    }
+    
+  }
 
   async function TaskSetTaskTarget(id) {
     
@@ -607,7 +673,12 @@ let ui = (function () {
     displayListTasksByThreshold(taskItems);
     
     // total target time
-    let totalTarget = taskItems.map(x => x.targetTime).reduce((a, b) => a + b, 0);
+    let totalTarget = taskItems.map(task => {
+      if (hasSubTask(task.id)) {
+        return Math.max(0, task.targetTime - sumAllChildTargetTime(task.id) );
+      }
+      return task.targetTime;
+    }).reduce((a, b) => a + b, 0);
     $('#txt-total-target-by-threshold').textContent = minutesToHoursAndMinutes( msToMinutes(totalTarget) );
   }
   

@@ -93,7 +93,7 @@ let helper = (function() {
       return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
       
     } catch (e) {
-      console.error(e);
+      throw e;
     }
     
     return 0;

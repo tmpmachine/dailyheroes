@@ -19,6 +19,7 @@ let compoTracker = (function() {
     
     // custom methods
     AppendProgressToActiveTracker,
+    UpdateActiveTrackerProgress,
   };
   
   let data = {
@@ -32,6 +33,11 @@ let compoTracker = (function() {
       }
     */
   };
+  
+  function UpdateActiveTrackerProgress(distanceTime) {
+    AppendProgressToActiveTracker(distanceTime);
+    Commit();
+  }
   
   function initData() {
     let appDataManager = app.GetDataManager();
