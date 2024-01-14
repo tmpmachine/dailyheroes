@@ -302,10 +302,10 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask, tasks
     let priorityPoint = task.ratio;
     let addedTargetTime = Math.round( timeToDistribute * (priorityPoint / totalPriorityPoint) );
     
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    
     if (hasSubTask(task.id, tasksOrigin)) {
       distributeTargetTimeInTaskSub(addedTargetTime, task, tasksOrigin);
-    } else {
-      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     }
     
   }

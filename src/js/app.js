@@ -736,9 +736,13 @@ async function taskApplyAllParentTargetTime(parentId, excessTime) {
 async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
   try {
     let excessTime = task.targetTime - addedTime;
+    
+    // apply excess time to tasks with ROP in parent level
     if (excessTime < 0 && task.ratio > 0) {
       await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime));
     }
+    
+    // reduce parent task target time by progress
     task.targetTime = Math.max(0, task.targetTime - addedTime);
   } catch (e) {
     console.error(e);
@@ -794,10 +798,10 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
     let priorityPoint = task.ratio;
     let addedTargetTime = Math.round( timeToDistribute * (priorityPoint / totalPriorityPoint) );
     
+    task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
+    
     if (isCanNavigateSub(task.id)) {
       distributeTargetTimeInTaskSub(addedTargetTime, task);
-    } else {
-      task.targetTime = addOrInitNumber(task.targetTime, addedTargetTime);
     }
     
   }
