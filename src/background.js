@@ -413,7 +413,7 @@ async function onAlarmEnded(alarm) {
   let targetTimeLeftStr = '';
   let timeStreakStr = '';
   if (!data.isTakeBreak) {
-    timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask)
+    timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
   }
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
@@ -428,7 +428,7 @@ async function onAlarmEnded(alarm) {
     if (activeTask) {
       
       // set target minutes on restart button
-      targetMinutesTxt = ` (${activeTask.target}m)`;
+      targetMinutesTxt = ` (${msToMinutes(activeTask.durationTime)}m)`;
       if (activeTask.targetTime > 0) {
         targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`;
       }
@@ -651,7 +651,7 @@ async function startNextSequence() {
   let activeTask = tasks.find(x => x.id == data.activeTask);
   if (!activeTask) return;
   
-  let alarmDurationTime = minuteToMs(activeTask.target);
+  let alarmDurationTime = activeTask.durationTime;
   let isSequenceTask = true;
   
   // get target time from sequence
@@ -747,7 +747,7 @@ async function restartTask() {
 
   activeTask.progressTime = 0;
   await storeTask(tasks);
-  startNewAlarmInMinutes(activeTask.target);
+  startNewAlarm(activeTask.durationTime);
 }
 
 let canvas = new OffscreenCanvas(280, 5);

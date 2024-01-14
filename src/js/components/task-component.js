@@ -86,6 +86,9 @@ let compoTask = (function() {
   async function TaskResetTasksTargetTime() {
     for (let task of tasks) {
       task.targetTime = 0;
+      task.progress = 0;
+      task.progressTime = 0;
+      task.totalProgressTime = 0;
     }
   }
   
@@ -171,8 +174,6 @@ let compoTask = (function() {
   }
   
   function startTimerByTask(task, timerOptions) {
-    if (task.progressTime >= task.targetTime) return;
-    
     let seconds = (task.durationTime - task.progressTime) / 1000;
     androidClient.StartTimer(seconds, task.title);
     setTimer(task.durationTime - task.progressTime);

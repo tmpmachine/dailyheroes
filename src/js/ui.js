@@ -1495,7 +1495,7 @@ let ui = (function () {
       noteProgressEl.textContent =  `(+${msToMinutes(liveProgressTime)}m)`;
     }
       
-  	taskEl.querySelector('[data-slot="targetString"]').textContent = `${minutesToHoursAndMinutes(task.durationTime - task.progressTime - liveProgress)} left`;
+  	taskEl.querySelector('[data-slot="targetString"]').textContent = `${helper.ToTimeString(task.durationTime - task.progressTime - liveProgressTime, 'hms')} left`;
   	taskEl.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
     
   };

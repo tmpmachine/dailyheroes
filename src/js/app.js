@@ -1587,7 +1587,7 @@ let app = (function () {
         liveProgressTime = activeTimerDistanceTime;
       }
       
-      let durationTime = item.durationTime - item.progressTime - liveProgress;
+      let durationTime = item.durationTime - item.progressTime - liveProgressTime;
       let progressMinutesLeft = msToMinutes(item.progressTime);
     
       // get total ratio
