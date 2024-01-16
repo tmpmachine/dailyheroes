@@ -483,7 +483,7 @@ let ui = (function () {
     
       viewStateUtil.Add('active-task-info', ['has-target']);
       
-      $('#txt-active-task-target').innerHTML = minutesToHoursAndMinutes( msToMinutes(activeTask.targetTime) );
+      $('#txt-active-task-target').innerHTML = helper.ToTimeString(activeTask.targetTime, 'hms');
       
       // set quota time 
       let targetQuotaTime = compoTask.GetTaskQuotaTimeById(activeTask.id);

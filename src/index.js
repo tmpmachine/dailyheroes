@@ -9,7 +9,7 @@ componentLoader.load([
       "js/ui.js",
       "js/uis/ui-mission.js",
       "js/uis/ui-collection.js",
-      "js/ui-tracker.js",
+      "js/uis/ui-tracker.js",
       "js/lib/lsdb.js",
     ],
     callback: function() { 
