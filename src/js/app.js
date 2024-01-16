@@ -1582,7 +1582,7 @@ let app = (function () {
     let filteredTasks = await TaskGetAllTasks({
       isMissionView,
       isSortByTotalProgress: data.isSortByTotalProgress,
-    })
+    });
 
     // let rankLabel = 1;
     for (let item of filteredTasks) {

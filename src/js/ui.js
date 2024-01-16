@@ -476,8 +476,11 @@ let ui = (function () {
     $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
     
     // task target
-    viewStateUtil.Remove('active-task-info', ['has-target']);
+    viewStateUtil.Remove('active-task-info', ['has-target', 'is-sequence']);
+    
+    // target time info
     if (activeTask.targetTime > 0) {
+    
       viewStateUtil.Add('active-task-info', ['has-target']);
       
       $('#txt-active-task-target').innerHTML = minutesToHoursAndMinutes( msToMinutes(activeTask.targetTime) );
@@ -489,6 +492,20 @@ let ui = (function () {
         $('#txt-active-task-target-limit').innerHTML = ` -- Quota : ${secondsToHMS( msToSeconds(targetQuotaTime) )}`;
       }
       
+    }
+    
+    // active task : sequence info
+    {
+      compoSequence.Stash(activeTask.sequenceTasks);
+
+    	let activeId = compoSequence.GetActiveId();
+    	let activeSeq = compoSequence.GetActive();
+    	if (activeSeq) {
+	      viewStateUtil.Add('active-task-info', ['is-sequence']);
+    	  $('#txt-active-task-sequence-name').textContent = activeSeq.title;
+    	}
+
+    	compoSequence.Pop();
     }
     
     RefreshTimeStreak();
