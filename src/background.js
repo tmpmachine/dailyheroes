@@ -1,4 +1,5 @@
-import { compoSequence }from '/js/sequence-component.js';
+import { compoSequence } from '/js/sequence-component.js';
+import { helper } from '/js/helper.js';
 
 chrome.runtime.onInstalled.addListener(() => { });
 
@@ -412,25 +413,30 @@ async function onAlarmEnded(alarm) {
   let targetMinutesTxt = '';
   let targetTimeLeftStr = '';
   let timeStreakStr = '';
-  if (!data.isTakeBreak) {
-    timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
-  }
+  
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
   let repeatCountStr = '';
   let taskTargetTimeStr = '';
+  let taskTitle = '';
   
   if (data.activeTask) {
     
+    if (!data.isTakeBreak) {
+      timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
+    }
+      
     let tasks = await getTask();
     let activeTask = tasks.find(x => x.id == data.activeTask);
     
     if (activeTask) {
       
+      taskTitle = activeTask.title;
+      
       // set target minutes on restart button
       targetMinutesTxt = ` (${msToMinutes(activeTask.durationTime)}m)`;
       if (activeTask.targetTime > 0) {
-        targetTimeLeftStr = `${msToMinutes(activeTask.targetTime)}m left`;
+        targetTimeLeftStr = `${helper.ToTimeString(activeTask.targetTime, 'hms')} left`;
       }
       
       // set finish count text
@@ -472,8 +478,9 @@ async function onAlarmEnded(alarm) {
   }
   
   let actions = [];
+  // let notifTitle = `Time's up! ${timeStreakStr}`.replace(/ +/g,' ').trim();
   let notifTitle = `Time's up!`;
-  let notifBody = `${targetTimeLeftStr} ${timeStreakStr} ${finishCountLeftTxt}`.trim();
+  let notifBody = `Mission : ${taskTitle} ${targetTimeLeftStr} ${finishCountLeftTxt}`.replace(/ +/g,' ').trim();
   let tag = 'progress';
   
   if (isSequenceTask) {
@@ -483,7 +490,8 @@ async function onAlarmEnded(alarm) {
     });
     
     tag = 'active-sequence-task';
-    notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
+    // notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
+    notifTitle = `Time's up! ${repeatCountStr}`.replace(/ +/g,' ').trim();
     notifBody = `Next : ${sequenceTaskTitle} ${taskTargetTimeStr}`.trim();
   } else if (!isRepeatCountFinished) {
     actions.push({

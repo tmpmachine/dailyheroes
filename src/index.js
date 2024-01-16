@@ -1,6 +1,6 @@
 window.$ = document.querySelector.bind(document);
 
-window.componentLoader.load([
+componentLoader.load([
   {
     urls: [
       "js/view-states.js",
@@ -90,7 +90,7 @@ window.componentLoader.load([
     callback: function() {
       
       if (app.isPlatformWeb) {
-        window.componentLoader.load([{
+        componentLoader.load([{
             urls: [
               'https://accounts.google.com/gsi/client',
             ]
