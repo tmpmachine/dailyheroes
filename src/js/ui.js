@@ -60,7 +60,19 @@ let ui = (function () {
     ResetTargetTime,
     TaskSetTaskTarget,
     TaskAddProgressManually,
+    TaskReloadTotalTargets,
+    
   };
+  
+  async function TaskReloadTotalTargets() {
+    let taskIds = Array.from($$('#tasklist [data-obj="task"]')).map(x => x.dataset.id);
+    
+    let totalTarget = 0;
+    for (let id of taskIds) {
+      totalTarget += compoTask.GetById(id).targetTime;
+    }
+    $('#txt-total-target').textContent = helper.ToTimeString(totalTarget, 'hms');
+  }
   
   async function TaskAddProgressManually(id) {
     

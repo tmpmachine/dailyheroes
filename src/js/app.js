@@ -1261,6 +1261,7 @@ let app = (function () {
     
     if (isExists) {
       // remove from mission
+      
       compoMission.RemoveMissionById(id);
       parentEl.stateList.remove('--is-mission');
       if (isViewModeMission()) {
@@ -1272,8 +1273,13 @@ let app = (function () {
         isTaskDeleted = true;
       }
       
+      if (task.targetTime > 0) {
+        await ui.TaskReloadTotalTargets();
+      }
+      
     } else {
       // add to mission
+      
       let missionData = compoMission.CreateItemMission(id);
       compoMission.AddMission(missionData);
       parentEl.stateList.add('--is-mission');

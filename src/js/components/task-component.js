@@ -20,6 +20,7 @@ let compoTask = (function() {
     FocusSequenceById,
     TaskResetSequenceById,
     TaskResetSequenceCountByTaskId,
+    
     TaskResetTasksTargetTime,
     GetTaskQuotaTimeById,
   };
