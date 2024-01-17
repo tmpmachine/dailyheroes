@@ -688,15 +688,6 @@ let ui = (function () {
     let items = await app.TaskListTasksByThreshold();
     let taskItems = buildTaskItemData(items);
     displayListTasksByThreshold(taskItems);
-    
-    // total target time
-    let totalTarget = taskItems.map(task => {
-      if (hasSubTask(task.id)) {
-        return Math.max(0, task.targetTime - sumAllChildTargetTime(task.id) );
-      }
-      return task.targetTime;
-    }).reduce((a, b) => a + b, 0);
-    $('#txt-total-target-by-threshold').textContent = minutesToHoursAndMinutes( msToMinutes(totalTarget) );
   }
   
   function buildTaskItemData(items) {

@@ -1828,6 +1828,15 @@ let app = (function () {
     // });
     
     await setActiveTask();
+    
+    
+    // set mission target info 
+    {
+      let totalTarget = filteredTasks.map(task => {
+        return task.targetTime;
+      }).reduce((a, b) => a + b, 0);
+      $('#txt-total-target').textContent = minutesToHoursAndMinutes( msToMinutes(totalTarget) );
+    }
   }
   
   function onEndSortSequence(evt) {

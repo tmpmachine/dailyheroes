@@ -265,8 +265,13 @@
             [ {mb:0.3rem}]
             
           ]
-                
-          <div class="pb-half"></div>
+          [ .pb-half]
+  
+          <!-- # total mission targets -->
+          [small {col:white}
+            Total targets : [mark #txt-total-target] (exclude linked tasks)
+          ]
+          [ .pb-full]
           
           
           <!-- # task list container -->
@@ -406,11 +411,6 @@
           
           [small
             Info : only targets above 5m are shown in the list.
-          ]
-          [ .pb-full]
-          
-          [
-            Total : [mark #txt-total-target-by-threshold]
           ]
           [ .pb-full]
           

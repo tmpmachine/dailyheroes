@@ -265,8 +265,13 @@
             <div style="margin-bottom:0.3rem;"></div>
             
           </div>
-                
           <div class="pb-half"></div>
+  
+          <!-- # total mission targets -->
+          <small style="color:white;">
+            Total targets : <mark id="txt-total-target"></mark> (exclude linked tasks)
+          </small>
+          <div class="pb-full"></div>
           
           
           <!-- # task list container -->
@@ -407,11 +412,6 @@
           <small>
             Info : only targets above 5m are shown in the list.
           </small>
-          <div class="pb-full"></div>
-          
-          <div>
-            Total : <mark id="txt-total-target-by-threshold"></mark>
-          </div>
           <div class="pb-full"></div>
           
           <div id="list-tasks-by-threshold" data-onclick="task-click-handler"></div>
