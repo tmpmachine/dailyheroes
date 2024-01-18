@@ -1,5 +1,5 @@
 [data-obj="task"] {
-  margin-bottom: 0.6rem;
+  /* margin-bottom: 0.6rem; */
   overflow: hidden;
 }
 
@@ -22,8 +22,8 @@
   background: var(--active-task-bg); 
   /*background: linear-gradient(180deg, #ff8b8b, #ffca81); */
 }
-#tasklist [data-obj="task"]:not([data-state~="--active"]) .btn-start { 
-  background: #e2e2e2; 
+#tasklist [data-obj="task"]:not([data-state~="--active"]) .btn-start {
+  background: #464646;
   /*background: linear-gradient(180deg, #ff8b8b, #ffca81)*/
 }
 

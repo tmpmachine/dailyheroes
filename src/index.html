@@ -74,8 +74,8 @@
       
         <div class="padding-container">
         
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
           
           <!-- # active task container -->
           <div class="d-flex container-active-task bg-white" style="gap:0.5rem;">
@@ -109,7 +109,7 @@
               <small data-view-group="active-task-info" data-view-name="has-target">
                 Target : <mark id="txt-active-task-target"></mark> <span id="txt-active-task-target-limit"></span>
               </small>
-              <div class="pb-half"></div>
+              <div class="void-half"></div>
               
               <!-- # open task button -->
               <div class="d-flex justify-content-between">
@@ -172,7 +172,7 @@
             <div style="font-size:0.7rem;">
               <span style="font-weight:bold;">Sequence Task Linking</span> <mark style="padding:2px 4px;border-radius:4px;">beta</mark>
             </div>
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
             <div class="d-flex" style="gap:0.5rem;">
               <small class="flex-1">
                 Instruction : Browse and pick tasks to add as sequence, then click <b>Finish</b>.
@@ -180,8 +180,8 @@
               <button class="btn" data-onclick="finish-interactive-sequence-pick">Finish</button>
             </div>
           </div>
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
         </div>
         
         <!-- # search -->
@@ -191,9 +191,9 @@
             Filter by label :
             <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
           </div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
         </div>
-        <div class="pb-half"></div>
+        <div class="void-half"></div>
         
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
@@ -214,11 +214,11 @@
               <div class="tab-active-indicator"></div>
             </button>
           </div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
           
-        <div class="padding-container">
+        <div class="p-half">
         
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
         
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
@@ -246,7 +246,7 @@
                 <small class="txt">Show only task with target time (>= 10m)</small>
               </label>
             </div>
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
           </div>
           
           <div data-view-group="task-view-mode" data-view-name="task filter-target">
@@ -259,7 +259,7 @@
               </button>
               
             </div>
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
             
             <!-- # breadcrumbs -->
             <div class="d-flex justify-content-between">
@@ -268,7 +268,7 @@
             <div style="margin-bottom:0.3rem;"></div>
             
           </div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
   
           <!-- # total mission targets -->
           <small style="color:white;">
@@ -358,13 +358,13 @@
         <!-- # collection screen body -->
         <div class="padding-container pos-relative">
         
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
           
           <button data-onclick='new-collection'>New collection</button>
           
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
           
           <!-- ### list collection -->
           <div data-container="list-collection" data-onclick="handle-click-list-collection"></div>
@@ -386,8 +386,8 @@
         <!-- # screen body -->
         <div class="padding-container bg-white">
         
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
           
           <button class="clickable" data-callback='new-tracker'>New tracker</button>
           
@@ -439,18 +439,18 @@
         <!-- # priority mapper screen body -->
         <div class="padding-container pos-relative">
         
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
           
           <div class="pos-relative">
             <div class="d-flex justify-content-end">
               <button class="clickable" data-callback='save-priority-mapper'>Save</button>
             </div>
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
             
             <small>Guide : Adjust the slider for each task to determine its priority relative to the other tasks.</small>
-            <div class="pb-half"></div>
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
+            <div class="void-half"></div>
             
             <!-- # priority mapper items container -->
             <div class="d-flex justify-content-end">
@@ -478,8 +478,8 @@
         <!-- # settings screen body -->
         <div class="padding-container pos-relative">
         
-          <div class="pb-half"></div>
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
+          <div class="void-half"></div>
           
           <div class="d-grid" style="gap:0.3rem;">
             
@@ -494,7 +494,7 @@
                 </div>
               </div>
               
-            </div><div class="pb-half"></div> 
+            </div><div class="void-half"></div> 
             
             <!-- backup and restore -->
             <div>
@@ -523,7 +523,7 @@
                 </div>
               </div>
               
-            </div><div class="pb-half"></div> 
+            </div><div class="void-half"></div> 
             
             <!-- global preset timer -->
             <div>
@@ -541,11 +541,11 @@
                   </div>
                   <button class="clickable" data-callback='change-global-preset-timer'>Change</button>
                 </div>
-                <div class="pb-half"></div>
+                <div class="void-half"></div>
                 
               </div>
               
-            </div><div class="pb-half"></div> 
+            </div><div class="void-half"></div> 
             
             <!-- sound -->
             <div>
@@ -559,14 +559,14 @@
                   <button class="clickable" data-callback="test-audio">Test audio</button>
                   <button class="clickable" data-callback="stop-test-audio">Stop test</button>
                 </div>
-                <div class="pb-half"></div>
+                <div class="void-half"></div>
                 
                 <div class="d-flex align-items-center gap-half">
                   Volume : <input data-jsq="alarm-volume" type="range" min="0.2" max="1" step="0.1" value="1" data-oninput="handle-input-alarm-volume"/>
                 </div>
                 
               </div>
-            </div><div class="pb-half"></div>
+            </div><div class="void-half"></div>
             
             <!-- web app installation -->
             <div class="d-grid" data-view-group="platform" data-view-name="web" style="gap:0.3rem;">
@@ -574,15 +574,15 @@
                 <div class="settings-group-title">Web App</div>
                 <div class="mb-m"></div>
                 <div class="settings-card-inner">
-                  <button id="buttonInstall">Install</button><div class="pb-half"></div>
+                  <button id="buttonInstall">Install</button><div class="void-half"></div>
                 </div>
               </div>
-            </div><div class="pb-half"></div>
+            </div><div class="void-half"></div>
             
             <!-- app cache -->
             <div data-view-group="platform" data-view-name="web">
               <div class="settings-group-title">Updates & Offline Access</div>
-              <div class="pb-half"></div>
+              <div class="void-half"></div>
               
               <div class="settings-card-inner">
               
@@ -594,14 +594,14 @@
                     <button onclick="pwaCacher.removeUpdate()">Remove app cache *</button>
                   </div>
                 </div>
-                <div class="pb-half"></div>
+                <div class="void-half"></div>
                 <small>*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.</small>
               
               </div>
             </div>
           </div>
           
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
         
         </div>
         
@@ -1045,7 +1045,7 @@
           </div>
           
           
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
           <!-- task modal form -->
           <form data-name='task' class='submittable default-inline-flex-gap flex-column' data-callback='submit-task' data-obj="form-task">
             
@@ -1081,15 +1081,15 @@
             </div>
             <div class="mb-m"></div>
             
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
             
             <!-- # modal notes -->
             <div data-view-group="form-task" data-view-name="collection-only">
               <small style="font-size:0.75rem;">
                 Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
               </small>
-              <div class="pb-half"></div>
-              <div class="pb-half"></div>
+              <div class="void-half"></div>
+              <div class="void-half"></div>
             </div>
             
             <!-- # task modal : form actions -->
@@ -1117,7 +1117,7 @@
                       <button class="btn-primary" data-role="btn-edit">Update</button>
                     </div>
                   </div>
-                  <div class="pb-half"></div>
+                  <div class="void-half"></div>
                   
                   <!-- # task modal progress actions -->
                   <div class="d-flex justify-content-between">
@@ -1164,7 +1164,7 @@
             </div>
           </div>
           
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
           
           <!-- # form sequence task -->
           <form data-name="task" class="submittable default-inline-flex-gap flex-column" data-callback="submit-sequence-task" data-obj="form-task">
@@ -1205,7 +1205,7 @@
               </div>
             </div>
             
-            <div class="pb-half"></div>
+            <div class="void-half"></div>
             
             <!-- # sequence task modal : form action -->
             <div data-view-group="form-task-sequence" data-view-name="edit">
@@ -1237,7 +1237,7 @@
                         </button>
                       </div>
                     </div>
-                    <div class="pb-half"></div>
+                    <div class="void-half"></div>
                   </div>
                 
                 </div>
@@ -1298,7 +1298,7 @@
         <div style="padding:1rem;">
 
           New Note :
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
           <form class='submittable default-inline-flex-gap flex-column' data-callback='add-note'>
             <input type="hidden" name="id"/>
             <div>
