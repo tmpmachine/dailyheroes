@@ -115,6 +115,7 @@ let DOMEvents = (function() {
   	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
   	},
   	onclick: {
+  	  'open-pip': () => uiPiP.OpenPiP(),
   	  'reset-data': () => app.ResetData(),
   	  'reset-target-time': () => ui.ResetTargetTime(),
   	  

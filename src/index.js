@@ -5,8 +5,10 @@ componentLoader.load([
     urls: [
       "js/view-states.js",
       "js/dom-events.js",
+      "js/dom-events-pip.js",
       "js/utils/view-state-util.js",
       "js/ui.js",
+      "js/uis/ui-pip.js",
       "js/uis/ui-mission.js",
       "js/uis/ui-collection.js",
       "js/uis/ui-tracker.js",

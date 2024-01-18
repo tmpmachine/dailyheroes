@@ -26,8 +26,13 @@
 .bg-white{background:white}
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
+
+.void-half,.void-full{display:flex}
+.void-half{margin-bottom:0.5rem}.void-full{margin-bottom:1rem}
+.mb-half{margin-bottom:0.5rem}.mb-full{margin-bottom:1rem}
 .gap-half{gap:0.5rem}.gap-full{gap:1rem}
 .pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
+.p-half{padding:0.5rem}.p-full{padding:1rem}
 
 .obsoletes{display:none!important;height:0!important;width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important}
 

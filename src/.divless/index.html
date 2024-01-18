@@ -112,14 +112,18 @@
               [ .pb-half]
               
               <!-- # open task button -->
-              [ 
+              [ .d-flex .justify-content-between
                 [button .clickable data-callback="open-task-into-view" .bg-white
                   [small .icon-mate 'open_in_new']
+                ]
+                
+                <!-- # pip button-->
+                [button data-onclick="open-pip" .bg-white data-view-group="platform" data-view-name="web"
+                  [small 'picture_in_picture' .icon-mate]
                 ]
               ]
               
             ]
-            
             
             
             <!-- # toggle active task timer -->
@@ -157,12 +161,11 @@
             </div>
           ]
           
-          [ .pb-half]
+          [ .void-half]
           
         ]
-        [ .pb-half]
-        [ .pb-half]
-
+        [ .void-full]
+        
         <!-- # interactive sequence task pick -->
         [ data-view-group="features" data-view-name="interactive-sequence-task-pick" .padding-container
           [ {bg:#bfdfff} {rad:4px;p:0.5rem}
@@ -634,7 +637,12 @@
   </div>
   
   
-  <!-- TEMPLATES -->
+  <!-- # TEMPLATES -->
+  
+  <template id="tmp-pip-doc">
+    <!-- # tmp-pip-doc -->
+    <file src="html/pip-doc.html"></file>
+  </template>
   
   <template id="tmp-list-tracker">
     <!-- # container tracker -->
@@ -652,7 +660,7 @@
   </template>
   
   <template id="tmp-list-collection">
-    <!-- # template list collection -->
+    <!-- # tmp-list-collection -->
     [ data-kind="item" data-id="" {border-bottom:1px solid lightgrey} .d-flex {gap:0.7rem} {padding:0.5rem}
       [ data-slot="title" .flex-1]
       [ .d-flex .justify-content-end {gap:0.3em}

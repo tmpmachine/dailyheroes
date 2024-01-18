@@ -23,6 +23,7 @@ let compoTask = (function() {
     
     TaskResetTasksTargetTime,
     GetTaskQuotaTimeById,
+    TaskGetActive,
   };
   
   let dataModel = {
@@ -49,6 +50,17 @@ let compoTask = (function() {
       items: [],
     },
   };
+  
+  async function TaskGetActive() {
+    let data = await window.service.GetData(['activeTask']);
+    if (data.activeTask) {
+      let activeTask = tasks.find(x => x.id == data.activeTask);
+      if (activeTask) {
+        return activeTask;
+      }  
+    }
+    return null;
+  }
 
   function GetTaskQuotaTimeById(id) {
     

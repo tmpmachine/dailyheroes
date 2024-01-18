@@ -33,6 +33,7 @@
     "js/lib/idb-keyval@6.js",
     
     "js/dom-events.js",
+    "js/dom-events-pip.js",
     "js/view-states.js",
     
     "modal-v2-utils.js",
@@ -44,6 +45,7 @@
     "js/app-data.js",
     "js/app.js",
     "js/ui.js",
+    "js/uis/ui-pip.js",
     "js/uis/ui-collection.js",
     "js/uis/ui-mission.js",
     "js/uis/ui-tracker.js",

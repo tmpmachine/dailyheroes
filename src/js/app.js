@@ -159,17 +159,11 @@ function toggleStartTimer() {
 }
 
 async function startOrRestartTask(options) {
-  let task = await getActiveTask();
-  if (!task) return;
-  
-  await app.TaskStopActiveTask();
-  await app.TaskContinueTask(task.id);
-  await compoTask.StartTimerByTaskId(task.id, options);
-  ui.TaskSetActiveTaskInfo();
+  await app.TaskStartOrRestartTask(options);
 }
 
 async function finishTimer() {
-  let task = await getActiveTask();
+  let task = await compoTask.TaskGetActive();
   if (!task) return;
 
   await app.TaskStopActiveTask();
@@ -254,7 +248,7 @@ async function updateTime(scheduledTime, startTime) {
   let distanceTime = currentTime - startTime;
   updateProgressPercentage(startTime);
   
-  let activeTask = await getActiveTask();
+  let activeTask = await compoTask.TaskGetActive();
   if (activeTask) {
     ui.updateTaskProgressBar(activeTask.id);
   }
@@ -265,7 +259,7 @@ async function sendNotification() {
   if (!app.isCanNotify) return;
   
   let isNotifSequence = false;  
-  let task = await getActiveTask();
+  let task = await compoTask.TaskGetActive();
   
   compoSequence.Stash(task.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
@@ -351,6 +345,8 @@ async function sendNotification() {
 function updateCountdownText(countdownStr, isNegative) {
   $('#txt-countdown').textContent = countdownStr;
   $('.NzE2ODYyNQ-progress-bar-fill').classList.toggle('is-excess-time', isNegative);
+  
+  uiPiP.UpdateCountdownText(countdownStr);
 }
 
 
@@ -679,7 +675,7 @@ function getSumTaskTarget() {
 }
 
 async function removeActiveTaskIfExists(id) {
-  let task = await getActiveTask();
+  let task = await compoTask.TaskGetActive();
   if (task && id == task.id) {
     await removeActiveTask();
   }
@@ -863,7 +859,7 @@ async function TaskAddLabel(id) {
 
 async function switchActiveTask(taskEl, id, persistent = false) {
   
-  let activeTask = await getActiveTask();
+  let activeTask = await compoTask.TaskGetActive();
   
   // switch task
   if (activeTask) {
@@ -1071,14 +1067,7 @@ async function removeActiveTask() {
 }
 
 async function getActiveTask() {
-  let data = await window.service.GetData(['activeTask']);
-  if (data.activeTask) {
-    let activeTask = tasks.find(x => x.id == data.activeTask);
-    if (activeTask) {
-      return activeTask;
-    }  
-  }
-  return null;
+  return await compoTask.TaskGetActive();
 }
 
 async function updateProgressActiveTask(addedMinutes, distanceTime) {
@@ -1221,6 +1210,7 @@ let app = (function () {
     ToggleStartTimerAvailableTime,
     TaskAddToMission,
     TaskRemoveTaskFromMission,
+    TaskStartOrRestartTask,
   };
   
   let data = {
@@ -1233,6 +1223,17 @@ let app = (function () {
   let local = {
     audioPlayer: null,
   };
+  
+  async function TaskStartOrRestartTask(options) {
+    let task = await compoTask.TaskGetActive();
+    if (!task) return;
+    
+    await TaskStopActiveTask();
+    await TaskContinueTask(task.id);
+    await compoTask.StartTimerByTaskId(task.id, options);
+    
+    ui.TaskSetActiveTaskInfo();
+  }
   
   async function TaskRemoveTaskFromMission(id) {
     
@@ -1312,7 +1313,7 @@ let app = (function () {
 
     // starting a different task, reset time streak
     {
-      let activeTask = await getActiveTask();
+      let activeTask = await compoTask.TaskGetActive();
       if (activeTask && id != activeTask.id) {
         let progressTime = 0;
         await compoTimeStreak.TaskUpdateTaskTimeStreak(progressTime, id);
@@ -1569,7 +1570,7 @@ let app = (function () {
     let docFragCompleted = document.createDocumentFragment();
     let activeTimerDistance = await getActiveTimerDistance(); // minutes
     let activeTimerDistanceTime = await getActiveTimerDistanceTime(); // milliseconds
-    let activeTask = await getActiveTask();
+    let activeTask = await compoTask.TaskGetActive();
     let activeTaskPath = [];
     
     // get active task path
@@ -1899,7 +1900,7 @@ let app = (function () {
       let isUpdateCurrentActiveTask = true;
       
       // set active next sequence task
-      let task = await getActiveTask();
+      let task = await compoTask.TaskGetActive();
       compoSequence.Stash(task.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
       
@@ -2464,7 +2465,7 @@ let app = (function () {
       case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;
       case 'set-target': await ui.TaskSetTaskTarget(id); break;
       case 'archive':
-        let activeTask = await getActiveTask();
+        let activeTask = await compoTask.TaskGetActive();
         if (activeTask && activeTask.id == id) {
           await TaskStopActiveTask();
         }

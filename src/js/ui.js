@@ -471,14 +471,14 @@ let ui = (function () {
     
     $('#task-modal').close();
   }
-  
 
   async function TaskSetActiveTaskInfo() {
+    
     $('#txt-active-task-name').textContent = '';
     
     let activeTask = await getActiveTask();
     if (!activeTask) return;
-      
+    
     let ratioTimeLeftStr = '';
     let ratioTimeLeft = timeLeftRatio.find(x => x.id == activeTask.id);
     if (ratioTimeLeft && ratioTimeLeft.timeLeft > 0) {
@@ -521,6 +521,8 @@ let ui = (function () {
     }
     
     RefreshTimeStreak();
+    
+    uiPiP.ReloadActiveTaskInfo();
   }
   
   function RefreshTimeStreak() {

@@ -1,0 +1,28 @@
+[ .p-half
+  
+  [ .d-grid {cols:1fr auto} .bg-white {rad:0.5rem} .p-half
+  
+    <!-- # task actions-->
+    [ .d-flex .justify-content-end .gap-half
+      [btn 'play_arrow' data-onclick="start-or-restart-timer" .icon-mate]
+      [btn 'stop' data-onclick="stop-timer" .icon-mate]
+    ]
+    [ .mb-half]
+    
+    <!-- # task info -->
+    [
+      [
+        [s #txt-countdown .fw-bold {fs:2rem}]
+      ]
+      [
+        [s #task-title]
+      ]
+      [
+        [s #sequence-task-title]
+      ]
+    ]
+  
+    
+  ]
+
+]

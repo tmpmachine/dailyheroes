@@ -112,14 +112,18 @@
               <div class="pb-half"></div>
               
               <!-- # open task button -->
-              <div>
+              <div class="d-flex justify-content-between">
                 <button class="clickable bg-white" data-callback="open-task-into-view">
                   <small class="icon-mate">open_in_new</small>
+                </button>
+                
+                <!-- # pip button-->
+                <button class="bg-white" data-onclick="open-pip" data-view-group="platform" data-view-name="web">
+                  <small class="icon-mate">picture_in_picture</small>
                 </button>
               </div>
               
             </div>
-            
             
             
             <!-- # toggle active task timer -->
@@ -157,12 +161,11 @@
             </div>
           </div>
           
-          <div class="pb-half"></div>
+          <div class="void-half"></div>
           
         </div>
-        <div class="pb-half"></div>
-        <div class="pb-half"></div>
-
+        <div class="void-full"></div>
+        
         <!-- # interactive sequence task pick -->
         <div class="padding-container" data-view-group="features" data-view-name="interactive-sequence-task-pick">
           <div style="background:#bfdfff;border-radius:4px;padding:0.5rem;">
@@ -634,7 +637,12 @@
   </div>
   
   
-  <!-- TEMPLATES -->
+  <!-- # TEMPLATES -->
+  
+  <template id="tmp-pip-doc">
+    <!-- # tmp-pip-doc -->
+    <file src="html/pip-doc.html"></file>
+  </template>
   
   <template id="tmp-list-tracker">
     <!-- # container tracker -->
@@ -652,7 +660,7 @@
   </template>
   
   <template id="tmp-list-collection">
-    <!-- # template list collection -->
+    <!-- # tmp-list-collection -->
     <div class="d-flex" data-kind="item" data-id="" style="border-bottom:1px solid lightgrey;gap:0.7rem;padding:0.5rem;">
       <div class="flex-1" data-slot="title"></div>
       <div class="d-flex justify-content-end" style="gap:0.3em;">
