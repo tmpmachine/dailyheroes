@@ -154,12 +154,8 @@ function toggleStartTimer() {
   if (isTimerRunning) {
     app.TaskStopActiveTask();
   } else {
-    startOrRestartTask();
+    app.TaskStartOrRestartTask();
   }
-}
-
-async function startOrRestartTask(options) {
-  await app.TaskStartOrRestartTask(options);
 }
 
 async function finishTimer() {
@@ -254,91 +250,8 @@ async function updateTime(scheduledTime, startTime) {
   }
 }
 
-
 async function sendNotification() {
-  if (!app.isCanNotify) return;
-  
-  let isNotifSequence = false;  
-  let task = await compoTask.TaskGetActive();
-  
-  compoSequence.Stash(task.sequenceTasks);
-  let sequenceTask = compoSequence.GetActive();
-  let sequenceTaskTitle = '';
-  let sequenceTaskDurationTimeStr = '';
-  let taskTargetTimeStr = '';
-  
-  if (sequenceTask) {
-    sequenceTaskTitle = sequenceTask.title;
-    
-    if (sequenceTask.linkedTaskId) {
-      let linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
-      if (linkedTask) {
-        sequenceTaskTitle = linkedTask.title;
-        taskTargetTimeStr = `(${ secondsToHMS(msToSeconds(linkedTask.targetTime)) } left)`;
-      }
-    }
-    
-    isNotifSequence = true;  
-    sequenceTaskDurationTimeStr = `(${ secondsToHMS(msToSeconds(sequenceTask.targetTime)) })`;
-  }
-  compoSequence.Pop();
-  
-  let timeStreakStr = '';
-  let timeStreak = compoTimeStreak.GetActive();
-  if (timeStreak) {
-    timeStreakStr = ` (${secondsToHMS(msToSeconds(timeStreak.totalTimeStreak))} total) `;
-  }
-  
-  
-  if (isNotifSequence) {
-    
-    navigator.serviceWorker.ready.then(async (registration) => {
-      
-      let existingNotifs = await registration.getNotifications();
-      for (let notif of existingNotifs) {
-        notif.close();
-      }
-        
-      let notifTitle = `Time's up! ${timeStreakStr}`.replace(/ +/g,' ').trim();
-      let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle} ${taskTargetTimeStr}`.replace(/ +/g,' ').trim();
-      
-      registration.showNotification(notifTitle, {
-        body: notifBody,
-        tag: 'next-sequence-wait-user-action',
-        requireInteraction: true,
-        actions: [{
-          action: 'start-next-sequence',
-          title: `Start next`.trim(),
-        }, {
-          action: 'close',
-          title: 'Close',
-        }]
-      });
-      
-    	ui.RefreshListSequenceByTaskId(task.id);
-
-    });
-    
-    /*
-    let notification = new Notification("Time's up!", {
-      body: `${sequenceTask.title}`,
-      requireInteraction: true,
-    }); 
-    */
-    
-  } else {
-    
-    let notification = new Notification(`Time's up!`, {
-      body: `Task : ${task.title}`,
-      requireInteraction: true
-    });
-    notification.addEventListener('click', function(e) {
-      window.focus();
-      e.target.close();
-    }, false);
-    
-  }
-  
+  app.TaskSendNotification();
 }
 
 
@@ -1211,6 +1124,7 @@ let app = (function () {
     TaskAddToMission,
     TaskRemoveTaskFromMission,
     TaskStartOrRestartTask,
+    TaskSendNotification,
   };
   
   let data = {
@@ -1223,6 +1137,120 @@ let app = (function () {
   let local = {
     audioPlayer: null,
   };
+  
+  async function TaskSendNotification() {
+    
+    if (!app.isCanNotify) return;
+    
+    let isNotifSequence = false;  
+    let task = await compoTask.TaskGetActive();
+    
+    compoSequence.Stash(task.sequenceTasks);
+    let sequenceTask = compoSequence.GetActive();
+    let sequenceTaskTitle = '';
+    let sequenceTaskDurationTimeStr = '';
+    let taskTargetTimeStr = '';
+    
+    if (sequenceTask) {
+      sequenceTaskTitle = sequenceTask.title;
+      
+      if (sequenceTask.linkedTaskId) {
+        let linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
+        if (linkedTask) {
+          sequenceTaskTitle = linkedTask.title;
+          taskTargetTimeStr = `(${ secondsToHMS(msToSeconds(linkedTask.targetTime)) } left)`;
+        }
+      }
+      
+      isNotifSequence = true;  
+      sequenceTaskDurationTimeStr = `(${ secondsToHMS(msToSeconds(sequenceTask.targetTime)) })`;
+    }
+    compoSequence.Pop();
+    
+    let timeStreakStr = '';
+    let timeStreak = compoTimeStreak.GetActive();
+    if (timeStreak) {
+      timeStreakStr = ` (${secondsToHMS(msToSeconds(timeStreak.totalTimeStreak))} total) `;
+    }
+    
+    
+    if (isNotifSequence) {
+      
+      navigator.serviceWorker.ready.then(async (registration) => {
+        
+        let existingNotifs = await registration.getNotifications();
+        for (let notif of existingNotifs) {
+          notif.close();
+        }
+          
+        let notifTitle = `Time's up! ${timeStreakStr}`.replace(/ +/g,' ').trim();
+        let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle} ${taskTargetTimeStr}`.replace(/ +/g,' ').trim();
+        
+        registration.showNotification(notifTitle, {
+          body: notifBody,
+          // tag: 'next-sequence-wait-user-action',
+          requireInteraction: true,
+          actions: [{
+            action: 'start-timer',
+            title: `Start next`.trim(),
+          }, {
+            action: 'take-a-break',
+            title: 'Take a break (20s)',
+          }]
+        });
+        
+      	ui.RefreshListSequenceByTaskId(task.id);
+  
+      });
+      
+      /*
+      let notification = new Notification("Time's up!", {
+        body: `${sequenceTask.title}`,
+        requireInteraction: true,
+      }); 
+      */
+      
+    } else {
+      
+      /*
+      let notification = new Notification(`Time's up!`, {
+        body: `Task : ${task.title}`,
+        requireInteraction: true
+      });
+      notification.addEventListener('click', function(e) {
+        window.focus();
+        e.target.close();
+      }, false);
+      */
+      
+      navigator.serviceWorker.ready.then(async (registration) => {
+        
+        let existingNotifs = await registration.getNotifications();
+        for (let notif of existingNotifs) {
+          notif.close();
+        }
+      
+        let notifTitle = `Time's up!`;
+        let notifBody = `Task : ${task.title}`;
+        
+        registration.showNotification(notifTitle, {
+          body: notifBody,
+          // tag: 'next-sequence-wait-user-action',
+          requireInteraction: true,
+          actions: [{
+            action: 'start-timer',
+            title: `Restart task`,
+          }, {
+            action: 'take-a-break',
+            title: 'Take a break (20s)',
+          }]
+        });
+      
+      });
+      
+    }
+    
+  }
   
   async function TaskStartOrRestartTask(options) {
     let task = await compoTask.TaskGetActive();
@@ -1305,7 +1333,7 @@ let app = (function () {
       let options = {
         isStartAvailableTime: true,
       };
-      startOrRestartTask(options);
+      app.TaskStartOrRestartTask(options);
     }
   }
   

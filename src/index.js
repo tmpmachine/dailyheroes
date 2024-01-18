@@ -196,7 +196,9 @@ function initServiceWorker() {
       
       // Listen for messages from the service worker
       navigator.serviceWorker.addEventListener('message', function(event) {
-        if (event.data === 'start-next-sequence') {
+        if (event.data === 'start-timer') {
+          toggleStartTimer();
+        } else if (event.data === 'take-a-break') {
           toggleStartTimer();
         }
       });

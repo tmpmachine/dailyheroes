@@ -30,7 +30,7 @@ let DOMEvents = (function() {
   		'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
   		
   		'stop-timer': () => app.TaskStopActiveTask(),
-  		'start-or-restart-timer': () => startOrRestartTask(),
+  		'start-or-restart-timer': () => app.TaskStartOrRestartTask(),
   		
   		'finish-timer': () => finishTimer(),
   		
