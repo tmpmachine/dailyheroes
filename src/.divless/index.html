@@ -113,7 +113,7 @@
               
               <!-- # open task button -->
               [ .d-flex .justify-content-between
-                [button .clickable data-callback="open-task-into-view" .bg-white
+                [button data-onclick="open-task-into-view" .bg-white
                   [small .icon-mate 'open_in_new']
                 ]
                 
@@ -263,7 +263,7 @@
             
             <!-- # breadcrumbs -->
             [ .d-flex .justify-content-between
-              [ #container-breadcrumbs .container-breadcrumbs]
+              [ #container-breadcrumbs .container-breadcrumbs data-onclick="handle-click-breadcrumbs"]
             ]
             [ {mb:0.3rem}]
             
@@ -748,9 +748,11 @@
           	  ]
       	      <span class="d-none" data-slot="completionPercentage"></span>
         	  ]
-        	  [
+        	  [ .d-flex .flex-column 
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
-              <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
+              [ .d-flex .justify-content-end
+                <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
+              ]
         	  ]
       	  ]
         
@@ -775,7 +777,7 @@
       	    [ .d-flex .justify-content-end {gap:0.5rem}
               
       	      <!-- # start timer button -->
-              [ data-view-group="task-view-mode" data-view-name="mission"
+              [ 
                 [btn .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
                   play_arrow
                 ]

@@ -24,7 +24,6 @@ let DOMEvents = (function() {
       'view-mission': () => ui.NavigateViewMission(),
       'view-tasks': () => ui.NavigateViewTask(),
       
-      'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
   		
   		'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
@@ -115,6 +114,8 @@ let DOMEvents = (function() {
   	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
   	},
   	onclick: {
+      'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
+  	  'handle-click-breadcrumbs': (evt) => ui.HandleClickBreadcrumbs(evt),
   	  'open-pip': () => uiPiP.OpenPiP(),
   	  'reset-data': () => app.ResetData(),
   	  'reset-target-time': () => ui.ResetTargetTime(),

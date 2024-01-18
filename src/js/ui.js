@@ -3,7 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
-    FocusTaskById,
+    FocusTaskById: FocusTaskElById,
     TaskDistributeProgressTaskFromForm,
     TaskResetProgressTaskFromForm,
     NavigateViewTask,
@@ -61,7 +61,7 @@ let ui = (function () {
     TaskSetTaskTarget,
     TaskAddProgressManually,
     TaskReloadTotalTargets,
-    
+    HandleClickBreadcrumbs,  
   };
   
   async function TaskReloadTotalTargets() {
@@ -196,7 +196,7 @@ let ui = (function () {
   
   function NavigateViewTask() {
     ChangeViewModeConfig('tasks');
-    resetActiveGroupId();
+    // resetActiveGroupId();
     lsdb.save();
     ui.BuildBreadcrumbs();
     app.TaskListTask();
@@ -204,7 +204,7 @@ let ui = (function () {
   
   function NavigateViewMission() {
     ChangeViewModeConfig('mission');
-    resetActiveGroupId();
+    // resetActiveGroupId();
     lsdb.save();
     ui.BuildBreadcrumbs();
     app.TaskListTask();
@@ -228,6 +228,8 @@ let ui = (function () {
     lsdb.save();
     ui.Navigate(activeTask.parentId);
     await app.TaskListTask();
+    
+    FocusTaskElById(activeTask.id);
   }
   
   function removeTaskEl(id) {
@@ -386,7 +388,7 @@ let ui = (function () {
     compoSequence.Pop();
     
     await app.TaskNavigateToMission(linkedTask.id);
-    FocusTaskById(linkedTask.id);
+    FocusTaskElById(linkedTask.id);
     
     $('#task-sequence-modal').close();
   }
@@ -408,16 +410,20 @@ let ui = (function () {
     $('#task-sequence-modal').close();
   }
   
-  function FocusTaskById(id) {
+  function FocusTaskElById(id, isScroll = true) {
+    
     let taskEl = getTaskElById(id);
     if (!taskEl) return;
     
     taskEl.classList.add('focused');
     
-    const container = $('.container-app'); 
-    const targetElement = taskEl;
-    const scrollPosition = targetElement.offsetTop - container.offsetTop;
-    container.scrollTop = scrollPosition;
+    if (isScroll) {
+      const container = $('.container-app'); 
+      const targetElement = taskEl;
+      let navbarHeight = 50;
+      const scrollPosition = targetElement.offsetTop - container.offsetTop - navbarHeight;
+      container.scrollTop = scrollPosition;
+    }
   }
   
   function DeleteSequenceFromForm(evt) {
@@ -923,7 +929,6 @@ let ui = (function () {
     initSimpleElementFilter();
     attachKeyboardShortcuts();
     
-    initBreadcrumbListener();
     BuildBreadcrumbs();
     
     // # mission and mission groups
@@ -1146,13 +1151,22 @@ let ui = (function () {
     BuildBreadcrumbs();
   }
   
-  function initBreadcrumbListener() {
-    $('#container-breadcrumbs').addEventListener('click', (evt) => {
-      if (evt.target.tagName == 'BUTTON') {
-        Navigate(evt.target.dataset.id);
-        app.TaskListTask();
-      }
-    });
+  function getActiveGroupId() {
+    return lsdb.data.activeGroupId;
+  }
+  
+  async function HandleClickBreadcrumbs(evt) {
+    let targetEl = evt.target;
+    
+    if (evt.target.tagName != 'BUTTON') return;
+
+    let activeGroupId = getActiveGroupId();
+    
+    Navigate(evt.target.dataset.id);
+    await app.TaskListTask();
+    
+    let isScroll = false;
+    FocusTaskElById(activeGroupId, isScroll);
   }
   
   function SetFocusEl(el) {

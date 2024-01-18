@@ -33,7 +33,7 @@
     "js/lib/idb-keyval@6.js",
     
     "js/dom-events.js",
-    "js/dom-events-pip.js",
+    "js/dom-events/pip-events.js",
     "js/view-states.js",
     
     "modal-v2-utils.js",

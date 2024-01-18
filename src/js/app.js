@@ -1540,16 +1540,10 @@ let app = (function () {
       
       return order;
     });
-    
-    if (lsdb.data.activeGroupId === '') {
-      // filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
-      filteredTasks = missionIds.map(x => {
-        return tasks.find(task => task.id == x.id);
-      }).filter(x => typeof(x) == 'object');
-    } else {
-      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
-      // filteredTasks = task;
-    }
+  
+    filteredTasks = missionIds.map(x => {
+      return tasks.find(task => task.id == x.id);
+    }).filter(x => typeof(x) == 'object');
     
     return filteredTasks;
     

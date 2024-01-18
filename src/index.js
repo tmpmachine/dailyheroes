@@ -4,8 +4,8 @@ componentLoader.load([
   {
     urls: [
       "js/view-states.js",
+      "js/dom-events/pip-events.js",
       "js/dom-events.js",
-      "js/dom-events-pip.js",
       "js/utils/view-state-util.js",
       "js/ui.js",
       "js/uis/ui-pip.js",
