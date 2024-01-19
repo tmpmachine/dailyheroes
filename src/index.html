@@ -279,8 +279,9 @@
           
           <!-- # task list container -->
           <div id="tasklist-container" class="container-task">
-            <div id="tasklist" class="clickable" data-callback="task-click-handler"></div>
-            <div style="padding-top:1rem;"></div>
+            <!-- # widget-task.skin-default -->
+            <div id="tasklist" class="widget-task skin-default clickable" data-callback="task-click-handler"></div>
+            <div class="void-full"></div>
             <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
           </div>
           
@@ -417,7 +418,8 @@
           </small>
           <div class="pb-full"></div>
           
-          <div id="list-tasks-by-threshold" data-onclick="task-click-handler"></div>
+          <!-- # widget-task.skin-targets -->
+          <div id="list-tasks-by-threshold" class="widget-task skin-targets" data-onclick="task-click-handler"></div>
         </div>
         
       </div>
@@ -479,6 +481,7 @@
         <div class="pos-relative">
         
           
+          <!-- # widget-settings.skin-default -->
           <div class="widget-settings skin-default d-grid" style="gap:0.3rem;">
             
             <!-- application data -->
@@ -716,7 +719,7 @@
   	      <!-- # task info (title) -->
       	  <div class="d-flex justify-content-between" style="gap:0.3rem;">
       	    <div class="flex-1">
-        	    <div data-slot="missionPath" data-slot-html></div>
+        	    <div class="task-path" data-slot="missionPath" data-slot-html></div>
         	    <span class="title" data-slot="title"></span>
       	    </div>
       	    <div class="obsoletes">
@@ -749,7 +752,8 @@
         	  <div class="d-flex flex-column">
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
               <div class="d-flex justify-content-end">
-                <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
+                <!-- # target time left -->
+                <mark data-slot="ratioTimeLeftStr" data-slot-html class="task-target-time"></mark>
               </div>
         	  </div>
       	  </div>
@@ -833,17 +837,19 @@
     <!-- # container task simple mode -->
     
   	<div class="container-item pos-relative" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="">
-  	  
+
   	  <!-- # simple mode : task body -->
   	  <div class="task-body-main d-flex gap-full" style="padding:0.3rem 0.5rem;">
   	  
     	  <div class="d-flex justify-content-between flex-grow" style="gap:0.3rem;">
     	    <div class="flex-1">
-      	    <div data-slot="missionPath" data-slot-html></div>
+    	      <!-- # simple mode : task path -->
+      	    <div class="task-path" data-slot="missionPath" data-slot-html></div>
       	    <span class="title" data-slot="title"></span>
     	    </div>
           <small>
-            <mark data-slot="ratioTimeLeftStr" data-slot-html></mark>
+            <!-- # simple mode : target time -->
+            <mark class="task-target-time" data-slot="ratioTimeLeftStr" data-slot-html></mark>
       	  </small>
     	  </div>
     	  
