@@ -575,13 +575,14 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 /* # item sequence */
 .item-sequence.is-active {
-  background: #613968;
+  background: #47474d;
+  /* background: var(--border-dark); */
 }
-#tasklist [data-obj="task"][data-state~="--active"] .item-sequence.is-active { 
+#tasklist [data-obj="task"][data-state~="--active"] .item-sequence.is-active {
   /*background: var(--text-light);*/
-  background: #d6eef7;
+  background: #424271;
 }
-.item-sequence {outline: 1px solid #89c210db;}
+.item-sequence {border-top: 1px solid var(--border-dark);}
 [data-slot="linkedTaskPath"] {
   font-size: 0.7em;
   opacity: 0.7;
