@@ -1,4 +1,3 @@
-
 .justify-content-center{justify-content:center}.justify-content-end{justify-content:end}.justify-content-between{justify-content:space-between}
 .align-items-center{align-items:center}.align-items-baseline{align-items:baseline}
 .flex-column{flex-direction:column}
@@ -44,6 +43,30 @@
 modal-v2{z-index:99}
 
 
+/* # themes */
+:root {
+  --dark: #201e1e;
+  --light: #fdfdfd;
+  --text-light: #82f6eb;
+
+  --card-dark: #2f323b;
+  --card-dark-lighter: rgb(255 255 255 / 4%);
+
+  --card-brushed-top: #33343a;
+  --card-brushed-bottom: #434347;
+
+  --button-dark: #2f323b;
+  --button-light: #3f424d;
+  --button-lighter: #6f6f6f;
+  
+  --border-dark: #cbccd042;
+  --border-lighter: #dbdbdbc4;
+
+  --text-light-color: #22ff3f;
+}
+
+.bg-danger{background:#e96e98}
+.bg-danger-high{background: #fc4646;}
 
 body {
   margin: 0;
@@ -69,6 +92,46 @@ body {
 /*    color: #ffffff;*/
 /*  }*/
 /*}*/
+
+.widget-settings {
+
+  &.skin-default {
+    background-color: var(--card-brushed-top);
+    color: white;
+    button {
+      color: white;
+    }
+    button:hover {
+      background: var(--button-lighter);
+    }
+
+    .settings-group {
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--card-brushed-bottom);
+      padding-bottom: 1rem;
+    }
+    
+    
+    .settings-group-title {
+    /* background: #00BCD4; */
+    /* color: white; */
+    /* padding: 0.2rem 0.7rem; */
+    /* margin: 0 -1rem; */
+    font-size: 1.2rem;
+    margin-bottom: 1.3rem;
+    font-weight: bold;
+    opacity: 0.9;
+    }
+    .settings-card-inner {
+    /* border: 1px solid #efefef; */
+    border-radius: 0.3rem;
+    padding: 0 0.3rem;
+    /* background: white; */
+    }
+    ;
+    padding: 1rem;
+    }
+}
 
 /*@font-face {*/
 /*  font-family: 'Material Symbols Outlined';*/
@@ -375,6 +438,10 @@ body[data-state~="--timer-running"] .task-progress-bar {
 [data-kind="task"] .title {
   word-break: break-word;
 }
+[data-obj="task"] button {
+  padding: 4px;
+  color: white;
+}
 
 /* # task body */
 .btn-start, .btn-stop {
@@ -404,7 +471,7 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 /* # task toolbar */
 #tasklist .container-task-toolbar {
-  background: #434347;
+  background: var(--card-brushed-bottom);
 }
 #tasklist [data-obj="task"][data-state~="--active"] .container-task-toolbar {
   background: #232328;
@@ -521,19 +588,7 @@ body[data-state~="--timer-running"] .task-progress-bar {
   margin: 0 -1rem;
 }
 
-.settings-group-title {
-  background: #00BCD4;
-  color: white;
-  padding: 0.2rem 0.7rem;
-  margin: 0 -1rem;
-  font-size: 0.9rem;
-}
-.settings-card-inner {
-  border: 1px solid #efefef;
-  border-radius: 0.3rem;
-  padding: 1rem;
-  background: white;
-}
+
 
 .btn-glass {
   background: #ffffff29;
@@ -574,7 +629,7 @@ body {
   background: #2c2f37;
 }
 [data-obj="task"] {
-  background: #33343a;
+  background: var(--card-brushed-top);
   box-shadow: 0px 0px 0px 2px #5d5d5d;
   /* border-bottom: 3px solid #d0d0d0; */
   margin-bottom: 1rem;

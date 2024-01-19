@@ -476,15 +476,13 @@
         ]
         
         <!-- # settings screen body -->
-        [ .padding-container .pos-relative
+        [ .pos-relative
         
-          [ .void-half]
-          [ .void-half]
           
-          [ .d-grid {gap:0.3rem}
+          [ .widget-settings .skin-default .d-grid {gap:0.3rem}
             
             <!-- application data -->
-            [
+            [ .settings-group
               [ 'Application Data' .settings-group-title]
               [ .mb-m]
               [ .settings-card-inner
@@ -494,10 +492,10 @@
                 ]
               ]
               
-            ][ .void-half] 
+            ]
             
             <!-- backup and restore -->
-            [
+            [ .settings-group
               [ 'Backup and Restore' .settings-group-title]
               [ .mb-m]
               
@@ -523,10 +521,10 @@
                 ]
               ]
               
-            ][ .void-half] 
+            ]
             
             <!-- global preset timer -->
-            [
+            [ .settings-group
               [ 'Timer Preset' .settings-group-title]
               [ .mb-m]
               [ .settings-card-inner
@@ -545,10 +543,10 @@
                 
               ]
               
-            ][ .void-half] 
+            ]
             
             <!-- sound -->
-            [
+            [ .settings-group
               [ 'Alarm Sound' .settings-group-title]
               [ .mb-m]
               [ .settings-card-inner
@@ -566,21 +564,21 @@
                 ]
                 
               ]
-            ][ .void-half]
+            ]
             
             <!-- web app installation -->
-            [ data-view-group="platform" data-view-name="web" .d-grid {gap:0.3rem}
+            [ .settings-group data-view-group="platform" data-view-name="web" .d-grid {gap:0.3rem}
               [
                 [ 'Web App' .settings-group-title]
                 [ .mb-m]
                 [ .settings-card-inner
-                  [btn #buttonInstall 'Install'][ .void-half]
+                  [btn #buttonInstall 'Install']
                 ]
               ]
-            ][ .void-half]
+            ]
             
             <!-- app cache -->
-            [ data-view-group="platform" data-view-name="web"
+            [ .settings-group data-view-group="platform" data-view-name="web"
               [ 'Updates & Offline Access' .settings-group-title]
               [ .void-half]
               
@@ -599,9 +597,9 @@
               
               ]
             ]
+            
           ]
           
-          [ .void-half]
         
         ]
         
