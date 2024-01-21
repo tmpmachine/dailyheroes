@@ -26,8 +26,6 @@ let DOMEvents = (function() {
       
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
   		
-  		'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
-  		
   		'stop-timer': () => app.TaskStopActiveTask(),
   		'start-or-restart-timer': () => app.TaskStartOrRestartTask(),
   		
@@ -113,6 +111,9 @@ let DOMEvents = (function() {
   	oninput: {
   	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
   	},
+  	ondblclick: {
+  		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
+  	},
   	onclick: {
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   	  'handle-click-breadcrumbs': (evt) => ui.HandleClickBreadcrumbs(evt),
@@ -155,6 +156,7 @@ let DOMEvents = (function() {
     listenOn('.changeable', 'change', eventsMap.changeable);
     
     listening('[data-onclick]', 'onclick', 'click', eventsMap.onclick);
+    listening('[data-ondblclick]', 'ondblclick', 'dblclick', eventsMap.ondblclick);
     listening('[data-oninput]', 'oninput', 'input', eventsMap.oninput);
   }
   

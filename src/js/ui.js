@@ -4,6 +4,7 @@ let ui = (function () {
   
   let SELF = {
     FocusTaskById: FocusTaskElById,
+    FocusTaskElById,
     TaskDistributeProgressTaskFromForm,
     TaskResetProgressTaskFromForm,
     NavigateViewTask,

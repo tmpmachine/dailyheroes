@@ -1083,6 +1083,7 @@ let app = (function () {
     isCanNotify: false,
     
     Init,
+    HandleTaskDblClick,
     TaskClickHandler,
     GetDataManager,
     ResetData,
@@ -2433,12 +2434,36 @@ let app = (function () {
     return (el.matches('[data-role]') ? el.dataset.role : '');
   }
   
+  async function HandleTaskDblClick(evt) {
+    let el = evt.target;
+    let parentEl = el.closest('[data-obj="task"]');
+    let id = parentEl.dataset.id;
+    
+    let seqEl = el.closest('[data-kind="item-sequence-task"]');
+    let seqId = seqEl ? seqEl.dataset.id : null;
+    
+    if (!seqEl) return;
+    
+    let task = compoTask.GetById(id);
+
+    compoSequence.Stash(task.sequenceTasks);
+    let item = compoSequence.GetById(seqId);
+    let linkedTask = compoTask.GetById(item.linkedTaskId);
+    compoSequence.Pop();
+    
+    if (!linkedTask) return;
+    
+    await app.TaskNavigateToMission(linkedTask.id);
+    ui.FocusTaskElById(linkedTask.id);
+  }
+  
   async function TaskClickHandler(evt, el) {
 
     let actionRole = getActionRole(el);
     let parentEl = el.closest('[data-obj="task"]');
-    let seqEl = el.closest('[data-kind="item-sequence-task"]');
     let id = parentEl.dataset.id;
+    
+    let seqEl = el.closest('[data-kind="item-sequence-task"]');
     let seqId = seqEl ? seqEl.dataset.id : null;
     
     let seqTitleEl = evt.target.closest(['[data-closest="title"]']);

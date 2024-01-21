@@ -280,7 +280,7 @@
           <!-- # task list container -->
           <div id="tasklist-container" class="container-task">
             <!-- # widget-task.skin-default -->
-            [ #tasklist .widget-task .skin-default .clickable data-callback="task-click-handler"]
+            [ #tasklist .widget-task .skin-default data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"]
             [ .void-full]
             <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
           </div>
@@ -419,7 +419,7 @@
           [ .pb-full]
           
           <!-- # widget-task.skin-targets -->
-          [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="task-click-handler"]
+          [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"]
         ]
         
       ]
