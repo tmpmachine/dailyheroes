@@ -1,5 +1,5 @@
 .justify-content-center{justify-content:center}.justify-content-end{justify-content:end}.justify-content-between{justify-content:space-between}
-.align-items-center{align-items:center}.align-items-baseline{align-items:baseline}
+.align-items-center{align-items:center}.align-items-baseline{align-items:baseline}.align-items-end{align-items:flex-end}
 .flex-column{flex-direction:column}
 .d-flex{display:flex}.d-grid{display:grid}.d-inline-block{display:inline-block}.d-block{display:block}.d-inline-flex{display:inline-flex}
 .d-none{display:none}
@@ -29,7 +29,7 @@
 .void-half,.void-full{display:flex}
 .void-half{margin-bottom:0.5rem}.void-full{margin-bottom:1rem}
 .mb-half{margin-bottom:0.5rem}.mb-full{margin-bottom:1rem}
-.gap-half{gap:0.5rem}.gap-full{gap:1rem}
+.gap-quarter{gap:0.25rem}.gap-half{gap:0.5rem}.gap-full{gap:1rem}
 .pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
 .p-half{padding:0.5rem}.p-full{padding:1rem}
 
@@ -99,6 +99,13 @@ body {
     background: #f6f641;
     padding: 1px 2px;
     border-radius: 2px;
+  }
+  
+  .task-target-cap-time {
+    background: lch(67 50.56 259.94);
+    padding: 1px 2px;
+    border-radius: 2px;
+    color: black;
   }
 
   .task-path {

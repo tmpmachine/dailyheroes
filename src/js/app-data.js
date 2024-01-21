@@ -50,6 +50,7 @@ window.lsdb = new Lsdb(storageName, {
     
     // used by time balancing
     targetTime: 0,
+    targetCapTime: 0,
     ratio: 0,
 
     lastUpdated: 0,

@@ -107,6 +107,7 @@ let ui = (function () {
     
     try {
       task.progressTime += addedTime;
+      task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
       task.totalProgressTime += addedTime;
       
       if (!
@@ -1359,6 +1360,7 @@ let ui = (function () {
     el.querySelector('[data-slot="progress"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.progressTime) );
     el.querySelector('[data-slot="title"]').textContent = task.title;
     el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.targetTime) );
+    el.querySelector('[data-slot="targetCapTimeStr"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.targetCapTime) );
   }
   
   function OnSubmitSequenceTask(ev) {

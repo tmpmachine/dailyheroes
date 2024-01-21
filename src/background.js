@@ -190,6 +190,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   if (isUpdateCurrentActiveTask) {
     
     activeTask.progressTime += distanceTime;
+    activeTask.targetCapTime = addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime);
+    
     if (typeof(activeTask.totalProgressTime) == 'undefined') {
       activeTask.totalProgressTime = 0;  
     }

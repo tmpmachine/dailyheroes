@@ -989,6 +989,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
       activeTask.progressTime += distanceTime;
+      activeTask.targetCapTime = Math.max(0, addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime));
+      
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
       }
@@ -1634,6 +1636,11 @@ let app = (function () {
       
       // # set ratio time left string
       let ratioTimeLeftStr = '';
+      let targetCapTimeStr = '';
+      
+      if (item.targetCapTime > 0) {
+        targetCapTimeStr = helper.ToTimeString(item.targetCapTime, 'hms');
+      }
       
       // ## handle if self task
       if (item.ratio > 0 || item.targetTime > 0)
@@ -1720,6 +1727,7 @@ let app = (function () {
         missionPath,
         ratio: ratioStr,
         ratioTimeLeftStr,
+        targetCapTimeStr,
         totalProgressStr,
         targetString: (durationTimeStr.trim().length > 0 ? `${durationTimeStr} left` : ''),
         allocatedTimeString: minutesToHoursAndMinutes(item.target),
@@ -2191,6 +2199,7 @@ let app = (function () {
       if (missionParentTask.length > 0) {
         missionParentTask.forEach(task => {
           task.progressTime += progressTime;
+          task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * progressTime));
         });
       }
     } catch (e) { console.log(e); }
@@ -2541,7 +2550,7 @@ let app = (function () {
   
   async function editTask(taskId) {
     let task = await app.getTaskById(taskId);
-    let {id, parentId, title, durationTime, targetTime, finishCount, type} = task;
+    let {id, parentId, title, durationTime, targetTime, targetCapTime, finishCount, type} = task;
     let modalData = {
       readOnlyId: id,
       formData: {
@@ -2549,6 +2558,7 @@ let app = (function () {
         title,
         durationTime: helper.ToTimeString(durationTime, 'hms'),
         targetTime: helper.ToTimeString(targetTime, 'hms'),
+        targetCapTime: helper.ToTimeString(targetCapTime, 'hms'),
         finishCount,
         parentId,
         taskType: type,
@@ -2566,6 +2576,7 @@ let app = (function () {
     task.title = form.title.value;
     task.durationTime = helper.ParseHmsToMs(form.durationTime.value);
     task.targetTime = helper.ParseHmsToMs(form.targetTime.value);
+    task.targetCapTime = helper.ParseHmsToMs(form.targetCapTime.value);
     task.finishCount = parseInt(form['finishCount'].value);
     task.finishCountProgress = parseInt(form['finishCount'].value);
     task.parentId = form['parent-id'].value;
@@ -2600,6 +2611,7 @@ let app = (function () {
         title: form.title.value,
         durationTime: helper.ParseHmsToMs(targetVal),
         targetTime: helper.ParseHmsToMs(form.targetTime.value),
+        targetCapTime: helper.ParseHmsToMs(form.targetCapTime.value),
         parentId: parentId ? parentId : '',
         type: form.taskType.value,
       });

@@ -693,7 +693,7 @@
   <template id="tmp-task">
     <!-- # container task -->
     
-  	<div class="container-item pos-relative" data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="">
+  	<div class="container-item pos-relative" data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="">
   	  
   	  <div class="d-none">
   	    <!-- # add to mission button -->
@@ -751,9 +751,10 @@
         	  </div>
         	  <div class="d-flex flex-column">
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
-              <div class="d-flex justify-content-end">
+              <div class="d-flex align-items-end flex-column gap-quarter" style="gap:0.2rem;">
                 <!-- # target time left -->
                 <mark data-slot="ratioTimeLeftStr" data-slot-html class="task-target-time"></mark>
+                <span data-slot="targetCapTimeStr" data-slot-html class="task-target-cap-time"></span>
               </div>
         	  </div>
       	  </div>
@@ -1072,8 +1073,13 @@
               <div>
                 Duration <input type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
               </div>
-              <div>
-                Target <input type="text" name='targetTime' class="input-style-default"/>
+              <div class="d-flex justify-content-between gap-full">
+                <div class="d-flex flex-column">
+                  Target <input type="text" name='targetTime' class="input-style-default"/>
+                </div>
+                <div class="d-flex flex-column">
+                  Target cap <input type="text" name='targetCapTime' class="input-style-default"/>
+                </div>
               </div>
               <div class="d-none">
                 Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
