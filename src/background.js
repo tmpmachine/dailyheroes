@@ -129,7 +129,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   
   
   let isUpdateCurrentActiveTask = true;
-  
+  let previousSequenceTaskTitle = null;
   
   // set active next sequence task
   compoSequence.Stash(activeTask.sequenceTasks);
@@ -139,6 +139,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     if (sequenceTask.linkedTaskId) {
       let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
       if (linkedTask) {
+        previousSequenceTaskTitle = linkedTask.title;
+
         isUpdateCurrentActiveTask = false;
         linkedTask.totalProgressTime += distanceTime;
         await taskApplyNecessaryTaskUpdates(linkedTask, distanceTime, tasks);
@@ -224,7 +226,10 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   
   await storeTask(tasks);
   
-  return repeatCountData;
+  return {
+    previousSequenceTaskTitle,
+    repeatCountData,
+  };
 }
 
 async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
@@ -406,9 +411,14 @@ async function onAlarmEnded(alarm) {
   
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
+  
   let repeatCountData = null;
+  let previousSequenceTaskTitle = null;
+  
   if (!data.isTakeBreak) {
-    repeatCountData = await updateProgressActiveTask(distanceMinutes, distanceTime);
+    let updateResponse = await updateProgressActiveTask(distanceMinutes, distanceTime);
+    repeatCountData = updateResponse.repeatCountData;
+    previousSequenceTaskTitle = updateResponse.previousSequenceTaskTitle;
   }
 
 
@@ -506,7 +516,13 @@ async function onAlarmEnded(alarm) {
     tag = 'active-sequence-task';
     // notifTitle = `Time's up! ${repeatCountStr} ${timeStreakStr}`.replace(/ +/g,' ').trim();
     notifTitle = `Time's up! ${repeatCountStr}`.replace(/ +/g,' ').trim();
-    notifBody = `Next : ${sequenceTaskTitle} ${taskTargetTimeStr}`.trim();
+    
+    if (previousSequenceTaskTitle) {
+      notifBody = `Task : ${previousSequenceTaskTitle}\r\n`;
+    }
+    notifBody += `Next : ${sequenceTaskTitle} ${taskTargetTimeStr}`;
+    notifBody = notifBody.trim();
+    
   } else if (!isRepeatCountFinished) {
     actions.push({
       action: 'restart',
