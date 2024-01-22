@@ -898,8 +898,12 @@
             ]
             [ .d-flex .align-items-center {gap:0.4rem}
               [small .icon-mate 'link' {op:0.4} {fs:0.8em} data-view-group="sequence-item" data-view-name="linked-task" title="Linked task"]
-              [mark data-slot="ratioTimeLeftStr" {fs:0.7rem} .word-break-keep-all]
               [small data-slot="repeatCountProgressLabel" {fs:0.7rem} .font-weight-bold .word-break-keep-all]
+              <!-- # sequence task target time -->
+              [ .d-flex .flex-column .align-items-end .gap-quarter
+                [mark data-slot="ratioTimeLeftStr" {fs:0.7rem} .word-break-keep-all .task-target-time]
+                [mark data-slot="targetCapTimeStr" {fs:0.7rem} .word-break-keep-all .task-target-cap-time]
+              ]
             ]
           ]
         ]

@@ -610,13 +610,17 @@ let ui = (function () {
     for (let item of items) {
       
       let ratioTimeLeftStr = '';
+      let targetCapTimeStr = '';
       let linkedTaskPath = '';
       
       let linkedTask = null;
       if  (item.linkedTaskId) {
         linkedTask = compoTask.GetById(item.linkedTaskId);
         if (linkedTask) {
-          ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(linkedTask.targetTime)) }`;
+          ratioTimeLeftStr = `${ helper.ToTimeString(linkedTask.targetTime, 'hms') }`;
+          if (linkedTask.targetCapTime) {
+            targetCapTimeStr = `${ helper.ToTimeString(linkedTask.targetCapTime, 'hms') }`;
+          }
           
           // show mission path
           linkedTaskPath = getAndComputeMissionPath(linkedTask.parentId);
@@ -642,6 +646,7 @@ let ui = (function () {
         data: {
           title,
           ratioTimeLeftStr,
+          targetCapTimeStr,
           linkedTaskPath,
           repeatCountProgressLabel,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
