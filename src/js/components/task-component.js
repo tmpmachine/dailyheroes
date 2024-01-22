@@ -90,6 +90,7 @@ let compoTask = (function() {
       task.totalProgressTime = 0;  
     }
     task.totalProgressTime += addedTime;
+    task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
       
     await taskApplyNecessaryTaskUpdates(task, addedTime);
       
