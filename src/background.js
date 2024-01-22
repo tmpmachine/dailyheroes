@@ -24,6 +24,9 @@ async function handleNotificationClick(event) {
     case 'restart':
       await restartTask();
       break;
+    case 'restart-sequence':
+      await restartSequenceTask();
+      break;
     case '3m':
       startNewAlarmInMinutes(3);
       break;
@@ -487,6 +490,14 @@ async function onAlarmEnded(alarm) {
   let tag = 'progress';
   
   if (isSequenceTask) {
+    
+    if (!repeatCountData || repeatCountData.counter.repeatCount == repeatCountData.repeatCount) {
+      actions.push({
+        action: 'restart-sequence',
+        title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
+      });
+    }
+    
     actions.push({
       action: 'start-next-sequence',
       title: `Start next (${sequenceTaskDurationTimeStr})`,
@@ -502,12 +513,12 @@ async function onAlarmEnded(alarm) {
       title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
     });
   }
-  
+  /*
   actions.push({
     action: 'take-a-break',
     title: `Take a break (20s)`,
   });
-  
+  */
   // spawn notif
   await TaskClearNotif();
   spawnNotificationV2(notifTitle, notifBody, 'limegreen', icon3, true, actions, tag);
@@ -759,6 +770,56 @@ async function restartTask() {
   activeTask.progressTime = 0;
   await storeTask(tasks);
   startNewAlarm(activeTask.durationTime);
+}
+
+async function restartSequenceTask() {
+  
+  let tasks = await getTask();
+  let data = await chrome.storage.local.get(['activeTask']);
+  if (!data.activeTask) return;
+
+  let activeTask = tasks.find(x => x.id == data.activeTask);
+  if (!activeTask) return;
+  
+  let alarmDurationTime = activeTask.durationTime;
+  let isSequenceTask = true;
+  
+  // get target time from sequence
+  compoSequence.Stash(activeTask.sequenceTasks);
+  let sequenceTask = compoSequence.GetPrevious();
+  
+  if (sequenceTask) {
+  
+    let isRepeat = (sequenceTask.repeatCount > 0);
+    if (isRepeat) {
+      sequenceTask.counter.repeatCount = 0;
+    }
+    compoSequence.SetActiveById(sequenceTask.id);
+    
+    let sequenceTaskTitle = sequenceTask.title;
+    alarmDurationTime = sequenceTask.targetTime;
+    
+    // get title from task if linked
+    if (sequenceTask.linkedTaskId) {
+      let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
+      if (linkedTask) {
+        sequenceTaskTitle = linkedTask.title;
+      }
+    }
+    
+    // notify next task name
+    const notification = registration.showNotification(`${sequenceTaskTitle}`, { 
+      body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
+      icon4,
+      tag: 'active-sequence-task',
+    });
+    
+  }
+  compoSequence.Commit();
+  await storeTask(tasks);
+  
+  startNewAlarm(alarmDurationTime, isSequenceTask);
+  
 }
 
 let canvas = new OffscreenCanvas(280, 5);
