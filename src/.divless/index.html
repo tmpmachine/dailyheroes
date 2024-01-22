@@ -107,7 +107,12 @@
               
               <!-- # active time target time -->
               [small data-view-group="active-task-info" data-view-name="has-target"
-                Target : [mark #txt-active-task-target] [s #txt-active-task-target-limit]
+                [ .d-flex .gap-quarter
+                  Target : 
+                  [mark #txt-active-task-target .task-target-time]  
+                  [s #txt-active-task-target-cap .task-target-cap-time]
+                  [s #txt-active-task-target-limit]
+                ]
               ]
               [ .void-half]
               
@@ -272,7 +277,9 @@
   
           <!-- # total mission targets -->
           [small {col:white}
-            Total targets : [mark #txt-total-target] (exclude linked tasks)
+            Total targets : 
+            [mark #txt-total-target .task-target-time]
+            [s #txt-total-target-cap .task-target-cap-time]
           ]
           [ .pb-full]
           
@@ -753,8 +760,8 @@
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
               [ .d-flex .align-items-end .flex-column {gap:0.2rem} .gap-quarter
                 <!-- # target time left -->
-                [mark data-slot="ratioTimeLeftStr" data-slot-html class="task-target-time"]
-                [s data-slot="targetCapTimeStr" data-slot-html class="task-target-cap-time"]
+                [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time]
+                [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time]
               ]
         	  ]
       	  ]

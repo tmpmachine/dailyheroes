@@ -93,21 +93,20 @@ body {
 /*  }*/
 /*}*/
 
+.task-target-cap-time {
+  background: #6abbff;
+  padding: 1px 2px;
+  border-radius: 2px;
+  color: black;
+}
+.task-target-time {
+  background: #f6f641;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
 .widget-task {
   
-  .task-target-time {
-    background: #f6f641;
-    padding: 1px 2px;
-    border-radius: 2px;
-  }
-  
-  .task-target-cap-time {
-    background: lch(67 50.56 259.94);
-    padding: 1px 2px;
-    border-radius: 2px;
-    color: black;
-  }
-
   .task-path {
     opacity: 0.7;
     font-weight: 100;

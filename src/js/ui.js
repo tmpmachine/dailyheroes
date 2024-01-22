@@ -68,11 +68,14 @@ let ui = (function () {
   async function TaskReloadTotalTargets() {
     let taskIds = Array.from($$('#tasklist [data-obj="task"]')).map(x => x.dataset.id);
     
-    let totalTarget = 0;
+    let totalTargetTime = 0;
+    let totalTargetCapTime = 0;
     for (let id of taskIds) {
-      totalTarget += compoTask.GetById(id).targetTime;
+      totalTargetTime += compoTask.GetById(id).targetTime;
+      totalTargetCapTime += compoTask.GetById(id).targetCapTime;
     }
-    $('#txt-total-target').textContent = helper.ToTimeString(totalTarget, 'hms');
+    $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
+    $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
   }
   
   async function TaskAddProgressManually(id) {
@@ -504,6 +507,7 @@ let ui = (function () {
       viewStateUtil.Add('active-task-info', ['has-target']);
       
       $('#txt-active-task-target').innerHTML = helper.ToTimeString(activeTask.targetTime, 'hms');
+      $('#txt-active-task-target-cap').innerHTML = helper.ToTimeString(activeTask.targetCapTime, 'hms');
       
       // set quota time 
       let targetQuotaTime = compoTask.GetTaskQuotaTimeById(activeTask.id);

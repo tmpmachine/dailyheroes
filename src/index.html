@@ -107,7 +107,12 @@
               
               <!-- # active time target time -->
               <small data-view-group="active-task-info" data-view-name="has-target">
-                Target : <mark id="txt-active-task-target"></mark> <span id="txt-active-task-target-limit"></span>
+                <div class="d-flex gap-quarter">
+                  Target : 
+                  <mark id="txt-active-task-target" class="task-target-time"></mark>  
+                  <span id="txt-active-task-target-cap" class="task-target-cap-time"></span>
+                  <span id="txt-active-task-target-limit"></span>
+                </div>
               </small>
               <div class="void-half"></div>
               
@@ -272,7 +277,9 @@
   
           <!-- # total mission targets -->
           <small style="color:white;">
-            Total targets : <mark id="txt-total-target"></mark> (exclude linked tasks)
+            Total targets : 
+            <mark id="txt-total-target" class="task-target-time"></mark>
+            <span id="txt-total-target-cap" class="task-target-cap-time"></span>
           </small>
           <div class="pb-full"></div>
           
@@ -753,8 +760,8 @@
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
               <div class="d-flex align-items-end flex-column gap-quarter" style="gap:0.2rem;">
                 <!-- # target time left -->
-                <mark data-slot="ratioTimeLeftStr" data-slot-html class="task-target-time"></mark>
-                <span data-slot="targetCapTimeStr" data-slot-html class="task-target-cap-time"></span>
+                <mark class="task-target-time" data-slot="ratioTimeLeftStr" data-slot-html></mark>
+                <span class="task-target-cap-time" data-slot="targetCapTimeStr" data-slot-html></span>
               </div>
         	  </div>
       	  </div>

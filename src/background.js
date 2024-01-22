@@ -250,6 +250,7 @@ async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, tasks) {
         await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime), tasks);
       }
       task.targetTime = Math.max(0, task.targetTime - addedTime);
+      task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
     } catch (e) {
       console.error(e);
   }

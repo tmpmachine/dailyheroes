@@ -1870,10 +1870,16 @@ let app = (function () {
     
     // set mission target info 
     {
-      let totalTarget = filteredTasks.map(task => {
-        return task.targetTime;
-      }).reduce((a, b) => a + b, 0);
-      $('#txt-total-target').textContent = minutesToHoursAndMinutes( msToMinutes(totalTarget) );
+      let totalTargetTime = 0;
+      let totalTargetCapTime = 0;
+      for (let task of filteredTasks) {
+        totalTargetTime += task.targetTime;
+        if (task.targetCapTime > 0) {
+          totalTargetCapTime += task.targetCapTime;
+        }
+      }
+      $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
+      $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
     }
   }
   
