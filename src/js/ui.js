@@ -502,7 +502,7 @@ let ui = (function () {
     viewStateUtil.Remove('active-task-info', ['has-target', 'is-sequence']);
     
     // target time info
-    if (activeTask.targetTime > 0) {
+    if (activeTask.targetTime > 0 || activeTask.targetCapTime > 0) {
     
       viewStateUtil.Add('active-task-info', ['has-target']);
       
@@ -666,7 +666,12 @@ let ui = (function () {
     
     container.append(docFrag);
     
+    let isManageMode = viewStateUtil.HasViewState('task', 'manage-sequence');
     viewStateUtil.RemoveAll('task', taskEl);
+    
+    if (isManageMode) {
+      viewStateUtil.Add('task', ['manage-sequence'], taskEl);
+    }
     
     if (taskEl && items.length > 0) {
       viewStateUtil.Add('task', ['sequence', 'sequence-mode'], taskEl);

@@ -835,16 +835,18 @@
   	  </div>
       
   	  
-  	  <!-- # time progress info -->
-  	  <div class="d-flex gap-half" style="font-size:0.7rem;background:#232425;padding:10px 8px 6px;">
+  	  <!-- # time progress info : below card -->
+  	  <div class="d-flex gap-half" style="font-size:0.7rem;background:#232425;padding:0 8px;">
   	    
   	    <!-- # timer info -->
-	      <div class="d-flex gap-quarter">
-          <span class="icon-mate">timer</span>  <span data-slot="durationTimeStr"></span>   
+	      <div data-view-group="task" data-view-name-not="sequence-mode" style="padding:10px 0 6px;">
+  	      <div class="d-flex gap-quarter">
+            <span class="icon-mate">timer</span>  <span data-slot="durationTimeStr"></span>   
+  	      </div>
 	      </div>
 	      
         <!-- # target time left -->
-        <div data-view-group="task" data-view-name="has-target">
+        <div data-view-group="task" data-view-name="has-target" style="padding:10px 0 6px;">
           <div class="d-flex align-items-center gap-quarter" style="gap:0.2rem;">
             <span class="icon-mate">flag</span>
             <mark class="task-target-time" data-slot="ratioTimeLeftStr" data-slot-html></mark>
@@ -934,8 +936,8 @@
         <div class="d-flex align-items-center" style="padding:4px 8px;gap:0.3rem;">
           <div data-view-group="task" data-view-name="manage-sequence">
             <button class="icon-mate" data-role="delete-sequence-task" title="Delete">delete</button>
+            <button class="icon-mate" data-role="edit-sequence-task" title="Edit">edit</button>
           </div>
-          <button class="icon-mate" data-role="edit-sequence-task" title="Edit">edit</button>
         </div>
       </div>
     </div>
@@ -1208,7 +1210,6 @@
               <button class="icon-mate toggler btn-glass">close</button>
             </div>
           </div>
-          
           <div class="void-half"></div>
           
           <!-- # form sequence task -->

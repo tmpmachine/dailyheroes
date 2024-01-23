@@ -835,16 +835,18 @@
   	  ]
       
   	  
-  	  <!-- # time progress info -->
-  	  [ {fs:0.7rem;} .d-flex .gap-half {bg:#232425;p:10px 8px 6px;}
+  	  <!-- # time progress info : below card -->
+  	  [ {fs:0.7rem;} .d-flex .gap-half {bg:#232425} {p:0 8px;}
   	    
   	    <!-- # timer info -->
-	      [ .d-flex .gap-quarter
-          [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
+	      [ data-view-group="task" data-view-name-not="sequence-mode" {p:10px 0 6px;}
+  	      [ .d-flex .gap-quarter
+            [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
+  	      ]
 	      ]
 	      
         <!-- # target time left -->
-        [ data-view-group="task" data-view-name="has-target" 
+        [ data-view-group="task" data-view-name="has-target" {p:10px 0 6px;}
           [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
             [s .icon-mate 'flag']
             [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time]
@@ -934,8 +936,8 @@
         [ {p:4px 8px} .d-flex {gap:0.3rem} .align-items-center
           [ data-view-group="task" data-view-name="manage-sequence"
             [btn 'delete' data-role="delete-sequence-task" .icon-mate title="Delete"]
+            [btn 'edit' data-role="edit-sequence-task" .icon-mate title="Edit"]
           ]
-          [btn 'edit' data-role="edit-sequence-task" .icon-mate title="Edit"]
         ]
       ]
     ]
@@ -1208,7 +1210,6 @@
               [btn 'close' .icon-mate .toggler .btn-glass]
             ]
           ]
-          
           [ .void-half]
           
           <!-- # form sequence task -->
