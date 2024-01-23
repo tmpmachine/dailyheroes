@@ -669,6 +669,10 @@ let ui = (function () {
     let isManageMode = viewStateUtil.HasViewState('task', 'manage-sequence');
     viewStateUtil.RemoveAll('task', taskEl);
     
+    if (item.targetTime > 0 || item.targetCapTime > 0) {
+      viewStateUtil.Add('task', ['has-target'], taskEl);
+    }
+    
     if (isManageMode) {
       viewStateUtil.Add('task', ['manage-sequence'], taskEl);
     }
