@@ -1727,6 +1727,7 @@ let app = (function () {
         missionPath,
         ratio: ratioStr,
         ratioTimeLeftStr,
+        durationTimeStr: helper.ToTimeString(item.durationTime, 'hms'),
         targetCapTimeStr,
         totalProgressStr,
         targetString: (durationTimeStr.trim().length > 0 ? `${durationTimeStr} left` : ''),
@@ -1832,6 +1833,10 @@ let app = (function () {
     	
     	if (fillData.type == 'M') {
         viewStateUtil.Add('task', ['collection-only'], el.querySelector('[data-view-group="task"]'));
+      }
+    
+      if (item.targetTime > 0 || item.targetCapTime > 0) {
+        viewStateUtil.Add('task', ['has-target'], el.querySelector('[data-view-group="task"]'));
       }
     	
     	if (item.isArchived) {

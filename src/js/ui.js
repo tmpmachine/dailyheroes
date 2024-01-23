@@ -1366,10 +1366,11 @@ let ui = (function () {
   function partialUpdateUITask(id, task) {
     let el = $(`[data-obj="task"][data-id="${id}"]`);
     
-    el.querySelector('[data-slot="progress"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.progressTime) );
+    el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
     el.querySelector('[data-slot="title"]').textContent = task.title;
-    el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.targetTime) );
-    el.querySelector('[data-slot="targetCapTimeStr"]').textContent = minutesToHoursAndMinutes( msToMinutes(task.targetCapTime) );
+    el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = helper.ToTimeString(task.targetTime, 'hms');
+    el.querySelector('[data-slot="targetCapTimeStr"]').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
+    el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
   }
   
   function OnSubmitSequenceTask(ev) {

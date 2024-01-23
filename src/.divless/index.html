@@ -237,7 +237,7 @@
               <!-- # collection actions -->
               [ .d-flex {gap:0.3rem}
                 [btn data-onclick="new-collection" .icon-mate 'add' .btn-glass]
-                [btn 'Manage' data-callback="navigate-screen" data-view-target="collections" .clickable .btn-glass]
+                [btn 'Manage Collection' data-callback="navigate-screen" data-view-target="collections" .clickable .btn-glass]
               ]
               
             ][ .mb-m]
@@ -256,6 +256,12 @@
           
           [ data-view-group="task-view-mode" data-view-name="task filter-target"
             
+            <!-- # breadcrumbs -->
+            [ .d-flex .justify-content-between
+              [ #container-breadcrumbs .container-breadcrumbs data-onclick="handle-click-breadcrumbs"]
+            ]
+            [ {mb:0.3rem}]
+            
             [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-end .d-flex .gap-half
               
               <!-- # nav : priority mapper -->
@@ -266,22 +272,18 @@
             ]
             [ .void-half]
             
-            <!-- # breadcrumbs -->
-            [ .d-flex .justify-content-between
-              [ #container-breadcrumbs .container-breadcrumbs data-onclick="handle-click-breadcrumbs"]
-            ]
-            [ {mb:0.3rem}]
-            
           ]
           [ .void-half]
   
           <!-- # total mission targets -->
-          [small {col:white}
-            Total targets : 
-            [mark #txt-total-target .task-target-time]
-            [s #txt-total-target-cap .task-target-cap-time]
+          [ data-view-group="task-view-mode" data-view-name="mission"
+            [small {col:white}
+              Total targets : 
+              [mark #txt-total-target .task-target-time]
+              [s #txt-total-target-cap .task-target-cap-time]
+            ]
+            [ .void-full]
           ]
-          [ .pb-full]
           
           
           <!-- # task list container -->
@@ -293,7 +295,7 @@
           </div>
           
           <!-- # sort task option -->
-          [
+          [ .obsoletes
             [ .d-flex .align-items-center .user-select-none
               [in type='checkbox' id='labeled-by-sortbyprogress' .inputable data-callback="toggle-sort-by-progress"] 
               [l for='labeled-by-sortbyprogress' .d-flex .align-items-center
@@ -303,7 +305,6 @@
             [ {mb:0.5rem}]
           ]
         
-          
           <!-- # floating controls -->
           [ .container-add-task 
             
@@ -716,7 +717,6 @@
         ]
       ]
   
-  	  
   	  <!-- # task body -->
   	  [ .task-body-main {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
   	  
@@ -743,7 +743,8 @@
       	  [ .mb-m]
       	  
       	  <!-- # time progress info -->
-      	  [ {fs:0.7rem;} .d-flex .justify-content-between
+      	  [ {fs:0.7rem;} .d-flex .gap-half .obsoletes
+      	    
             [ {flex:1} 
               [s data-view-group="task" data-view-name-not="sequence-mode"
             	  <span data-obj="progress" data-slot="progress"></span>
@@ -756,14 +757,11 @@
           	  ]
       	      <span class="d-none" data-slot="completionPercentage"></span>
         	  ]
+        	  
         	  [ .d-flex .flex-column 
               <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
-              [ .d-flex .align-items-end .flex-column {gap:0.2rem} .gap-quarter
-                <!-- # target time left -->
-                [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time]
-                [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time]
-              ]
         	  ]
+        	  
       	  ]
         
       	  <!-- # task notes -->
@@ -803,8 +801,6 @@
   	  
   	  ]
   	  
-  	  <!-- # task footer information -->
-  	  
   	  <!-- # task toolbar -->
   	  [ .container-task-toolbar
 
@@ -837,6 +833,25 @@
         ]
         [ data-container="sequence-tasks" ]
   	  ]
+      
+  	  
+  	  <!-- # time progress info -->
+  	  [ {fs:0.7rem;} .d-flex .gap-half {bg:#232425;p:10px 8px 6px;}
+  	    
+  	    <!-- # timer info -->
+	      [ .d-flex .gap-quarter
+          [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
+	      ]
+	      
+        <!-- # target time left -->
+        [ data-view-group="task" data-view-name="has-target" 
+          [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
+            [s .icon-mate 'flag']
+            [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time]
+            [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time]
+          ]
+        ]
+      ]
       
   	]
   </template>
@@ -945,7 +960,7 @@
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
         [ .d-inline-flex {gap:0.2rem}
-          [ data-view-group="task" data-view-name-not="sequence-mode"
+          [ data-view-group="task" data-view-name-not="sequence-mode" .obsoletes
             <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
           ]
           [ .d-none
