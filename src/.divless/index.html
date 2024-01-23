@@ -904,10 +904,17 @@
           [ .d-flex .justify-content-between .w-100 
             [
               [ data-slot="linkedTaskPath" data-slot-html]
+              [ .void-tenth]
               [small 
                 [s data-slot="title"]
-                [
-                  ([s data-slot="targetTimeStr"]) [s data-slot="timeLeftStr"]
+                [ .void-half]
+                [ .d-flex .gap-quarter .align-items-center {op:0.8}
+                  <!-- # sequence timer info -->
+                  [s .icon-mate 'timer' {fs:0.7rem}] 
+                  [ {fs:0.8em}
+                    [s data-slot="targetTimeStr"] 
+                    ([s data-slot="timeLeftStr"])
+                  ]
                 ]
               ]
             ]
@@ -1133,7 +1140,7 @@
               [ data-view-group="form-task" data-view-name="add"
                 [ .d-flex .justify-content-end
                   [ 
-                    [btn 'Cancel' .toggler]
+                    [btn 'Cancel' .toggler type="button"]
                     [btn 'Add' data-role="btn-add" .btn-primary]
                   ]
                 ]
@@ -1149,7 +1156,7 @@
                       ]
                     ]
                     [ 
-                      [btn 'Cancel' .toggler]
+                      [btn 'Cancel' .toggler type="button"]
                       [btn 'Update' data-role="btn-edit" .btn-primary]
                     ]
                   ]
@@ -1158,10 +1165,12 @@
                   <!-- # task modal progress actions -->
                   [ .d-flex .justify-content-between
                     [ .d-flex .align-items-center .gap-half
+                    
                       [btn 'Reset progress' type="button" data-onclick="reset-progress-task-from-form"]
                       [ data-view-group="build" data-view-name="dev"
                         [btn 'Distribute progress' type="button" data-onclick="distribute-progress-task-from-form"]
                       ]
+                      
                     ]
                   ]
                 
@@ -1234,9 +1243,10 @@
               
             ][ .mb-m]
             
+            <!-- # form sequence task : submit -->
             [ data-view-group="form-task-sequence" data-view-name="add"
               [ .text-right
-                [btn 'Cancel' .toggler]
+                [btn 'Cancel' .toggler type="button"]
                 [btn 'Add' data-role="btn-add" .btn-primary]
               ]
             ]
@@ -1252,8 +1262,9 @@
                   [ .d-flex .align-items-center {gap:0.5rem}
                     [btn 'delete' .icon-mate type="button" data-onclick="delete-sequence-from-form"]
                   ]
+                  <!-- # sequence task modal : submitter -->
                   [
-                    [btn 'Cancel' .toggler]
+                    [btn 'Cancel' .toggler type="button"]
                     [btn 'Update' data-role="btn-edit" .btn-primary]
                   ]
                 ]

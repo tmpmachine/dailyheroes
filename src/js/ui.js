@@ -650,7 +650,7 @@ let ui = (function () {
           linkedTaskPath,
           repeatCountProgressLabel,
           targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
-          timeLeftStr: ` -- ${timeLeftStr} left`,
+          timeLeftStr: `${timeLeftStr} left`,
         }, 
         template: document.querySelector('#tmp-list-sequence-task').content.cloneNode(true), 
       });

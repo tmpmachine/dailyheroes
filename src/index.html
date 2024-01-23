@@ -904,10 +904,17 @@
           <div class="d-flex justify-content-between w-100">
             <div>
               <div data-slot="linkedTaskPath" data-slot-html></div>
+              <div class="void-tenth"></div>
               <small>
                 <span data-slot="title"></span>
-                <div>
-                  (<span data-slot="targetTimeStr"></span>) <span data-slot="timeLeftStr"></span>
+                <div class="void-half"></div>
+                <div class="d-flex gap-quarter align-items-center" style="opacity:0.8;">
+                  <!-- # sequence timer info -->
+                  <span class="icon-mate" style="font-size:0.7rem;">timer</span> 
+                  <div style="font-size:0.8em;">
+                    <span data-slot="targetTimeStr"></span> 
+                    (<span data-slot="timeLeftStr"></span>)
+                  </div>
                 </div>
               </small>
             </div>
@@ -1133,7 +1140,7 @@
               <div data-view-group="form-task" data-view-name="add">
                 <div class="d-flex justify-content-end">
                   <div>
-                    <button class="toggler">Cancel</button>
+                    <button class="toggler" type="button">Cancel</button>
                     <button class="btn-primary" data-role="btn-add">Add</button>
                   </div>
                 </div>
@@ -1149,7 +1156,7 @@
                       </div>
                     </div>
                     <div>
-                      <button class="toggler">Cancel</button>
+                      <button class="toggler" type="button">Cancel</button>
                       <button class="btn-primary" data-role="btn-edit">Update</button>
                     </div>
                   </div>
@@ -1158,10 +1165,12 @@
                   <!-- # task modal progress actions -->
                   <div class="d-flex justify-content-between">
                     <div class="d-flex align-items-center gap-half">
+                    
                       <button type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
                       <div data-view-group="build" data-view-name="dev">
                         <button type="button" data-onclick="distribute-progress-task-from-form">Distribute progress</button>
                       </div>
+                      
                     </div>
                   </div>
                 
@@ -1234,9 +1243,10 @@
               
             </div><div class="mb-m"></div>
             
+            <!-- # form sequence task : submit -->
             <div data-view-group="form-task-sequence" data-view-name="add">
               <div class="text-right">
-                <button class="toggler">Cancel</button>
+                <button class="toggler" type="button">Cancel</button>
                 <button class="btn-primary" data-role="btn-add">Add</button>
               </div>
             </div>
@@ -1252,8 +1262,9 @@
                   <div class="d-flex align-items-center" style="gap:0.5rem;">
                     <button class="icon-mate" type="button" data-onclick="delete-sequence-from-form">delete</button>
                   </div>
+                  <!-- # sequence task modal : submitter -->
                   <div>
-                    <button class="toggler">Cancel</button>
+                    <button class="toggler" type="button">Cancel</button>
                     <button class="btn-primary" data-role="btn-edit">Update</button>
                   </div>
                 </div>

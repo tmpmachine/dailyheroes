@@ -10,7 +10,7 @@ let compoTask = (function() {
     GetTotalPriorityPointByParentTaskId,
     StartTimerByTaskId,
     ResetProgressById,
-    AddTotalProgressByTaskId,
+    TaskAddTotalProgressByTaskId,
     
     // sequence
     AddSequence,
@@ -82,7 +82,7 @@ let compoTask = (function() {
   }
 
   
-  async function AddTotalProgressByTaskId(id, addedTime) {
+  async function TaskAddTotalProgressByTaskId(id, addedTime) {
     let task = GetById(id);
     if (!task) return;
   

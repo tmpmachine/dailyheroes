@@ -1740,10 +1740,10 @@ let app = (function () {
       if (fillData.note) {
         fillData.note.map(item => {
           if (item.totalProgressTime) {
-            item.progressTimeLabel = minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime))
+            item.progressTimeLabel = minutesToHoursAndMinutes(msToMinutes(item.totalProgressTime));
           }
           return item;
-        })
+        });
       }
   
       let percentageProgress = 0;
@@ -1995,7 +1995,7 @@ let app = (function () {
         // update total progress linked task & apply ROP balancing
         if (sequenceTask.linkedTaskId) {
           isUpdateCurrentActiveTask = false;
-          compoTask.AddTotalProgressByTaskId(sequenceTask.linkedTaskId, distanceTime);
+          await compoTask.TaskAddTotalProgressByTaskId(sequenceTask.linkedTaskId, distanceTime);
         }
         
       }

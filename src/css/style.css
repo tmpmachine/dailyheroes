@@ -27,8 +27,8 @@
 
 .mb-xs{margin-bottom:0.3rem}.mb-s{margin-bottom:0.5rem}.mb-m{margin-bottom:0.7rem}.mb-1rem{margin-bottom:1rem}
 
-.void-half,.void-full{display:flex}
-.void-half{margin-bottom:0.5rem}.void-full{margin-bottom:1rem}
+.void-tenth,.void-quarter,.void-half,.void-full{display:flex}
+.void-tenth{margin-bottom:0.1rem}.void-quarter{margin-bottom:0.25rem}.void-half{margin-bottom:0.5rem}.void-full{margin-bottom:1rem}
 .mb-half{margin-bottom:0.5rem}.mb-full{margin-bottom:1rem}
 .gap-quarter{gap:0.25rem}.gap-half{gap:0.5rem}.gap-full{gap:1rem}
 .pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
@@ -523,7 +523,7 @@ body[data-state~="--timer-running"] .task-progress-bar {
   background: var(--card-brushed-bottom);
 }
 #tasklist [data-obj="task"][data-state~="--active"] .container-task-toolbar {
-  background: #232328;
+  background: #31314c;
   /* color: white; */
 }
 
