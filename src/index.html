@@ -263,12 +263,23 @@
             </div>
             <div class="void-full"></div>
             
-            <div class="justify-content-end d-flex gap-half" data-view-group="task-view-mode" data-view-name-not="filter-target">
+            <div class="justify-content-between d-flex gap-half" data-view-group="task-view-mode" data-view-name-not="filter-target">
               
-              <!-- # nav : priority mapper -->
-              <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
-                <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
-              </button>
+              <div class="d-flex flex-column gap-quarter align-items-start" style="font-size:0.7em;">
+                <div id="txt-nav-task-cap-time" class="task-target-time"></div>
+                <div id="txt-nav-task-target-cap-time" class="task-target-cap-time"></div>
+              </div>
+              
+              <div class="d-flex gap-quarter">
+                <!-- # nav : compact mode -->
+                <button class="d-flex align-items-center btn-glass" data-onclick="toggle-compact-view" style="gap:0.3rem;">
+                  <span>Compact view</span> <span class="icon-mate">density_small</span>
+                </button>
+                <!-- # nav : priority mapper -->
+                <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
+                  <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
+                </button>
+              </div>
               
             </div>
             <div class="void-half"></div>
@@ -290,6 +301,7 @@
           <!-- # task list container -->
           <div id="tasklist-container" class="container-task">
             <!-- # widget-task.skin-default -->
+            <!-- # widget-task.skin-compact -->
             <div id="tasklist" class="widget-task skin-default" data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"></div>
             <div class="void-full"></div>
             <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>

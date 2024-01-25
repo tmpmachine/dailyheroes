@@ -115,6 +115,7 @@ let DOMEvents = (function() {
   		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
   	},
   	onclick: {
+  	  'toggle-compact-view': () => ui.ToggleCompactView(),
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   	  'handle-click-breadcrumbs': (evt) => ui.HandleClickBreadcrumbs(evt),
   	  'open-pip': () => uiPiP.OpenPiP(),

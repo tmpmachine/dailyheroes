@@ -263,11 +263,22 @@
             ]
             [ .void-full]
             
-            [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-end .d-flex .gap-half
+            [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-between .d-flex .gap-half
               
-              <!-- # nav : priority mapper -->
-              [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
-                [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
+              [ {fs:0.7em} .d-flex .flex-column .gap-quarter .align-items-start
+                [ #txt-nav-task-cap-time .task-target-time]
+                [ #txt-nav-task-target-cap-time .task-target-cap-time]
+              ]
+              
+              [ .d-flex .gap-quarter
+                <!-- # nav : compact mode -->
+                [btn .d-flex .align-items-center data-onclick="toggle-compact-view" style="gap:0.3rem;" .btn-glass
+                  [s 'Compact view'] [s .icon-mate 'density_small']
+                ]
+                <!-- # nav : priority mapper -->
+                [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
+                  [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
+                ]
               ]
               
             ]
@@ -290,6 +301,7 @@
           <!-- # task list container -->
           <div id="tasklist-container" class="container-task">
             <!-- # widget-task.skin-default -->
+            <!-- # widget-task.skin-compact -->
             [ #tasklist .widget-task .skin-default data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"]
             [ .void-full]
             <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>

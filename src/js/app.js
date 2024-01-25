@@ -1886,6 +1886,9 @@ let app = (function () {
       $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
       $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
     }
+    
+    await ui.TaskReloadParentTarget();
+    
   }
   
   function onEndSortSequence(evt) {
@@ -2524,7 +2527,7 @@ let app = (function () {
         break;
       case 'navigate-sub':
         ui.Navigate(id);
-        app.TaskListTask();
+        await TaskListTask();
         break;
       case 'edit': editTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
@@ -2565,7 +2568,7 @@ let app = (function () {
     }
     
   }
-  
+
   async function TaskTrackTarget() {
     
   }

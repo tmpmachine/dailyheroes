@@ -3,6 +3,7 @@ let storageName = 'appdata-NzkwMTI0NA';
 window.lsdb = new Lsdb(storageName, {
   root: {
     viewMode: 'mission', // tasks, mission
+    isCompactView: false,
     
     start: null,
     history: 0,

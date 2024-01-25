@@ -63,7 +63,35 @@ let ui = (function () {
     TaskAddProgressManually,
     TaskReloadTotalTargets,
     HandleClickBreadcrumbs,  
+    TaskReloadParentTarget,
+    ToggleCompactView,
   };
+  
+  function ToggleCompactView() {
+    lsdb.data.isCompactView = !lsdb.data.isCompactView;
+    appData.Save();
+    reloadCompactView();
+  }
+  
+  function reloadCompactView() {
+    if (lsdb.data.isCompactView) {
+      $('.widget-task').classList.add('extend-skin-compact');
+    } else {
+      $('.widget-task').classList.remove('extend-skin-compact');
+    }
+  }
+  
+  async function TaskReloadParentTarget() {
+    $('#txt-nav-task-cap-time').textContent = '';
+    $('#txt-nav-task-target-cap-time').textContent = '';
+    
+    let activeGroupId = lsdb.data.activeGroupId;
+    let task = compoTask.GetById(lsdb.data.activeGroupId);
+    if (!task) return;
+    
+    $('#txt-nav-task-cap-time').textContent = helper.ToTimeString(task.targetTime, 'hms');
+    $('#txt-nav-task-target-cap-time').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
+  }
   
   async function TaskReloadTotalTargets() {
     let taskIds = Array.from($$('#tasklist [data-obj="task"]')).map(x => x.dataset.id);
@@ -946,6 +974,7 @@ let ui = (function () {
   };
 
   function Init() {
+    reloadCompactView();
     initSimpleElementFilter();
     attachKeyboardShortcuts();
     
@@ -960,6 +989,7 @@ let ui = (function () {
     
     initAudioSettings();
     refreshGlobalTimer();
+    
   }
   
   function initAudioSettings() {
@@ -1178,7 +1208,7 @@ let ui = (function () {
   async function HandleClickBreadcrumbs(evt) {
     let targetEl = evt.target;
     
-    if (evt.target.tagName != 'BUTTON') return;
+    if (evt.target.classList.contains('active')) return;
 
     let activeGroupId = getActiveGroupId();
     

@@ -17,23 +17,6 @@
   }
 }
 
-.widget-task {
-  
-  .task-path {
-    opacity: 0.7;
-    font-weight: 100;
-  }  
-  
-  &.skin-default {
-    
-
-  }
-  
-  &.skin-targets {
-    
-  }
-  
-}
 
 .widget-task {
   
@@ -47,6 +30,22 @@
       background: #f6f641;
       padding: 1px 2px;
       border-radius: 2px;
+    }
+    
+    /* extend-skin-compact */
+    &.extend-skin-compact {
+      .container-task-toolbar{
+        display: none;
+      }
+      [data-obj="task"] {
+        box-shadow: 0px 0px 2px white;
+        margin-bottom: 7px;
+        background: #232425;
+      }
+      .btn-start {
+        width: 40px;
+        height: 40px;
+      }
     }
 
   }
