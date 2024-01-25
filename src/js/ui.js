@@ -1131,11 +1131,11 @@ let ui = (function () {
     for (let item of breadcrumbs) {
       if (item.id == lsdb.data.activeGroupId) {
         $('#container-breadcrumbs').innerHTML += `
-          <small> / ${item.name}</small>
+          <button class="active">${item.name}</button>
         `;
       } else {
         $('#container-breadcrumbs').innerHTML += `
-          <button data-id="${item.id}" style="font-size:12px">${item.name}</button>
+          <button data-id="${item.id}">${item.name}</button>
         `;
       }
     }
