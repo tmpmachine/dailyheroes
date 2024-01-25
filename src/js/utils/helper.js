@@ -4,7 +4,12 @@ let helper = (function() {
     ParseHmsToMs,
     ParseHoursMinutesToMinutes,
     ToTimeString,
+    ClearObjectReference,
   };
+  
+  function ClearObjectReference(data) {
+    return JSON.parse(JSON.stringify(data));
+  }
   
   function ToTimeString(time, format) {
     if (format == 'hms') {

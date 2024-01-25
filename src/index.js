@@ -12,6 +12,7 @@ componentLoader.load([
       "js/uis/ui-mission.js",
       "js/uis/ui-collection.js",
       "js/uis/ui-tracker.js",
+      "js/uis/ui-target-trackers.js",
       "js/lib/lsdb.js",
     ],
     callback: function() { 
@@ -47,6 +48,7 @@ componentLoader.load([
       "js/utils/uuidv4-util.js",
       
       // app components
+      "js/components/target-trackers-component.js",
       "js/components/task-component.js",
       "js/components/mission-component.js",
       "js/components/tracker-component.js",

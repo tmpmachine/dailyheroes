@@ -34,6 +34,7 @@ window.lsdb = new Lsdb(storageName, {
     components: {
       compoGsiChrome: {},
       compoTimeStreak: {},
+      compoTargetTrackers: {},
     },
     
   },
@@ -75,6 +76,7 @@ let appSettings = (function() {
     Save,
     SetComponentData,
     GetComponentData,
+    GetNoRefComponentData,
     TaskStoreTask,
     GetActiveTaskParentId,
   };
@@ -109,6 +111,10 @@ let appSettings = (function() {
     if (!lsdb.data.components[componentKey]) return null;
 
     return clearReference(lsdb.data.components[componentKey]);
+  }
+  
+  function GetNoRefComponentData(componentKey) {
+    return GetComponentData(componentKey);
   }
   
   return SELF;

@@ -10,6 +10,7 @@
     "img/watermark/book-star.jpg"
   ],
   "components": [
+    "js/components/target-trackers-component.js",
     "js/components/gsi-chrome-component.js",
     "js/components/tracker-component.js",
     "js/components/mission-component.js",
@@ -46,6 +47,7 @@
     "js/app.js",
     "js/ui.js",
     "js/uis/ui-pip.js",
+    "js/uis/ui-target-trackers.js",
     "js/uis/ui-collection.js",
     "js/uis/ui-mission.js",
     "js/uis/ui-tracker.js",

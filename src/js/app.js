@@ -2382,6 +2382,12 @@ let app = (function () {
         compoTimeStreak.Init(data);
       }
     }
+    
+    // target trackers component
+    {
+      let data = appData.GetNoRefComponentData('compoTargetTrackers');
+      compoTargetTrackers.Init(data);
+    }
   }
   
   function waitUntil(stateCheckCallback, delay = 100) {
@@ -2548,6 +2554,7 @@ let app = (function () {
       break;
       case 'take-note': showModalNote(id); break;
       case 'start': await StartTaskTimer(parentEl, id); break;
+      case 'track-target': TaskTrackTarget(id); break;
       case 'stop': await app.TaskStopActiveTask(); break;
         
       // notes
@@ -2556,6 +2563,10 @@ let app = (function () {
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
     }
+    
+  }
+  
+  async function TaskTrackTarget() {
     
   }
   
