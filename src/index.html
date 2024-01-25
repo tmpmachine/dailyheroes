@@ -220,14 +220,14 @@
               <div class="tab-active-indicator"></div>
             </button>
           </div>
-          <div class="void-half"></div>
           
         <div class="p-half">
         
-          <div class="void-half"></div>
-        
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
+            
+            <div class="void-full"></div>
+
             <div class="d-grid align-items-center" style="gap:0.3rem;grid-template-columns:1fr auto;">
               
               <div class="ov-auto">
@@ -261,7 +261,7 @@
             <div class="d-flex justify-content-between">
               <div id="container-breadcrumbs" class="container-breadcrumbs widget-breadcrumbs skin-default" data-onclick="handle-click-breadcrumbs"></div>
             </div>
-            <div style="margin-bottom:0.3rem;"></div>
+            <div class="void-full"></div>
             
             <div class="justify-content-end d-flex gap-half" data-view-group="task-view-mode" data-view-name-not="filter-target">
               
@@ -916,7 +916,9 @@
                   <span class="icon-mate" style="font-size:0.7rem;">timer</span> 
                   <div style="font-size:0.8em;">
                     <span data-slot="targetTimeStr"></span> 
-                    (<span data-slot="timeLeftStr"></span>)
+                    <div class="obsoletes">
+                      (<span data-slot="timeLeftStr"></span>)
+                    </div>
                   </div>
                 </div>
               </small>

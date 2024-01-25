@@ -220,14 +220,14 @@
               [ .tab-active-indicator]
             ]
           ]
-          [ .void-half]
           
         [ .p-half
         
-          [ .void-half]
-        
           <!-- # mission collection -->
           [ data-view-group="task-view-mode" data-view-name="mission"
+            
+            [ .void-full]
+
             [ .d-grid {gap:0.3rem} {cols:1fr auto} .align-items-center
               
               [ .ov-auto
@@ -261,7 +261,7 @@
             [ .d-flex .justify-content-between
               [ #container-breadcrumbs .container-breadcrumbs data-onclick="handle-click-breadcrumbs" .widget-breadcrumbs .skin-default]
             ]
-            [ {mb:0.3rem}]
+            [ .void-full]
             
             [ data-view-group="task-view-mode" data-view-name-not="filter-target" .justify-content-end .d-flex .gap-half
               
@@ -916,7 +916,9 @@
                   [s .icon-mate 'timer' {fs:0.7rem}] 
                   [ {fs:0.8em}
                     [s data-slot="targetTimeStr"] 
-                    ([s data-slot="timeLeftStr"])
+                    [ .obsoletes
+                      ([s data-slot="timeLeftStr"])
+                    ]
                   ]
                 ]
               ]
