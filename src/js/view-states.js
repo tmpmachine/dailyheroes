@@ -26,7 +26,7 @@ let viewStates = [
   {
     group: 'task-view-mode',
     states: [
-      'task', 'mission', 'filter-target',
+      'task', 'mission', 'filter-target', 'has-ETA'
     ],
     inverseStates: [
       'filter-target',

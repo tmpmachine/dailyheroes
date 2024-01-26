@@ -1885,10 +1885,12 @@ let app = (function () {
       }
       $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
       $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+      
+      ui.ReloadETA(totalTargetCapTime);
     }
     
     await ui.TaskReloadParentTarget();
-    
+   
   }
   
   function onEndSortSequence(evt) {
@@ -2300,10 +2302,10 @@ let app = (function () {
     await taskInitAppData();
     await loadTasks();
     await app.ApplyProgressMadeOutsideApp();
-    await TaskListTask();
     ui.TaskSetActiveTaskInfo();
     ui.Init();
     updateUI();
+    await TaskListTask();
     
     if (lsdb.data.viewMode == 'mission') {
       $('#tasklist-container').stateList.add('--view-mission');

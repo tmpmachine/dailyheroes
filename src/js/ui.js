@@ -65,7 +65,22 @@ let ui = (function () {
     HandleClickBreadcrumbs,  
     TaskReloadParentTarget,
     ToggleCompactView,
+    ReloadETA,
   };
+  
+  function ReloadETA(totalTargetCapTime) {
+    viewStateUtil.Remove('task-view-mode', ['has-ETA'])
+    
+    if (totalTargetCapTime <= 0 || !isViewModeMission()) return;
+    
+    viewStateUtil.Add('task-view-mode', ['has-ETA'])
+    
+    let now = new Date();
+    let eta = new Date(now.getTime() + totalTargetCapTime);
+    let dateStr = eta.toDateString()
+    let timeStr = eta.toTimeString().substring(0, 5);
+    $('#txt-target-eta').textContent = `${timeStr}`;
+  }
   
   function ToggleCompactView() {
     lsdb.data.isCompactView = !lsdb.data.isCompactView;

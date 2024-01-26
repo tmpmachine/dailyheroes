@@ -287,13 +287,18 @@
           ]
           [ .void-half]
   
-          <!-- # total mission targets -->
           [ data-view-group="task-view-mode" data-view-name="mission"
+            <!-- # total mission targets -->
             [small {col:white}
               Total targets : 
               [mark #txt-total-target .task-target-time]
               [s #txt-total-target-cap .task-target-cap-time]
             ]
+            <!-- # mission target ETA -->
+            [small {col:white}  data-view-group="task-view-mode" data-view-name="has-ETA"
+              ETA : [s #txt-target-eta]
+            ]
+            
             [ .void-full]
           ]
           
