@@ -657,6 +657,7 @@ async function TaskApplyTargetTimeBalanceInGroup(task, addedTime) {
     
     // reduce parent task target time by progress
     task.targetTime = Math.max(0, task.targetTime - addedTime);
+    task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
   } catch (e) {
     console.error(e);
   }
@@ -989,7 +990,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     if (activeTask) {
       activeTask.progressTime += distanceTime;
-      activeTask.targetCapTime = Math.max(0, addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime));
+      // activeTask.targetCapTime = Math.max(0, addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime));
       
       if (typeof(activeTask.totalProgressTime) == 'undefined') {
         activeTask.totalProgressTime = 0;  
@@ -2659,17 +2660,15 @@ let app = (function () {
   
   function checkAndCreateGroups(title, id) {
     let data = lsdb.data.groups.find(x => x.id == id);
-    if (!data) {
-      let group = lsdb.new('groups', {
-        id,
-        name: title,
-        parentId: lsdb.data.activeGroupId,
-      });
-      lsdb.data.groups.push(group);
-      lsdb.save();
-    } else {
-      console.log('exists');
-    }
+    if (data) return;
+    
+    let group = lsdb.new('groups', {
+      id,
+      name: title,
+      parentId: lsdb.data.activeGroupId,
+    });
+    lsdb.data.groups.push(group);
+    lsdb.save();
   }
   
   function addTaskData(inputData) {

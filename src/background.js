@@ -213,7 +213,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   if (isUpdateCurrentActiveTask) {
     
     activeTask.progressTime += distanceTime;
-    activeTask.targetCapTime = addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime);
+    // activeTask.targetCapTime = addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime);
     
     if (typeof(activeTask.totalProgressTime) == 'undefined') {
       activeTask.totalProgressTime = 0;  
@@ -491,7 +491,7 @@ async function onAlarmEnded(alarm) {
       targetMinutesTxt = ` (${msToMinutes(activeTask.durationTime)}m)`;
       
       if (activeTask.targetCapTime > 0) {
-        targetTimeLeftStr = `${helper.ToTimeString(activeTask.targetCapTime, 'hms')} left`;
+        targetTimeLeftStr = `(${helper.ToTimeString(activeTask.targetCapTime, 'hms')} left)`;
       }
       
       // set finish count text
