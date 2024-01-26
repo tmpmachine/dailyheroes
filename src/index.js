@@ -8,6 +8,7 @@ componentLoader.load([
       "js/dom-events.js",
       "js/utils/view-state-util.js",
       "js/ui.js",
+      "js/uis/selection-ui.js",
       "js/uis/ui-pip.js",
       "js/uis/ui-mission.js",
       "js/uis/ui-collection.js",
@@ -48,6 +49,8 @@ componentLoader.load([
       "js/utils/uuidv4-util.js",
       
       // app components
+      "js/components/clipboard-component.js",
+      "js/components/input-explorer-component.js",
       "js/components/target-trackers-component.js",
       "js/components/task-component.js",
       "js/components/mission-component.js",

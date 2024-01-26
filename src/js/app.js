@@ -1087,7 +1087,7 @@ let app = (function () {
     
     Init,
     HandleTaskDblClick,
-    TaskClickHandler,
+    HandleTaskClick,
     GetDataManager,
     ResetData,
     BackupData,
@@ -2489,10 +2489,12 @@ let app = (function () {
     ui.FocusTaskElById(linkedTask.id);
   }
   
-  async function TaskClickHandler(evt, el) {
+  async function HandleTaskClick(evt, el) {
 
     let actionRole = getActionRole(el);
     let parentEl = el.closest('[data-obj="task"]');
+    if (!parentEl) return;
+    
     let id = parentEl.dataset.id;
     
     let seqEl = el.closest('[data-kind="item-sequence-task"]');
@@ -2503,7 +2505,7 @@ let app = (function () {
       compoTask.FocusSequenceById(id, seqId);
       return;
     }
-
+    
     switch (actionRole) {
       case 'add-to-sequence': ui.TaskLinkTaskWithIdToActiveSequence(id); break;
       case 'move-to-sequence': ui.TaskMoveTaskWithIdToActiveSequence(id); break;
@@ -2568,6 +2570,11 @@ let app = (function () {
       case 'start-sub-task':
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
+      
+      default: 
+        compoSelection.ClearItems();
+        compoSelection.AddItem(id);
+        uiSelection.ReloadSelection();
     }
     
   }

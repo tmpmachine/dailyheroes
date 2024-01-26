@@ -122,7 +122,7 @@ let DOMEvents = (function() {
   	  'reset-data': () => app.ResetData(),
   	  'reset-target-time': () => ui.ResetTargetTime(),
   	  
-  	  'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
+  	  'handle-task-click': (evt) => app.HandleTaskClick(evt, evt.target),
   	  'open-by-threshold': () => ui.OpenByThreshold(),
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
   	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),

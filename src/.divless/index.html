@@ -307,9 +307,9 @@
           <div id="tasklist-container" class="container-task">
             <!-- # widget-task.skin-default -->
             <!-- # widget-task.skin-compact -->
-            [ #tasklist .widget-task .skin-default data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"]
+            [ #tasklist .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
             [ .void-full]
-            <div id="tasklist-completed" class="clickable" data-callback="task-click-handler"></div>
+            <div id="tasklist-completed" class="clickable" data-callback="handle-task-click"></div>
           </div>
           
           <!-- # sort task option -->
@@ -445,7 +445,7 @@
           [ .pb-full]
           
           <!-- # widget-task.skin-targets -->
-          [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"]
+          [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
         ]
         
       ]
