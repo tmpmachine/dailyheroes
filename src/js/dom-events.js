@@ -113,8 +113,10 @@ let DOMEvents = (function() {
   	},
   	ondblclick: {
   		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
+  	  'handle-dblclick-task-overview': (evt) => app.HandleDblclickTaskOverview(evt),
   	},
   	onclick: {
+  	  'edit-target-threshold': () => ui.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   	  'handle-click-breadcrumbs': (evt) => ui.HandleClickBreadcrumbs(evt),
@@ -123,7 +125,8 @@ let DOMEvents = (function() {
   	  'reset-target-time': () => ui.ResetTargetTime(),
   	  
   	  'task-click-handler': (evt) => app.TaskClickHandler(evt, evt.target),
-  	  'open-by-threshold': () => ui.OpenByThreshold(),
+  	  'handle-click-task-overview': (evt) => app.HandleClickTaskOverview(evt),
+  	  'open-overview': () => ui.OpenOverview(),
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
   	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),
   	  'new-collection': () => uiCollection.NewItem(),

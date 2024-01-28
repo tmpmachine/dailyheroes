@@ -33,6 +33,7 @@
 .gap-quarter{gap:0.25rem}.gap-half{gap:0.5rem}.gap-full{gap:1rem}
 .pb-half{padding-bottom:0.5rem}.pb-full{padding-bottom:1rem}
 .p-half{padding:0.5rem}.p-full{padding:1rem}
+.px-half{padding-left:0.5rem;padding-right:0.5rem}.py-full{padding-top:1rem;padding-bottom:1rem}.py-quarter{padding-top:0.25rem;padding-bottom:0.25rem}.py-half{padding-top:0.5rem;padding-bottom:0.5rem}
 
 .obsoletes{display:none!important;height:0!important;width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important}
 
@@ -660,4 +661,37 @@ body {
 
 [data-obj="task"][data-state~="--is-mission"] [data-role="remove-mission"] {
   color: white;
+}
+
+
+.widget-task {
+    &.skin-targets {
+      
+        [data-kind="task"] {
+        border-left: 1px solid #343434;
+        margin-left: 1.5rem;
+        /* background: #1b1b1b; */
+        color: white;
+        cursor:pointer;
+        }  
+      
+        > [data-kind="task"] {
+        border-left: 0;
+        margin-left: 0rem;
+        }
+      .item-title-border::after{
+        display: block;
+        content:'';
+        /*position:absolute;*/
+        /*left:0;*/
+        /*top:0;*/
+        width:100%;
+        border-bottom:1px dotted #474747;
+      }
+        .task-body-main:hover {
+            background: #474646;
+        }
+        
+    }
+    
 }

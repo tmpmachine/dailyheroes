@@ -57,7 +57,7 @@
           [ .d-flex {gap:0.3rem}
           
             <!-- # nav : tasks by threshold -->
-            [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;"
+            [btn .d-flex .align-items-center data-onclick="open-overview" style="gap:0.3rem;"
               [s 'Targets'] [s .icon-mate 'flag']
             ]
           
@@ -432,7 +432,7 @@
         <!-- # Tasks By Threshold screen nav -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
-          [ 'Targets' {fw:bold}]
+          [ 'Targets Overview' {fw:bold}]
         ]
       
         <!-- # Tasks By Threshold screen body -->
@@ -440,12 +440,24 @@
           [ .pb-full]
           
           [small
-            Info : only targets above 5m are shown in the list.
+            Info : only targets above threshold are shown in the list.
           ]
-          [ .pb-full]
+          [
+            Target threshold : 
+            [s #txt-target-threshold]
+            [btn 'Edit' data-onclick="edit-target-threshold"]
+          ]
+          [ .void-full]
           
-          <!-- # widget-task.skin-targets -->
-          [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="task-click-handler" data-ondblclick="task-dblclick-handler"]
+          [ .ov-auto
+            [ {bg:#1b1b1b;rad:4px}
+              [ .void-half]
+              <!-- # widget-task.skin-targets -->
+              [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="handle-click-task-overview" data-ondblclick="handle-dblclick-task-overview"]
+              [ .p-half]
+            ]
+            [ .void-full]
+          ]
         ]
         
       ]
@@ -876,34 +888,46 @@
   	]
   </template>
   
-  <template id="tmp-task-simple">
+  <template id="tmp-task-simple-v2">
     <!-- # container task simple mode -->
     
-  	[ .container-item data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="" .pos-relative
-
-  	  <!-- # simple mode : task body -->
-  	  [ .task-body-main {padding:0.3rem 0.5rem;} .d-flex .gap-full
-  	  
-    	  [ .d-flex .justify-content-between {gap:0.3rem} .flex-grow
-    	    [ .flex-1
-    	      <!-- # simple mode : task path -->
-      	    [ data-slot="missionPath" data-slot-html .task-path]
-      	    <span class="title" data-slot="title"></span>
-    	    ]
-          [small
-            <!-- # simple mode : target time -->
-            [mark .task-target-time data-slot="ratioTimeLeftStr" data-slot-html]
+    [ data-kind="task" data-id="?"
+    	[ .container-item data-view-group="task" data-view-states="collection-only" .pos-relative
+  
+    	  <!-- # simple mode : task body -->
+    	  [ .task-body-main .px-half .py-quarter .d-flex .gap-full
+    	  
+      	  [ .d-flex .justify-content-between {gap:0.3rem} .flex-grow
+      	    [ .d-flex .w-100
+      	      <!-- # simple mode : task path -->
+        	    <!--[ data-slot="missionPath" data-slot-html .task-path]-->
+        	    <span class="title" data-slot="title"></span>
+        	    [ .flex-1 .item-title-border .pos-relative .align-items-center .d-flex .p-half]
+      	    ]
+            [ .d-flex .gap-half .align-items-center
+              [small
+                <!-- # simple mode : target time -->
+                [mark .task-target-time data-slot="ratioTimeLeftStr" data-slot-html]
+          	  ]
+              [ data-view-group="task" data-view-name-not="is-collection"
+          	    [btn 'playlist_add' data-role="toggle-add-collection" class="icon-mate" title="Add to collection"]
+          	  ]
+              [ data-view-group="task" data-view-name="is-collection"
+                [btn 'playlist_remove' data-role="toggle-add-collection" .bg-danger .icon-mate title="Remove from collection"]
+              ]
+        	  ]
       	  ]
+      	  
+      	  [ .container-task-toolbar .d-flex .gap-full .obsoletes
+        	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons-simple"]
+    	    ]
+      	  
     	  ]
     	  
-    	  <!-- # simple mode : task toolbar -->
-    	  [ .container-task-toolbar .d-flex .gap-full
-      	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons-simple"]
-  	    ]
     	  
-  	  ]
-  	  
-  	]
+    	]
+  	  [ .container-child-tasks]
+	  ]
   	
   </template>
 

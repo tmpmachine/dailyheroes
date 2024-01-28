@@ -47,7 +47,7 @@ let ui = (function () {
     HotReloadListSequenceByTaskId,
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
-    OpenByThreshold,
+    OpenOverview,
     OpenPriorityMapper,
     TaskSavePriorityMapper,
     HandleInputPrioritySlider,
@@ -66,7 +66,46 @@ let ui = (function () {
     TaskReloadParentTarget,
     ToggleCompactView,
     ReloadETA,
+    ReloadTaskOverviewById,
+    EditTargetThreshold,
+    reloadTargetThreshold,
   };
+  
+  function EditTargetThreshold() {
+    let userVal = window.prompt('Target threshold (hours minutes), example : 1h30m or 30m');
+    if (!userVal) return;
+    
+    try {
+      let val = parseHoursMinutesToMinutes(userVal);
+      if (typeof(val) != 'number') return;
+      
+      lsdb.data.targetThreshold = val;
+      appData.Save();
+      
+      reloadTargetsOverview();
+      reloadTargetThreshold();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  
+  function reloadTargetThreshold() {
+    let targetThresholdMs = lsdb.data.targetThreshold * 60 * 1000;
+    $('#txt-target-threshold').textContent = helper.ToTimeString(targetThresholdMs, 'hms');
+  }
+  
+  function ReloadTaskOverviewById(id) {
+    // let task = compoTask.GetById(id);
+    
+    let el = $(`#list-tasks-by-threshold [data-id="${id}"]`);
+    if (!el) return;
+    
+    if (compoMission.GetMissionById(id)) {
+    	 viewStateUtil.Add('task', ['is-collection'], el.querySelector('.container-item'));
+	  } else {
+    	 viewStateUtil.Remove('task', ['is-collection'], el.querySelector('.container-item'));
+	  }
+  }
   
   function ReloadETA(totalTargetCapTime) {
     viewStateUtil.Remove('task-view-mode', ['has-ETA'])
@@ -765,12 +804,18 @@ let ui = (function () {
     openPriorityMapperByParentId(activeTaskParentId);
   }
   
-  async function OpenByThreshold() {
+  async function OpenOverview() {
     viewStateUtil.Set('screens', ['by-threshold']);
+    reloadTargetThreshold();
     
-    let items = await app.TaskListTasksByThreshold();
-    let taskItems = buildTaskItemData(items);
-    displayListTasksByThreshold(taskItems);
+    await reloadTargetsOverview();
+  }
+  
+  async function reloadTargetsOverview() {
+    let items = await app.TaskListTargets();
+    // let taskItems = buildTaskItemData(items);
+    
+    displayListTasksByThreshold(items);
   }
   
   function buildTaskItemData(items) {
@@ -862,24 +907,169 @@ let ui = (function () {
   }
   
   
-  function displayListTasksByThreshold(items) {
+  async function displayListTasksByThreshold(items) {
     
-    $('#list-tasks-by-threshold').innerHTML = '';
-    let docFrag = document.createDocumentFragment();
+    let treeParentIds = [];
+    
+    {
+      let output = []; 
+      
+      for (let item of items) {
+          
+          let parentId = item.parentId;
+          let tp = [];
+          
+          let taskInTree = output.find(x => x.id == item.parentId);
+          let isInsertLater = false;
+          
+          if (taskInTree) {
+            let ref = {
+              id: item.id,
+              parentId: item.parentId,
+              title: item.title,
+              task: item,
+              items: [],
+            };
+            taskInTree.items.push(ref);
+            output.push(ref)
+            
+          } else {
+            
+            while (parentId) {
+              
+              let taskInTree = output.find(x => x.id == parentId);
+              if (taskInTree) {
 
-    for (let item of items) {
-      let el = window.templateSlot.fill({
-    	  data: item, 
-    	  template: document.querySelector('#tmp-task-simple').content.cloneNode(true), 
-    	});
-  	  
-      let taskEl = el.querySelector('[data-obj="task"]');
-    	taskEl.dataset.id = item.id;	
+                let ref = {
+                  id: item.id,
+                  parentId: item.parentId,
+                  title: item.title,
+                  task: item,
+                  items: [],
+                };
+                let seekTask = output.find(x => x.id == ref.parentId)
+                if (!seekTask) {
+                  isInsertLater = true;
+                }
+                
+                break;
+                
+              } else {
+                
+                let seekTask = compoTask.GetById(parentId)
+                // console.log(seekTask)
+                tp.push(seekTask);
+                parentId = seekTask.parentId;
+                
+              }
+              
+            }
+          
+          }
+          
+          // buuld tree
+          while (tp.length > 0) {
+            
+            let bb = tp.pop();
+            if (bb) {
+              
+              let ref = {
+                id: bb.id,
+                parentId: bb.parentId,
+                title: bb.title,
+                task: bb,
+                items: [],
+              };
+              
+              let taskInTree = output.find(x => x.id == ref.parentId);
+              if (taskInTree) {
+                if (!taskInTree.items.find(x => x.id == ref.id)) {
+                  taskInTree.items.push(ref)
+                }
+                output.push(ref)
+              } else {
+                
+                treeParentIds.push(ref)
+                output.push(ref)
+              }
+              
+            } 
 
-  	  docFrag.append(el);
+          }
+          
+          if (isInsertLater) {
+            let taskInTree = output.find(x => x.id == item.parentId);
+            // if (!taskInTree.items.find(x => x.id == item.id)) {
+              taskInTree.items.push({
+                id: item.id,
+                parentId: item.parentId,
+                title: item.title,
+                task: item,
+                items: [],
+              });
+            // }
+          }
+          
+        
+      }
+      
+      
     }
     
+  
+    let docFrag = document.createDocumentFragment();
+    $('#list-tasks-by-threshold').innerHTML = '';
+    
+    let level = 1;
+    logTask(treeParentIds, level, docFrag);
+    
     $('#list-tasks-by-threshold').append(docFrag);
+  }
+  
+  function logTask(treeParentIds, level, docFrag) {
+    if (treeParentIds.length === 0) return;
+    
+    for (let item of treeParentIds) {
+      let sub = generateSub(level);
+      
+      let el = window.templateSlot.fill({
+    	  data: {
+    	    title: item.task.title,
+    	    ratioTimeLeftStr: helper.ToTimeString(item.task.targetTime, 'hms'),
+    	  }, 
+    	  template: document.querySelector('#tmp-task-simple-v2').content.cloneNode(true), 
+    	});
+  	  
+      let taskEl = el.querySelector('[data-kind="task"]');
+    	taskEl.dataset.id = item.id;	
+    	
+    	if (compoMission.GetMissionById(item.id)) {
+    	  viewStateUtil.Add('task', ['is-collection'], taskEl.querySelector('.container-item'));
+    	}
+    	
+    	{
+    	  let target = docFrag.querySelector(`[data-kind="task"][data-id="${item.parentId}"]`);
+    	  if (target) {
+    	    let container = target.querySelector('.container-child-tasks');
+    	    container.append(el);
+    	  } else {
+  	      docFrag.append(el);
+    	  }
+    	}
+      
+      logTask(item.items, level+1, docFrag);
+    }
+    
+    
+  }
+  
+  function generateSub(level) {
+    let txt = '';
+    while (level > 0) {
+      txt += '-'
+      level -= 1;
+    }
+    return txt;
   }
   
   function HandleInputPrioritySlider(evt) {
@@ -1166,7 +1356,7 @@ let ui = (function () {
     try {
       let safeLoopCount = 0;
       let subPaths = [];
-      foobar(subPaths, lsdb.data.activeGroupId, safeLoopCount);
+      buildSubPath(subPaths, lsdb.data.activeGroupId, safeLoopCount);
       breadcrumbs = [...breadcrumbs, ...subPaths];
     } catch (err) {
       console.error(err);
@@ -1187,7 +1377,7 @@ let ui = (function () {
 
   }
   
-  function foobar(breadcrumbs, parentId, safeLoopCount) {
+  function buildSubPath(breadcrumbs, parentId, safeLoopCount) {
     let activeGroup = lsdb.data.groups.find(x => x.id == parentId);
     if (activeGroup) {
       breadcrumbs.splice(0, 0, activeGroup);
@@ -1198,7 +1388,7 @@ let ui = (function () {
         if (safeLoopCount > 10) {
           throw 'overflow';
         }
-        foobar(breadcrumbs, parentId, safeLoopCount + 1);
+        buildSubPath(breadcrumbs, parentId, safeLoopCount + 1);
       }
     }
   }

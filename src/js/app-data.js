@@ -12,6 +12,7 @@ window.lsdb = new Lsdb(storageName, {
     
     // in minutes
     globalTimer: 7, 
+    targetThreshold: 10,
     
     
     isFilterTaskByTargetTime: false,

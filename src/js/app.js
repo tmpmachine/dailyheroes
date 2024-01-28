@@ -1106,7 +1106,7 @@ let app = (function () {
     AddProgressTimeToRootMission,
     TaskStopActiveTask,
     TaskListTask,
-    TaskListTasksByThreshold: TaskListTargets,
+    TaskListTargets,
     TaskContinueTask,
     
     SetAlarmAudio,
@@ -1129,6 +1129,8 @@ let app = (function () {
     TaskRemoveTaskFromMission,
     TaskStartOrRestartTask,
     TaskSendNotification,
+    HandleClickTaskOverview,
+    HandleDblclickTaskOverview,
   };
   
   let data = {
@@ -1329,6 +1331,18 @@ let app = (function () {
     
   }
   
+  async function taskAddToMissionV2(id) {
+    let isExists = compoMission.IsExistsMissionId(id);
+    if (isExists) {
+      compoMission.RemoveMissionById(id);
+    } else {
+      let missionData = compoMission.CreateItemMission(id);
+      compoMission.AddMission(missionData);
+    }
+    compoMission.Commit();
+    appData.Save();
+  }
+  
   function ToggleStartTimerAvailableTime() {
     let isTimerRunning = document.body.stateList.contains('--timer-running');
     if (isTimerRunning) {
@@ -1500,8 +1514,9 @@ let app = (function () {
   }
   
   function filterTaskByTargetTime() {
-    // 10 min threshold
-    return tasks.filter(x => x.targetTime > 5*60*1000 && x.type != 'M');
+    let targetThreshold = lsdb.data.targetThreshold;
+    let targetTimeThresholdMs = targetThreshold * 60 * 1000; // in minutes
+    return tasks.filter(x => x.targetTime > targetTimeThresholdMs && x.type != 'M');
   }
   
   function filterTaskByPath() {
@@ -2416,7 +2431,7 @@ let app = (function () {
     // viewStateUtil.Set('screens', ['settings']);
     // viewStateUtil.Set('screens', ['priority-mapper']);
     
-    // ui.OpenByThreshold()
+    // ui.OpenOverview()
     
     /*
     await waitUntil(() => {
@@ -2487,6 +2502,39 @@ let app = (function () {
     
     await app.TaskNavigateToMission(linkedTask.id);
     ui.FocusTaskElById(linkedTask.id);
+  }
+  
+  async function HandleClickTaskOverview(evt) {
+    let el = evt.target;
+    let parentEl = el.closest('[data-kind="task"]');
+    if (!parentEl) return;
+    
+    let id = parentEl.dataset.id;
+    
+    let actionRole = getActionRole(el);
+    switch (actionRole) {
+      case 'toggle-add-collection': 
+        taskAddToMissionV2(id, parentEl); 
+        ui.ReloadTaskOverviewById(id);
+        break;
+    }
+  }
+  
+  async function HandleDblclickTaskOverview(evt) {
+    let el = evt.target;
+    let parentEl = el.closest('[data-kind="task"]');
+    if (!parentEl) return;
+    
+    let id = parentEl.dataset.id;
+    
+    let actionRole = getActionRole(el);
+    
+    // navigate mission
+    viewStateUtil.RemoveAll('screens');
+    viewStateUtil.Add('screens', ['home']);
+    
+    await app.TaskNavigateToMission(id); 
+    ui.FocusTaskById(id);
   }
   
   async function TaskClickHandler(evt, el) {
