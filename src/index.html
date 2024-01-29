@@ -1027,7 +1027,7 @@
             <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
           </div>
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
-          <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">more_time</button>
+          <button class="obsoletes" data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">more_time</button>
           <div style="padding:0.2rem;"></div>
           <button data-role='edit' class="icon-mate" data-group="not-running" title="Edit">Edit</button>
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
@@ -1218,6 +1218,12 @@
                       <button type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
                       <div data-view-group="build" data-view-name="dev">
                         <button type="button" data-onclick="distribute-progress-task-from-form">Distribute progress</button>
+                      </div>
+                      <div data-view-group="build" data-view-name="dev">
+                        <button type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="add-progress-from-form">
+                          <span class="icon-mate">more_time</span>
+                          <span>Add progress manually</span>
+                        </button>
                       </div>
                       
                     </div>

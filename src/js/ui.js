@@ -69,7 +69,14 @@ let ui = (function () {
     ReloadTaskOverviewById,
     EditTargetThreshold,
     reloadTargetThreshold,
+    TaskAddProgressFromForm,
   };
+  
+  async function TaskAddProgressFromForm(evt) {
+    let form = evt.target.closest('button').form;
+    let id = form.id.value;
+    await TaskAddProgressManually(id);
+  }
   
   function EditTargetThreshold() {
     let userVal = window.prompt('Target threshold (hours minutes), example : 1h30m or 30m');
@@ -192,7 +199,7 @@ let ui = (function () {
     
     try {
       task.progressTime += addedTime;
-      task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
+      // task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
       task.totalProgressTime += addedTime;
       
       if (!

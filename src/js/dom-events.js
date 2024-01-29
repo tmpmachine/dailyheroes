@@ -135,6 +135,7 @@ let DOMEvents = (function() {
   	  'open-linked-sequence-priority-mapper': (evt) => ui.OpenLinkedSequenceInPriorityMapper(evt),
   	  'reset-progress-task-from-form': (evt) => ui.TaskResetProgressTaskFromForm(evt),
   	  'distribute-progress-task-from-form': (evt) => ui.TaskDistributeProgressTaskFromForm(evt),
+  	  'add-progress-from-form': (evt) => ui.TaskAddProgressFromForm(evt),
   	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),
   	  'delete-sequence-from-form': (evt) => ui.DeleteSequenceFromForm(evt),
