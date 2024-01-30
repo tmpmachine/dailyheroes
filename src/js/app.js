@@ -1131,6 +1131,7 @@ let app = (function () {
     TaskSendNotification,
     HandleClickTaskOverview,
     HandleDblclickTaskOverview,
+    AddTaskData,
   };
   
   let data = {
@@ -2500,8 +2501,9 @@ let app = (function () {
     
     if (!linkedTask) return;
     
-    await app.TaskNavigateToMission(linkedTask.id);
-    ui.FocusTaskElById(linkedTask.id);
+    editTask(linkedTask.id);
+    // await app.TaskNavigateToMission(linkedTask.id);
+    // ui.FocusTaskElById(linkedTask.id);
   }
   
   async function HandleClickTaskOverview(evt) {
@@ -2581,6 +2583,7 @@ let app = (function () {
         await TaskListTask();
         break;
       case 'edit': editTask(id); break;
+      case 'create-mission': ui.CreateMissionFromTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
@@ -2683,7 +2686,7 @@ let app = (function () {
     let taskId;
     try {
       let parentId = form['parent-id'].value;
-      taskId = addTaskData({
+      taskId = AddTaskData({
         title: form.title.value,
         durationTime: helper.ParseHmsToMs(targetVal),
         targetTime: helper.ParseHmsToMs(form.targetTime.value),
@@ -2719,7 +2722,7 @@ let app = (function () {
     lsdb.save();
   }
   
-  function addTaskData(inputData) {
+  function AddTaskData(inputData) {
   
     let id = generateUniqueId();
     let data = {...lsdb.new('task', {

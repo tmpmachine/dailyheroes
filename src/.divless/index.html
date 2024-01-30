@@ -1030,6 +1030,7 @@
           [btn 'more_time' data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually" .obsoletes]
           [ {p:0.2rem}]
           [btn 'Edit' data-role='edit' class="icon-mate" data-group="not-running" title="Edit"]
+          [btn 'add_circle' data-role="create-mission" .icon-mate data-group="not-running" title="Edit"]
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -1346,6 +1347,60 @@
               ]
               
             ]
+            
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
+  
+  <!-- # mission from task modal  -->
+  <modal-v2 id="modal-mission-from-task">
+    <div class="modal" slot="content">
+      
+      <!-- modal content-->
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        [ .overlay-bg-default .overlay-bg-sequence-task]
+        
+        <div style="padding:1rem;" class="pos-relative">
+
+          [ .modal-header .justify-content-between .d-flex
+            [ .flex-1 .align-items-center .d-flex
+              [h2 'Create Mission from Task' .m-0 .heading]
+            ]
+            [
+              [btn 'close' .icon-mate .toggler .btn-glass]
+            ]
+          ]
+          [ .void-half]
+          
+          <!-- # form sequence task -->
+          <form data-name="task" class="default-inline-flex-gap flex-column" data-onsubmit="submit-mission-convert-task" data-obj="form-task">
+            
+            <input type="hidden" name="id"/>
+            
+            [ .d-grid {gap:0.5rem} .form-card-inner
+            
+              [
+                [l .user-select-none
+                  [in type="checkbox" name="createSequence"] 
+                  Add sub tasks as sequence.
+                ]
+              ]
+              
+            ]
+            [ .void-half]
+            
+            <!-- # form sequence task : submit -->
+            [ .text-right
+              [btn 'Cancel' .toggler type="button"]
+              [btn 'Create' data-role="btn-add" .btn-primary]
+            ]
+            
+            [ .void-half]
             
           </form>
 

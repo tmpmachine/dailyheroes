@@ -1030,6 +1030,7 @@
           <button class="obsoletes" data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">more_time</button>
           <div style="padding:0.2rem;"></div>
           <button data-role='edit' class="icon-mate" data-group="not-running" title="Edit">Edit</button>
+          <button class="icon-mate" data-role="create-mission" data-group="not-running" title="Edit">add_circle</button>
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -1346,6 +1347,60 @@
               </div>
               
             </div>
+            
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
+  
+  <!-- # mission from task modal  -->
+  <modal-v2 id="modal-mission-from-task">
+    <div class="modal" slot="content">
+      
+      <!-- modal content-->
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        <div class="overlay-bg-default overlay-bg-sequence-task"></div>
+        
+        <div style="padding:1rem;" class="pos-relative">
+
+          <div class="modal-header justify-content-between d-flex">
+            <div class="flex-1 align-items-center d-flex">
+              <h2 class="m-0 heading">Create Mission from Task</h2>
+            </div>
+            <div>
+              <button class="icon-mate toggler btn-glass">close</button>
+            </div>
+          </div>
+          <div class="void-half"></div>
+          
+          <!-- # form sequence task -->
+          <form data-name="task" class="default-inline-flex-gap flex-column" data-onsubmit="submit-mission-convert-task" data-obj="form-task">
+            
+            <input type="hidden" name="id"/>
+            
+            <div class="d-grid form-card-inner" style="gap:0.5rem;">
+            
+              <div>
+                <label class="user-select-none">
+                  <input type="checkbox" name="createSequence"/> 
+                  Add sub tasks as sequence.
+                </label>
+              </div>
+              
+            </div>
+            <div class="void-half"></div>
+            
+            <!-- # form sequence task : submit -->
+            <div class="text-right">
+              <button class="toggler" type="button">Cancel</button>
+              <button class="btn-primary" data-role="btn-add">Create</button>
+            </div>
+            
+            <div class="void-half"></div>
             
           </form>
 

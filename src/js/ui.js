@@ -70,7 +70,82 @@ let ui = (function () {
     EditTargetThreshold,
     reloadTargetThreshold,
     TaskAddProgressFromForm,
+    CreateMissionFromTask,
+    TaskSubmitMissionConvertTask,
   };
+  
+  async function TaskSubmitMissionConvertTask(evt) {
+    evt.preventDefault();
+		let form = evt.target;
+		
+		let id = form.id.value;
+		
+    let task = compoTask.GetById(id);
+    
+    let taskId = await app.AddTaskData({
+      title: task.title,
+      durationTime: task.durationTime,
+      targetTime: task.targetTime,
+      parentId: '',
+      type: 'M',
+    });
+    
+    let missionData = compoMission.CreateItemMission(taskId);
+    compoMission.AddMission(missionData);
+    compoMission.Commit();
+    
+    // add sequence
+    if (form.createSequence.checked) {
+      let tasks = compoTask.GetAllByParentId(id);
+      let missionTask = compoTask.GetById(taskId);
+      
+      if (tasks.length > 0) {
+        compoSequence.Stash(missionTask.sequenceTasks);
+        for (let task of tasks) {
+          let linkedTask = compoTask.GetById(task.id);
+          let targetTime = linkedTask.durationTime;
+          compoSequence.AddLinkedTask(linkedTask.id, targetTime);  
+        }
+        compoSequence.Commit();
+      }
+    }
+    
+    appData.Save();
+    await appData.TaskStoreTask();
+    
+    form.reset();
+    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+  
+		let modal = document.querySelectorAll('#modal-mission-from-task')[0].toggle();
+		modal.close();    
+		
+  }
+  
+  function CreateMissionFromTask(id) {
+    let modal = document.querySelectorAll('#modal-mission-from-task')[0].toggle();    
+    modal.classList.toggle('modal--active', modal.isShown);
+    modal.addEventListener('onclose', function() {
+      modal.classList.toggle('modal--active', false);
+    });
+    
+    let form = modal.querySelector('form');
+    form.reset();
+    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+    
+    // form data
+    let formData = {
+      id,
+    };
+    
+    // fill form
+    for (let key in formData) {
+      let inputEl = form.querySelector(`[name="${key}"]`);
+      if (!inputEl) continue;
+      
+      inputEl.value = formData[key];
+    }
+    
+  }
   
   async function TaskAddProgressFromForm(evt) {
     let form = evt.target.closest('button').form;
@@ -1548,7 +1623,7 @@ let ui = (function () {
     form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
 
     modal.classList.toggle('modal--active', modal.isShown);
-    modal.addEventListener('onclose', function() {
+    modal.addEventListener('onclose', function(evt) {
       modal.classList.toggle('modal--active', false);
     });
     ui.SetFocusEl(modal.querySelector('input[type="text"]'));
@@ -1590,7 +1665,6 @@ let ui = (function () {
       if (isViewModeMission()) {
         let missionData = compoMission.CreateItemMission(taskId);
         compoMission.AddMission(missionData);
-  
         compoMission.Commit();
   
         appData.Save();
@@ -1616,6 +1690,7 @@ let ui = (function () {
   
   function partialUpdateUITask(id, task) {
     let el = $(`[data-obj="task"][data-id="${id}"]`);
+    if (!el) return;
     
     el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
     el.querySelector('[data-slot="title"]').textContent = task.title;

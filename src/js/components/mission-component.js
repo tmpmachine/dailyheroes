@@ -116,7 +116,6 @@ let compoMission = (function() {
   function AddMission(item) {
     let group = GetActiveGroup();
     if (group == null) return false;
-    
     group.missionIds.push(item);
   }
   

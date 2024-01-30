@@ -115,6 +115,9 @@ let DOMEvents = (function() {
   		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
   	  'handle-dblclick-task-overview': (evt) => app.HandleDblclickTaskOverview(evt),
   	},
+  	onsubmit: {
+  	  'submit-mission-convert-task': (evt) => ui.TaskSubmitMissionConvertTask(evt),
+  	},
   	onclick: {
   	  'edit-target-threshold': () => ui.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
@@ -163,6 +166,7 @@ let DOMEvents = (function() {
     listening('[data-onclick]', 'onclick', 'click', eventsMap.onclick);
     listening('[data-ondblclick]', 'ondblclick', 'dblclick', eventsMap.ondblclick);
     listening('[data-oninput]', 'oninput', 'input', eventsMap.oninput);
+    listening('[data-onsubmit]', 'onsubmit', 'submit', eventsMap.onsubmit);
   }
   
   return {
