@@ -629,7 +629,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    partialUpdateUITask(task.id, task);
+    reloadTaskCard(task.id, task);
     
     $('#task-modal').close();
   }
@@ -642,7 +642,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    partialUpdateUITask(task.id, task);
+    reloadTaskCard(task.id, task);
     
     $('#task-modal').close();
   }
@@ -1580,65 +1580,79 @@ let ui = (function () {
 
   function ShowModalAddTask(modalData = {}) {
     
-    viewStateUtil.RemoveAll('form-task');
-    
-    let formValue = {
-      parentId: lsdb.data.activeGroupId,
-      durationTime: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
-      taskType: 'T',
-    };
-    
-    let formData = Object.assign(formValue, modalData.formData);
-    
-    let isEditMode = (formData.id !== undefined);
-    
-    if (!isEditMode) {
-      if (isViewModeMission()) {
-        formValue.taskType = 'M';
-      }
-    }
-    
-    if (formValue.taskType == 'M') {
-      viewStateUtil.Add('form-task', ['collection-only']);
-    }
-    
-    // set form add/edit mode
-    if (isEditMode) {
-      viewStateUtil.Add('form-task', ['edit']);
-    } else {
-      viewStateUtil.Add('form-task', ['add']);
-    }
-    
-    if (viewStateUtil.HasViewState('task-view-mode', 'mission')) {
-      viewStateUtil.Add('form-task', ['mission-tab']);
-    }
-    
-    let modal = document.querySelectorAll('#task-modal')[0].toggle();
-    
-    // fill modal data
-    modal.querySelector('[data-id="readOnlyId"]').textContent = modalData.readOnlyId;
-    
-    let form = modal.querySelector('form');
-    form.reset();
-    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
-
-    modal.classList.toggle('modal--active', modal.isShown);
-    modal.addEventListener('onclose', function(evt) {
-      modal.classList.toggle('modal--active', false);
-    });
-    ui.SetFocusEl(modal.querySelector('input[type="text"]'));
-
-    // set default value
-    if (typeof(formData.parentId) == 'string') {
-      modal.querySelector('[name="parent-id"]').value = formData.parentId;
-    }
-    
-    for (let key in formData) {
-      let inputEl = form.querySelector(`[name="${key}"]`);
-      if (!inputEl) continue;
+    // return promise implementation is still unclear
+    return new Promise(resolve => {
       
-      inputEl.value = formData[key];
-    }
+      let modalResponse = {
+        isSubmit: false,
+        isDismissed: false,
+        form: null,
+      };
+      
+      viewStateUtil.RemoveAll('form-task');
+      
+      let formValue = {
+        parentId: lsdb.data.activeGroupId,
+        durationTime: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
+        taskType: 'T',
+      };
+      
+      let formData = Object.assign(formValue, modalData.formData);
+      
+      let isEditMode = (formData.id !== undefined);
+      
+      if (!isEditMode) {
+        if (isViewModeMission()) {
+          formValue.taskType = 'M';
+        }
+      }
+      
+      if (formValue.taskType == 'M') {
+        viewStateUtil.Add('form-task', ['collection-only']);
+      }
+      
+      // set form add/edit mode
+      if (isEditMode) {
+        viewStateUtil.Add('form-task', ['edit']);
+      } else {
+        viewStateUtil.Add('form-task', ['add']);
+      }
+      
+      if (viewStateUtil.HasViewState('task-view-mode', 'mission')) {
+        viewStateUtil.Add('form-task', ['mission-tab']);
+      }
+      
+      let modal = document.querySelectorAll('#task-modal')[0].toggle();
+      
+      // fill modal data
+      modal.querySelector('[data-id="readOnlyId"]').textContent = modalData.readOnlyId;
+      
+      let form = modal.querySelector('form');
+      form.reset();
+      form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+  
+      modal.classList.toggle('modal--active', modal.isShown);
+      
+      modal.addEventListener('onclose', function(evt) {
+        modal.classList.toggle('modal--active', false);
+        modalResponse.isDismissed = true;
+        resolve(modalResponse);
+      });
+      ui.SetFocusEl(modal.querySelector('input[type="text"]'));
+  
+      // set default value
+      if (typeof(formData.parentId) == 'string') {
+        modal.querySelector('[name="parent-id"]').value = formData.parentId;
+      }
+      
+      for (let key in formData) {
+        let inputEl = form.querySelector(`[name="${key}"]`);
+        if (!inputEl) continue;
+        
+        inputEl.value = formData[key];
+      }
+      
+    });
     
   }
   
@@ -1653,7 +1667,7 @@ let ui = (function () {
       let task = await app.TaskUpdateTask(form);
       
       await appData.TaskStoreTask();
-      partialUpdateUITask(task.id, task);
+      reloadTaskCard(task.id, task);
       form.reset();
       
       app.SyncGroupName(task.id, task.title, task.parentId);
@@ -1688,7 +1702,7 @@ let ui = (function () {
 		
   }
   
-  function partialUpdateUITask(id, task) {
+  function reloadTaskCard(id, task) {
     let el = $(`[data-obj="task"][data-id="${id}"]`);
     if (!el) return;
     
@@ -1697,6 +1711,10 @@ let ui = (function () {
     el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = helper.ToTimeString(task.targetTime, 'hms');
     el.querySelector('[data-slot="targetCapTimeStr"]').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
     el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
+    
+    if (task.targetTime > 0 || task.targetCapTime > 0) {
+      viewStateUtil.Add('active-task-info', ['has-target'], el);
+    }
   }
   
   function OnSubmitSequenceTask(ev) {

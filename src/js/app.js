@@ -2501,7 +2501,9 @@ let app = (function () {
     
     if (!linkedTask) return;
     
-    editTask(linkedTask.id);
+    editTask(linkedTask.id).then(modalResponse => {
+      console.log(modalResponse);
+    });
     // await app.TaskNavigateToMission(linkedTask.id);
     // ui.FocusTaskElById(linkedTask.id);
   }
@@ -2643,7 +2645,8 @@ let app = (function () {
         taskType: type,
       }
     };
-    ui.ShowModalAddTask(modalData);
+    
+    return ui.ShowModalAddTask(modalData);
   }
   
   function GetTaskById(id) {
