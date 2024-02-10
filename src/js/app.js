@@ -806,15 +806,6 @@ async function switchActiveTask(taskEl, id, persistent = false) {
   }
 }
 
-function addSubTimer(taskId) {
-  let modalData = {
-    formData: {
-      parentId: taskId,
-    }
-  };
-  ui.ShowModalAddTask(modalData);
-}
-
 
 function partialUpdateTask(key, data) {
   switch (key) {
@@ -2623,6 +2614,15 @@ let app = (function () {
       case 'delete-note': deleteNote(id, el); break;
     }
     
+  }
+  
+  function addSubTimer(taskId) {
+    let modalData = {
+      formData: {
+        parentId: taskId,
+      }
+    };
+    ui.ShowModalAddTask(modalData);
   }
 
   async function TaskTrackTarget() {

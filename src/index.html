@@ -989,16 +989,15 @@
   
   <template id="tmp-mission-buttons">
     <!-- # tmp-mission-buttons -->
-    <div class="d-inline-flex" style="gap:0.2rem;">
+    <div class="d-inline-flex align-items-center gap-quarter">
       <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence">expand_less</button>
       <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence">expand_more</button>
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
         <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
       </div> 
-      <div data-view-group="build" data-view-name="dev">
+      <div class="obsoletes">
         <button class="icon-mate" data-role='track-target' data-group="active not-running" title='Track target'>track_changes</button>
       </div>
-      <!-- # actions mission -->
       <div class="d-flex">
         <button data-role="add-to-mission" class="icon-mate" title="Add to collection">playlist_add</button>
         <div data-view-group="task" data-view-name-not="collection-only">
@@ -1015,7 +1014,7 @@
       <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-        <div class="d-inline-flex" style="gap:0.2rem;">
+        <div class="d-inline-flex gap-quarter align-items-center">
           <div class="obsoletes" data-view-group="task" data-view-name-not="sequence-mode">
             <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
           </div>
@@ -1027,10 +1026,11 @@
             <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
           </div>
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
-          <button class="obsoletes" data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">more_time</button>
+          <button data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually">more_time</button>
           <div style="padding:0.2rem;"></div>
+          <!-- task action: edit -->
           <button data-role='edit' class="icon-mate" data-group="not-running" title="Edit">Edit</button>
-          <button class="icon-mate" data-role="create-mission" data-group="not-running" title="Edit">add_circle</button>
+          <button class="icon-mate obsoletes" data-role="create-mission" data-group="not-running" title="Edit">add_circle</button>
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -1153,15 +1153,28 @@
               <div>
                 Title <input type="text" name='title' class="input-style-default"/>
               </div>
-              <div>
-                Duration <input type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
-              </div>
               <div class="d-flex justify-content-between gap-full">
                 <div class="d-flex flex-column">
-                  Target <input type="text" name='targetTime' class="input-style-default"/>
+                  Target
+                  <input type="text" name='targetCapTime' class="input-style-default" placeholder="Example: 1h, 30m, 4m, ..."/>
                 </div>
+              </div>
+              <div class="d-flex" data-view-group="form-task" data-view-name="edit">
                 <div class="d-flex flex-column">
-                  Target cap <input type="text" name='targetCapTime' class="input-style-default"/>
+                  <div>
+                    Target by ROP <small class="opacity-half">(auto-assigned)</small>
+                  </div>
+                  <div class="d-flex gap-half">
+                    <input class="input-style-default flex-1 border-none" type="text" name='targetTime' disabled/>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex">
+                <div class="d-flex flex-column">
+                  <div>
+                    Duration <small class="opacity-half">(change in settings)</small>
+                  </div>
+                  <input class="input-style-default border-none" type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' disabled/>
                 </div>
               </div>
               <div class="d-none">
@@ -1177,12 +1190,14 @@
             <div class="void-half"></div>
             
             <!-- # modal notes -->
-            <div data-view-group="form-task" data-view-name="collection-only">
-              <small style="font-size:0.75rem;">
-                Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
-              </small>
-              <div class="void-half"></div>
-              <div class="void-half"></div>
+            <div data-view-group="form-task" data-view-name="edit">
+              <div data-view-group="form-task" data-view-name="collection-only">
+                <small style="font-size:0.75rem;">
+                  Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+                </small>
+                <div class="void-half"></div>
+                <div class="void-half"></div>
+              </div>
             </div>
             
             <!-- # task modal : form actions -->
@@ -1213,21 +1228,19 @@
                   <div class="void-half"></div>
                   
                   <!-- # task modal progress actions -->
-                  <div class="d-flex justify-content-between">
-                    <div class="d-flex align-items-center gap-half">
-                    
-                      <button type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
-                      <div data-view-group="build" data-view-name="dev">
-                        <button type="button" data-onclick="distribute-progress-task-from-form">Distribute progress</button>
-                      </div>
-                      <div data-view-group="build" data-view-name="dev">
-                        <button type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="add-progress-from-form">
-                          <span class="icon-mate">more_time</span>
-                          <span>Add progress manually</span>
-                        </button>
-                      </div>
-                      
+                  <div class="d-flex align-items-center gap-half flex-wrap">
+                  
+                    <button type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
+                    <div data-view-group="build" data-view-name="dev">
+                      <button type="button" data-onclick="distribute-progress-task-from-form">Distribute progress</button>
                     </div>
+                    <div data-view-group="build" data-view-name="dev">
+                      <button type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="add-progress-from-form">
+                        <span class="icon-mate">more_time</span>
+                        <span>Add progress manually</span>
+                      </button>
+                    </div>
+                    
                   </div>
                 
                 </div>

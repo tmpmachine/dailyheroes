@@ -989,16 +989,15 @@
   
   <template id="tmp-mission-buttons">
     <!-- # tmp-mission-buttons -->
-    [ .d-inline-flex {gap:0.2rem}
+    [ .d-inline-flex .align-items-center .gap-quarter
       [button 'expand_less' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence"]
       [button 'expand_more' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence"]
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
         [btn 'star' class="btn-star icon-mate" data-role='star-task' title="Star this task"]
       ] 
-      [ data-view-group="build" data-view-name="dev" 
+      [ .obsoletes 
         [btn 'track_changes' data-role='track-target' .icon-mate data-group="active not-running" title='Track target']
       ]
-      <!-- # actions mission -->
       [ .d-flex 
         [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection"]
         [ data-view-group="task" data-view-name-not="collection-only"
@@ -1015,7 +1014,7 @@
       <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-        [ .d-inline-flex {gap:0.2rem}
+        [ .d-inline-flex .gap-quarter .align-items-center
           [ data-view-group="task" data-view-name-not="sequence-mode" .obsoletes
             <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
           ]
@@ -1027,10 +1026,11 @@
             <button data-role='restart' class="icon-mate" data-group="not-running" title="Reset progress">restart_alt</button>
           ]
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
-          [btn 'more_time' data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually" .obsoletes]
+          [btn 'more_time' data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually"]
           [ {p:0.2rem}]
+          <!-- task action: edit -->
           [btn 'Edit' data-role='edit' class="icon-mate" data-group="not-running" title="Edit"]
-          [btn 'add_circle' data-role="create-mission" .icon-mate data-group="not-running" title="Edit"]
+          [btn 'add_circle' data-role="create-mission" .icon-mate data-group="not-running" title="Edit" .obsoletes]
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -1153,15 +1153,28 @@
               [
                 Title <input type="text" name='title' class="input-style-default"/>
               ]
-              [
-                Duration <input type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
-              ]
               [ .d-flex .justify-content-between .gap-full
                 [ .d-flex .flex-column
-                  Target <input type="text" name='targetTime' class="input-style-default"/>
+                  Target
+                  <input type="text" name='targetCapTime' class="input-style-default" placeholder="Example: 1h, 30m, 4m, ..."/>
                 ]
+              ]
+              [ .d-flex data-view-group="form-task" data-view-name="edit"
                 [ .d-flex .flex-column
-                  Target cap <input type="text" name='targetCapTime' class="input-style-default"/>
+                  [
+                    Target by ROP [small '(auto-assigned)' .opacity-half]
+                  ]
+                  [ .d-flex .gap-half
+                    [in type="text" name='targetTime' .input-style-default .flex-1 disabled .border-none]
+                  ]
+                ]
+              ]
+              [ .d-flex
+                [ .d-flex .flex-column
+                  [
+                    Duration [small '(change in settings)' .opacity-half]
+                  ]
+                  [in type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' .input-style-default disabled .border-none]
                 ]
               ]
               [ .d-none
@@ -1177,12 +1190,14 @@
             [ .void-half]
             
             <!-- # modal notes -->
-            [ data-view-group="form-task" data-view-name="collection-only" 
-              [small {fs:0.75rem}
-                Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+            [ data-view-group="form-task" data-view-name="edit" 
+              [ data-view-group="form-task" data-view-name="collection-only" 
+                [small {fs:0.75rem}
+                  Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+                ]
+                [ .void-half]
+                [ .void-half]
               ]
-              [ .void-half]
-              [ .void-half]
             ]
             
             <!-- # task modal : form actions -->
@@ -1213,21 +1228,19 @@
                   [ .void-half]
                   
                   <!-- # task modal progress actions -->
-                  [ .d-flex .justify-content-between
-                    [ .d-flex .align-items-center .gap-half
-                    
-                      [btn 'Reset progress' type="button" data-onclick="reset-progress-task-from-form"]
-                      [ data-view-group="build" data-view-name="dev"
-                        [btn 'Distribute progress' type="button" data-onclick="distribute-progress-task-from-form"]
-                      ]
-                      [ data-view-group="build" data-view-name="dev"
-                        [btn type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="add-progress-from-form"
-                          [s .icon-mate 'more_time']
-                          [s 'Add progress manually']
-                        ]
-                      ]
-                      
+                  [ .d-flex .align-items-center .gap-half .flex-wrap
+                  
+                    [btn 'Reset progress' type="button" data-onclick="reset-progress-task-from-form"]
+                    [ data-view-group="build" data-view-name="dev"
+                      [btn 'Distribute progress' type="button" data-onclick="distribute-progress-task-from-form"]
                     ]
+                    [ data-view-group="build" data-view-name="dev"
+                      [btn type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="add-progress-from-form"
+                        [s .icon-mate 'more_time']
+                        [s 'Add progress manually']
+                      ]
+                    ]
+                    
                   ]
                 
                 ]

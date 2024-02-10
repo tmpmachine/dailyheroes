@@ -264,7 +264,7 @@ let ui = (function () {
     let addedTime = 0;
     
     try {
-      helper.ParseHmsToMs(userVal);
+      addedTime = helper.ParseHmsToMs(userVal);
     } catch (e) {
       // default to minute
       let parsedVal = parseInt(userVal);
