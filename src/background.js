@@ -338,7 +338,8 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask, tasks
   
   let tasks = tasksOrigin.filter(x => x.parentId == parentTask.id);
   if (tasks.length == 0 || !anyTaskHasRatio(tasks)) {
-    parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+    // parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+    return;
   }
   
   let totalPriorityPoint = tasksOrigin.filter(x => x.parentId == parentTask.id && x.ratio > 0).map(x => x.ratio).reduce((a,b) => b + a, 0);

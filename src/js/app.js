@@ -700,7 +700,8 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
   
   let tasks = compoTask.GetAllByParentId(parentTask.id);
   if (tasks.length == 0 || !anyTaskHasRatio(tasks)) {
-    parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+    // parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+    return;
   }
   
   let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTask.id);
@@ -1724,7 +1725,7 @@ let app = (function () {
         let totalMsProgressChildTask = sumAllChildProgress(item.id);
         let totalProgressTime = item.totalProgressTime + totalMsProgressChildTask;
         if (totalProgressTime > 0) {
-          totalProgressStr = `(${secondsToHMS(msToSeconds( totalProgressTime ))} total)`;
+          totalProgressStr = `${helper.ToTimeString(totalProgressTime, 'hms')}`;
         }
       }
   
