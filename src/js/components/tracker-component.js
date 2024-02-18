@@ -8,6 +8,7 @@ let compoTracker = (function() {
     GetActive,
     GetActiveId,
     List,
+    GetAll,
     GetById,
     SetActiveById,
     ToggleActiveById,
@@ -25,13 +26,25 @@ let compoTracker = (function() {
   let data = {
     activeId: null,
     items: [],
+    // this model version : 2
     /* items[]
       {
         id: '',
         title: '',
         progressTime: 0,
+        isActive: false,
       }
     */
+  };
+  
+  let dataModel = {
+    version: 2,
+    items: {
+      id: '',
+      title: '',
+      progressTime: 0,
+      isActive: false,
+    }
   };
   
   function UpdateActiveTrackerProgress(distanceTime) {
@@ -58,6 +71,7 @@ let compoTracker = (function() {
       id,
       title,
       progressTime: 0,
+      isActive: false,
     };
     data.items.push(group);
     
@@ -98,12 +112,12 @@ let compoTracker = (function() {
     return item;
   }
   
-  function UpdateById(incomingData, id) {
+  function UpdateById(id, incomingData, modelCheck = true) {
     let item = GetById(id);
     if (!item) return null;
     
     for (let key in incomingData) {
-      if (typeof(item[key]) != 'undefined' && typeof(item[key]) == typeof(incomingData[key])) {
+      if (!modelCheck || ( typeof(item[key]) != 'undefined' && typeof(item[key]) == typeof(incomingData[key]) )) {
         item[key] = incomingData[key];
       }
     }
@@ -142,6 +156,10 @@ let compoTracker = (function() {
     return data.items;
   }
   
+  function GetAll() {
+    return List();
+  }
+  
   function GetActive() {
     return GetById(GetActiveId());
   }
@@ -151,11 +169,12 @@ let compoTracker = (function() {
   }
   
   function AppendProgressToActiveTracker(time) {
-    let item = GetActive();
-    if (!item) return false;
-    
-    item.progressTime += time;
-    return true;    
+    let items = GetAll();
+    for (let item of items) {
+      if (item.isActive) {
+        item.progressTime += time;
+      }
+    }
   }
     
   return SELF;

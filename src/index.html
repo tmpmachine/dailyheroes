@@ -419,7 +419,9 @@
           <button class="clickable" data-callback='new-tracker'>New tracker</button>
           
           <!-- # container trackers -->
-          <div id="container-list-tracker" class="clickable" data-callback="handle-click-list-tracker"></div>
+          <div class="widget-Trackers">
+            <div id="container-list-tracker" class="clickable" data-callback="handle-click-list-tracker"></div>
+          </div>
           
         </div>
         
@@ -693,7 +695,8 @@
       <div class="d-flex justify-content-end" style="gap:0.3em;">
         <button data-action="rename">Rename</button>
         <button data-action="delete">Delete</button>
-        <button data-action="set">Set</button>
+        <button data-action="set">Overlay</button>
+        <button data-action="toggle-active">Track</button>
       </div>
     </div>
   </template>

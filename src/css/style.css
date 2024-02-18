@@ -447,9 +447,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 
 /* # trackers */
-#container-list-tracker .is-active {
-    background: gainsboro;
-}
 .tracker-overlay {
   width: 160px;
   background: dodgerblue;
