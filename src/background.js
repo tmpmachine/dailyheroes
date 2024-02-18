@@ -1,6 +1,8 @@
 import { compoSequence } from '/js/sequence-component.js';
 import { helper } from '/js/helper.js';
 
+let iconAlarm = '../icons/128.png';
+
 chrome.runtime.onInstalled.addListener(() => { });
 
 chrome.alarms.onAlarm.addListener(alarmHandler);
@@ -399,7 +401,7 @@ async function stopByNotification() {
 }
 
 async function setStopAlarmIcon() {
-  chrome.action.setIcon({ path: icon3 });
+  chrome.action.setIcon({ path: iconAlarm });
 }
 
 async function alarmHandler(alarm) {
@@ -408,14 +410,14 @@ async function alarmHandler(alarm) {
       updateTime();
       break;
     case 'halfway':
-      spawnNotification('Halfway there!', 'limegreen', icon5, false);
+      spawnNotification('Halfway there!', 'limegreen', iconAlarm, false);
       break;
     case 'main':
       onAlarmEnded(alarm);
       break;
     case '3m':
 
-      spawnNotification('3 minutes left!', '#EB455F', icon4, false, [
+      spawnNotification('3 minutes left!', '#EB455F', iconAlarm, false, [
         {
           action: 'stop',
           title: 'Stop',
@@ -611,14 +613,14 @@ async function onAlarmEnded(alarm) {
   // spawn notif
   await TaskClearNotif();
   let requireInteraction = true;
-  spawnNotificationV2(notifTitle, notifBody, 'limegreen', icon3, requireInteraction, actions, tag);
+  spawnNotificationV2(notifTitle, notifBody, 'limegreen', iconAlarm, requireInteraction, actions, tag);
   
   // play alarm audio
   playAudio('audio.html');
   stopAudioAfter('audio.html');
 
   chrome.alarms.clearAll();
-  chrome.action.setIcon({ path: icon3 });
+  chrome.action.setIcon({ path: iconAlarm });
       
 }
 
@@ -648,15 +650,11 @@ chrome.runtime.onMessage.addListener(messageHandler);
 
 function messageHandler(request, sender, sendResponse) {
   if (request.message === 'start-timer') {
-    // spawnNotification('Misi dimulai, Happy farming!', 'white', icon1);
-    // chrome.action.setIcon({ path: icon1 })
     clearPersistentNotif();
     updateTime();
 
   } else if (request.message === 'stop') {
-    // spawnNotification('Misi dimulai, Happy farming!', 'white', icon1);
-    chrome.action.setIcon({ path: icon3 })
-    // updateTime();
+    chrome.action.setIcon({ path: iconAlarm })
   }
 }
 
@@ -684,11 +682,6 @@ function clearPersistentNotif() {
   });
 
 }
-
-
-let icon5 = 'data:image/webp;base64,UklGRiIBAABXRUJQVlA4TBUBAAAvH8AHAH/AJgDAJNMo6/8vjbsb8FHDSCQp675/ETKhUCgKoCaSFGlsIB5JaCCnyN7Lbv4D4P/flT5lC5QSUOHABniGRfBybZ80y3YB3GrblidVBviti2eYtPrEPQE2YIPICqwQrdA3UlH9tFRU7u5u3/viA0T0fwK0f9Jz/pVzzfO59ZfTkxXnJ9bzKBRgO6URWFtYz3CzTm50XQBwXYDNrGfGjwDGj1jmCOKsUxnCEQbgCANSSAkBa0ywDHU6EOeaU6g1gfpMfJWpx2FpwMQUmBGAWhPqJ8RtZfyVc2SkWaXQIoEIbk17fV0iZZbaD2m3pmlaf4nUdsv9ypy3WkTUbh1o4mu/1Wq1DtySdv56enLi1v5HAA=='
-
-  let icon4 = 'data:image/webp;base64,UklGRr4BAABXRUJQVlA4TLIBAAAvHUAHEHfCKJJsJ7v/7SeH60cCd/ybwUKGH2w4iCRJkfL2mBn+X8X718UUriPZVqLGXf4JgDDIPxrWF2f+A9iOviCLp8xBThB8URAEFEBOiHJMIQjGCAeG58P+ZL0MECfkIieC/5NPIyaC+ISQe358USCHG+OKi4GIgXbut5k/i+/38s+jLBS6QolzMQVyEYsFCiSH2yz/LxEJUUIhUn++ih1/FCGLF3hy2tl1EuQGiwawiGgQn8CfEC3wxADLtm3DVVVQim3btu30vz+q5OF/74j+T4Dwb3oAOD/jswFMAciLn/BVazaBHZLtj7j784QlsSR5kHXZ3cDlxfkgk+/ZN33yMsfDeTkkI+p72T7J+8N5+QEYlUAPF0614wios0THe4DCQFwDwhyhXqJJ1AMoWhyUybAJEN7PIaCwd4lTkynoz3SxBk6zmHqLQqbhIyfE1NntGgWKTR3wdtcnPOC6AIo06ID3tEZFjc1wxQJNfY7dGCGpvOLgwkGrIOoRd+OQ9MRKihB0SyQeklYmReGzUhlIWgUWXJ+BGYAASI1g4yOv2dimMfkcJO7J9OcAP4n/HQ==';
 
 function msToMinutes(milliseconds) {
   return Math.floor(milliseconds / 60000);
@@ -786,7 +779,7 @@ async function startNextSequence() {
     // notify next task name
     const notification = registration.showNotification(`${sequenceTaskTitle}`, { 
       body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
-      icon4,
+      iconAlarm,
       tag: 'active-sequence-task',
     });
     
@@ -803,7 +796,7 @@ async function takeBreakTime() {
   
   const notification = registration.showNotification(`Take a break!`, { 
     body: `${seconds}s left`, 
-    icon4,
+    iconAlarm,
     tag: 'active-sequence-task',
   });
   
@@ -899,7 +892,7 @@ async function restartSequenceTask() {
     // notify next task name
     const notification = registration.showNotification(`${sequenceTaskTitle}`, { 
       body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
-      icon4,
+      iconAlarm,
       tag: 'active-sequence-task',
     });
     
@@ -923,15 +916,9 @@ function time(seconds) {
   startTimer(mid, end);
   clearInterval(clockInterval);
   oneTime.reset();
-  spawnNotification('Started', 'white', icon1);
+  spawnNotification('Started', 'white', iconAlarm);
   clockInterval = setInterval(() => startTimer(mid, end), 1000)
 }
-
-let icon1 = 'data:image/webp;base64,UklGRnoBAABXRUJQVlA4TG0BAAAvH8AHEEehNpKthI+7RPRKezRiMRmhtcE2kqRGe0gLkywIm1jIAhNM/VqyCQAgDe4SgwRkID0h/IXpuc1/IADv+x5kB9laLlssbS+qf80y/cn9E0MX9rL1kkUZpbiEBUR+CgBhAdCfAwCYMMEZTBgmCOuf+jypGKU5qRmpGMoxyjGpmWQs7IJsb0BQiYkPkQGybVttG2Figpw89/7cnxzy/7+oYo+yMnwnov8TUP23Lnpf2y4rX8BeexcwaLt8qiz01cWu7/fppqKvGmy6cnCDnuIZvnroimCobFBKaP98o8bRZMjjNFPblBFEwFRWx9ujq0TG17OKWgkx104EU7ncrWcck8LMKNG1IeRIso2e+9K4q0TXhgA5JlMZAsp60xXAu7QnJxRmdIQGbz1Uzj2eW9NWrQ3BqWO66vzy6HEOehDs86NWgjdMYrrK5SHVQHCHkmoFJglUoHpjTrV7TqBSvTmnThV/e+0ZkOrvDAA=';
-
-let icon2 = 'data:image/webp;base64,UklGRhwDAABXRUJQVlA4TA8DAAAvH8AHEP/juJEkRaqGZfiuG+e/G2fC3YuZp7vccBzJtqrMefadJTEQGDE7LN3d4cKObTeRZEkeZv7jaCbUyYUnBGaeWTA8zX8Ag4YAAAAAACIAIAIQGIARRouoqEYBAIoACQIWxlz/BEVToX9hDhWUv1JFJPhD0hxTQCICICpmKAGIEkggMYCjsIKTgAIBAI8oAIr15xdQi4YGBiAhJuZWQZendEWSBqIiHiwEw2VZVOaFOyaBVVGIN/BLKW/S51lIL1WyPDFzwjzxIDwXLmGJuGfmBf8ZdeERaFJCnVtdmbSb5tij5Xnzql/Z6xL8dZbNSvk7XQi2vbbNduZzf1mPxv6rlMvvzuZV7z28d0n5jX4Xxr/ijxzbO5fjw2dGbvHksPzyT1PjC4ZP0eHwa9VdWjpvIwPr5YhBoq3tpaOlNtKObddtanNs21bGvviek86PC/i+iP5PAPlLN+bm/9Aanf4zlYW3yZqml7YEZuje+3QNpcOHt84VuamPFw7LQhV+df70OCs38cGBVmWSAIDlaQ5wcblP5I84AJ0hkDmWnOIA8DS+ezIns8nZnX2GJI8l8/x2xFXhYHr7XpeCH9apKpTSKYAcpvU6a/0qB7i4fJ2Tmt/5qldOFYb7wb28qFNFYfuGA0D4lEjm3/HHophqi8Siy0W9SoHmuvuqHJEufbzReoVSgwpUqVEBamt4hCEmiPzBM+uPKvVaFSIqUW201I8yLBwn5WBqtqBV6RG1GpVah0a4vuNn8QMRmGM2A9jsoIdub3+X/o4DfCXiArOMyjpdlXzFHbrn7PVTYJZRTHkksJ0hVtaRP7+ylFiih2K6jyI6W4cY4ubuTprIzzCaGKOI6Q5a3TLQ7QpsHCfFUgOI2T4q6WxtaR6cLxIhB0XEdI9Ed99ok6N9gYjOhhqqZDsWXQ2OFrGZUKBRwDk4t9jkaBdbYqHgcE87RXQ0t/f65zytDQNiUGYYcA0NDuCwK+gLzQVcw/OkxmmGGAr4fegP4BpDnCc1l5DJz08vrpHfLCHOVa2QP1koTi2Q/y0A';
-
-let icon3 = 'data:image/webp;base64,UklGRtwCAABXRUJQVlA4TM8CAAAvH8AHEP/jIJIkRZrFZ1uv/W0wM8NOtQ0HkSQpUj0zo4b38v4dMDPNdEOOJEmRFDnLqL9ijE9muuvuqar5DwPIghMODATDgRMwBwrm76yRffzz8A0Fo6i4a7l0h3ZWhbG776aa+Pnfm4/mwinefrv77u0PCk4OKhgUAjUHIkhAUAqGMpAigQQBT0gShWZIkGGGgBnDBkZVqI5eJyRQJbWIlFKKSIh+kJGFbkGsBC+HQVGS0S1IBV0kGglYAQlEJIKxllrUvt/k/y8+n3/H+9nnlvx+RYvadrf3/SbIIZP64blN3oO77yrcK1eH48n5evNrfN1uDy7zKX1hoyqQs3DY2a9FXwkhsVip9ORF8XdipZr/UJptaW7KpDJZXsjB0yDXa4tB2m1batsozMwMGjNKM1KYmZmZaSK7qEqlH9+YSp/fjej/BCj/n8kEkAuJ56dnK4l32ZJHu9g/uLp/tWQiK/IIe9/zv377sXfzYsksODbJxBF2tr/v7l08WzIT1x7FUADPH+6Od3cOT28eLZmWi9Gxni5Cny8UfHd3hpPT64dEOm7Dz3y1W2Xo6YInFHl/eQa6fZKpnK2u8vwm9qbaxbyRj3eX5+m4W/VNZfnlbxUAhSzw5ZaerBTu5kpRZ0cTWHkeFRSWNvZVtrDOz68WJVJsTVSWVDMAhR2V+cUtalEL67OtNJzVlX6V/VrV1lLTorZXMsC2SCopJmfW1ieG+1WGktbu3uZaX8CTwZQ2ML60sjTM0FVdUlEX9Id9zLakkmo2LmJRDM0vLo0M+wLBkNA8qk1KGnNxwU1AD03Oj4VjGhdRtmAr6cxrhtDJMAESMF5MGWIrTjpk6ybXDRMCACjxwkMjG25aTsQUmiGIm4YAJTX4lx0lfVeQbhpcJ8EJSR6d2HQzIICbQouZGhefTBpctZXMHdiCk/bi6BSfdpTsAoAGnWsO5dAGQMq/FAA=';
 
 function spawnNotification(body, color, icon, requireInteraction = false, actions = []) {
   c.canvas.width = 280;
@@ -1064,9 +1051,9 @@ function drawMinutesLeft(minutesLeft, finishCountProgress = 0) {
   let alarms = await chrome.alarms.getAll()
   if (alarms.length > 0) {
     updateTime();
-    // chrome.action.setIcon({ path: icon1 })
+    // chrome.action.setIcon({ path: iconAlarm })
   } else {
-    chrome.action.setIcon({ path: icon3 })
+    chrome.action.setIcon({ path: iconAlarm })
   }
   
 })();
