@@ -1124,6 +1124,7 @@ let app = (function () {
     HandleClickTaskOverview,
     HandleDblclickTaskOverview,
     AddTaskData,
+    TaskRefreshMissionTargetETA,
   };
   
   let data = {
@@ -1304,6 +1305,8 @@ let app = (function () {
       if (task.targetTime > 0) {
         await ui.TaskReloadTotalTargets();
       }
+      
+      TaskRefreshMissionTargetETA();
       
     } else {
       // add to mission
@@ -1596,7 +1599,7 @@ let app = (function () {
 
   async function TaskListTask() {
     
-    let isMissionView = (lsdb.data.viewMode == 'mission');
+    let isMissionView = (isViewModeMission());
   
     let totalRatio = 0;
     
@@ -1881,25 +1884,36 @@ let app = (function () {
     
     await setActiveTask();
     
-    
     // set mission target info 
-    {
-      let totalTargetTime = 0;
-      let totalTargetCapTime = 0;
-      for (let task of filteredTasks) {
-        totalTargetTime += task.targetTime;
-        if (task.targetCapTime > 0) {
-          totalTargetCapTime += task.targetCapTime;
-        }
-      }
-      $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
-      $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
-      
-      ui.ReloadETA(totalTargetCapTime);
-    }
+    TaskRefreshMissionTargetETA();
     
     await ui.TaskReloadParentTarget();
    
+  }
+  
+  async function TaskRefreshMissionTargetETA() {
+    
+    if (!isViewModeMission()) return;
+    
+    let totalTargetTime = 0;
+    let totalTargetCapTime = 0;
+    
+    // filter tasks
+    let filteredTasks = await TaskGetAllTasks({
+      isMissionView: (isViewModeMission()),
+    });
+    
+    for (let task of filteredTasks) {
+      totalTargetTime += task.targetTime;
+      if (task.targetCapTime > 0) {
+        totalTargetCapTime += task.targetCapTime;
+      }
+    }
+    
+    $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
+    $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+    
+    ui.ReloadETA(totalTargetCapTime);
   }
   
   function onEndSortSequence(evt) {
@@ -2316,7 +2330,7 @@ let app = (function () {
     updateUI();
     await TaskListTask();
     
-    if (lsdb.data.viewMode == 'mission') {
+    if (isViewModeMission()) {
       $('#tasklist-container').stateList.add('--view-mission');
     }
     

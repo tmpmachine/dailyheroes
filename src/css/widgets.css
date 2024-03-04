@@ -1,3 +1,7 @@
+.widget-btn-danger {
+  background: #c95b5b;  
+}
+
 .widget-Trackers {
 
     [data-kind="item"] {

@@ -190,15 +190,15 @@ let ui = (function () {
   }
   
   function ReloadETA(totalTargetCapTime) {
-    viewStateUtil.Remove('task-view-mode', ['has-ETA'])
+    viewStateUtil.Remove('task-view-mode', ['has-ETA']);
     
     if (totalTargetCapTime <= 0 || !isViewModeMission()) return;
     
-    viewStateUtil.Add('task-view-mode', ['has-ETA'])
+    viewStateUtil.Add('task-view-mode', ['has-ETA']);
     
     let now = new Date();
     let eta = new Date(now.getTime() + totalTargetCapTime);
-    let dateStr = eta.toDateString()
+    let dateStr = eta.toDateString();
     let timeStr = eta.toTimeString().substring(0, 5);
     $('#txt-target-eta').textContent = `${timeStr}`;
   }
@@ -1692,10 +1692,14 @@ let ui = (function () {
       await appData.TaskStoreTask();
       await app.TaskListTask();
     
+    
       form.reset();
       updateUI();
       
     }
+    
+    
+    app.TaskRefreshMissionTargetETA();
     
 		let modal = document.querySelectorAll('#task-modal')[0].toggle();
 		modal.close();
