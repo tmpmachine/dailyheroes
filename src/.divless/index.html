@@ -57,7 +57,7 @@
           [ .d-flex {gap:0.3rem}
           
             <!-- # nav : tasks by threshold -->
-            [btn .d-flex .align-items-center data-onclick="open-by-threshold" style="gap:0.3rem;"
+            [btn .d-flex .align-items-center data-onclick="open-overview" style="gap:0.3rem;"
               [s 'Targets'] [s .icon-mate 'flag']
             ]
           
@@ -419,7 +419,9 @@
           [btn 'New tracker' .clickable data-callback='new-tracker']
           
           <!-- # container trackers -->
-          [ #container-list-tracker .clickable data-callback="handle-click-list-tracker"]
+          [ .widget-Trackers
+            [ #container-list-tracker .clickable data-callback="handle-click-list-tracker"]
+          ]
           
         ]
         
@@ -432,7 +434,7 @@
         <!-- # Tasks By Threshold screen nav -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
           [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
-          [ 'Targets' {fw:bold}]
+          [ 'Targets Overview' {fw:bold}]
         ]
       
         <!-- # Tasks By Threshold screen body -->
@@ -440,12 +442,24 @@
           [ .pb-full]
           
           [small
-            Info : only targets above 5m are shown in the list.
+            Info : only targets above threshold are shown in the list.
           ]
-          [ .pb-full]
+          [
+            Target threshold : 
+            [s #txt-target-threshold]
+            [btn 'Edit' data-onclick="edit-target-threshold"]
+          ]
+          [ .void-full]
           
-          <!-- # widget-task.skin-targets -->
-          [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
+          [ .ov-auto
+            [ {bg:#1b1b1b;rad:4px}
+              [ .void-half]
+              <!-- # widget-task.skin-targets -->
+              [ .widget-task .skin-targets #list-tasks-by-threshold data-onclick="handle-click-task-overview" data-ondblclick="handle-dblclick-task-overview"]
+              [ .p-half]
+            ]
+            [ .void-full]
+          ]
         ]
         
       ]
@@ -516,7 +530,7 @@
               [ .mb-m]
               [ .settings-card-inner
                 [
-                  [btn 'Reset data' data-onclick="reset-data"]
+                  [btn 'Reset data' data-onclick="reset-data" .widget-btn-danger]
                   [btn 'Reset tasks progress and target' data-onclick="reset-target-time"]
                 ]
               ]
@@ -681,7 +695,8 @@
       [ .d-flex .justify-content-end {gap:0.3em}
         [btn 'Rename' data-action="rename"]
         [btn 'Delete' data-action="delete"]
-        [btn 'Set' data-action="set"]
+        [btn 'Overlay' data-action="set"]
+        [btn 'Track' data-action="toggle-active"]
       ]
     ]
   </template>
@@ -871,39 +886,52 @@
             [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time]
           ]
         ]
+        
       ]
       
   	]
   </template>
   
-  <template id="tmp-task-simple">
+  <template id="tmp-task-simple-v2">
     <!-- # container task simple mode -->
     
-  	[ .container-item data-obj="task" data-id="?" data-kind="task" data-view-group="task" data-view-states="" .pos-relative
-
-  	  <!-- # simple mode : task body -->
-  	  [ .task-body-main {padding:0.3rem 0.5rem;} .d-flex .gap-full
-  	  
-    	  [ .d-flex .justify-content-between {gap:0.3rem} .flex-grow
-    	    [ .flex-1
-    	      <!-- # simple mode : task path -->
-      	    [ data-slot="missionPath" data-slot-html .task-path]
-      	    <span class="title" data-slot="title"></span>
-    	    ]
-          [small
-            <!-- # simple mode : target time -->
-            [mark .task-target-time data-slot="ratioTimeLeftStr" data-slot-html]
+    [ data-kind="task" data-id="?"
+    	[ .container-item data-view-group="task" data-view-states="collection-only" .pos-relative
+  
+    	  <!-- # simple mode : task body -->
+    	  [ .task-body-main .px-half .py-quarter .d-flex .gap-full
+    	  
+      	  [ .d-flex .justify-content-between {gap:0.3rem} .flex-grow
+      	    [ .d-flex .w-100
+      	      <!-- # simple mode : task path -->
+        	    <!--[ data-slot="missionPath" data-slot-html .task-path]-->
+        	    <span class="title" data-slot="title"></span>
+        	    [ .flex-1 .item-title-border .pos-relative .align-items-center .d-flex .p-half]
+      	    ]
+            [ .d-flex .gap-half .align-items-center
+              [small
+                <!-- # simple mode : target time -->
+                [mark .task-target-time data-slot="ratioTimeLeftStr" data-slot-html]
+          	  ]
+              [ data-view-group="task" data-view-name-not="is-collection"
+          	    [btn 'playlist_add' data-role="toggle-add-collection" class="icon-mate" title="Add to collection"]
+          	  ]
+              [ data-view-group="task" data-view-name="is-collection"
+                [btn 'playlist_remove' data-role="toggle-add-collection" .bg-danger .icon-mate title="Remove from collection"]
+              ]
+        	  ]
       	  ]
+      	  
+      	  [ .container-task-toolbar .d-flex .gap-full .obsoletes
+        	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons-simple"]
+    	    ]
+      	  
     	  ]
     	  
-    	  <!-- # simple mode : task toolbar -->
-    	  [ .container-task-toolbar .d-flex .gap-full
-      	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons-simple"]
-  	    ]
     	  
-  	  ]
-  	  
-  	]
+    	]
+  	  [ .container-child-tasks]
+	  ]
   	
   </template>
 
@@ -965,16 +993,15 @@
   
   <template id="tmp-mission-buttons">
     <!-- # tmp-mission-buttons -->
-    [ .d-inline-flex {gap:0.2rem}
+    [ .d-inline-flex .align-items-center .gap-quarter
       [button 'expand_less' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence"]
       [button 'expand_more' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence"]
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
         [btn 'star' class="btn-star icon-mate" data-role='star-task' title="Star this task"]
       ] 
-      [ data-view-group="build" data-view-name="dev"
+      [ .obsoletes 
         [btn 'track_changes' data-role='track-target' .icon-mate data-group="active not-running" title='Track target']
       ]
-      <!-- # actions mission -->
       [ .d-flex 
         [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection"]
         [ data-view-group="task" data-view-name-not="collection-only"
@@ -991,7 +1018,7 @@
       <!--<button data-role='split-task' class="icon-mate" title='split'>call_split</button>-->
       <!--<button data-role='rename' class="icon-mate" title='Rename'>edit</button>-->
       [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-        [ .d-inline-flex {gap:0.2rem}
+        [ .d-inline-flex .gap-quarter .align-items-center
           [ data-view-group="task" data-view-name-not="sequence-mode" .obsoletes
             <button data-role='set-target' class="icon-mate" data-group="active not-running" title='Set task duration'>timer</button>
           ]
@@ -1005,7 +1032,9 @@
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
           [btn 'more_time' data-role='add-progress-minutes' class="icon-mate" data-group="active not-running" title="Add progress manually"]
           [ {p:0.2rem}]
+          <!-- task action: edit -->
           [btn 'Edit' data-role='edit' class="icon-mate" data-group="not-running" title="Edit"]
+          [btn 'add_circle' data-role="create-mission" .icon-mate data-group="not-running" title="Edit" .obsoletes]
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
           <div style="padding-top:4px;"></div>
@@ -1128,15 +1157,28 @@
               [
                 Title <input type="text" name='title' class="input-style-default"/>
               ]
-              [
-                Duration <input type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' class="input-style-default"/>
-              ]
               [ .d-flex .justify-content-between .gap-full
                 [ .d-flex .flex-column
-                  Target <input type="text" name='targetTime' class="input-style-default"/>
+                  Target
+                  <input type="text" name='targetCapTime' class="input-style-default" placeholder="Example: 1h, 30m, 4m, ..."/>
                 ]
+              ]
+              [ .d-flex data-view-group="form-task" data-view-name="edit"
                 [ .d-flex .flex-column
-                  Target cap <input type="text" name='targetCapTime' class="input-style-default"/>
+                  [
+                    Target by ROP [small '(auto-assigned)' .opacity-half]
+                  ]
+                  [ .d-flex .gap-half
+                    [in type="text" name='targetTime' .input-style-default .flex-1 disabled .border-none]
+                  ]
+                ]
+              ]
+              [ .d-flex
+                [ .d-flex .flex-column
+                  [
+                    Duration [small '(change in settings)' .opacity-half]
+                  ]
+                  [in type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' .input-style-default disabled .border-none]
                 ]
               ]
               [ .d-none
@@ -1152,12 +1194,14 @@
             [ .void-half]
             
             <!-- # modal notes -->
-            [ data-view-group="form-task" data-view-name="collection-only" 
-              [small {fs:0.75rem}
-                Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+            [ data-view-group="form-task" data-view-name="edit" 
+              [ data-view-group="form-task" data-view-name="collection-only" 
+                [small {fs:0.75rem}
+                  Note : You're editing/creating a collection-only task. To create a public task, go to <b>My Tasks</b> then create a new task.
+                ]
+                [ .void-half]
+                [ .void-half]
               ]
-              [ .void-half]
-              [ .void-half]
             ]
             
             <!-- # task modal : form actions -->
@@ -1188,15 +1232,19 @@
                   [ .void-half]
                   
                   <!-- # task modal progress actions -->
-                  [ .d-flex .justify-content-between
-                    [ .d-flex .align-items-center .gap-half
-                    
-                      [btn 'Reset progress' type="button" data-onclick="reset-progress-task-from-form"]
-                      [ data-view-group="build" data-view-name="dev"
-                        [btn 'Distribute progress' type="button" data-onclick="distribute-progress-task-from-form"]
-                      ]
-                      
+                  [ .d-flex .align-items-center .gap-half .flex-wrap
+                  
+                    [btn 'Reset progress' type="button" data-onclick="reset-progress-task-from-form"]
+                    [ data-view-group="build" data-view-name="dev"
+                      [btn 'Distribute progress' type="button" data-onclick="distribute-progress-task-from-form"]
                     ]
+                    [ data-view-group="build" data-view-name="dev"
+                      [btn type="button" class="d-flex align-items-center" style="gap:0.3rem;" data-onclick="add-progress-from-form"
+                        [s .icon-mate 'more_time']
+                        [s 'Add progress manually']
+                      ]
+                    ]
+                    
                   ]
                 
                 ]
@@ -1246,8 +1294,14 @@
               [
                 Title <input type="text" name="title" class="input-style-default"/>
               ]
+              <!-- sequence timer duration  -->
               [
                 Duration <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+              ]
+              <!-- sequence target cap time -->
+              [
+                Target Cap Time 
+                <input type="text" name="targetCapTime" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
               ]
               [hr]
               
@@ -1316,6 +1370,60 @@
               ]
               
             ]
+            
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </modal-v2>
+  
+  <!-- # mission from task modal  -->
+  <modal-v2 id="modal-mission-from-task">
+    <div class="modal" slot="content">
+      
+      <!-- modal content-->
+      <div class="ov-auto pos-relative">
+        
+        <!-- # overlay background -->
+        [ .overlay-bg-default .overlay-bg-sequence-task]
+        
+        <div style="padding:1rem;" class="pos-relative">
+
+          [ .modal-header .justify-content-between .d-flex
+            [ .flex-1 .align-items-center .d-flex
+              [h2 'Create Mission from Task' .m-0 .heading]
+            ]
+            [
+              [btn 'close' .icon-mate .toggler .btn-glass]
+            ]
+          ]
+          [ .void-half]
+          
+          <!-- # form sequence task -->
+          <form data-name="task" class="default-inline-flex-gap flex-column" data-onsubmit="submit-mission-convert-task" data-obj="form-task">
+            
+            <input type="hidden" name="id"/>
+            
+            [ .d-grid {gap:0.5rem} .form-card-inner
+            
+              [
+                [l .user-select-none
+                  [in type="checkbox" name="createSequence"] 
+                  Add sub tasks as sequence.
+                ]
+              ]
+              
+            ]
+            [ .void-half]
+            
+            <!-- # form sequence task : submit -->
+            [ .text-right
+              [btn 'Cancel' .toggler type="button"]
+              [btn 'Create' data-role="btn-add" .btn-primary]
+            ]
+            
+            [ .void-half]
             
           </form>
 

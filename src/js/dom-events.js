@@ -113,8 +113,13 @@ let DOMEvents = (function() {
   	},
   	ondblclick: {
   		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
+  	  'handle-dblclick-task-overview': (evt) => app.HandleDblclickTaskOverview(evt),
+  	},
+  	onsubmit: {
+  	  'submit-mission-convert-task': (evt) => ui.TaskSubmitMissionConvertTask(evt),
   	},
   	onclick: {
+  	  'edit-target-threshold': () => ui.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   	  'handle-click-breadcrumbs': (evt) => ui.HandleClickBreadcrumbs(evt),
@@ -123,7 +128,8 @@ let DOMEvents = (function() {
   	  'reset-target-time': () => ui.ResetTargetTime(),
   	  
   	  'handle-task-click': (evt) => app.HandleTaskClick(evt, evt.target),
-  	  'open-by-threshold': () => ui.OpenByThreshold(),
+  	  'handle-click-task-overview': (evt) => app.HandleClickTaskOverview(evt),
+  	  'open-overview': () => ui.OpenOverview(),
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
   	  'finish-interactive-sequence-pick': () => ui.FinishInteractiveSequencePick(),
   	  'new-collection': () => uiCollection.NewItem(),
@@ -132,6 +138,7 @@ let DOMEvents = (function() {
   	  'open-linked-sequence-priority-mapper': (evt) => ui.OpenLinkedSequenceInPriorityMapper(evt),
   	  'reset-progress-task-from-form': (evt) => ui.TaskResetProgressTaskFromForm(evt),
   	  'distribute-progress-task-from-form': (evt) => ui.TaskDistributeProgressTaskFromForm(evt),
+  	  'add-progress-from-form': (evt) => ui.TaskAddProgressFromForm(evt),
   	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),
   	  'delete-sequence-from-form': (evt) => ui.DeleteSequenceFromForm(evt),
@@ -159,6 +166,7 @@ let DOMEvents = (function() {
     listening('[data-onclick]', 'onclick', 'click', eventsMap.onclick);
     listening('[data-ondblclick]', 'ondblclick', 'dblclick', eventsMap.ondblclick);
     listening('[data-oninput]', 'oninput', 'input', eventsMap.oninput);
+    listening('[data-onsubmit]', 'onsubmit', 'submit', eventsMap.onsubmit);
   }
   
   return {

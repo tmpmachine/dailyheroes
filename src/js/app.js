@@ -700,7 +700,8 @@ async function distributeTargetTimeInTaskSub(timeToDistribute, parentTask) {
   
   let tasks = compoTask.GetAllByParentId(parentTask.id);
   if (tasks.length == 0 || !anyTaskHasRatio(tasks)) {
-    parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+    // parentTask.targetTime = addOrInitNumber(parentTask.targetTime, timeToDistribute);
+    return;
   }
   
   let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTask.id);
@@ -804,15 +805,6 @@ async function switchActiveTask(taskEl, id, persistent = false) {
       taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
     }
   }
-}
-
-function addSubTimer(taskId) {
-  let modalData = {
-    formData: {
-      parentId: taskId,
-    }
-  };
-  ui.ShowModalAddTask(modalData);
 }
 
 
@@ -1106,7 +1098,7 @@ let app = (function () {
     AddProgressTimeToRootMission,
     TaskStopActiveTask,
     TaskListTask,
-    TaskListTasksByThreshold: TaskListTargets,
+    TaskListTargets,
     TaskContinueTask,
     
     SetAlarmAudio,
@@ -1129,6 +1121,10 @@ let app = (function () {
     TaskRemoveTaskFromMission,
     TaskStartOrRestartTask,
     TaskSendNotification,
+    HandleClickTaskOverview,
+    HandleDblclickTaskOverview,
+    AddTaskData,
+    TaskRefreshMissionTargetETA,
   };
   
   let data = {
@@ -1310,6 +1306,8 @@ let app = (function () {
         await ui.TaskReloadTotalTargets();
       }
       
+      TaskRefreshMissionTargetETA();
+      
     } else {
       // add to mission
       
@@ -1327,6 +1325,18 @@ let app = (function () {
       await app.TaskDeleteTask(id, parentEl, isBypassConfirm);
     }
     
+  }
+  
+  async function taskAddToMissionV2(id) {
+    let isExists = compoMission.IsExistsMissionId(id);
+    if (isExists) {
+      compoMission.RemoveMissionById(id);
+    } else {
+      let missionData = compoMission.CreateItemMission(id);
+      compoMission.AddMission(missionData);
+    }
+    compoMission.Commit();
+    appData.Save();
   }
   
   function ToggleStartTimerAvailableTime() {
@@ -1500,8 +1510,9 @@ let app = (function () {
   }
   
   function filterTaskByTargetTime() {
-    // 10 min threshold
-    return tasks.filter(x => x.targetTime > 5*60*1000 && x.type != 'M');
+    let targetThreshold = lsdb.data.targetThreshold;
+    let targetTimeThresholdMs = targetThreshold * 60 * 1000; // in minutes
+    return tasks.filter(x => x.targetTime > targetTimeThresholdMs && x.type != 'M');
   }
   
   function filterTaskByPath() {
@@ -1588,7 +1599,7 @@ let app = (function () {
 
   async function TaskListTask() {
     
-    let isMissionView = (lsdb.data.viewMode == 'mission');
+    let isMissionView = (isViewModeMission());
   
     let totalRatio = 0;
     
@@ -1717,7 +1728,7 @@ let app = (function () {
         let totalMsProgressChildTask = sumAllChildProgress(item.id);
         let totalProgressTime = item.totalProgressTime + totalMsProgressChildTask;
         if (totalProgressTime > 0) {
-          totalProgressStr = `(${secondsToHMS(msToSeconds( totalProgressTime ))} total)`;
+          totalProgressStr = `${helper.ToTimeString(totalProgressTime, 'hms')}`;
         }
       }
   
@@ -1873,25 +1884,36 @@ let app = (function () {
     
     await setActiveTask();
     
-    
     // set mission target info 
-    {
-      let totalTargetTime = 0;
-      let totalTargetCapTime = 0;
-      for (let task of filteredTasks) {
-        totalTargetTime += task.targetTime;
-        if (task.targetCapTime > 0) {
-          totalTargetCapTime += task.targetCapTime;
-        }
-      }
-      $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
-      $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
-      
-      ui.ReloadETA(totalTargetCapTime);
-    }
+    TaskRefreshMissionTargetETA();
     
     await ui.TaskReloadParentTarget();
    
+  }
+  
+  async function TaskRefreshMissionTargetETA() {
+    
+    if (!isViewModeMission()) return;
+    
+    let totalTargetTime = 0;
+    let totalTargetCapTime = 0;
+    
+    // filter tasks
+    let filteredTasks = await TaskGetAllTasks({
+      isMissionView: (isViewModeMission()),
+    });
+    
+    for (let task of filteredTasks) {
+      totalTargetTime += task.targetTime;
+      if (task.targetCapTime > 0) {
+        totalTargetCapTime += task.targetCapTime;
+      }
+    }
+    
+    $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
+    $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+    
+    ui.ReloadETA(totalTargetCapTime);
   }
   
   function onEndSortSequence(evt) {
@@ -1964,6 +1986,9 @@ let app = (function () {
         
         // update sequence progress time
         sequenceTask.progressTime += distanceTime;
+        if (sequenceTask.progressCapTime < sequenceTask.targetCapTime) {
+          sequenceTask.progressCapTime += distanceTime;
+        }
         
         let isFinished = false;
         let changeTask = false;
@@ -1971,6 +1996,11 @@ let app = (function () {
         // reset sequence if finished
         if (sequenceTask.progressTime >= sequenceTask.targetTime) {
           sequenceTask.progressTime = 0;
+          if (sequenceTask.targetCapTime === 0) {
+            isFinished = true;
+          }
+        }
+        if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
           isFinished = true;
         }
         
@@ -1979,6 +2009,8 @@ let app = (function () {
         
         if (isRepeat) {
           sequenceTask.counter.repeatCount += 1;
+          sequenceTask.progressCapTime = 0; // reset progress cap time
+          
           changeTask = (sequenceTask.counter.repeatCount == sequenceTask.repeatCount);
         } else {
           if (isFinished) {
@@ -1993,7 +2025,7 @@ let app = (function () {
           
           let seqIndex = compoSequence.GetIndexById(nextItem.id);
           if (seqIndex == 0 && compoSequence.CountAll() > 1) {
-            compoSequence.ResetAllCounter();
+            compoSequence.ResetSequenceTasksProgress();
           }
           
         }
@@ -2308,7 +2340,7 @@ let app = (function () {
     updateUI();
     await TaskListTask();
     
-    if (lsdb.data.viewMode == 'mission') {
+    if (isViewModeMission()) {
       $('#tasklist-container').stateList.add('--view-mission');
     }
     
@@ -2416,7 +2448,7 @@ let app = (function () {
     // viewStateUtil.Set('screens', ['settings']);
     // viewStateUtil.Set('screens', ['priority-mapper']);
     
-    // ui.OpenByThreshold()
+    // ui.OpenOverview()
     
     /*
     await waitUntil(() => {
@@ -2485,8 +2517,44 @@ let app = (function () {
     
     if (!linkedTask) return;
     
-    await app.TaskNavigateToMission(linkedTask.id);
-    ui.FocusTaskElById(linkedTask.id);
+    editTask(linkedTask.id).then(modalResponse => {
+      console.log(modalResponse);
+    });
+    // await app.TaskNavigateToMission(linkedTask.id);
+    // ui.FocusTaskElById(linkedTask.id);
+  }
+  
+  async function HandleClickTaskOverview(evt) {
+    let el = evt.target;
+    let parentEl = el.closest('[data-kind="task"]');
+    if (!parentEl) return;
+    
+    let id = parentEl.dataset.id;
+    
+    let actionRole = getActionRole(el);
+    switch (actionRole) {
+      case 'toggle-add-collection': 
+        taskAddToMissionV2(id, parentEl); 
+        ui.ReloadTaskOverviewById(id);
+        break;
+    }
+  }
+  
+  async function HandleDblclickTaskOverview(evt) {
+    let el = evt.target;
+    let parentEl = el.closest('[data-kind="task"]');
+    if (!parentEl) return;
+    
+    let id = parentEl.dataset.id;
+    
+    let actionRole = getActionRole(el);
+    
+    // navigate mission
+    viewStateUtil.RemoveAll('screens');
+    viewStateUtil.Add('screens', ['home']);
+    
+    await app.TaskNavigateToMission(id); 
+    ui.FocusTaskById(id);
   }
   
   async function HandleTaskClick(evt, el) {
@@ -2535,6 +2603,7 @@ let app = (function () {
         await TaskListTask();
         break;
       case 'edit': editTask(id); break;
+      case 'create-mission': ui.CreateMissionFromTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
@@ -2578,6 +2647,15 @@ let app = (function () {
     }
     
   }
+  
+  function addSubTimer(taskId) {
+    let modalData = {
+      formData: {
+        parentId: taskId,
+      }
+    };
+    ui.ShowModalAddTask(modalData);
+  }
 
   async function TaskTrackTarget() {
     
@@ -2599,7 +2677,8 @@ let app = (function () {
         taskType: type,
       }
     };
-    ui.ShowModalAddTask(modalData);
+    
+    return ui.ShowModalAddTask(modalData);
   }
   
   function GetTaskById(id) {
@@ -2642,7 +2721,7 @@ let app = (function () {
     let taskId;
     try {
       let parentId = form['parent-id'].value;
-      taskId = addTaskData({
+      taskId = AddTaskData({
         title: form.title.value,
         durationTime: helper.ParseHmsToMs(targetVal),
         targetTime: helper.ParseHmsToMs(form.targetTime.value),
@@ -2678,7 +2757,7 @@ let app = (function () {
     lsdb.save();
   }
   
-  function addTaskData(inputData) {
+  function AddTaskData(inputData) {
   
     let id = generateUniqueId();
     let data = {...lsdb.new('task', {

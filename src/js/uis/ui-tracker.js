@@ -11,6 +11,7 @@ let uiTracker = (function() {
   };
   
   let DOMActionEvents = {
+    'toggle-active': (itemData) => toggleActiveById(itemData.id),
     'set': (itemData) => setActiveById(itemData.id),
     'delete': (itemData) => deleteById(itemData.id),
     'rename': (itemData) => renameById(itemData.id)
@@ -32,9 +33,9 @@ let uiTracker = (function() {
     let userVal = window.prompt('Value', item.title);
     if (!userVal) return;
     
-    let updatedItem = compoTracker.UpdateById({
+    let updatedItem = compoTracker.UpdateById(id, {
       title: userVal,
-    }, id);
+    });
     
     if (!updatedItem) return;
     
@@ -51,6 +52,21 @@ let uiTracker = (function() {
   
   function hideTracker() {
     viewStateUtil.Remove('features', ['tracker-overlay']);
+  }
+  
+  function toggleActiveById(id) {
+    let item = compoTracker.GetById(id);
+    if (!item) return;
+    
+    let modelCheck = false;
+    compoTracker.UpdateById(id, {
+      isActive: !item.isActive,
+    }, modelCheck);
+    
+    compoTracker.Commit();
+    saveAppData();
+    
+    RefreshItemList();
   }
   
   function setActiveById(id) {
@@ -139,6 +155,9 @@ let uiTracker = (function() {
       // set active
       if (activeItemId == item.id) {
         el.querySelector('[data-kind="item"]').classList.add('is-active');
+      }
+      if (item.isActive) {
+        el.querySelector('[data-kind="item"]').classList.add('is-tracked');
       }
       
       docFrag.append(el);

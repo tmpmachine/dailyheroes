@@ -47,7 +47,7 @@ let ui = (function () {
     HotReloadListSequenceByTaskId,
     TaskSetActiveTaskInfo,
     RefreshTimeStreak,
-    OpenByThreshold,
+    OpenOverview,
     OpenPriorityMapper,
     TaskSavePriorityMapper,
     HandleInputPrioritySlider,
@@ -66,18 +66,139 @@ let ui = (function () {
     TaskReloadParentTarget,
     ToggleCompactView,
     ReloadETA,
+    ReloadTaskOverviewById,
+    EditTargetThreshold,
+    reloadTargetThreshold,
+    TaskAddProgressFromForm,
+    CreateMissionFromTask,
+    TaskSubmitMissionConvertTask,
   };
   
+  async function TaskSubmitMissionConvertTask(evt) {
+    evt.preventDefault();
+		let form = evt.target;
+		
+		let id = form.id.value;
+		
+    let task = compoTask.GetById(id);
+    
+    let taskId = await app.AddTaskData({
+      title: task.title,
+      durationTime: task.durationTime,
+      targetTime: task.targetTime,
+      parentId: '',
+      type: 'M',
+    });
+    
+    let missionData = compoMission.CreateItemMission(taskId);
+    compoMission.AddMission(missionData);
+    compoMission.Commit();
+    
+    // add sequence
+    if (form.createSequence.checked) {
+      let tasks = compoTask.GetAllByParentId(id);
+      let missionTask = compoTask.GetById(taskId);
+      
+      if (tasks.length > 0) {
+        compoSequence.Stash(missionTask.sequenceTasks);
+        for (let task of tasks) {
+          let linkedTask = compoTask.GetById(task.id);
+          let targetTime = linkedTask.durationTime;
+          compoSequence.AddLinkedTask(linkedTask.id, targetTime);  
+        }
+        compoSequence.Commit();
+      }
+    }
+    
+    appData.Save();
+    await appData.TaskStoreTask();
+    
+    form.reset();
+    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+  
+		let modal = document.querySelectorAll('#modal-mission-from-task')[0].toggle();
+		modal.close();    
+		
+  }
+  
+  function CreateMissionFromTask(id) {
+    let modal = document.querySelectorAll('#modal-mission-from-task')[0].toggle();    
+    modal.classList.toggle('modal--active', modal.isShown);
+    modal.addEventListener('onclose', function() {
+      modal.classList.toggle('modal--active', false);
+    });
+    
+    let form = modal.querySelector('form');
+    form.reset();
+    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+    
+    // form data
+    let formData = {
+      id,
+    };
+    
+    // fill form
+    for (let key in formData) {
+      let inputEl = form.querySelector(`[name="${key}"]`);
+      if (!inputEl) continue;
+      
+      inputEl.value = formData[key];
+    }
+    
+  }
+  
+  async function TaskAddProgressFromForm(evt) {
+    let form = evt.target.closest('button').form;
+    let id = form.id.value;
+    await TaskAddProgressManually(id);
+  }
+  
+  function EditTargetThreshold() {
+    let userVal = window.prompt('Target threshold (hours minutes), example : 1h30m or 30m');
+    if (!userVal) return;
+    
+    try {
+      let val = parseHoursMinutesToMinutes(userVal);
+      if (typeof(val) != 'number') return;
+      
+      lsdb.data.targetThreshold = val;
+      appData.Save();
+      
+      reloadTargetsOverview();
+      reloadTargetThreshold();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  
+  function reloadTargetThreshold() {
+    let targetThresholdMs = lsdb.data.targetThreshold * 60 * 1000;
+    $('#txt-target-threshold').textContent = helper.ToTimeString(targetThresholdMs, 'hms');
+  }
+  
+  function ReloadTaskOverviewById(id) {
+    // let task = compoTask.GetById(id);
+    
+    let el = $(`#list-tasks-by-threshold [data-id="${id}"]`);
+    if (!el) return;
+    
+    if (compoMission.GetMissionById(id)) {
+    	 viewStateUtil.Add('task', ['is-collection'], el.querySelector('.container-item'));
+	  } else {
+    	 viewStateUtil.Remove('task', ['is-collection'], el.querySelector('.container-item'));
+	  }
+  }
+  
   function ReloadETA(totalTargetCapTime) {
-    viewStateUtil.Remove('task-view-mode', ['has-ETA'])
+    viewStateUtil.Remove('task-view-mode', ['has-ETA']);
     
     if (totalTargetCapTime <= 0 || !isViewModeMission()) return;
     
-    viewStateUtil.Add('task-view-mode', ['has-ETA'])
+    viewStateUtil.Add('task-view-mode', ['has-ETA']);
     
     let now = new Date();
     let eta = new Date(now.getTime() + totalTargetCapTime);
-    let dateStr = eta.toDateString()
+    let dateStr = eta.toDateString();
     let timeStr = eta.toTimeString().substring(0, 5);
     $('#txt-target-eta').textContent = `${timeStr}`;
   }
@@ -143,7 +264,7 @@ let ui = (function () {
     let addedTime = 0;
     
     try {
-      helper.ParseHmsToMs(userVal);
+      addedTime = helper.ParseHmsToMs(userVal);
     } catch (e) {
       // default to minute
       let parsedVal = parseInt(userVal);
@@ -153,7 +274,7 @@ let ui = (function () {
     
     try {
       task.progressTime += addedTime;
-      task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
+      // task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
       task.totalProgressTime += addedTime;
       
       if (!
@@ -419,7 +540,6 @@ let ui = (function () {
     
     compoTask.TaskResetSequenceById(taskId, seqId);
     
-    $('#task-sequence-modal').close();
     ui.RefreshListSequenceByTaskId(taskId);
   }
   
@@ -508,7 +628,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    partialUpdateUITask(task.id, task);
+    reloadTaskCard(task.id, task);
     
     $('#task-modal').close();
   }
@@ -521,7 +641,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    partialUpdateUITask(task.id, task);
+    reloadTaskCard(task.id, task);
     
     $('#task-modal').close();
   }
@@ -668,6 +788,12 @@ let ui = (function () {
           // show mission path
           linkedTaskPath = getAndComputeMissionPath(linkedTask.parentId);
         }
+      } else {
+        if (item.targetCapTime > 0) {
+          let targetCapLimitStr = helper.ToTimeString(item.targetCapTime, 'hms');
+          let targetCapProgressStr = helper.ToTimeString(item.progressCapTime, 'hms');
+          targetCapTimeStr = `${targetCapProgressStr} / ${targetCapLimitStr}`;
+        }
       }
       
       // time left info
@@ -675,7 +801,7 @@ let ui = (function () {
       
       {
         let timeLeft = Math.max(0, item.targetTime - item.progressTime);
-        timeLeftStr = secondsToHMS(msToSeconds(timeLeft));
+        timeLeftStr = helper.ToTimeString(timeLeft, 'hms');
       }
       
       
@@ -765,12 +891,18 @@ let ui = (function () {
     openPriorityMapperByParentId(activeTaskParentId);
   }
   
-  async function OpenByThreshold() {
+  async function OpenOverview() {
     viewStateUtil.Set('screens', ['by-threshold']);
+    reloadTargetThreshold();
     
-    let items = await app.TaskListTasksByThreshold();
-    let taskItems = buildTaskItemData(items);
-    displayListTasksByThreshold(taskItems);
+    await reloadTargetsOverview();
+  }
+  
+  async function reloadTargetsOverview() {
+    let items = await app.TaskListTargets();
+    // let taskItems = buildTaskItemData(items);
+    
+    displayListTasksByThreshold(items);
   }
   
   function buildTaskItemData(items) {
@@ -862,24 +994,169 @@ let ui = (function () {
   }
   
   
-  function displayListTasksByThreshold(items) {
+  async function displayListTasksByThreshold(items) {
     
-    $('#list-tasks-by-threshold').innerHTML = '';
-    let docFrag = document.createDocumentFragment();
+    let treeParentIds = [];
+    
+    {
+      let output = []; 
+      
+      for (let item of items) {
+          
+          let parentId = item.parentId;
+          let tp = [];
+          
+          let taskInTree = output.find(x => x.id == item.parentId);
+          let isInsertLater = false;
+          
+          if (taskInTree) {
+            let ref = {
+              id: item.id,
+              parentId: item.parentId,
+              title: item.title,
+              task: item,
+              items: [],
+            };
+            taskInTree.items.push(ref);
+            output.push(ref)
+            
+          } else {
+            
+            while (parentId) {
+              
+              let taskInTree = output.find(x => x.id == parentId);
+              if (taskInTree) {
 
-    for (let item of items) {
-      let el = window.templateSlot.fill({
-    	  data: item, 
-    	  template: document.querySelector('#tmp-task-simple').content.cloneNode(true), 
-    	});
-  	  
-      let taskEl = el.querySelector('[data-obj="task"]');
-    	taskEl.dataset.id = item.id;	
+                let ref = {
+                  id: item.id,
+                  parentId: item.parentId,
+                  title: item.title,
+                  task: item,
+                  items: [],
+                };
+                let seekTask = output.find(x => x.id == ref.parentId)
+                if (!seekTask) {
+                  isInsertLater = true;
+                }
+                
+                break;
+                
+              } else {
+                
+                let seekTask = compoTask.GetById(parentId)
+                // console.log(seekTask)
+                tp.push(seekTask);
+                parentId = seekTask.parentId;
+                
+              }
+              
+            }
+          
+          }
+          
+          // buuld tree
+          while (tp.length > 0) {
+            
+            let bb = tp.pop();
+            if (bb) {
+              
+              let ref = {
+                id: bb.id,
+                parentId: bb.parentId,
+                title: bb.title,
+                task: bb,
+                items: [],
+              };
+              
+              let taskInTree = output.find(x => x.id == ref.parentId);
+              if (taskInTree) {
+                if (!taskInTree.items.find(x => x.id == ref.id)) {
+                  taskInTree.items.push(ref)
+                }
+                output.push(ref)
+              } else {
+                
+                treeParentIds.push(ref)
+                output.push(ref)
+              }
+              
+            } 
 
-  	  docFrag.append(el);
+          }
+          
+          if (isInsertLater) {
+            let taskInTree = output.find(x => x.id == item.parentId);
+            // if (!taskInTree.items.find(x => x.id == item.id)) {
+              taskInTree.items.push({
+                id: item.id,
+                parentId: item.parentId,
+                title: item.title,
+                task: item,
+                items: [],
+              });
+            // }
+          }
+          
+        
+      }
+      
+      
     }
     
+  
+    let docFrag = document.createDocumentFragment();
+    $('#list-tasks-by-threshold').innerHTML = '';
+    
+    let level = 1;
+    logTask(treeParentIds, level, docFrag);
+    
     $('#list-tasks-by-threshold').append(docFrag);
+  }
+  
+  function logTask(treeParentIds, level, docFrag) {
+    if (treeParentIds.length === 0) return;
+    
+    for (let item of treeParentIds) {
+      let sub = generateSub(level);
+      
+      let el = window.templateSlot.fill({
+    	  data: {
+    	    title: item.task.title,
+    	    ratioTimeLeftStr: helper.ToTimeString(item.task.targetTime, 'hms'),
+    	  }, 
+    	  template: document.querySelector('#tmp-task-simple-v2').content.cloneNode(true), 
+    	});
+  	  
+      let taskEl = el.querySelector('[data-kind="task"]');
+    	taskEl.dataset.id = item.id;	
+    	
+    	if (compoMission.GetMissionById(item.id)) {
+    	  viewStateUtil.Add('task', ['is-collection'], taskEl.querySelector('.container-item'));
+    	}
+    	
+    	{
+    	  let target = docFrag.querySelector(`[data-kind="task"][data-id="${item.parentId}"]`);
+    	  if (target) {
+    	    let container = target.querySelector('.container-child-tasks');
+    	    container.append(el);
+    	  } else {
+  	      docFrag.append(el);
+    	  }
+    	}
+      
+      logTask(item.items, level+1, docFrag);
+    }
+    
+    
+  }
+  
+  function generateSub(level) {
+    let txt = '';
+    while (level > 0) {
+      txt += '-'
+      level -= 1;
+    }
+    return txt;
   }
   
   function HandleInputPrioritySlider(evt) {
@@ -1166,7 +1443,7 @@ let ui = (function () {
     try {
       let safeLoopCount = 0;
       let subPaths = [];
-      foobar(subPaths, lsdb.data.activeGroupId, safeLoopCount);
+      buildSubPath(subPaths, lsdb.data.activeGroupId, safeLoopCount);
       breadcrumbs = [...breadcrumbs, ...subPaths];
     } catch (err) {
       console.error(err);
@@ -1187,7 +1464,7 @@ let ui = (function () {
 
   }
   
-  function foobar(breadcrumbs, parentId, safeLoopCount) {
+  function buildSubPath(breadcrumbs, parentId, safeLoopCount) {
     let activeGroup = lsdb.data.groups.find(x => x.id == parentId);
     if (activeGroup) {
       breadcrumbs.splice(0, 0, activeGroup);
@@ -1198,7 +1475,7 @@ let ui = (function () {
         if (safeLoopCount > 10) {
           throw 'overflow';
         }
-        foobar(breadcrumbs, parentId, safeLoopCount + 1);
+        buildSubPath(breadcrumbs, parentId, safeLoopCount + 1);
       }
     }
   }
@@ -1308,65 +1585,79 @@ let ui = (function () {
 
   function ShowModalAddTask(modalData = {}) {
     
-    viewStateUtil.RemoveAll('form-task');
-    
-    let formValue = {
-      parentId: lsdb.data.activeGroupId,
-      durationTime: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
-      taskType: 'T',
-    };
-    
-    let formData = Object.assign(formValue, modalData.formData);
-    
-    let isEditMode = (formData.id !== undefined);
-    
-    if (!isEditMode) {
-      if (isViewModeMission()) {
-        formValue.taskType = 'M';
-      }
-    }
-    
-    if (formValue.taskType == 'M') {
-      viewStateUtil.Add('form-task', ['collection-only']);
-    }
-    
-    // set form add/edit mode
-    if (isEditMode) {
-      viewStateUtil.Add('form-task', ['edit']);
-    } else {
-      viewStateUtil.Add('form-task', ['add']);
-    }
-    
-    if (viewStateUtil.HasViewState('task-view-mode', 'mission')) {
-      viewStateUtil.Add('form-task', ['mission-tab']);
-    }
-    
-    let modal = document.querySelectorAll('#task-modal')[0].toggle();
-    
-    // fill modal data
-    modal.querySelector('[data-id="readOnlyId"]').textContent = modalData.readOnlyId;
-    
-    let form = modal.querySelector('form');
-    form.reset();
-    form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
-
-    modal.classList.toggle('modal--active', modal.isShown);
-    modal.addEventListener('onclose', function() {
-      modal.classList.toggle('modal--active', false);
-    });
-    ui.SetFocusEl(modal.querySelector('input[type="text"]'));
-
-    // set default value
-    if (typeof(formData.parentId) == 'string') {
-      modal.querySelector('[name="parent-id"]').value = formData.parentId;
-    }
-    
-    for (let key in formData) {
-      let inputEl = form.querySelector(`[name="${key}"]`);
-      if (!inputEl) continue;
+    // return promise implementation is still unclear
+    return new Promise(resolve => {
       
-      inputEl.value = formData[key];
-    }
+      let modalResponse = {
+        isSubmit: false,
+        isDismissed: false,
+        form: null,
+      };
+      
+      viewStateUtil.RemoveAll('form-task');
+      
+      let formValue = {
+        parentId: lsdb.data.activeGroupId,
+        durationTime: minutesToHoursAndMinutes( app.GetGlobalTimer() ),
+        taskType: 'T',
+      };
+      
+      let formData = Object.assign(formValue, modalData.formData);
+      
+      let isEditMode = (formData.id !== undefined);
+      
+      if (!isEditMode) {
+        if (isViewModeMission()) {
+          formValue.taskType = 'M';
+        }
+      }
+      
+      if (formValue.taskType == 'M') {
+        viewStateUtil.Add('form-task', ['collection-only']);
+      }
+      
+      // set form add/edit mode
+      if (isEditMode) {
+        viewStateUtil.Add('form-task', ['edit']);
+      } else {
+        viewStateUtil.Add('form-task', ['add']);
+      }
+      
+      if (viewStateUtil.HasViewState('task-view-mode', 'mission')) {
+        viewStateUtil.Add('form-task', ['mission-tab']);
+      }
+      
+      let modal = document.querySelectorAll('#task-modal')[0].toggle();
+      
+      // fill modal data
+      modal.querySelector('[data-id="readOnlyId"]').textContent = modalData.readOnlyId;
+      
+      let form = modal.querySelector('form');
+      form.reset();
+      form.querySelectorAll('[type="hidden"]').forEach(el => el.value = '');
+  
+      modal.classList.toggle('modal--active', modal.isShown);
+      
+      modal.addEventListener('onclose', function(evt) {
+        modal.classList.toggle('modal--active', false);
+        modalResponse.isDismissed = true;
+        resolve(modalResponse);
+      });
+      ui.SetFocusEl(modal.querySelector('input[type="text"]'));
+  
+      // set default value
+      if (typeof(formData.parentId) == 'string') {
+        modal.querySelector('[name="parent-id"]').value = formData.parentId;
+      }
+      
+      for (let key in formData) {
+        let inputEl = form.querySelector(`[name="${key}"]`);
+        if (!inputEl) continue;
+        
+        inputEl.value = formData[key];
+      }
+      
+    });
     
   }
   
@@ -1381,7 +1672,7 @@ let ui = (function () {
       let task = await app.TaskUpdateTask(form);
       
       await appData.TaskStoreTask();
-      partialUpdateUITask(task.id, task);
+      reloadTaskCard(task.id, task);
       form.reset();
       
       app.SyncGroupName(task.id, task.title, task.parentId);
@@ -1393,7 +1684,6 @@ let ui = (function () {
       if (isViewModeMission()) {
         let missionData = compoMission.CreateItemMission(taskId);
         compoMission.AddMission(missionData);
-  
         compoMission.Commit();
   
         appData.Save();
@@ -1407,24 +1697,33 @@ let ui = (function () {
       await appData.TaskStoreTask();
       await app.TaskListTask();
     
+    
       form.reset();
       updateUI();
       
     }
+    
+    
+    app.TaskRefreshMissionTargetETA();
     
 		let modal = document.querySelectorAll('#task-modal')[0].toggle();
 		modal.close();
 		
   }
   
-  function partialUpdateUITask(id, task) {
+  function reloadTaskCard(id, task) {
     let el = $(`[data-obj="task"][data-id="${id}"]`);
+    if (!el) return;
     
     el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
     el.querySelector('[data-slot="title"]').textContent = task.title;
     el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = helper.ToTimeString(task.targetTime, 'hms');
     el.querySelector('[data-slot="targetCapTimeStr"]').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
     el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
+    
+    if (task.targetTime > 0 || task.targetCapTime > 0) {
+      viewStateUtil.Add('active-task-info', ['has-target'], el);
+    }
   }
   
   function OnSubmitSequenceTask(ev) {
@@ -1435,14 +1734,32 @@ let ui = (function () {
 		let id = form.id.value;
 		let taskId = form.taskId.value;
 		let title = form.title.value.trim();
+		let durationTime = 0;
+		let targetCapTime = 0;
 		
-    let durationTimeInput = form.duration.value;
-    if (isNumber(durationTimeInput)) {
-      // set default to minutes
-      durationTimeInput = `${durationTimeInput}m`;
-    }
-    let durationTime = parseHmsToMs(durationTimeInput);
+		// duration time
+		{
+      let durationTimeInput = form.duration.value;
+      if (isNumber(durationTimeInput)) {
+        // set default to minutes
+        durationTimeInput = `${durationTimeInput}m`;
+      }
+      durationTime = parseHmsToMs(durationTimeInput);
+		}
+		
+		// target time
+		{
+      let targetCapTimeInput = form.targetCapTime.value;
+      if (isNumber(targetCapTimeInput)) {
+        // set default to minutes
+        targetCapTimeInput = `${targetCapTimeInput}m`;
+      }
+      targetCapTime = parseHmsToMs(targetCapTimeInput);
+		}
+    
+    // validate all input data  
     if (durationTime <= 0) return;
+    
     
     // repeat data
     let repeatCount = 0;
@@ -1455,6 +1772,7 @@ let ui = (function () {
     let inputData = {
       title,
       durationTime,
+      targetCapTime,
       repeatCount,
       repeatRestDurationTime,
     };
@@ -1491,6 +1809,11 @@ let ui = (function () {
       linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
     }
     
+    let targetCapTimeStr = '';
+    if (sequenceTask.targetCapTime > 0) {
+      targetCapTimeStr = helper.ToTimeString(sequenceTask.targetCapTime, 'hms');
+    }
+    
     let defaultValue = {
       id,
       taskId,
@@ -1498,6 +1821,7 @@ let ui = (function () {
       repeatCount: sequenceTask.repeatCount > 0 ? sequenceTask.repeatCount : 2,
       title: linkedTask ? linkedTask.title : sequenceTask.title,
       duration: secondsToHMS(msToSeconds(sequenceTask.targetTime)),
+      targetCapTime: targetCapTimeStr,
     };
     let options = {
       isLinkedTask: (linkedTask != null),
