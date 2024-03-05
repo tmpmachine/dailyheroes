@@ -35,7 +35,6 @@ window.lsdb = new Lsdb(storageName, {
     
     components: {
       compoGsiChrome: {},
-      compoTimeStreak: {},
       compoTargetTrackers: {},
     },
     

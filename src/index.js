@@ -56,7 +56,6 @@ componentLoader.load([
       "js/components/mission-component.js",
       "js/components/tracker-component.js",
       "js/components/sequence-component.js",
-      "js/components/time-streak-component.js",
     ],
     callback: function() { 
       

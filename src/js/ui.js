@@ -46,7 +46,6 @@ let ui = (function () {
     RemoveElSequenceById,
     HotReloadListSequenceByTaskId,
     TaskSetActiveTaskInfo,
-    RefreshTimeStreak,
     OpenOverview,
     OpenPriorityMapper,
     TaskSavePriorityMapper,
@@ -695,19 +694,7 @@ let ui = (function () {
     	compoSequence.Pop();
     }
     
-    RefreshTimeStreak();
-    
     uiPiP.ReloadActiveTaskInfo();
-  }
-  
-  function RefreshTimeStreak() {
-    let streak = compoTimeStreak.GetActive();
-    if (streak) {
-      viewStateUtil.Add('active-task-info', ['on-streak']);
-      $('#txt-time-streak').textContent = secondsToHMS(msToSeconds(streak.totalTimeStreak));
-    } else {
-      viewStateUtil.Remove('active-task-info', ['on-streak']);
-    }
   }
   
   function HotReloadListSequenceByTaskId(id) {

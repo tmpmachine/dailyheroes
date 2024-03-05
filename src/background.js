@@ -406,8 +406,6 @@ async function stopByNotification() {
   await chrome.storage.local.set({ 'history': data.history + distanceMinutes });
   await chrome.storage.local.remove(['start']);
   await updateProgressActiveTask(distanceMinutes, distanceTime);
-  
-  await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
 }
 
 async function setStopAlarmIcon() {
@@ -479,7 +477,6 @@ async function onAlarmEnded(alarm) {
   let finishCountLeftTxt = '';
   let targetMinutesTxt = '';
   let targetTimeLeftStr = '';
-  let timeStreakStr = '';
   
   let sequenceTaskTitle = '';
   let sequenceTaskDurationTimeStr = '';
@@ -489,10 +486,6 @@ async function onAlarmEnded(alarm) {
   
   if (data.activeTask) {
     
-    if (!data.isTakeBreak) {
-      timeStreakStr = await taskUpdateTaskTimeStreak(distanceTime, data.activeTask);
-    }
-      
     let tasks = await getTask();
     let activeTask = tasks.find(x => x.id == data.activeTask);
     
@@ -553,7 +546,6 @@ async function onAlarmEnded(alarm) {
   }
   
   let actions = [];
-  // let notifTitle = `Time's up! ${timeStreakStr}`.replace(/ +/g,' ').trim();
   let notifTitle = `Time's up!`;
   let notifBody = `Task : ${taskTitle} ${targetTimeLeftStr} ${finishCountLeftTxt}`.replace(/ +/g,' ').trim();
   let tag = 'progress';
@@ -639,28 +631,6 @@ async function onAlarmEnded(alarm) {
       
 }
 
-async function taskUpdateTaskTimeStreak(distanceTime, activeTaskId) {
-  
-  let timeStreakStr = '';
-  let data = await chrome.storage.local.get(['lastActiveId', 'totalTimeStreak']);
-  
-  if (typeof(data.lastActiveId) == 'undefined' || activeTaskId != data.lastActiveId) {
-    await chrome.storage.local.set({
-    	lastActiveId: activeTaskId,
-    	totalTimeStreak: distanceTime,
-    });
-  } else {
-    let totalTimeStreak = data.totalTimeStreak + distanceTime;
-    await chrome.storage.local.set({
-    	totalTimeStreak,
-    });
-    timeStreakStr = `(${minutesToHoursAndMinutes(msToMinutes(totalTimeStreak))} total)`;
-  }
-  
-  return timeStreakStr;
-  
-}
-
 chrome.runtime.onMessage.addListener(messageHandler);
 
 function messageHandler(request, sender, sendResponse) {
@@ -669,7 +639,7 @@ function messageHandler(request, sender, sendResponse) {
     updateTime();
 
   } else if (request.message === 'stop') {
-    chrome.action.setIcon({ path: iconAlarm })
+    chrome.action.setIcon({ path: iconAlarm });
   }
 }
 

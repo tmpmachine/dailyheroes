@@ -8,7 +8,6 @@
     "js/components/mission-component.js",
     "js/components/task-component.js",
     "js/components/sequence-component.js",
-    "js/components/time-streak-component.js",
     "js/components/priority-mapper-component.js",
     "js/components/backup-component.js"
   ],

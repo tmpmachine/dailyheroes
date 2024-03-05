@@ -14,7 +14,7 @@ let viewStates = [
   // active task info
   {
     group: 'active-task-info',
-    states: [ 'on-streak', 'has-target', 'is-sequence' ]
+    states: [ 'has-target', 'is-sequence' ]
   },
   // task item
   {

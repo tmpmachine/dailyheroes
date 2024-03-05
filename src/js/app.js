@@ -1167,13 +1167,6 @@ let app = (function () {
     }
     compoSequence.Pop();
     
-    let timeStreakStr = '';
-    let timeStreak = compoTimeStreak.GetActive();
-    if (timeStreak) {
-      timeStreakStr = ` (${secondsToHMS(msToSeconds(timeStreak.totalTimeStreak))} total) `;
-    }
-    
-    
     if (isNotifSequence) {
       
       navigator.serviceWorker.ready.then(async (registration) => {
@@ -1183,7 +1176,7 @@ let app = (function () {
           notif.close();
         }
           
-        let notifTitle = `Time's up! ${timeStreakStr}`.replace(/ +/g,' ').trim();
+        let notifTitle = `Time's up!`.replace(/ +/g,' ').trim();
         let notifBody = `Next ${sequenceTaskDurationTimeStr} : ${sequenceTaskTitle} ${taskTargetTimeStr}`.replace(/ +/g,' ').trim();
         
         registration.showNotification(notifTitle, {
@@ -1352,23 +1345,11 @@ let app = (function () {
   }
   
   async function StartTaskTimer(parentEl, id) {
-
-    // starting a different task, reset time streak
-    {
-      let activeTask = await compoTask.TaskGetActive();
-      if (activeTask && id != activeTask.id) {
-        let progressTime = 0;
-        await compoTimeStreak.TaskUpdateTaskTimeStreak(progressTime, id);
-        await compoTimeStreak.TaskCommit();
-      }
-    }
-    
     await app.TaskStopActiveTask();
     await switchActiveTask(parentEl, id, true);
     await app.TaskContinueTask(id);
     await compoTask.StartTimerByTaskId(id);
     
-    ui.RefreshTimeStreak();
     ui.TaskSetActiveTaskInfo();
   }
   
@@ -1965,7 +1946,6 @@ let app = (function () {
       let distanceTime = new Date().getTime() - data.start;
       await window.service.SetData({ 'history': data.history + distanceMinutes });
       await window.service.SetData({ 'historyTime': data.historyTime + distanceTime });
-      await compoTimeStreak.TaskUpdateTaskTimeStreak(distanceTime, data.activeTask);
       
       let isUpdateCurrentActiveTask = true;
       
@@ -2039,8 +2019,6 @@ let app = (function () {
       }
       compoSequence.Commit();
       
-      await compoTimeStreak.TaskCommit();
-      
       // update progress active task & apply ROP balancing
       if (isUpdateCurrentActiveTask) {
         await updateProgressActiveTask(distanceMinutes, distanceTime);
@@ -2056,7 +2034,6 @@ let app = (function () {
     await window.service.RemoveData(['start']);
     
     updateUI();
-    ui.RefreshTimeStreak();
     uiTracker.RefreshItemList();
     
     if (window.modeChromeExtension) {
@@ -2408,17 +2385,6 @@ let app = (function () {
     {
       compoMission.Init();
       uiCollection.ReloadList();
-    }
-    
-    // time streak
-    {
-      if (window.modeChromeExtension) {
-        let data = await chrome.storage.local.get(['lastActiveId', 'totalTimeStreak']);
-        compoTimeStreak.Init(data);
-      } else {
-        let data = appData.GetComponentData('compoTimeStreak');
-        compoTimeStreak.Init(data);
-      }
     }
     
     // target trackers component
