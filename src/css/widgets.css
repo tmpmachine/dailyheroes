@@ -2,6 +2,37 @@
   background: #c95b5b;  
 }
 
+.wg-Search {
+  & {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .inner {
+    max-width: 200px;
+  }
+}
+
+.wg-ActiveTask {
+  position: fixed;
+  bottom: 0;
+  z-index: 1;
+  max-width: 300px;
+  width: 100%;
+}
+
+.wg-Tab {
+  & {
+    /* border-bottom: 3px solid hsl(223 11% 25% / 1); */
+    margin: 0.5rem;
+    background: #2c2f37;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  button {
+    font-weight: bold;
+  }
+}
+
 .widget-Trackers {
 
     [data-kind="item"] {

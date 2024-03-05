@@ -121,7 +121,7 @@ body {
 /* # buttons */
 button {
   background: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   color: #191919;
   padding: 0.2rem 1rem;
   font-size: 0.8em;
@@ -425,12 +425,9 @@ body[data-state~="--timer-running"] .task-progress-bar {
   padding: 10px 10px 6px;
   text-transform: uppercase;
 }
-.container-view-mode button.is-active {
-  font-weight: bold;
-}
 .container-view-mode button:not(.is-active) {
   opacity: 0.6;
-  border-bottom: 3px solid gainsboro;
+  background: hsl(224 11% 13% / 1);
 }
 
 
@@ -570,8 +567,7 @@ body {
   border-radius: 4px;
 }
 .container-view-mode button.is-active {
-  background: #346f99;
-  border-bottom: 3px solid #5a8cb0;
+  background: hsl(224deg 14% 32.59%);
   color: white;
 }
 .container-view-mode button.is-active .tab-active-indicator::after {
@@ -583,7 +579,7 @@ body {
     height: 6px;
     display: inline-block;
     border-radius: 100%;
-    margin-top: 6px;
+    /* margin-top: 6px; */
 }
 
 

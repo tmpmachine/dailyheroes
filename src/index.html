@@ -73,12 +73,9 @@
         
         <!-- # home screen body -->
       
-        <div class="padding-container">
-        
-          <div class="void-half"></div>
-          <div class="void-half"></div>
+        <!-- # widget active task -->
+        <div class="padding-container wg-ActiveTask">
           
-          <!-- # active task container -->
           <div class="d-flex container-active-task bg-white" style="gap:0.5rem;">
             
             <!-- # progress bar -->
@@ -89,11 +86,10 @@
                   <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
                 </div>
               </div>
-              <div class="mb-m"></div>
               
               <!-- # active task info -->
               <div>
-                <small>Active task</small> : <span id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></span> 
+                <small id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></small> 
               </div>
               <!-- # active task sequence info -->
               <div data-view-group="active-task-info" data-view-name="is-sequence">
@@ -109,16 +105,15 @@
                   <span id="txt-active-task-target-limit"></span>
                 </div>
               </small>
-              <div class="void-half"></div>
               
               <!-- # open task button -->
               <div class="d-flex justify-content-between">
-                <button class="bg-white" data-onclick="open-task-into-view">
+                <button class="bg-white obsoletes" data-onclick="open-task-into-view">
                   <small class="icon-mate">open_in_new</small>
                 </button>
                 
                 <!-- # pip button-->
-                <button class="bg-white" data-onclick="open-pip" data-view-group="platform" data-view-name="web">
+                <button class="bg-white obsoletes" data-onclick="open-pip" data-view-group="platform" data-view-name="web">
                   <small class="icon-mate">picture_in_picture</small>
                 </button>
               </div>
@@ -130,16 +125,14 @@
             <div class="d-flex flex-column" style="gap:0.5rem;">
             
               <div data-obj="stop-timer">
-                <div class="d-grid" style="gap:0.35rem;height:2.2rem;min-width:100px;">
+                <div class="d-grid" style="gap:0.35rem;height:2.2rem;">
                   <button class='clickable btn-timer-control-stop d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='stop-timer'>
-                    Stop 
                     <span class="icon-mate">stop</span>
                   </button>
                   <button class='clickable btn-timer-start btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
-                    Start
                     <span class="icon-mate">play_arrow</span>
                   </button>
-                  <small class="text-center" data-view-group="platform" data-view-name="web">(Alt+S)</small>
+                  <small class="text-center obsoletes" data-view-group="platform" data-view-name="web">(Alt+S)</small>
                   <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
                 </div>
               </div>
@@ -161,10 +154,7 @@
             </div>
           </div>
           
-          <div class="void-half"></div>
-          
         </div>
-        <div class="void-full"></div>
         
         <!-- # interactive sequence task pick -->
         <div class="padding-container" data-view-group="features" data-view-name="interactive-sequence-task-pick">
@@ -184,38 +174,38 @@
           <div class="void-half"></div>
         </div>
         
-        <!-- # search -->
-        <div class="padding-container">
-          <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
-          <div class="d-none">
-            Filter by label :
-            <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
-          </div>
-          <div class="void-half"></div>
-        </div>
-        <div class="void-half"></div>
-        
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
           
           <!-- # view mode tabs -->
-          <div class="d-grid container-view-mode" style="grid-template-columns:1fr 1fr auto;">
+          <div class="d-grid container-view-mode wg-Tab" style="grid-template-columns:1fr 1fr auto;">
             <button class="clickable" data-callback="view-mission" data-id="mission">
               <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
                 <span class="icon-mate">list</span>
                 <span>Missions</span>
+                <div class="d-flex tab-active-indicator"></div>
               </div>
-              <div class="tab-active-indicator"></div>
             </button>
             <button class="clickable" data-callback="view-tasks" data-id="task">
               <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
                 My Tasks
+                <div class="d-flex tab-active-indicator"></div>
               </div>
-              <div class="tab-active-indicator"></div>
             </button>
           </div>
           
         <div class="p-half">
+        
+          <!-- # search -->
+          <div class="wg-Search">
+            <div class="inner">
+              <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
+              <div class="d-none">
+                Filter by label :
+                <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+              </div>
+            </div>
+          </div>
         
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
@@ -231,7 +221,7 @@
               
               <!-- # collection actions -->
               <div class="d-flex" style="gap:0.3rem;">
-                <button class="icon-mate btn-glass" data-onclick="new-collection">add</button>
+                <button class="icon-mate btn-glass obsoletes" data-onclick="new-collection">add</button>
                 <button class="clickable btn-glass" data-callback="navigate-screen" data-view-target="collections">Manage Collection</button>
               </div>
               
@@ -1157,22 +1147,12 @@
                   <input type="text" name='targetCapTime' class="input-style-default" placeholder="Example: 1h, 30m, 4m, ..."/>
                 </div>
               </div>
-              <div class="d-flex" data-view-group="form-task" data-view-name="edit">
-                <div class="d-flex flex-column">
-                  <div>
-                    Target by ROP <small class="opacity-half">(auto-assigned)</small>
-                  </div>
-                  <div class="d-flex gap-half">
-                    <input class="input-style-default flex-1 border-none" type="text" name='targetTime' disabled/>
-                  </div>
-                </div>
-              </div>
               <div class="d-flex">
                 <div class="d-flex flex-column">
                   <div>
-                    Duration <small class="opacity-half">(change in settings)</small>
+                    Timer <small class="opacity-half">(change in settings)</small>
                   </div>
-                  <input class="input-style-default border-none" type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' disabled/>
+                  <input class="input-style-default" type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m'/>
                 </div>
               </div>
               <div class="d-none">
@@ -1182,6 +1162,18 @@
                 Parent ID <input type="text" name='parent-id' class="input-style-default"/>
               </div>
               
+            </div>
+            <div class="mb-m"></div>
+            
+            <div class="form-card-inner" data-view-group="form-task" data-view-name="edit">
+              <div class="d-flex flex-column">
+                <div>
+                  Target by ROP <small class="opacity-half">(auto-assigned)</small>
+                </div>
+                <div class="d-flex gap-half">
+                  <input class="input-style-default flex-1" type="text" name='targetTime'/>
+                </div>
+              </div>
             </div>
             <div class="mb-m"></div>
             
@@ -1229,7 +1221,7 @@
                   <div class="d-flex align-items-center gap-half flex-wrap">
                   
                     <button type="button" data-onclick="reset-progress-task-from-form">Reset progress</button>
-                    <div data-view-group="build" data-view-name="dev">
+                    <div class="obsoletes" data-view-group="build" data-view-name="dev">
                       <button type="button" data-onclick="distribute-progress-task-from-form">Distribute progress</button>
                     </div>
                     <div data-view-group="build" data-view-name="dev">
@@ -1290,7 +1282,7 @@
               </div>
               <!-- sequence timer duration  -->
               <div>
-                Duration <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+                Timer <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
               </div>
               <!-- sequence target cap time -->
               <div>
