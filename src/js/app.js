@@ -1986,6 +1986,9 @@ let app = (function () {
         
         // update sequence progress time
         sequenceTask.progressTime += distanceTime;
+        if (sequenceTask.progressCapTime < sequenceTask.targetCapTime) {
+          sequenceTask.progressCapTime += distanceTime;
+        }
         
         let isFinished = false;
         let changeTask = false;
@@ -1993,6 +1996,11 @@ let app = (function () {
         // reset sequence if finished
         if (sequenceTask.progressTime >= sequenceTask.targetTime) {
           sequenceTask.progressTime = 0;
+          if (sequenceTask.targetCapTime === 0) {
+            isFinished = true;
+          }
+        }
+        if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
           isFinished = true;
         }
         
@@ -2001,6 +2009,8 @@ let app = (function () {
         
         if (isRepeat) {
           sequenceTask.counter.repeatCount += 1;
+          sequenceTask.progressCapTime = 0; // reset progress cap time
+          
           changeTask = (sequenceTask.counter.repeatCount == sequenceTask.repeatCount);
         } else {
           if (isFinished) {
@@ -2015,7 +2025,7 @@ let app = (function () {
           
           let seqIndex = compoSequence.GetIndexById(nextItem.id);
           if (seqIndex == 0 && compoSequence.CountAll() > 1) {
-            compoSequence.ResetAllCounter();
+            compoSequence.ResetSequenceTasksProgress();
           }
           
         }

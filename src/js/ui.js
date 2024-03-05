@@ -540,7 +540,6 @@ let ui = (function () {
     
     compoTask.TaskResetSequenceById(taskId, seqId);
     
-    $('#task-sequence-modal').close();
     ui.RefreshListSequenceByTaskId(taskId);
   }
   
@@ -789,6 +788,12 @@ let ui = (function () {
           // show mission path
           linkedTaskPath = getAndComputeMissionPath(linkedTask.parentId);
         }
+      } else {
+        if (item.targetCapTime > 0) {
+          let targetCapLimitStr = helper.ToTimeString(item.targetCapTime, 'hms');
+          let targetCapProgressStr = helper.ToTimeString(item.progressCapTime, 'hms');
+          targetCapTimeStr = `${targetCapProgressStr} / ${targetCapLimitStr}`;
+        }
       }
       
       // time left info
@@ -796,7 +801,7 @@ let ui = (function () {
       
       {
         let timeLeft = Math.max(0, item.targetTime - item.progressTime);
-        timeLeftStr = secondsToHMS(msToSeconds(timeLeft));
+        timeLeftStr = helper.ToTimeString(timeLeft, 'hms');
       }
       
       
@@ -1729,14 +1734,32 @@ let ui = (function () {
 		let id = form.id.value;
 		let taskId = form.taskId.value;
 		let title = form.title.value.trim();
+		let durationTime = 0;
+		let targetCapTime = 0;
 		
-    let durationTimeInput = form.duration.value;
-    if (isNumber(durationTimeInput)) {
-      // set default to minutes
-      durationTimeInput = `${durationTimeInput}m`;
-    }
-    let durationTime = parseHmsToMs(durationTimeInput);
+		// duration time
+		{
+      let durationTimeInput = form.duration.value;
+      if (isNumber(durationTimeInput)) {
+        // set default to minutes
+        durationTimeInput = `${durationTimeInput}m`;
+      }
+      durationTime = parseHmsToMs(durationTimeInput);
+		}
+		
+		// target time
+		{
+      let targetCapTimeInput = form.targetCapTime.value;
+      if (isNumber(targetCapTimeInput)) {
+        // set default to minutes
+        targetCapTimeInput = `${targetCapTimeInput}m`;
+      }
+      targetCapTime = parseHmsToMs(targetCapTimeInput);
+		}
+    
+    // validate all input data  
     if (durationTime <= 0) return;
+    
     
     // repeat data
     let repeatCount = 0;
@@ -1749,6 +1772,7 @@ let ui = (function () {
     let inputData = {
       title,
       durationTime,
+      targetCapTime,
       repeatCount,
       repeatRestDurationTime,
     };
@@ -1785,6 +1809,11 @@ let ui = (function () {
       linkedTask = compoTask.GetById(sequenceTask.linkedTaskId);
     }
     
+    let targetCapTimeStr = '';
+    if (sequenceTask.targetCapTime > 0) {
+      targetCapTimeStr = helper.ToTimeString(sequenceTask.targetCapTime, 'hms');
+    }
+    
     let defaultValue = {
       id,
       taskId,
@@ -1792,6 +1821,7 @@ let ui = (function () {
       repeatCount: sequenceTask.repeatCount > 0 ? sequenceTask.repeatCount : 2,
       title: linkedTask ? linkedTask.title : sequenceTask.title,
       duration: secondsToHMS(msToSeconds(sequenceTask.targetTime)),
+      targetCapTime: targetCapTimeStr,
     };
     let options = {
       isLinkedTask: (linkedTask != null),

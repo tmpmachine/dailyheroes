@@ -19,7 +19,7 @@ let compoSequence = (function() {
     GetNext,
     GetPrevious,
     GetIndexById,
-    ResetAllCounter,
+    ResetSequenceTasksProgress,
     ResetRepeatCountById,
   };
   
@@ -59,11 +59,12 @@ let compoSequence = (function() {
     return data.items;
   }
   
-  function ResetAllCounter() {
+  function ResetSequenceTasksProgress() {
     let items = GetAll();
     for (let item of items) {
       item = GetById(item.id);
       item.counter.repeatCount = 0;
+      item.progressCapTime = 0;
     }
   }
   
@@ -84,9 +85,10 @@ let compoSequence = (function() {
       
   })();
   
-  function Add(title, durationTime, repeatCount) {
+  function Add(title, durationTime, repeatCount, targetTime) {
     let linkedTaskId = null;
-    let item = addItem(title, durationTime, repeatCount, linkedTaskId);
+    let targetCapTime = targetTime;
+    let item = addItem(title, durationTime, repeatCount, linkedTaskId, targetCapTime);
     return item;
   }
   
@@ -94,11 +96,12 @@ let compoSequence = (function() {
     let linkedTaskId = taskId;
     let title = null;
     let repeatCount = 0;
-    let item = addItem(title, durationTime, repeatCount, linkedTaskId);
+    let targetCapTime = 0;
+    let item = addItem(title, durationTime, repeatCount, linkedTaskId, targetCapTime);
     return item;
   }
   
-  function addItem(title, durationTime, repeatCount, linkedTaskId) {
+  function addItem(title, durationTime, repeatCount, linkedTaskId, targetCapTime) {
     let id = __idGenerator.next(data.counter);
     let item = {
       id,
@@ -106,7 +109,9 @@ let compoSequence = (function() {
       title,
       repeatCount,
       progressTime: 0,
+      progressCapTime: 0,
       targetTime: durationTime,
+      targetCapTime,
       counter: {
         repeatCount: 0,
       }

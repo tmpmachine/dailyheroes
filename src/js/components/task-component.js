@@ -127,9 +127,14 @@ let compoTask = (function() {
       
       if (sequence) {
         
+        // reset sequence (counter, progress) if user repeat it manually
         if (sequence.counter.repeatCount == sequence.repeatCount) {
           sequence.counter.repeatCount = 0;
         }
+        if (sequence.targetCapTime > 0 && sequence.progressCapTime >= sequence.targetCapTime) {
+          sequence.progressCapTime = 0;
+        }
+        
         compoSequence.Commit();
         await appData.TaskStoreTask();
         
@@ -150,6 +155,7 @@ let compoTask = (function() {
     
     let taskTitle = item.title;
     let targetTime = item.targetTime;
+    let progressTime = item.progressTime;
 
     // get linked task title
     if (item.linkedTaskId) {
@@ -164,12 +170,25 @@ let compoTask = (function() {
         }
         
       }
+    } else {
+      
+      if (item.targetCapTime > 0) {
+        let capTimeLeft = item.targetCapTime - item.progressCapTime;
+        
+        // set timer using the rest of target cap time if cap time is lower than timer
+        if (capTimeLeft < item.targetTime) {
+          targetTime = capTimeLeft;
+          progressTime = 0;
+        }
+      }
+      
     }
     
+    let timerTimeLeft = targetTime - progressTime;
+    let seconds = timerTimeLeft / 1000;
     
-    let seconds = (targetTime - item.progressTime) / 1000;
     androidClient.StartTimer(seconds, item.title);
-    setTimer(targetTime - item.progressTime);
+    setTimer(timerTimeLeft);
     
     // todo : allow close when another sequence is started
     // globalNotification[`${taskId}@${item.id}`] = new Notification(`${taskTitle}`, {
@@ -180,7 +199,7 @@ let compoTask = (function() {
     
     navigator.serviceWorker.ready.then((registration) => {
       registration.showNotification(`${taskTitle}`, {
-        body: `${secondsToHMS(msToSeconds(item.targetTime))} left`,
+        body: `${helper.ToTimeString(timerTimeLeft, 'hms')} left`,
         tag: 'active-sequence-task',
       });
     });
@@ -228,6 +247,7 @@ let compoTask = (function() {
     
     compoSequence.UpdateById({
       progressTime: 0,
+      progressCapTime: 0,
     }, seqId);
     
     compoSequence.Commit();
@@ -300,12 +320,12 @@ let compoTask = (function() {
   }
   
   function AddSequence(inputData, taskId) {
-    let {title, durationTime, repeatCount} = inputData;
+    let {title, durationTime, repeatCount, targetCapTime} = inputData;
     let item = app.GetTaskById(taskId);
 
     compoSequence.Stash(item.sequenceTasks);
     
-    let seqItem = compoSequence.Add(title, durationTime, repeatCount);
+    let seqItem = compoSequence.Add(title, durationTime, repeatCount, targetCapTime);
     if (compoSequence.CountAll() == 1) {
       compoSequence.SetActiveById(seqItem.id);
     }
@@ -315,7 +335,7 @@ let compoTask = (function() {
   }
   
   function UpdateSequence(inputData, taskId, seqId) {
-    let {title, durationTime, repeatCount} = inputData;
+    let {title, durationTime, repeatCount, targetCapTime} = inputData;
     let item = app.GetTaskById(taskId);
 
     compoSequence.Stash(item.sequenceTasks);
@@ -324,6 +344,7 @@ let compoTask = (function() {
       title,
       repeatCount,
       targetTime: durationTime,
+      targetCapTime,
     }, seqId);
     
     compoSequence.Commit();

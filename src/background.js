@@ -142,6 +142,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   // set active next sequence task
   compoSequence.Stash(activeTask.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
+  
   if (sequenceTask) {
     
     let linkedTask = null;
@@ -164,10 +165,17 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     let isFinished = false;
     
     sequenceTask.progressTime += distanceTime;
-    
+    if (sequenceTask.progressCapTime < sequenceTask.targetCapTime) {
+      sequenceTask.progressCapTime += distanceTime;
+    }
     // reset sequence if finished
     if (sequenceTask.progressTime >= sequenceTask.targetTime) {
       sequenceTask.progressTime = 0;
+      if (sequenceTask.targetCapTime === 0) {
+        isFinished = true;
+      }
+    }
+    if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
       isFinished = true;
     }
     
@@ -179,7 +187,8 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
       hasRepeatcount = true;
       
       sequenceTask.counter.repeatCount += 1;
-      
+      sequenceTask.progressCapTime = 0; // reset progress cap time
+
       if (sequenceTask.counter.repeatCount == sequenceTask.repeatCount) {
         changeTask = true;
         isRepeatEnded = true;
@@ -191,6 +200,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
         },
         repeatCount: sequenceTask.repeatCount,
       };
+      
     } else {
       
       sequenceTask.counter.repeatCount = 0;
@@ -229,11 +239,11 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   
   if (sequenceTask && changeTask) {
     let nextItem = compoSequence.GetNext();
-    compoSequence.SetActiveById(nextItem.id);  
+    compoSequence.SetActiveById(nextItem.id);
     
     let seqIndex = compoSequence.GetIndexById(nextItem.id);
-    if (seqIndex == 0 && compoSequence.CountAll() > 1) {
-      compoSequence.ResetAllCounter();
+    if (seqIndex == 0) {
+      compoSequence.ResetSequenceTasksProgress();
     }
   }
   
@@ -513,7 +523,7 @@ async function onAlarmEnded(alarm) {
       if (sequenceTask) {
         isSequenceTask = true;
         sequenceTaskTitle = sequenceTask.title;
-        sequenceTaskDurationTimeStr = secondsToHMS(msToSeconds(sequenceTask.targetTime));
+        sequenceTaskDurationTimeStr = helper.ToTimeString(sequenceTask.targetTime, 'hms');
         
         // get title from task if linked
         if (sequenceTask.linkedTaskId) {
@@ -523,6 +533,11 @@ async function onAlarmEnded(alarm) {
             if (linkedTask.targetCapTime > 0) {
               taskTargetTimeStr = `(${ helper.ToTimeString(linkedTask.targetCapTime, 'hms') } left)`;
             }
+          }
+        } else {
+          if (sequenceTask.targetCapTime > 0) {
+            let timeCapLeft = Math.max(0, sequenceTask.targetCapTime - sequenceTask.progressCapTime);
+            sequenceTaskDurationTimeStr = helper.ToTimeString(timeCapLeft, 'hms');
           }
         }
         
@@ -768,6 +783,15 @@ async function startNextSequence() {
     let sequenceTaskTitle = sequenceTask.title;
     alarmDurationTime = sequenceTask.targetTime;
     
+    if (sequenceTask.targetCapTime > 0) {
+      let capTimeLeft = sequenceTask.targetCapTime - sequenceTask.progressCapTime;
+      
+      // set timer using the rest of target cap time if cap time is lower than timer
+      if (capTimeLeft < sequenceTask.targetTime) {
+        alarmDurationTime = capTimeLeft;
+      }
+    }
+    
     // get title from task if linked
     if (sequenceTask.linkedTaskId) {
       let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
@@ -778,7 +802,7 @@ async function startNextSequence() {
     
     // notify next task name
     const notification = registration.showNotification(`${sequenceTaskTitle}`, { 
-      body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
+      body: `${helper.ToTimeString(alarmDurationTime, 'hms')} left`, 
       iconAlarm,
       tag: 'active-sequence-task',
     });
@@ -789,6 +813,7 @@ async function startNextSequence() {
   startNewAlarm(alarmDurationTime, isSequenceTask);
   
 }
+
 async function takeBreakTime() {
   let seconds = 20;
   let alarmDurationTime = seconds * 1000; // 25 seconds
@@ -875,6 +900,9 @@ async function restartSequenceTask() {
     let isRepeat = (sequenceTask.repeatCount > 0);
     if (isRepeat) {
       sequenceTask.counter.repeatCount = 0;
+    }
+    if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
+      sequence.progressCapTime = 0;
     }
     compoSequence.SetActiveById(sequenceTask.id);
     
