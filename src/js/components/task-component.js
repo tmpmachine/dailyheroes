@@ -133,6 +133,7 @@ let compoTask = (function() {
         }
         if (sequence.targetCapTime > 0 && sequence.progressCapTime >= sequence.targetCapTime) {
           sequence.progressCapTime = 0;
+          sequence.progressTime = 0;
         }
         
         compoSequence.Commit();

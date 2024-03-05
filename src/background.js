@@ -902,7 +902,7 @@ async function restartSequenceTask() {
       sequenceTask.counter.repeatCount = 0;
     }
     if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
-      sequence.progressCapTime = 0;
+      sequenceTask.progressCapTime = 0;
     }
     compoSequence.SetActiveById(sequenceTask.id);
     
