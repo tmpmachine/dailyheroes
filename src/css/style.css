@@ -446,20 +446,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
 }
 
 
-/* # trackers */
-.tracker-overlay {
-  width: 160px;
-  background: dodgerblue;
-  color: white;
-  font-size: 0.8rem;
-  padding: 0.3rem;
-  border-radius: 4px;
-  position: absolute;
-  bottom: 0.5rem;
-  left: 0.5rem;
-}
-
-
 /* # item sequence */
 .item-sequence.is-active {
   background: #47474d;

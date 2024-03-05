@@ -3,13 +3,18 @@
 }
 
 .wg-Search {
-  & {
-    display: flex;
-    justify-content: flex-end;
-  }
   .inner {
     max-width: 200px;
   }
+}
+
+.wg-TrackerChip {
+  width: 160px;
+  background: dodgerblue;
+  color: white;
+  font-size: 0.8rem;
+  padding: 0.3rem;
+  border-radius: 4px;
 }
 
 .wg-ActiveTask {

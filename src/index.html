@@ -79,32 +79,37 @@
           <div class="d-flex container-active-task bg-white" style="gap:0.5rem;">
             
             <!-- # progress bar -->
-            <div data-view-group="active-task-info" data-view-states="" style="flex-grow:1;">
+            <div class="flex-1" data-view-group="active-task-info" data-view-states="">
+              
               <div class="NzE2ODYyNQ-progress-bar-container">
                 <div class="NzE2ODYyNQ-progress-bar">
                   <div class="NzE2ODYyNQ-progress-bar-fill"></div>
                   <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
                 </div>
               </div>
+              <div class="void-quarter"></div>
               
-              <!-- # active task info -->
-              <div>
+              <div class="d-flex flex-wrap justify-content-between gap-quarter">
+                <!-- # active task info -->
                 <small id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></small> 
+                
+                <!-- # active time target time -->
+                <small data-view-group="active-task-info" data-view-name="has-target">
+                  <div class="d-flex gap-quarter">
+                    <div>
+                      <mark id="txt-active-task-target" class="task-target-time"></mark>  
+                    </div>
+                    <span id="txt-active-task-target-cap" class="task-target-cap-time"></span>
+                    <span id="txt-active-task-target-limit"></span>
+                  </div>
+                </small>
               </div>
+              
               <!-- # active task sequence info -->
               <div data-view-group="active-task-info" data-view-name="is-sequence">
-                <small>Sequence task</small> : <span id="txt-active-task-sequence-name" style="font-weight:bold;word-break:break-word;"></span> 
+                <small id="txt-active-task-sequence-name" style="word-break:break-word;font-style:italic;"></small> 
               </div>
-              
-              <!-- # active time target time -->
-              <small data-view-group="active-task-info" data-view-name="has-target">
-                <div class="d-flex gap-quarter">
-                  Target : 
-                  <mark id="txt-active-task-target" class="task-target-time"></mark>  
-                  <span id="txt-active-task-target-cap" class="task-target-cap-time"></span>
-                  <span id="txt-active-task-target-limit"></span>
-                </div>
-              </small>
+            
               
               <!-- # open task button -->
               <div class="d-flex justify-content-between">
@@ -196,15 +201,38 @@
           
         <div class="p-half">
         
-          <!-- # search -->
-          <div class="wg-Search">
-            <div class="inner">
-              <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
-              <div class="d-none">
-                Filter by label :
-                <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+          <div class="d-flex justify-content-between gap-half align-items-center">
+          
+            <div class="d-fex">
+              <!-- # widget tracker -->
+              <div class="wg-TrackerChip tracker-overlay d-grid" data-view-group="features" data-view-name="tracker-overlay">
+                <div class="d-grid" style="gap:0.25rem;">
+                  <div class="d-flex justify-content-between" style="gap:0.3rem;">
+                    <div class="d-inline-flex" style="gap:0.3rem;">
+                      <div class="word-break-all" data-slot="title"></div>
+                      <div data-slot="progressTimeStr"></div>
+                    </div>
+                    <div>
+                      <button class="icon-mate clickable" data-callback="stop-tracker" style="font-size: 0.7rem;padding: 2px 6px;">close</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+                
+            <div>
+              <!-- # search -->
+              <div class="wg-Search">
+                <div class="inner">
+                  <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
+                  <div class="d-none">
+                    Filter by label :
+                    <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
           </div>
         
           <!-- # mission collection -->
@@ -311,22 +339,6 @@
           <div class="container-add-task">
             
             <div class="pos-relative" style="max-width:500px;margin:auto;">
-              
-              <!-- # overlay tracker -->
-              <div class="tracker-overlay d-grid" data-view-group="features" data-view-name="tracker-overlay">
-                <div class="d-grid" style="gap:0.25rem;">
-                  <div class="d-flex justify-content-between" style="gap:0.3rem;">
-                    <small>Active tracker</small>
-                    <div>
-                      <button class="icon-mate clickable" data-callback="stop-tracker" style="font-size: 0.7rem;padding: 2px 6px;">close</button>
-                    </div>
-                  </div>
-                  <div class="d-inline-flex" style="gap:0.3rem;">
-                    <div class="word-break-all" data-slot="title"></div>
-                    <div data-slot="progressTimeStr"></div>
-                  </div>
-                </div>
-              </div>
               
               <!-- # floating buttons -->
               <div>

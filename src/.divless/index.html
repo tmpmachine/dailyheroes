@@ -79,32 +79,37 @@
           [ .d-flex {gap:0.5rem} .container-active-task .bg-white
             
             <!-- # progress bar -->
-            [ {flex-grow:1} data-view-group="active-task-info" data-view-states=""
+            [ .flex-1 data-view-group="active-task-info" data-view-states=""
+              
               <div class="NzE2ODYyNQ-progress-bar-container">
                 <div class="NzE2ODYyNQ-progress-bar">
                   <div class="NzE2ODYyNQ-progress-bar-fill"></div>
                   <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
                 </div>
               </div>
+              [ .void-quarter]
               
-              <!-- # active task info -->
-              [
+              [ .d-flex .flex-wrap .justify-content-between .gap-quarter
+                <!-- # active task info -->
                 [small #txt-active-task-name {fw:bold;word-break:break-word}] 
-              ]
-              <!-- # active task sequence info -->
-              [ data-view-group="active-task-info" data-view-name="is-sequence"
-                [small 'Sequence task'] : [s #txt-active-task-sequence-name {fw:bold;word-break:break-word}] 
-              ]
-              
-              <!-- # active time target time -->
-              [small data-view-group="active-task-info" data-view-name="has-target"
-                [ .d-flex .gap-quarter
-                  Target : 
-                  [mark #txt-active-task-target .task-target-time]  
-                  [s #txt-active-task-target-cap .task-target-cap-time]
-                  [s #txt-active-task-target-limit]
+                
+                <!-- # active time target time -->
+                [small data-view-group="active-task-info" data-view-name="has-target"
+                  [ .d-flex .gap-quarter
+                    [
+                      [mark #txt-active-task-target .task-target-time]  
+                    ]
+                    [s #txt-active-task-target-cap .task-target-cap-time]
+                    [s #txt-active-task-target-limit]
+                  ]
                 ]
               ]
+              
+              <!-- # active task sequence info -->
+              [ data-view-group="active-task-info" data-view-name="is-sequence"
+                [small #txt-active-task-sequence-name {word-break:break-word;ft:italic}] 
+              ]
+            
               
               <!-- # open task button -->
               [ .d-flex .justify-content-between
@@ -196,15 +201,38 @@
           
         [ .p-half
         
-          <!-- # search -->
-          [ .wg-Search
-            [ .inner
-              <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
-              [ .d-none
-                Filter by label :
-                [in .inputable .input-style-default data-callback="save-label-filter" #in-filter-search-label]
+          [ .d-flex .justify-content-between .gap-half .align-items-center
+          
+            [ .d-fex
+              <!-- # widget tracker -->
+              [ .wg-TrackerChip .tracker-overlay .d-grid data-view-group="features" data-view-name="tracker-overlay"
+                [ .d-grid {gap:0.25rem}
+                  [ .d-flex {gap:0.3rem} .justify-content-between 
+                    [ .d-inline-flex {gap:0.3rem}
+                      [ data-slot="title" .word-break-all]
+                      [ data-slot="progressTimeStr"]
+                    ]
+                    [
+                      [btn 'close' .icon-mate .clickable data-callback="stop-tracker" {font-size: 0.7rem;padding: 2px 6px;}]
+                    ]
+                  ]
+                ]
               ]
             ]
+                
+            [
+              <!-- # search -->
+              [ .wg-Search
+                [ .inner
+                  <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
+                  [ .d-none
+                    Filter by label :
+                    [in .inputable .input-style-default data-callback="save-label-filter" #in-filter-search-label]
+                  ]
+                ]
+              ]
+            ]
+            
           ]
         
           <!-- # mission collection -->
@@ -311,22 +339,6 @@
           [ .container-add-task 
             
             [ {Mw:500px;m:auto} .pos-relative
-              
-              <!-- # overlay tracker -->
-              [ .tracker-overlay .d-grid data-view-group="features" data-view-name="tracker-overlay"
-                [ .d-grid {gap:0.25rem}
-                  [ .d-flex {gap:0.3rem} .justify-content-between 
-                    [small 'Active tracker']
-                    [
-                      [btn 'close' .icon-mate .clickable data-callback="stop-tracker" {font-size: 0.7rem;padding: 2px 6px;}]
-                    ]
-                  ]
-                  [ .d-inline-flex {gap:0.3rem}
-                    [ data-slot="title" .word-break-all]
-                    [ data-slot="progressTimeStr"]
-                  ]
-                ]
-              ]
               
               <!-- # floating buttons -->
               [
