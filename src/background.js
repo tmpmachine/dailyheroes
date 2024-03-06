@@ -441,7 +441,7 @@ async function alarmHandler(alarm) {
 
 async function onAlarmEnded(alarm) {
   
-  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak']);
+  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak', 'leftOverAlarmTaskId']);
   let distanceMinutes = 0;
   let distanceTime = 0;
   
@@ -481,6 +481,8 @@ async function onAlarmEnded(alarm) {
   let repeatCountStr = '';
   let taskTargetTimeStr = '';
   let taskTitle = '';
+  
+  let isHasAlarmAction = true;
   let alarmDurationTime = 0;
   
   if (data.activeTask) {
@@ -489,6 +491,12 @@ async function onAlarmEnded(alarm) {
     let activeTask = tasks.find(x => x.id == data.activeTask);
     
     if (activeTask) {
+      
+      // the task target time has been fulfilled, don't show actions
+      if (data.leftOverAlarmTaskId == activeTask.id) {
+        await chrome.storage.local.remove(['leftOverAlarmTaskId']);
+        isHasAlarmAction = false;
+      }
       
       taskTitle = activeTask.title;
       
@@ -546,6 +554,7 @@ async function onAlarmEnded(alarm) {
       // limit alarm time by task target cap time (if set and is lower)
       if (activeTask.targetCapTime > 0 && activeTask.targetCapTime < alarmDurationTime) {
         alarmDurationTime = activeTask.targetCapTime;
+        await chrome.storage.local.set({ 'leftOverAlarmTaskId': activeTask.id });
       }
 
     }
@@ -602,22 +611,28 @@ async function onAlarmEnded(alarm) {
     
   }
   
-  if (isStartNext) {
-    actions.push({
-      action: 'start-next-sequence',
-      title: `Start next (${alarmDurationTimeStr})`,
-    });
-  } else if (isRestartTask) {
-    actions.push({
-      action: isSequenceTask ? 'start-next-sequence' : 'restart',
-      title: `Restart task ${alarmDurationTimeStr}`.replace(/ +/g,' ').trim(),
-    });
-  } else if (isStartTask) {
-    actions.push({
-      action: isSequenceTask ? 'start-next-sequence' : 'restart',
-      title: `Start task ${alarmDurationTimeStr}`.replace(/ +/g,' ').trim(),
-    });
+  
+  if (isHasAlarmAction) {
+    
+    if (isStartNext) {
+      actions.push({
+        action: 'start-next-sequence',
+        title: `Start next (${alarmDurationTimeStr})`,
+      });
+    } else if (isRestartTask) {
+      actions.push({
+        action: isSequenceTask ? 'start-next-sequence' : 'restart',
+        title: `Restart task ${alarmDurationTimeStr}`.replace(/ +/g,' ').trim(),
+      });
+    } else if (isStartTask) {
+      actions.push({
+        action: isSequenceTask ? 'start-next-sequence' : 'restart',
+        title: `Start task ${alarmDurationTimeStr}`.replace(/ +/g,' ').trim(),
+      });
+    }
+    
   }
+    
   
   /*
   actions.push({
