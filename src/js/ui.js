@@ -1705,7 +1705,7 @@ let ui = (function () {
     el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
     el.querySelector('[data-slot="title"]').textContent = task.title;
     el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = helper.ToTimeString(task.targetTime, 'hms');
-    el.querySelector('[data-slot="targetCapTimeStr"]').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
+    el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
     el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
     
     if (task.targetTime > 0 || task.targetCapTime > 0) {

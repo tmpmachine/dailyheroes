@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html class="h-100">
+<!-- data-scope-id counter: 1-->
 <head>
 
   <title>DailyHeroes</title>
@@ -730,7 +731,7 @@
   <template id="tmp-task">
     <!-- # container task -->
     
-  	<div class="container-item pos-relative" data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="">
+  	<div class="container-item pos-relative" data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" data-scope-id="1">
   	  
   	  <div class="d-none">
   	    <!-- # add to mission button -->
@@ -879,7 +880,7 @@
           <div class="d-flex align-items-center gap-quarter" style="gap:0.2rem;">
             <span class="icon-mate">flag</span>
             <mark class="task-target-time" data-slot="ratioTimeLeftStr" data-slot-html></mark>
-            <span class="task-target-cap-time" data-slot="targetCapTimeStr" data-slot-html></span>
+            <span class="task-target-cap-time sc-1" data-slot="targetCapTimeStr" data-slot-html></span>
           </div>
         </div>
         
@@ -1290,16 +1291,24 @@
             <div class="d-grid form-card-inner" style="gap:0.5rem;">
             
               <div>
-                Title <input type="text" name="title" class="input-style-default"/>
-              </div>
-              <!-- sequence timer duration  -->
-              <div>
-                Timer <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+                Title 
+                <div class="void-quarter"></div>
+                <input type="text" name="title" class="input-style-default"/>
               </div>
               <!-- sequence target cap time -->
               <div>
-                Target Cap Time 
+                Target Time Cap
+                <div class="void-quarter"></div>
                 <input type="text" name="targetCapTime" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+              </div>
+              <!-- sequence timer duration  -->
+              <div>
+                <div class="d-flex align-items-center gap-quarter">
+                  <i class="icon-mate">timer</i>
+                  Timer 
+                </div>
+                <div class="void-quarter"></div>
+                <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
               </div>
               <hr/>
               
@@ -1311,7 +1320,9 @@
                 </label>
               </div>
               <div>
-                Repeat count <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
+                Repeat count 
+                <div class="void-quarter"></div>
+                <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
               </div>
               <div class="obsoletes" data-view-group="build" data-view-name="dev">
                 Repeat rest duration <input type="text" name="repeatRestDurationTimeStr" placeholder="e.g. 30s, 3m, 15m20s" class="input-style-default"/>

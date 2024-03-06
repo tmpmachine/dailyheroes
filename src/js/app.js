@@ -2481,11 +2481,14 @@ let app = (function () {
     let linkedTask = compoTask.GetById(item.linkedTaskId);
     compoSequence.Pop();
     
-    if (!linkedTask) return;
+    if (linkedTask) {
+      editTask(linkedTask.id).then(modalResponse => {
+        console.log(modalResponse);
+      });
+    } else {
+      ui.EditSequenceTask(id, item.id);      
+    }
     
-    editTask(linkedTask.id).then(modalResponse => {
-      console.log(modalResponse);
-    });
     // await app.TaskNavigateToMission(linkedTask.id);
     // ui.FocusTaskElById(linkedTask.id);
   }

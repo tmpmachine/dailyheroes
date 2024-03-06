@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html class="h-100">
+<!-- data-scope-id counter: 1-->
 <head>
 
   <title>DailyHeroes</title>
@@ -730,7 +731,7 @@
   <template id="tmp-task">
     <!-- # container task -->
     
-  	[ .container-item data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" .pos-relative
+  	[ .container-item data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" .pos-relative data-scope-id="1"
   	  
   	  [ .d-none
   	    <!-- # add to mission button -->
@@ -879,7 +880,7 @@
           [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
             [s .icon-mate 'flag']
             [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time]
-            [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time]
+            [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time .sc-1]
           ]
         ]
         
@@ -1290,16 +1291,24 @@
             [ .d-grid {gap:0.5rem} .form-card-inner
             
               [
-                Title <input type="text" name="title" class="input-style-default"/>
-              ]
-              <!-- sequence timer duration  -->
-              [
-                Timer <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+                Title 
+                [ .void-quarter]
+                <input type="text" name="title" class="input-style-default"/>
               ]
               <!-- sequence target cap time -->
               [
-                Target Cap Time 
+                Target Time Cap
+                [ .void-quarter]
                 <input type="text" name="targetCapTime" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
+              ]
+              <!-- sequence timer duration  -->
+              [
+                [ .d-flex .align-items-center .gap-quarter
+                  [i .icon-mate 'timer']
+                  Timer 
+                ]
+                [ .void-quarter]
+                <input type="text" name="duration" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
               ]
               [hr]
               
@@ -1311,7 +1320,9 @@
                 ]
               ]
               [
-                Repeat count <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
+                Repeat count 
+                [ .void-quarter]
+                <input type="number" name="repeatCount" min="2" value="2" class="input-style-default"/>
               ]
               [ data-view-group="build" data-view-name="dev" .obsoletes
                 Repeat rest duration <input type="text" name="repeatRestDurationTimeStr" placeholder="e.g. 30s, 3m, 15m20s" class="input-style-default"/>
