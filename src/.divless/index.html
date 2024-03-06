@@ -299,7 +299,10 @@
                 ]
                 <!-- # mission target ETA -->
                 [small {col:white}  data-view-group="task-view-mode" data-view-name="has-ETA"
-                  ETA : [s #txt-target-eta]
+                  [ .d-flex .gap-quarter .align-items-center
+                    [s 'ETA' .label-eta]
+                    [s #txt-target-eta]
+                  ]
                 ]
               ]
               [
