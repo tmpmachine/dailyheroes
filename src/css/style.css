@@ -67,7 +67,13 @@ body {
   padding: 1px 2px;
   border-radius: 2px;
 }
-.task-target-time:empty, .task-target-cap-time:empty {
+.task-sequence-target-cap-time {
+  background: #d4d4d4;
+  color: black;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+.task-target-time:empty, .task-target-cap-time:empty, .task-sequence-target-cap-time:empty {
   display: none;
 }
 

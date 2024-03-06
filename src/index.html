@@ -888,8 +888,9 @@
         <div data-view-group="task" data-view-name="has-target" style="padding:10px 0 6px;">
           <div class="d-flex align-items-center gap-quarter" style="gap:0.2rem;">
             <span class="icon-mate">flag</span>
-            <mark class="task-target-time" data-slot="ratioTimeLeftStr" data-slot-html></mark>
+            <mark class="task-target-time sc-1" data-slot="ratioTimeLeftStr" data-slot-html></mark>
             <span class="task-target-cap-time sc-1" data-slot="targetCapTimeStr" data-slot-html></span>
+            <div class="task-sequence-target-cap-time" data-slot="sequenceTargetTotalTime" data-slot-html></div>
           </div>
         </div>
         
@@ -943,7 +944,7 @@
 
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
-    <div class="item-sequence" data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states="">
+    <div class="wg-SequenceTask item-sequence" data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states="">
       <div class="d-flex">
         
         <!-- # sequence drag handle -->

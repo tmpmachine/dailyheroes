@@ -888,8 +888,9 @@
         [ data-view-group="task" data-view-name="has-target" {p:10px 0 6px;}
           [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
             [s .icon-mate 'flag']
-            [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time]
+            [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time .sc-1]
             [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time .sc-1]
+            [ data-slot="sequenceTargetTotalTime" data-slot-html .task-sequence-target-cap-time]
           ]
         ]
         
@@ -943,7 +944,7 @@
 
   <template id="tmp-list-sequence-task">
     <!-- # tmp-list-sequence-task -->
-    [ .item-sequence data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states=""
+    [ .wg-SequenceTask .item-sequence data-kind="item-sequence-task" data-view-group="sequence-item" data-view-states=""
       [ .d-flex
         
         <!-- # sequence drag handle -->

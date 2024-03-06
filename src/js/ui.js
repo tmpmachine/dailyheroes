@@ -717,6 +717,25 @@ let ui = (function () {
       el.classList.toggle('is-active', (item.id == activeId));
     }
     
+    // count total sequence target 
+    let totalSequenceTargetTime = 0;
+    {
+      for (let item of items) {
+        if (item.targetCapTime > 0) {
+          totalSequenceTargetTime += Math.max(0, item.targetCapTime - item.progressCapTime);
+        }
+      }
+    }
+    
+    // total sequence target
+    if (totalSequenceTargetTime > 0) {
+      viewStateUtil.Add('task', ['has-target'], taskEl);
+      taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = `${helper.ToTimeString(totalSequenceTargetTime, 'hms')}`;
+    } else {
+      viewStateUtil.Remove('task', ['has-target'], taskEl);
+      taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = '';
+    }
+    
     if (items.length === 0) {
       viewStateUtil.Remove('task', ['sequence-mode'], taskEl);
     }
@@ -822,8 +841,25 @@ let ui = (function () {
     
     container.append(docFrag);
     
+    // count total sequence target 
+    let totalSequenceTargetTime = 0;
+    {
+      for (let item of items) {
+        if (item.targetCapTime > 0) {
+          totalSequenceTargetTime += Math.max(0, item.targetCapTime - item.progressCapTime);
+        }
+      }
+    }
+    
+    
     let isManageMode = viewStateUtil.HasViewState('task', 'manage-sequence');
     viewStateUtil.RemoveAll('task', taskEl);
+    
+    // total sequence target
+    if (totalSequenceTargetTime > 0) {
+      viewStateUtil.Add('task', ['has-target'], taskEl);
+      taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = `${helper.ToTimeString(totalSequenceTargetTime, 'hms')}`;
+    }
     
     if (item.targetTime > 0 || item.targetCapTime > 0) {
       viewStateUtil.Add('task', ['has-target'], taskEl);
@@ -1704,7 +1740,7 @@ let ui = (function () {
     
     el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
     el.querySelector('[data-slot="title"]').textContent = task.title;
-    el.querySelector('[data-slot="ratioTimeLeftStr"]').textContent = helper.ToTimeString(task.targetTime, 'hms');
+    el.querySelector('[data-slot="ratioTimeLeftStr"].sc-1').textContent = helper.ToTimeString(task.targetTime, 'hms');
     el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
     el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
     

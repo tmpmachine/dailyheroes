@@ -2,6 +2,12 @@
   background: #c95b5b;  
 }
 
+.wg-SequenceTask {
+  .task-target-cap-time {
+     background: #d4d4d4; 
+  }
+}
+
 .wg-ETA {
   position: sticky;
   top: 40px;
