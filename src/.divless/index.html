@@ -205,20 +205,7 @@
           [ .d-flex .justify-content-between .gap-half .align-items-center
           
             [ .d-fex
-              <!-- # widget tracker -->
-              [ .wg-TrackerChip .tracker-overlay .d-grid data-view-group="features" data-view-name="tracker-overlay"
-                [ .d-grid {gap:0.25rem}
-                  [ .d-flex {gap:0.3rem} .justify-content-between 
-                    [ .d-inline-flex {gap:0.3rem}
-                      [ data-slot="title" .word-break-all]
-                      [ data-slot="progressTimeStr"]
-                    ]
-                    [
-                      [btn 'close' .icon-mate .clickable data-callback="stop-tracker" {font-size: 0.7rem;padding: 2px 6px;}]
-                    ]
-                  ]
-                ]
-              ]
+              
             ]
                 
             [
@@ -300,18 +287,40 @@
           ]
           [ .void-half]
   
+          <!-- widget ETA -->
+          [ .wg-ETA data-view-group="task-view-mode" data-view-name="mission"
+            [ .d-flex .justify-content-between .gap-quarter
+              [ .d-flex .flex-wrap .gap-half
+                <!-- # total mission targets -->
+                [small {col:white}
+                  Targets : 
+                  [mark #txt-total-target .task-target-time]
+                  [s #txt-total-target-cap .task-target-cap-time]
+                ]
+                <!-- # mission target ETA -->
+                [small {col:white}  data-view-group="task-view-mode" data-view-name="has-ETA"
+                  ETA : [s #txt-target-eta]
+                ]
+              ]
+              [
+                <!-- # widget tracker -->
+                [ .wg-TrackerChip .tracker-overlay .d-grid data-view-group="features" data-view-name="tracker-overlay"
+                  [ .d-grid {gap:0.25rem}
+                    [ .d-flex {gap:0.3rem} .justify-content-between 
+                      [ .d-inline-flex {gap:0.3rem}
+                        [ data-slot="title" .word-break-all]
+                        [ data-slot="progressTimeStr"]
+                      ]
+                      [
+                        [btn 'close' .icon-mate .clickable data-callback="stop-tracker" {font-size: 0.7rem;padding: 2px 6px;}]
+                      ]
+                    ]
+                  ]
+                ]                
+              ]
+            ]
+          ]
           [ data-view-group="task-view-mode" data-view-name="mission"
-            <!-- # total mission targets -->
-            [small {col:white}
-              Total targets : 
-              [mark #txt-total-target .task-target-time]
-              [s #txt-total-target-cap .task-target-cap-time]
-            ]
-            <!-- # mission target ETA -->
-            [small {col:white}  data-view-group="task-view-mode" data-view-name="has-ETA"
-              ETA : [s #txt-target-eta]
-            ]
-            
             [ .void-full]
           ]
           

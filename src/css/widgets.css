@@ -2,6 +2,17 @@
   background: #c95b5b;  
 }
 
+.wg-ETA {
+  position: sticky;
+  top: 40px;
+  z-index: 1;
+  background: #404b65;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  border-bottom: 1px solid #a9a9a93d;
+  margin: 0 0.5rem;
+}
+
 .wg-Search {
   .inner {
     max-width: 200px;

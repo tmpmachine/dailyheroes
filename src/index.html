@@ -205,20 +205,7 @@
           <div class="d-flex justify-content-between gap-half align-items-center">
           
             <div class="d-fex">
-              <!-- # widget tracker -->
-              <div class="wg-TrackerChip tracker-overlay d-grid" data-view-group="features" data-view-name="tracker-overlay">
-                <div class="d-grid" style="gap:0.25rem;">
-                  <div class="d-flex justify-content-between" style="gap:0.3rem;">
-                    <div class="d-inline-flex" style="gap:0.3rem;">
-                      <div class="word-break-all" data-slot="title"></div>
-                      <div data-slot="progressTimeStr"></div>
-                    </div>
-                    <div>
-                      <button class="icon-mate clickable" data-callback="stop-tracker" style="font-size: 0.7rem;padding: 2px 6px;">close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              
             </div>
                 
             <div>
@@ -300,18 +287,40 @@
           </div>
           <div class="void-half"></div>
   
+          <!-- widget ETA -->
+          <div class="wg-ETA" data-view-group="task-view-mode" data-view-name="mission">
+            <div class="d-flex justify-content-between gap-quarter">
+              <div class="d-flex flex-wrap gap-half">
+                <!-- # total mission targets -->
+                <small style="color:white;">
+                  Targets : 
+                  <mark id="txt-total-target" class="task-target-time"></mark>
+                  <span id="txt-total-target-cap" class="task-target-cap-time"></span>
+                </small>
+                <!-- # mission target ETA -->
+                <small data-view-group="task-view-mode" data-view-name="has-ETA" style="color:white;">
+                  ETA : <span id="txt-target-eta"></span>
+                </small>
+              </div>
+              <div>
+                <!-- # widget tracker -->
+                <div class="wg-TrackerChip tracker-overlay d-grid" data-view-group="features" data-view-name="tracker-overlay">
+                  <div class="d-grid" style="gap:0.25rem;">
+                    <div class="d-flex justify-content-between" style="gap:0.3rem;">
+                      <div class="d-inline-flex" style="gap:0.3rem;">
+                        <div class="word-break-all" data-slot="title"></div>
+                        <div data-slot="progressTimeStr"></div>
+                      </div>
+                      <div>
+                        <button class="icon-mate clickable" data-callback="stop-tracker" style="font-size: 0.7rem;padding: 2px 6px;">close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>                
+              </div>
+            </div>
+          </div>
           <div data-view-group="task-view-mode" data-view-name="mission">
-            <!-- # total mission targets -->
-            <small style="color:white;">
-              Total targets : 
-              <mark id="txt-total-target" class="task-target-time"></mark>
-              <span id="txt-total-target-cap" class="task-target-cap-time"></span>
-            </small>
-            <!-- # mission target ETA -->
-            <small data-view-group="task-view-mode" data-view-name="has-ETA" style="color:white;">
-              ETA : <span id="txt-target-eta"></span>
-            </small>
-            
             <div class="void-full"></div>
           </div>
           
