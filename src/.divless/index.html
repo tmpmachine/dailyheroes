@@ -1152,24 +1152,31 @@
             [ .d-grid {gap:0.5rem} .form-card-inner
               
               [
-                Title <input type="text" name='title' class="input-style-default"/>
+                Title 
+                [ .void-quarter]
+                <input type="text" name='title' class="input-style-default"/>
               ]
               [ .d-flex .justify-content-between .gap-full
                 [ .d-flex .flex-column
-                  Target
+                  Target Time
+                  [ .void-quarter]
                   <input type="text" name='targetCapTime' class="input-style-default" placeholder="Example: 1h, 30m, 4m, ..."/>
                 ]
               ]
               [ .d-flex
                 [ .d-flex .flex-column
-                  [
+                  [ .d-flex .align-items-center .gap-quarter
+                    [i .icon-mate 'timer']
                     Timer [small '(change in settings)' .opacity-half]
                   ]
+                  [ .void-quarter]
                   [in type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m' .input-style-default]
                 ]
               ]
               [ .d-none
-                Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
+                Repeat count (leave blank for none) 
+                [ .void-quarter]
+                <input type="number" min="1" name='finishCount' class="input-style-default"/>
               ]
               [ data-view-group="form-task" data-view-name="edit" data-view-name-not="collection-only"
                 Parent ID <input type="text" name='parent-id' class="input-style-default"/>
@@ -1183,6 +1190,7 @@
                 [
                   Target by ROP [small '(auto-assigned)' .opacity-half]
                 ]
+                [ .void-quarter]
                 [ .d-flex .gap-half
                   [in type="text" name='targetTime' .input-style-default .flex-1]
                 ]
@@ -1297,7 +1305,7 @@
               ]
               <!-- sequence target cap time -->
               [
-                Target Time Cap
+                Target Time
                 [ .void-quarter]
                 <input type="text" name="targetCapTime" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
               ]

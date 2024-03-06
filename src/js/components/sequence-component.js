@@ -70,6 +70,8 @@ let compoSequence = (function() {
   
   function ResetRepeatCountById(id) {
     let item = GetById(id);
+    if (!item) return;
+    
     item.counter.repeatCount = 0;
   }
   

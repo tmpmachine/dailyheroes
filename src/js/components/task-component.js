@@ -139,7 +139,7 @@ let compoTask = (function() {
         compoSequence.Commit();
         await appData.TaskStoreTask();
         
-        startTimerByTaskSequence(task.id, sequence, timerOptions);
+        startTimerByTaskSequence(task, sequence, timerOptions);
       } else {
         startTimerByTask(task, timerOptions);
       }
@@ -151,7 +151,7 @@ let compoTask = (function() {
     compoSequence.Pop();
   }
   
-  function startTimerByTaskSequence(taskId, item, timerOptions) {
+  function startTimerByTaskSequence(task, item, timerOptions) {
     if (item.progressTime >= item.targetTime) return;
     
     let taskTitle = item.title;
@@ -185,11 +185,18 @@ let compoTask = (function() {
       
     }
     
-    let timerTimeLeft = targetTime - progressTime;
-    let seconds = timerTimeLeft / 1000;
+    let alarmDuration = targetTime - progressTime;
     
-    androidClient.StartTimer(seconds, item.title);
-    setTimer(timerTimeLeft);
+    if (task.targetCapTime > 0 && task.targetCapTime < alarmDuration) {
+      alarmDuration = task.targetCapTime;
+    }
+    
+    {
+      let seconds = alarmDuration / 1000;
+      
+      androidClient.StartTimer(seconds, item.title);
+      setTimer(alarmDuration);
+    }
     
     // todo : allow close when another sequence is started
     // globalNotification[`${taskId}@${item.id}`] = new Notification(`${taskTitle}`, {
@@ -200,7 +207,7 @@ let compoTask = (function() {
     
     navigator.serviceWorker.ready.then((registration) => {
       registration.showNotification(`${taskTitle}`, {
-        body: `${helper.ToTimeString(timerTimeLeft, 'hms')} left`,
+        body: `${helper.ToTimeString(alarmDuration, 'hms')} left`,
         tag: 'active-sequence-task',
       });
     });
@@ -208,9 +215,17 @@ let compoTask = (function() {
   }
   
   function startTimerByTask(task, timerOptions) {
-    let seconds = (task.durationTime - task.progressTime) / 1000;
-    androidClient.StartTimer(seconds, task.title);
-    setTimer(task.durationTime - task.progressTime);
+    let alarmDuration = (task.durationTime - task.progressTime);
+    
+    if (task.targetCapTime > 0 && task.targetCapTime < alarmDuration) {
+      alarmDuration = task.targetCapTime;
+    }
+    
+    {
+      let seconds = alarmDuration / 1000;
+      androidClient.StartTimer(seconds, task.title);
+      setTimer(alarmDuration);
+    }
   }
   
   function GetTotalPriorityPointByParentTaskId(parentTaskId) {

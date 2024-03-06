@@ -738,14 +738,14 @@ async function startNextSequence() {
   let data = await chrome.storage.local.get(['activeTask']);
   if (!data.activeTask) return;
 
-  let activeTask = tasks.find(x => x.id == data.activeTask);
-  if (!activeTask) return;
+  let task = tasks.find(x => x.id == data.activeTask);
+  if (!task) return;
   
-  let alarmDurationTime = activeTask.durationTime;
+  let alarmDurationTime = task.durationTime;
   let isSequenceTask = true;
   
   // get target time from sequence
-  compoSequence.Stash(activeTask.sequenceTasks);
+  compoSequence.Stash(task.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
   
   if (sequenceTask) {
@@ -760,6 +760,10 @@ async function startNextSequence() {
       if (capTimeLeft < sequenceTask.targetTime) {
         alarmDurationTime = capTimeLeft;
       }
+    }
+    
+    if (task.targetCapTime > 0 && task.targetCapTime < alarmDurationTime) {
+      alarmDurationTime = task.targetCapTime;
     }
     
     // get title from task if linked
@@ -841,12 +845,18 @@ async function restartTask() {
   let data = await chrome.storage.local.get(['activeTask']);
   if (!data.activeTask) return;
 
-  let activeTask = tasks.find(x => x.id == data.activeTask);
-  if (!activeTask) return;
+  let task = tasks.find(x => x.id == data.activeTask);
+  if (!task) return;
 
-  activeTask.progressTime = 0;
+  task.progressTime = 0;
   await storeTask(tasks);
-  startNewAlarm(activeTask.durationTime);
+  
+  let alarmDurationTime = task.durationTime;
+  if (task.targetCapTime > 0 && task.targetCapTime < alarmDurationTime) {
+    alarmDurationTime = task.targetCapTime;
+  }
+  
+  startNewAlarm(alarmDurationTime);
 }
 
 async function restartSequenceTask() {

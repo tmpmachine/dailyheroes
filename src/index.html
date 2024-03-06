@@ -1152,24 +1152,31 @@
             <div class="d-grid form-card-inner" style="gap:0.5rem;">
               
               <div>
-                Title <input type="text" name='title' class="input-style-default"/>
+                Title 
+                <div class="void-quarter"></div>
+                <input type="text" name='title' class="input-style-default"/>
               </div>
               <div class="d-flex justify-content-between gap-full">
                 <div class="d-flex flex-column">
-                  Target
+                  Target Time
+                  <div class="void-quarter"></div>
                   <input type="text" name='targetCapTime' class="input-style-default" placeholder="Example: 1h, 30m, 4m, ..."/>
                 </div>
               </div>
               <div class="d-flex">
                 <div class="d-flex flex-column">
-                  <div>
+                  <div class="d-flex align-items-center gap-quarter">
+                    <i class="icon-mate">timer</i>
                     Timer <small class="opacity-half">(change in settings)</small>
                   </div>
+                  <div class="void-quarter"></div>
                   <input class="input-style-default" type="text" name='durationTime' placeholder='example: 1h, 30m, or 1h30m'/>
                 </div>
               </div>
               <div class="d-none">
-                Repeat count (leave blank for none) <input type="number" min="1" name='finishCount' class="input-style-default"/>
+                Repeat count (leave blank for none) 
+                <div class="void-quarter"></div>
+                <input type="number" min="1" name='finishCount' class="input-style-default"/>
               </div>
               <div data-view-group="form-task" data-view-name="edit" data-view-name-not="collection-only">
                 Parent ID <input type="text" name='parent-id' class="input-style-default"/>
@@ -1183,6 +1190,7 @@
                 <div>
                   Target by ROP <small class="opacity-half">(auto-assigned)</small>
                 </div>
+                <div class="void-quarter"></div>
                 <div class="d-flex gap-half">
                   <input class="input-style-default flex-1" type="text" name='targetTime'/>
                 </div>
@@ -1297,7 +1305,7 @@
               </div>
               <!-- sequence target cap time -->
               <div>
-                Target Time Cap
+                Target Time
                 <div class="void-quarter"></div>
                 <input type="text" name="targetCapTime" placeholder="e.g. 7m, 15m20s, 1h20m" class="input-style-default"/>
               </div>
