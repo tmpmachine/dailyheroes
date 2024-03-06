@@ -97,11 +97,11 @@
                 <!-- # active time target time -->
                 [small data-view-group="active-task-info" data-view-name="has-target"
                   [ .d-flex .gap-quarter
-                    [
+                    [ .obsoletes
                       [mark #txt-active-task-target .task-target-time]  
                     ]
                     [s #txt-active-task-target-cap .task-target-cap-time]
-                    [s #txt-active-task-target-limit]
+                    [s #txt-active-task-target-limit .obsoletes]
                   ]
                 ]
               ]
@@ -290,11 +290,11 @@
           <!-- widget ETA -->
           [ .wg-ETA data-view-group="task-view-mode" data-view-name="mission"
             [ .d-flex .justify-content-between .gap-quarter
-              [ .d-flex .flex-wrap .gap-half
+              [ .d-flex .flex-wrap .gap-half .align-items-center
                 <!-- # total mission targets -->
-                [small
-                  Targets : 
-                  [mark #txt-total-target .task-target-time]
+                [small .align-items-center .d-flex .gap-quarter
+                  Total target :
+                  [mark #txt-total-target .task-target-time .obsoletes]
                   [s #txt-total-target-cap .task-target-cap-time]
                 ]
                 <!-- # mission target ETA -->

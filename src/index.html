@@ -97,11 +97,11 @@
                 <!-- # active time target time -->
                 <small data-view-group="active-task-info" data-view-name="has-target">
                   <div class="d-flex gap-quarter">
-                    <div>
+                    <div class="obsoletes">
                       <mark id="txt-active-task-target" class="task-target-time"></mark>  
                     </div>
                     <span id="txt-active-task-target-cap" class="task-target-cap-time"></span>
-                    <span id="txt-active-task-target-limit"></span>
+                    <span id="txt-active-task-target-limit" class="obsoletes"></span>
                   </div>
                 </small>
               </div>
@@ -290,11 +290,11 @@
           <!-- widget ETA -->
           <div class="wg-ETA" data-view-group="task-view-mode" data-view-name="mission">
             <div class="d-flex justify-content-between gap-quarter">
-              <div class="d-flex flex-wrap gap-half">
+              <div class="d-flex flex-wrap gap-half align-items-center">
                 <!-- # total mission targets -->
-                <small>
-                  Targets : 
-                  <mark id="txt-total-target" class="task-target-time"></mark>
+                <small class="align-items-center d-flex gap-quarter">
+                  Total target :
+                  <mark id="txt-total-target" class="task-target-time obsoletes"></mark>
                   <span id="txt-total-target-cap" class="task-target-cap-time"></span>
                 </small>
                 <!-- # mission target ETA -->
