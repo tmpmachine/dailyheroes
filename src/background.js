@@ -475,14 +475,13 @@ async function onAlarmEnded(alarm) {
   let isRepeatCountFinished = false;
   let isSequenceTask = false;
   let finishCountLeftTxt = '';
-  let targetMinutesTxt = '';
   let targetTimeLeftStr = '';
   
   let sequenceTaskTitle = '';
-  let sequenceTaskDurationTimeStr = '';
   let repeatCountStr = '';
   let taskTargetTimeStr = '';
   let taskTitle = '';
+  let alarmDurationTime = 0;
   
   if (data.activeTask) {
     
@@ -494,7 +493,7 @@ async function onAlarmEnded(alarm) {
       taskTitle = activeTask.title;
       
       // set target minutes on restart button
-      targetMinutesTxt = ` (${msToMinutes(activeTask.durationTime)}m)`;
+      alarmDurationTime = activeTask.durationTime;
       
       if (activeTask.targetCapTime > 0) {
         targetTimeLeftStr = `(${helper.ToTimeString(activeTask.targetCapTime, 'hms')} left)`;
@@ -513,10 +512,11 @@ async function onAlarmEnded(alarm) {
       // change notif action if its a sequence task
       compoSequence.Stash(activeTask.sequenceTasks);
       let sequenceTask = compoSequence.GetActive();
+      
       if (sequenceTask) {
         isSequenceTask = true;
         sequenceTaskTitle = sequenceTask.title;
-        sequenceTaskDurationTimeStr = helper.ToTimeString(sequenceTask.targetTime, 'hms');
+        alarmDurationTime = sequenceTask.targetTime; // set alarm to sequence task timer
         
         // get title from task if linked
         if (sequenceTask.linkedTaskId) {
@@ -530,7 +530,7 @@ async function onAlarmEnded(alarm) {
         } else {
           if (sequenceTask.targetCapTime > 0) {
             let timeCapLeft = Math.max(0, sequenceTask.targetCapTime - sequenceTask.progressCapTime);
-            sequenceTaskDurationTimeStr = helper.ToTimeString(timeCapLeft, 'hms');
+            alarmDurationTime = timeCapLeft; // set alarm to sequence task time cap
           }
         }
         
@@ -538,8 +538,15 @@ async function onAlarmEnded(alarm) {
         if (repeatCountData) {
           repeatCountStr = `[${repeatCountData.counter.repeatCount} of ${repeatCountData.repeatCount}]`;
         }
+        
       }
+      
       compoSequence.Pop();
+
+      // limit alarm time by task target cap time (if set and is lower)
+      if (activeTask.targetCapTime > 0 && activeTask.targetCapTime < alarmDurationTime) {
+        alarmDurationTime = activeTask.targetCapTime;
+      }
 
     }
     
@@ -549,6 +556,7 @@ async function onAlarmEnded(alarm) {
   let notifTitle = `Time's up!`;
   let notifBody = `Task : ${taskTitle} ${targetTimeLeftStr} ${finishCountLeftTxt}`.replace(/ +/g,' ').trim();
   let tag = 'progress';
+  let alarmDurationTimeStr = (alarmDurationTime > 0 ? ` (${helper.ToTimeString(alarmDurationTime, 'hms')})` : '');
   
   let isStartNext = false;
   let isStartTask = false;
@@ -597,17 +605,17 @@ async function onAlarmEnded(alarm) {
   if (isStartNext) {
     actions.push({
       action: 'start-next-sequence',
-      title: `Start next (${sequenceTaskDurationTimeStr})`,
+      title: `Start next (${alarmDurationTimeStr})`,
     });
   } else if (isRestartTask) {
     actions.push({
       action: isSequenceTask ? 'start-next-sequence' : 'restart',
-      title: `Restart task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
+      title: `Restart task ${alarmDurationTimeStr}`.replace(/ +/g,' ').trim(),
     });
   } else if (isStartTask) {
     actions.push({
       action: isSequenceTask ? 'start-next-sequence' : 'restart',
-      title: `Start task ${targetMinutesTxt}`.replace(/ +/g,' ').trim(),
+      title: `Start task ${alarmDurationTimeStr}`.replace(/ +/g,' ').trim(),
     });
   }
   
