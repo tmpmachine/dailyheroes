@@ -8,7 +8,7 @@ let viewStates = [
   {
     group: 'sequence-item',
     states: [
-      'linked-task'
+      'linked-task', 'track-progress'
     ]
   },
   // active task info

@@ -797,8 +797,8 @@ let ui = (function () {
       } else {
         if (item.targetCapTime > 0) {
           let targetCapLimitStr = helper.ToTimeString(item.targetCapTime, 'hms');
-          let targetCapProgressStr = helper.ToTimeString(item.progressCapTime, 'hms');
-          targetCapTimeStr = `${targetCapProgressStr} / ${targetCapLimitStr}`;
+          // let targetCapProgressStr = helper.ToTimeString(item.progressCapTime, 'hms');
+          targetCapTimeStr = `${targetCapLimitStr}`;
         }
       }
       
@@ -836,7 +836,23 @@ let ui = (function () {
       el.querySelector('[data-kind="item-sequence-task"]').dataset.id = item.id;
       el.querySelector('[data-kind="item-sequence-task"]').classList.toggle('is-active', (item.id == activeId));
       
+      // progress bar
+      if (item.targetCapTime > 0)
+      {
+        viewStateUtil.Add('sequence-item', ['track-progress'], el.firstElementChild);
+        try {
+          let progressEl = el.querySelector('.wg-TaskProgressBar');
+          if (progressEl) {
+            let percentage = Math.floor(item.progressCapTime / item.targetCapTime * 10000) / 100;
+            let percentageStr = `${percentage}%`;
+            progressEl.querySelector('.progress').style.width = percentageStr;
+            progressEl.querySelector('.label').textContent = percentageStr;
+          }
+        } catch (e) {}      
+      }
+      
       docFrag.append(el);
+      
     }
     
     container.append(docFrag);

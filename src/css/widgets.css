@@ -8,6 +8,38 @@
   }
 }
 
+.wg-TaskProgressBar {
+
+    & {
+      height: 10px;
+      width: 70px;
+      display: grid;
+      position: relative;
+    }
+    .inner {
+        display: flex;
+        background: #2d2d2d;
+    }
+    .progress {
+      background: orange;
+      width: 0%;
+      height: 100%;
+      left: 0;
+    }
+    .label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      font-size: 0.8em;
+    }
+    
+}
+
 .wg-ETA {
   & {
     position: sticky;
