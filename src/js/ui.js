@@ -843,7 +843,7 @@ let ui = (function () {
         try {
           let progressEl = el.querySelector('.wg-TaskProgressBar');
           if (progressEl) {
-            let percentage = Math.floor(item.progressCapTime / item.targetCapTime * 10000) / 100;
+            let percentage = Math.max(100, Math.floor(item.progressCapTime / item.targetCapTime * 10000) / 100);
             let percentageStr = `${percentage}%`;
             progressEl.querySelector('.progress').style.width = percentageStr;
             progressEl.querySelector('.label').textContent = percentageStr;
