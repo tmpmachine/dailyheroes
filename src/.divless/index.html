@@ -867,11 +867,16 @@
   	  <!-- # sequence container -->
   	  [ data-view-group="task" data-view-name="sequence"
         <!-- # sequence toolbar -->
-        [ {p:0.5rem} .d-flex .flex-wrap {gap:0.3rem}
-          [btn '+ New' data-role="add-sequence-task"]
-          [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
-          [btn 'Reset repeat count' data-role="reset-count-active-seq"]
-          [btn 'Manage' data-role="manage-sequence"]
+        [ {p:0.5rem} .d-flex .flex-wrap .gap-half .justify-content-between
+          [ .d-flex .flex-wrap .gap-half
+            [btn '+ New' data-role="add-sequence-task"]
+            [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
+            [btn 'Reset repeat count' data-role="reset-count-active-seq"]
+            [btn 'Manage' data-role="manage-sequence"]
+          ]
+          [
+            [btn .btn-star .icon-mate 'refresh' title="Reset sequence" data-role="reset-sequence"]
+          ]
         ]
         [ data-container="sequence-tasks" ]
   	  ]

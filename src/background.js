@@ -241,10 +241,10 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     let nextItem = compoSequence.GetNext();
     compoSequence.SetActiveById(nextItem.id);
     
-    let seqIndex = compoSequence.GetIndexById(nextItem.id);
+    /*let seqIndex = compoSequence.GetIndexById(nextItem.id);
     if (seqIndex == 0) {
       compoSequence.ResetSequenceTasksProgress();
-    }
+    }*/
   }
   
   compoSequence.Commit();

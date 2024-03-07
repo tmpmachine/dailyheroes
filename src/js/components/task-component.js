@@ -20,6 +20,7 @@ let compoTask = (function() {
     FocusSequenceById,
     TaskResetSequenceById,
     TaskResetSequenceCountByTaskId,
+    TaskResetSequenceByTaskId,
     
     TaskResetTasksTargetTime,
     GetTaskQuotaTimeById,
@@ -288,6 +289,20 @@ let compoTask = (function() {
     await appData.TaskStoreTask();    
     
     ui.RefreshListSequenceByTaskId(taskId);
+    
+  }
+  
+  async function TaskResetSequenceByTaskId(taskId) {
+    
+    let item = app.GetTaskById(taskId);
+    
+    compoSequence.Stash(item.sequenceTasks);
+    
+    compoSequence.ResetSequenceTasksProgress();
+    
+    compoSequence.Commit();
+    
+    await appData.TaskStoreTask();    
     
   }
   

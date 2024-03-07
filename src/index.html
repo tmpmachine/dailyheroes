@@ -867,11 +867,16 @@
   	  <!-- # sequence container -->
   	  <div data-view-group="task" data-view-name="sequence">
         <!-- # sequence toolbar -->
-        <div class="d-flex flex-wrap" style="padding:0.5rem;gap:0.3rem;">
-          <button data-role="add-sequence-task">+ New</button>
-          <button data-role="link-task-to-sequence-interactive-mode">Link a task</button>
-          <button data-role="reset-count-active-seq">Reset repeat count</button>
-          <button data-role="manage-sequence">Manage</button>
+        <div class="d-flex flex-wrap gap-half justify-content-between" style="padding:0.5rem;">
+          <div class="d-flex flex-wrap gap-half">
+            <button data-role="add-sequence-task">+ New</button>
+            <button data-role="link-task-to-sequence-interactive-mode">Link a task</button>
+            <button data-role="reset-count-active-seq">Reset repeat count</button>
+            <button data-role="manage-sequence">Manage</button>
+          </div>
+          <div>
+            <button class="btn-star icon-mate" title="Reset sequence" data-role="reset-sequence">refresh</button>
+          </div>
         </div>
         <div data-container="sequence-tasks"></div>
   	  </div>

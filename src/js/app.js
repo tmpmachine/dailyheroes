@@ -2003,10 +2003,10 @@ let app = (function () {
           let nextItem = compoSequence.GetNext();
           compoSequence.SetActiveById(nextItem.id);  
           
-          let seqIndex = compoSequence.GetIndexById(nextItem.id);
+          /*let seqIndex = compoSequence.GetIndexById(nextItem.id);
           if (seqIndex == 0 && compoSequence.CountAll() > 1) {
             compoSequence.ResetSequenceTasksProgress();
-          }
+          }*/
           
         }
         
@@ -2549,6 +2549,7 @@ let app = (function () {
       case 'save-to-collection': ui.TaskSaveTaskWithIdToSequence(id); break;
       case 'pick-collection': ui.PickCollection(); break;
       case 'reset-count-active-seq': compoTask.TaskResetSequenceCountByTaskId(id); break;
+      case 'reset-sequence': ui.TaskConfirmResetTaskSequenceProgress(id); break;
       case 'manage-sequence': ui.ToggleManageSequenceByTaskId(id); break;
       case 'toggle-expand-sequence-task': ui.ToggleExpandSequenceTask(id); break;
       case 'link-task-to-sequence-interactive-mode': ui.TaskLinkTaskToSequenceByTaskIdInteractiveMode(id); break;

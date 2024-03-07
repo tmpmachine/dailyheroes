@@ -65,6 +65,7 @@ let compoSequence = (function() {
       item = GetById(item.id);
       item.counter.repeatCount = 0;
       item.progressCapTime = 0;
+      item.progressTime = 0;
     }
   }
   

@@ -71,7 +71,17 @@ let ui = (function () {
     TaskAddProgressFromForm,
     CreateMissionFromTask,
     TaskSubmitMissionConvertTask,
+    TaskConfirmResetTaskSequenceProgress,
   };
+  
+  async function TaskConfirmResetTaskSequenceProgress(id) {
+    let isConfirm = await ui.ShowConfirm();
+    if (!isConfirm) return; 
+    
+    await compoTask.TaskResetSequenceByTaskId(id);
+    
+    RefreshListSequenceByTaskId(id);
+  }
   
   async function TaskSubmitMissionConvertTask(evt) {
     evt.preventDefault();
@@ -837,13 +847,20 @@ let ui = (function () {
       el.querySelector('[data-kind="item-sequence-task"]').classList.toggle('is-active', (item.id == activeId));
       
       // progress bar
-      if (item.targetCapTime > 0)
+      // if (item.targetCapTime > 0)
       {
         viewStateUtil.Add('sequence-item', ['track-progress'], el.firstElementChild);
         try {
           let progressEl = el.querySelector('.wg-TaskProgressBar');
           if (progressEl) {
-            let percentage = Math.min(100, Math.floor(item.progressCapTime / item.targetCapTime * 10000) / 100);
+            let percentage = 0;
+            
+            if (item.targetCapTime > 0) {
+              percentage = Math.min(100, Math.floor(item.progressCapTime / item.targetCapTime * 10000) / 100);
+            } else {
+              percentage = Math.min(100, Math.floor(item.progressTime / item.targetTime * 10000) / 100);
+            }
+            
             let percentageStr = `${percentage}%`;
             progressEl.querySelector('.progress').style.width = percentageStr;
             progressEl.querySelector('.label').textContent = percentageStr;

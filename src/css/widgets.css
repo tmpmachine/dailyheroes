@@ -18,7 +18,7 @@
     }
     .inner {
         display: flex;
-        background: #2d2d2d;
+        background: #696969;
     }
     .progress {
       background: orange;
