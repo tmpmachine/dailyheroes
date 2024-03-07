@@ -442,6 +442,11 @@ async function alarmHandler(alarm) {
 async function onAlarmEnded(alarm) {
   
   let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak', 'leftOverAlarmTaskId']);
+  
+  if (typeof(data.leftOverAlarmTaskId) != 'undefined') {
+    await chrome.storage.local.remove(['leftOverAlarmTaskId']);
+  }
+  
   let distanceMinutes = 0;
   let distanceTime = 0;
   
@@ -494,7 +499,6 @@ async function onAlarmEnded(alarm) {
       
       // the task target time has been fulfilled, don't show actions
       if (data.leftOverAlarmTaskId == activeTask.id) {
-        await chrome.storage.local.remove(['leftOverAlarmTaskId']);
         isHasAlarmAction = false;
       }
       
