@@ -242,6 +242,7 @@
           
           <!-- # task list container -->
           <div id="tasklist-container" class="container-task">
+            <!-- # widget task -->
             <!-- # widget-task.skin-default -->
             <!-- # widget-task.skin-compact -->
             [ #tasklist .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
@@ -400,6 +401,29 @@
         </section>
         
         
+      </section>
+      
+      <!-- # task detail screen -->
+      <section class="container-screen" data-view-group="screens" data-view-name="task-detail">
+      [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
+    
+        <!-- # task detail overlay background -->
+        [ .overlay-bg-default]
+        
+        <!-- # task detail screen nav -->
+        [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
+          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
+          [ 'Task' {fw:bold}]
+        ]
+        
+        <!-- # task detail screen body -->
+        [ .padding-container .page-TaskDetail
+          
+           [ .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
+          
+        ]
+      
+      ]
       </section>
       
       <!-- # collections screen -->
@@ -1085,7 +1109,10 @@
           [btn 'flag' data-role="set-target-time" class="icon-mate" data-group="active not-running" title="Add target time"]
           [ {p:0.2rem}]
           <!-- task action: edit -->
-          [btn 'Edit' data-role='edit' class="icon-mate" data-group="not-running" title="Edit"]
+          [btn 'Edit' data-role="edit" class="icon-mate" data-group="not-running" title="Edit"]
+          [ {p:0.2rem}]
+          
+          [btn 'open_in_new' data-role="open" class="icon-mate" title="Open"]
           [btn 'add_circle' data-role="create-mission" .icon-mate data-group="not-running" title="Edit" .obsoletes]
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->

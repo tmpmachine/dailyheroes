@@ -2585,6 +2585,7 @@ let app = (function () {
       case 'add-sub-timer': addSubTimer(id); break;
       case 'add-progress-minutes': await ui.TaskAddProgressManually(id); break;
       case 'set-target-time': await ui.TaskSetTargetTime(id); break;
+      case 'open': await pageDetail.OpenByTaskId(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
       case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
       case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;

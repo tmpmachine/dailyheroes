@@ -52,7 +52,7 @@ let viewStates = [
   {
     group: 'screens',
     states: [
-      'home', 'settings', 'trackers', 'priority-mapper', 'collections', 'by-threshold',
+      'home', 'settings', 'trackers', 'priority-mapper', 'collections', 'by-threshold', 'task-detail'
     ],
   },
   {

@@ -1,4 +1,7 @@
 {
+  "pages": [
+    "js/pages/detail-page.js"
+  ],
   "components": [
     "js/components/clipboard-component.js",
     "js/components/input-explorer-component.js",

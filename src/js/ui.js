@@ -77,7 +77,6 @@ let ui = (function () {
   };
   
   function ToggleSearchFeature() {
-    console.log(1)
     viewStateUtil.Toggle('features', ['search-bar']);
   }
   

@@ -92,6 +92,7 @@ componentLoader.load([
       "js/lib/drive-api.js",
       "js/components/gsi-chrome-component.js",
       "js/components/backup-component.js",
+      "js/pages/detail-page.js",
     ],
     callback: function() {
       

@@ -242,6 +242,7 @@
           
           <!-- # task list container -->
           <div id="tasklist-container" class="container-task">
+            <!-- # widget task -->
             <!-- # widget-task.skin-default -->
             <!-- # widget-task.skin-compact -->
             <div id="tasklist" class="widget-task skin-default" data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"></div>
@@ -400,6 +401,29 @@
         </section>
         
         
+      </section>
+      
+      <!-- # task detail screen -->
+      <section class="container-screen" data-view-group="screens" data-view-name="task-detail">
+      <div class="d-grid h-100 pos-relative" style="grid-template-rows:auto 1fr;">
+    
+        <!-- # task detail overlay background -->
+        <div class="overlay-bg-default"></div>
+        
+        <!-- # task detail screen nav -->
+        <div class="d-flex align-items-center container-screen-title pos-sticky top-0 z-index-1" style="gap:1rem;">
+          <button class="clickable icon-mate btn-nav" data-callback="navigate-screen" data-view-target="home">chevron_left</button>
+          <div style="font-weight:bold;">Task</div>
+        </div>
+        
+        <!-- # task detail screen body -->
+        <div class="padding-container page-TaskDetail">
+          
+           <div class="widget-task skin-default" data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"></div>
+          
+        </div>
+      
+      </div>
       </section>
       
       <!-- # collections screen -->
@@ -1085,7 +1109,10 @@
           <button data-role="set-target-time" class="icon-mate" data-group="active not-running" title="Add target time">flag</button>
           <div style="padding:0.2rem;"></div>
           <!-- task action: edit -->
-          <button data-role='edit' class="icon-mate" data-group="not-running" title="Edit">Edit</button>
+          <button data-role="edit" class="icon-mate" data-group="not-running" title="Edit">Edit</button>
+          <div style="padding:0.2rem;"></div>
+          
+          <button data-role="open" class="icon-mate" title="Open">open_in_new</button>
           <button class="icon-mate obsoletes" data-role="create-mission" data-group="not-running" title="Edit">add_circle</button>
           <!--<button data-role='set-ratio' title='Set ratio' class="icon-mate">percent</button>-->
           <!-- <button data-role='add-label' class="icon-mate">label</button> -->
