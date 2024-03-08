@@ -36,7 +36,7 @@ let viewStates = [
   {
     group: 'features',
     states: [
-      'tracker-overlay', 'interactive-sequence-task-pick',
+      'tracker-overlay', 'interactive-sequence-task-pick', 'search-bar',
     ],
     inverseStates: [
       'interactive-sequence-task-pick',  

@@ -8,6 +8,17 @@
   }
 }
 
+.wg-ActiveTaskProgressBar {
+  & {width: 40%;}
+  .label-eta {
+    color: white;
+    background: #1e90ff;
+    padding: 2px 4px;
+    border-radius: 5px;
+    font-size: 0.8em;
+  }
+}
+
 .wg-TaskProgressBar {
 
     & {
@@ -47,21 +58,7 @@
 
 .wg-ETA {
   & {
-    position: sticky;
-    top: 40px;
-    z-index: 1;
-    background: #ffffff;
-    padding: 0.4rem 0.9rem;
-    border-radius: 8px;
-    border-bottom: 1px solid #a9a9a93d;
-    margin: 0 0.5rem;
-  }
-  .label-eta {
     color: white;
-    background: #1e90ff;
-    padding: 2px 4px;
-    border-radius: 5px;
-    font-size: 0.8em;
   }
 }
 
@@ -81,11 +78,31 @@
 }
 
 .wg-ActiveTask {
-  position: fixed;
-  bottom: 0;
-  z-index: 1;
-  max-width: 300px;
-  width: 100%;
+  & {
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+    width: 100%;
+    left: 0;
+  }
+  .task-info {
+    border-left: 1px solid #e4e4e4;
+    padding-left: 0.5rem;
+  }
+  .sc-2 {
+    &.inner {
+      max-width: 500px;
+      margin: auto;
+    }
+    &.sub-inner {
+      margin: 0 0.8rem;
+    }
+    .drawer {
+      padding: 0.5rem;
+      box-shadow: 0 0 8px 0px #00000026;
+      border-radius: 6px 6px 0 0;
+    }
+  }
 }
 
 .wg-Tab {

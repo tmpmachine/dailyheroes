@@ -142,6 +142,7 @@ let DOMEvents = (function() {
   	  'delete-task-from-form': (evt) => ui.DeleteTaskFromForm(evt),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),
   	  'delete-sequence-from-form': (evt) => ui.DeleteSequenceFromForm(evt),
+  	  'toggle-search-feature': () => ui.ToggleSearchFeature(),
   	},
   	
   };

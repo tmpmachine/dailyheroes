@@ -73,7 +73,13 @@ let ui = (function () {
     CreateMissionFromTask,
     TaskSubmitMissionConvertTask,
     TaskConfirmResetTaskSequenceProgress,
+    ToggleSearchFeature,
   };
+  
+  function ToggleSearchFeature() {
+    console.log(1)
+    viewStateUtil.Toggle('features', ['search-bar']);
+  }
   
   async function TaskConfirmResetTaskSequenceProgress(id) {
     let isConfirm = await ui.ShowConfirm();

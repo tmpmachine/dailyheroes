@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html class="h-100">
-<!-- data-scope-id counter: 1-->
+<!-- data-scope-id counter: 2-->
 <head>
 
   <title>DailyHeroes</title>
@@ -39,7 +39,7 @@
 </head>
 <body data-view-group="platform auth build" data-view-states="" class="h-100 ov-hidden">
   
-  <div class="container-app ov-auto h-100" style="max-width:500px;margin:auto;">
+  <div class="container-app h-100" style="max-width:500px;margin:auto;">
 
     <div class="d-grid h-100 container-app-inner" data-view-group="screens features" data-view-states="home" style="max-width:100%;min-width:400px;margin:auto;">
     
@@ -73,94 +73,6 @@
 
         
         <!-- # home screen body -->
-      
-        <!-- # widget active task -->
-        <div class="padding-container wg-ActiveTask">
-          
-          <div class="d-flex container-active-task bg-white" style="gap:0.5rem;">
-            
-            <!-- # progress bar -->
-            <div class="flex-1" data-view-group="active-task-info" data-view-states="">
-              
-              <div class="NzE2ODYyNQ-progress-bar-container">
-                <div class="NzE2ODYyNQ-progress-bar">
-                  <div class="NzE2ODYyNQ-progress-bar-fill"></div>
-                  <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
-                </div>
-              </div>
-              <div class="void-quarter"></div>
-              
-              <div class="d-flex flex-wrap justify-content-between gap-quarter">
-                <!-- # active task info -->
-                <small id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></small> 
-                
-                <!-- # active time target time -->
-                <small data-view-group="active-task-info" data-view-name="has-target">
-                  <div class="d-flex gap-quarter">
-                    <div class="obsoletes">
-                      <mark id="txt-active-task-target" class="task-target-time"></mark>  
-                    </div>
-                    <span id="txt-active-task-target-cap" class="task-target-cap-time"></span>
-                    <span id="txt-active-task-target-limit" class="obsoletes"></span>
-                  </div>
-                </small>
-              </div>
-              
-              <!-- # active task sequence info -->
-              <div data-view-group="active-task-info" data-view-name="is-sequence">
-                <small id="txt-active-task-sequence-name" style="word-break:break-word;font-style:italic;"></small> 
-              </div>
-            
-              
-              <!-- # open task button -->
-              <div class="d-flex justify-content-between">
-                <button class="bg-white obsoletes" data-onclick="open-task-into-view">
-                  <small class="icon-mate">open_in_new</small>
-                </button>
-                
-                <!-- # pip button-->
-                <button class="bg-white obsoletes" data-onclick="open-pip" data-view-group="platform" data-view-name="web">
-                  <small class="icon-mate">picture_in_picture</small>
-                </button>
-              </div>
-              
-            </div>
-            
-            
-            <!-- # toggle active task timer -->
-            <div class="d-flex flex-column" style="gap:0.5rem;">
-            
-              <div data-obj="stop-timer">
-                <div class="d-grid" style="gap:0.35rem;height:2.2rem;">
-                  <button class='clickable btn-timer-control-stop d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='stop-timer'>
-                    <span class="icon-mate">stop</span>
-                  </button>
-                  <button class='clickable btn-timer-start btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
-                    <span class="icon-mate">play_arrow</span>
-                  </button>
-                  <small class="text-center obsoletes" data-view-group="platform" data-view-name="web">(Alt+S)</small>
-                  <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
-                </div>
-              </div>
-              
-            </div>
-          
-          </div>
-          
-          <div class="mb-xs"></div>
-          
-          
-          <div class="d-none">
-            <div style="height:2px;"></div>
-            <div class="progress-bar-container">
-              <div class="progress-bar">
-                <div class="progress-bar-fill"></div>
-                <span class="progress-bar-text"><span id="percentage"></span></span>
-              </div>
-            </div>
-          </div>
-          
-        </div>
         
         <!-- # interactive sequence task pick -->
         <div class="padding-container" data-view-group="features" data-view-name="interactive-sequence-task-pick">
@@ -183,50 +95,57 @@
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
           
-          <!-- # view mode tabs -->
-          <div class="d-grid container-view-mode wg-Tab" style="grid-template-columns:1fr 1fr auto;">
-            <button class="clickable" data-callback="view-mission" data-id="mission">
-              <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
-                <span class="icon-mate">list</span>
-                <span>Missions</span>
-                <div class="d-flex tab-active-indicator"></div>
-              </div>
-            </button>
-            <button class="clickable" data-callback="view-tasks" data-id="task">
-              <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
-                My Tasks
-                <div class="d-flex tab-active-indicator"></div>
-              </div>
-            </button>
-          </div>
-          
-        <div class="p-half">
-        
-          <div class="d-flex justify-content-between gap-half align-items-center">
-          
-            <div class="d-fex">
-              
+          <div class="d-flex">
+            
+            <!-- # search feature toggler -->
+            <div class="d-flex align-items-center p-half">
+              <button class="icon-mate" data-onclick="toggle-search-feature">search</button>
             </div>
-                
-            <div>
-              <!-- # search -->
-              <div class="wg-Search">
-                <div class="inner">
-                  <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
-                  <div class="d-none">
-                    Filter by label :
-                    <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+          
+            <div class="flex-1">
+              <!-- # widget tabs -->
+              <div class="d-grid container-view-mode wg-Tab" style="grid-template-columns:1fr 1fr auto;">
+                <button class="clickable" data-callback="view-mission" data-id="mission">
+                  <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                    <span class="icon-mate">list</span>
+                    <span>Missions</span>
+                    <div class="d-flex tab-active-indicator"></div>
                   </div>
-                </div>
+                </button>
+                <button class="clickable" data-callback="view-tasks" data-id="task">
+                  <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                    My Tasks
+                    <div class="d-flex tab-active-indicator"></div>
+                  </div>
+                </button>
               </div>
             </div>
             
           </div>
+          
+          
+        <div data-view-group="features" data-view-name="search-bar">
+          <div class="d-flex justify-content-between gap-half align-items-center p-half">
+        
+            <!-- # search -->
+            <div class="wg-Search">
+              <div class="inner">
+                <input id="node-filter-box" type="text" placeholder="Search" class="inputable input-style-default" data-callback="save-word-template"/>
+                <div class="d-none">
+                  Filter by label :
+                  <input id="in-filter-search-label" class="inputable input-style-default" data-callback="save-label-filter"/>
+                </div>
+              </div>
+            </div>
+            <div class="void-full"></div>
+          </div>
+        </div>
+      
+        <div class="p-half">
         
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
             
-            <div class="void-full"></div>
 
             <div class="d-grid align-items-center" style="gap:0.3rem;grid-template-columns:1fr auto;">
               
@@ -290,21 +209,15 @@
           <!-- widget ETA -->
           <div class="wg-ETA" data-view-group="task-view-mode" data-view-name="mission">
             <div class="d-flex justify-content-between gap-quarter">
-              <div class="d-flex flex-wrap gap-half align-items-center">
+              <div>
                 <!-- # total mission targets -->
                 <small class="align-items-center d-flex gap-quarter">
                   Total target :
                   <mark id="txt-total-target" class="task-target-time obsoletes"></mark>
                   <span id="txt-total-target-cap" class="task-target-cap-time"></span>
                 </small>
-                <!-- # mission target ETA -->
-                <small data-view-group="task-view-mode" data-view-name="has-ETA">
-                  <div class="d-flex gap-quarter align-items-center">
-                    <span>ETA</span>
-                    <span id="txt-target-eta" class="label-eta"></span>
-                  </div>
-                </small>
               </div>
+              
               <div>
                 <!-- # widget tracker -->
                 <div class="wg-TrackerChip tracker-overlay d-grid" data-view-group="features" data-view-name="tracker-overlay">
@@ -319,13 +232,12 @@
                       </div>
                     </div>
                   </div>
-                </div>                
+                </div>       
               </div>
+              
             </div>
           </div>
-          <div data-view-group="task-view-mode" data-view-name="mission">
-            <div class="void-full"></div>
-          </div>
+          <div class="void-full"></div>
           
           
           <!-- # task list container -->
@@ -348,11 +260,19 @@
             <div style="margin-bottom:0.5rem;"></div>
           </div>
         
-          <!-- # floating controls -->
-          <div class="container-add-task">
+        </div>
+        
+        <!-- # add task -->
+        <!-- empty gap for floating button -->
+        <div style="height:150px;"></div> 
+        
+        <!-- # widget active task -->
+        <div class="wg-ActiveTask" data-scope-id="2">
+
+          <div class="d-flex inner sc-2 flex-column gap-half">
+          <div class="sub-inner sc-2">
             
-            <div class="pos-relative" style="max-width:500px;margin:auto;">
-              
+            <div class="pos-relative">
               <!-- # floating buttons -->
               <div>
                 <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
@@ -362,16 +282,120 @@
                   </div>
                 </button>
               </div>
-            
             </div>
             
+            <!-- # progress bar -->
+            <div class="flex-1 bg-white drawer" data-view-group="active-task-info" data-view-states="">
+              
+              <div class="d-flex gap-half">
+              
+                <div class="wg-ActiveTaskProgressBar d-flex flex-column gap-quarter">
+                
+                  <div class="d-flex gap-quarter">
+                    <div class="NzE2ODYyNQ-progress-bar-container">
+                      <div class="NzE2ODYyNQ-progress-bar">
+                        <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+                        <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+                      </div>
+                    </div>
+                    <small id="txt-active-task-target-cap" class="task-target-cap-time"></small>
+                  </div>
+                  
+                  
+                  <div data-view-group="task-view-mode" data-view-name="has-ETA">
+                    <div class="d-flex flex-wrap gap-quarter align-items-center">
+                      <!-- # mission target ETA -->
+                      <small>
+                        <div class="d-flex gap-quarter align-items-center">
+                          <span>ETA</span>
+                          <span id="txt-target-eta" class="label-eta"></span>
+                        </div>
+                      </small>
+                    </div>
+                  </div>
+                  
+                </div>
+                
+                <!-- active task: task info -->
+                <div class="d-flex flex-column gap-half task-info">
+                
+                  <section class="d-flex gap-quarter flex-wrap">
+                    <div class="d-flex flex-wrap justify-content-between gap-quarter">
+                      <!-- # active task info -->
+                      <div>
+                        <small id="txt-active-task-name" style="font-weight:bold;word-break:break-word;"></small> 
+                      </div>
+                      
+                      <!-- # active time target time -->
+                      <small data-view-group="active-task-info" data-view-name="has-target">
+                        <div class="d-flex gap-quarter">
+                          <div class="obsoletes">
+                            <mark id="txt-active-task-target" class="task-target-time"></mark>  
+                          </div>
+                          <span id="txt-active-task-target-limit" class="obsoletes"></span>
+                        </div>
+                      </small>
+                    </div>
+                  
+                    <!-- # active task sequence info -->
+                    <div data-view-group="active-task-info" data-view-name="is-sequence">
+                      <small id="txt-active-task-sequence-name" style="word-break:break-word;font-style:italic;"></small> 
+                    </div>
+                  
+                    
+                    <!-- # open task button -->
+                    <div class="d-flex justify-content-between obsoletes">
+                      <button class="bg-white obsoletes" data-onclick="open-task-into-view">
+                        <small class="icon-mate">open_in_new</small>
+                      </button>
+                      
+                      <!-- # pip button-->
+                      <button class="bg-white obsoletes" data-onclick="open-pip" data-view-group="platform" data-view-name="web">
+                        <small class="icon-mate">picture_in_picture</small>
+                      </button>
+                    </div>
+                  </section>
+                
+                </div>
+              
+              </div>
+            
+            </div> 
+            </div>
+            <!-- #END progress bar -->
+            
+            <!-- # toggle active task timer -->
+            <div class="d-flex flex-column obsoletes" style="gap:0.5rem;">
+            
+              <div data-obj="stop-timer">
+                <div class="d-grid" style="gap:0.35rem;height:2.2rem;">
+                  <button class='clickable btn-timer-control-stop d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='stop-timer'>
+                    <span class="icon-mate">stop</span>
+                  </button>
+                  <button class='clickable btn-timer-start btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
+                    <span class="icon-mate">play_arrow</span>
+                  </button>
+                  <small class="text-center obsoletes" data-view-group="platform" data-view-name="web">(Alt+S)</small>
+                  <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
+                </div>
+              </div>
+              
+            </div>
+          
           </div>
-        
+          
+          
+          <div class="d-none">
+            <div style="height:2px;"></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar">
+                <div class="progress-bar-fill"></div>
+                <span class="progress-bar-text"><span id="percentage"></span></span>
+              </div>
+            </div>
+          </div>
+          
         </div>
-        
-        <!-- # add task -->
-        <!-- empty gap for floating button -->
-        <div style="height:76px;"></div> 
         
         </section>
         
