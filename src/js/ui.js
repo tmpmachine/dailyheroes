@@ -924,8 +924,8 @@ let ui = (function () {
             
             // overdrive level
             let overdriveLevelStr = '';
-            if (item.counter.completed - lowestCompleteCount > 0) {
-              overdriveLevelStr = `Lv.${item.counter.completed - lowestCompleteCount}`;
+            if (item.counter.completed - lowestCompleteCount > 1) {
+              overdriveLevelStr = `Lv.${item.counter.completed - lowestCompleteCount - 1}`;
             }
             progressEl.querySelector('.label-overdrive').textContent = overdriveLevelStr;
             
