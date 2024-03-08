@@ -44,7 +44,7 @@ let ui = (function () {
     
     RefreshListSequenceByTaskId,
     RemoveElSequenceById,
-    HotReloadListSequenceByTaskId,
+    RefreshSequenceTaskById,
     TaskSetActiveTaskInfo,
     OpenOverview,
     OpenPriorityMapper,
@@ -768,7 +768,7 @@ let ui = (function () {
     uiPiP.ReloadActiveTaskInfo();
   }
   
-  function HotReloadListSequenceByTaskId(id) {
+  function RefreshSequenceTaskById(id) {
     
     let item = app.GetTaskById(id);
     let container = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
@@ -803,7 +803,7 @@ let ui = (function () {
       viewStateUtil.Add('task', ['has-target'], taskEl);
       taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = `${helper.ToTimeString(totalSequenceTargetTime, 'hms')}`;
     } else {
-      viewStateUtil.Remove('task', ['has-target'], taskEl);
+      // viewStateUtil.Remove('task', ['has-target'], taskEl);
       taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = '';
     }
     
@@ -959,11 +959,15 @@ let ui = (function () {
     let isManageMode = viewStateUtil.HasViewState('task', 'manage-sequence');
     viewStateUtil.RemoveAll('task', taskEl);
     
+    let totalSequenceTargetTimeStr = '';
+    
     // total sequence target
     if (totalSequenceTargetTime > 0) {
       viewStateUtil.Add('task', ['has-target'], taskEl);
-      taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = `${helper.ToTimeString(totalSequenceTargetTime, 'hms')}`;
+      totalSequenceTargetTimeStr = `${helper.ToTimeString(totalSequenceTargetTime, 'hms')}`;
     }
+    
+    taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = totalSequenceTargetTimeStr;
     
     if (item.targetTime > 0 || item.targetCapTime > 0) {
       viewStateUtil.Add('task', ['has-target'], taskEl);

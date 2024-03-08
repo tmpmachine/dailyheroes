@@ -318,8 +318,6 @@ let compoTask = (function() {
     
     await appData.TaskStoreTask();    
     
-    ui.HotReloadListSequenceByTaskId(taskId);
-    
   }
   
   function setActiveSequenceBeforeDeletionOnId(id) {

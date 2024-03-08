@@ -2543,6 +2543,7 @@ let app = (function () {
     let seqTitleEl = evt.target.closest(['[data-closest="title"]']);
     if (seqTitleEl) {
       compoTask.FocusSequenceById(id, seqId);
+      ui.RefreshSequenceTaskById(id);
       return;
     }
     
@@ -2560,7 +2561,7 @@ let app = (function () {
       case 'delete-sequence-task': 
         compoTask.TaskDeleteSequenceById(id, seqId); 
         ui.RemoveElSequenceById(seqId, id);
-        ui.HotReloadListSequenceByTaskId(id);
+        ui.RefreshSequenceTaskById(id);
       break;
       case 'edit-sequence-task': ui.EditSequenceTask(id, seqId); break;
       case 'navigate-mission': 
