@@ -60,6 +60,7 @@ let ui = (function () {
     ResetTargetTime,
     TaskSetTaskTarget,
     TaskAddProgressManually,
+    TaskSetTargetTime,
     TaskReloadTotalTargets,
     HandleClickBreadcrumbs,  
     TaskReloadParentTarget,
@@ -316,6 +317,60 @@ let ui = (function () {
     }
     
   }
+  
+  async function TaskSetTargetTime(id) {
+    
+    let task = tasks.find(x => x.id == id);
+    if (!task) return;
+    
+    const { value: userVal } = await Swal.fire({
+      title: 'Set target time (HMS format)',
+      input: 'text',
+      inputValue: helper.ToTimeString(task.targetCapTime, 'hms'),
+      inputLabel: 'example : 10h5m20s, 1h, 15m, 30s',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+    });
+    
+    if (!userVal) return;
+    
+    let inputTime = null;
+    
+    // parse input value
+    try {
+      inputTime = helper.ParseHmsToMs(userVal);
+    } catch (e) {
+      // default to minute
+      let parsedVal = parseInt(userVal);
+      if (!isNaN(parsedVal)) {
+        inputTime = parsedVal * 60 * 1000;
+      } else {
+        alert('Input format not recognized.');
+      }
+    }
+    
+    if (inputTime === null) return;
+    
+    try {
+      
+      task.targetCapTime = Math.max(0, inputTime);
+      
+      await appData.TaskStoreTask(); 
+      appData.Save();
+      
+      taskRefreshTaskCard(task);
+      
+    } catch (e) {
+      console.error(e);
+      alert('Failed');
+      return;
+    }
+    
+  }
 
   async function TaskSetTaskTarget(id) {
     
@@ -549,7 +604,7 @@ let ui = (function () {
     
     compoTask.TaskResetSequenceById(taskId, seqId);
     
-    ui.RefreshListSequenceByTaskId(taskId);
+    RefreshListSequenceByTaskId(taskId);
   }
   
   async function OpenLinkedSequenceFromForm(evt) {
@@ -637,7 +692,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    reloadTaskCard(task.id, task);
+    taskRefreshTaskCard(task);
     
     $('#task-modal').close();
   }
@@ -650,7 +705,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    reloadTaskCard(task.id, task);
+    taskRefreshTaskCard(task);
     
     $('#task-modal').close();
   }
@@ -1728,7 +1783,7 @@ let ui = (function () {
       let task = await app.TaskUpdateTask(form);
       
       await appData.TaskStoreTask();
-      reloadTaskCard(task.id, task);
+      taskRefreshTaskCard(task);
       form.reset();
       
       app.SyncGroupName(task.id, task.title, task.parentId);
@@ -1767,19 +1822,32 @@ let ui = (function () {
 		
   }
   
-  function reloadTaskCard(id, task) {
-    let el = $(`[data-obj="task"][data-id="${id}"]`);
-    if (!el) return;
+  function taskRefreshTaskCard(task) {
     
-    el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
-    el.querySelector('[data-slot="title"]').textContent = task.title;
-    el.querySelector('[data-slot="ratioTimeLeftStr"].sc-1').textContent = helper.ToTimeString(task.targetTime, 'hms');
-    el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = helper.ToTimeString(task.targetCapTime, 'hms');
-    el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
-    
-    if (task.targetTime > 0 || task.targetCapTime > 0) {
-      viewStateUtil.Add('active-task-info', ['has-target'], el);
+    try {
+      
+      let el = $(`[data-obj="task"][data-id="${task.id}"]`);
+      if (!el) return;
+      
+      let ratioTimeLeftStr = task.targetTime > 0 ? helper.ToTimeString(task.targetTime, 'hms') : '';
+      let targetCapTimeStr = task.targetCapTime > 0 ? helper.ToTimeString(task.targetCapTime, 'hms') : '';
+      
+      el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
+      el.querySelector('[data-slot="title"]').textContent = task.title;
+      el.querySelector('[data-slot="ratioTimeLeftStr"].sc-1').textContent = ratioTimeLeftStr;
+      el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = targetCapTimeStr;
+      el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
+      
+      if (task.targetTime > 0 || task.targetCapTime > 0) {
+        viewStateUtil.Add('active-task-info', ['has-target'], el);
+      }
+      
+    } catch (e) {
+      
+      console.error(e);
+      
     }
+    
   }
   
   function OnSubmitSequenceTask(ev) {
