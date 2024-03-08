@@ -20,26 +20,11 @@ async function handleNotificationClick(event) {
     case 'start-next-sequence': 
       await startNextSequence(); 
       break;
-    case 'take-a-break':
-      await takeBreakTime();
-      break;
     case 'restart':
       await restartTask();
       break;
-    case 'restart-sequence':
-      await restartSequenceTask();
-      break;
     case '3m':
       startNewAlarmInMinutes(3);
-      break;
-    case '7m':
-      startNewAlarmInMinutes(7);
-      break;
-    case '12m':
-      startNewAlarmInMinutes(12);
-      break;
-    case '20m':
-      startNewAlarmInMinutes(20);
       break;
   }
 }
@@ -203,7 +188,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
       
     } else {
       
-      sequenceTask.counter.repeatCount = 0;
+      // sequenceTask.counter.repeatCount = 0;
       
       if (isFinished) {
         changeTask = true;
@@ -441,7 +426,7 @@ async function alarmHandler(alarm) {
 
 async function onAlarmEnded(alarm) {
   
-  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak', 'leftOverAlarmTaskId']);
+  let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak']);
   
   let distanceMinutes = 0;
   let distanceTime = 0;
@@ -608,7 +593,7 @@ async function onAlarmEnded(alarm) {
   if (isStartNext) {
     actions.push({
       action: 'start-next-sequence',
-      title: `Start next (${alarmDurationTimeStr})`,
+      title: `Start next ${alarmDurationTimeStr}`,
     });
   } else if (isRestartTask) {
     actions.push({
@@ -622,13 +607,6 @@ async function onAlarmEnded(alarm) {
     });
   }
   
-  
-  /*
-  actions.push({
-    action: 'take-a-break',
-    title: `Take a break (20s)`,
-  });
-  */
   // spawn notif
   await TaskClearNotif();
   let requireInteraction = true;
@@ -753,9 +731,50 @@ async function startNextSequence() {
   let task = tasks.find(x => x.id == data.activeTask);
   if (!task) return;
   
-  let alarmDurationTime = task.durationTime;
+  let isUpdated = await taskCheckAndUpdateSequence(task);
+  if (isUpdated) {
+    await storeTask(tasks);
+  }
+  
+  let alarmDurationTime = getAlarmDurationTime(task);
   let isSequenceTask = true;
   
+  displaySequenceStartNotification(task, alarmDurationTime);
+  startNewAlarm(alarmDurationTime, isSequenceTask);
+  
+}
+
+async function taskCheckAndUpdateSequence(task) {
+  
+  let isUpdated = false;
+  
+  // get target time from sequence
+  compoSequence.Stash(task.sequenceTasks);
+  let sequenceTask = compoSequence.GetActive();
+  
+  if (!sequenceTask) {
+    compoSequence.Pop();
+    return isUpdated;
+  }
+   
+  // reset sequence (counter, progress) if user repeat it manually
+  if (sequenceTask.counter.repeatCount == sequenceTask.repeatCount) {
+    isUpdated = true;
+    sequenceTask.counter.repeatCount = 0;
+  }
+  if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
+    isUpdated = true;
+    sequenceTask.progressCapTime = 0;
+    sequenceTask.progressTime = 0;
+  }
+  
+  compoSequence.Commit();
+  
+  return isUpdated;
+  
+}
+
+function displaySequenceStartNotification(task, alarmDurationTime) {
   // get target time from sequence
   compoSequence.Stash(task.sequenceTasks);
   let sequenceTask = compoSequence.GetActive();
@@ -763,20 +782,6 @@ async function startNextSequence() {
   if (sequenceTask) {
     
     let sequenceTaskTitle = sequenceTask.title;
-    alarmDurationTime = sequenceTask.targetTime;
-    
-    if (sequenceTask.targetCapTime > 0) {
-      let capTimeLeft = sequenceTask.targetCapTime - sequenceTask.progressCapTime;
-      
-      // set timer using the rest of target cap time if cap time is lower than timer
-      if (capTimeLeft < sequenceTask.targetTime) {
-        alarmDurationTime = capTimeLeft;
-      }
-    }
-    
-    if (task.targetCapTime > 0 && task.targetCapTime < alarmDurationTime) {
-      alarmDurationTime = task.targetCapTime;
-    }
     
     // get title from task if linked
     if (sequenceTask.linkedTaskId) {
@@ -795,28 +800,39 @@ async function startNextSequence() {
     
   }
   compoSequence.Pop();
-  
-  startNewAlarm(alarmDurationTime, isSequenceTask);
-  
 }
 
-async function takeBreakTime() {
-  let seconds = 20;
-  let alarmDurationTime = seconds * 1000; // 25 seconds
-  let isSequenceTask = true;
+function getAlarmDurationTime(task) {
   
-  const notification = registration.showNotification(`Take a break!`, { 
-    body: `${seconds}s left`, 
-    iconAlarm,
-    tag: 'active-sequence-task',
-  });
+  let alarmDurationTime = task.durationTime;
   
-  // store storage
-  await chrome.storage.local.set({
-  	isTakeBreak: true,
-  });
+  // get target time from sequence
+  compoSequence.Stash(task.sequenceTasks);
+  let sequenceTask = compoSequence.GetActive();
   
-  startNewAlarm(alarmDurationTime, isSequenceTask);
+  if (sequenceTask) {
+    
+    alarmDurationTime = sequenceTask.targetTime;
+    
+    if (sequenceTask.targetCapTime > 0) {
+      let capTimeLeft = sequenceTask.targetCapTime - sequenceTask.progressCapTime;
+      
+      // set timer using the rest of target cap time if cap time is lower than timer
+      if (capTimeLeft < sequenceTask.targetTime) {
+        alarmDurationTime = capTimeLeft;
+      }
+    }
+    
+    if (task.targetCapTime > 0 && task.targetCapTime < alarmDurationTime) {
+      alarmDurationTime = task.targetCapTime;
+    }
+    
+  }
+  
+  compoSequence.Pop();
+  
+  return alarmDurationTime;
+  
 }
 
 function minuteToMs(minutes) {
@@ -871,74 +887,10 @@ async function restartTask() {
   startNewAlarm(alarmDurationTime);
 }
 
-async function restartSequenceTask() {
-  
-  let tasks = await getTask();
-  let data = await chrome.storage.local.get(['activeTask']);
-  if (!data.activeTask) return;
-
-  let activeTask = tasks.find(x => x.id == data.activeTask);
-  if (!activeTask) return;
-  
-  let alarmDurationTime = activeTask.durationTime;
-  let isSequenceTask = true;
-  
-  // get target time from sequence
-  compoSequence.Stash(activeTask.sequenceTasks);
-  let sequenceTask = compoSequence.GetPrevious();
-  
-  if (sequenceTask) {
-  
-    let isRepeat = (sequenceTask.repeatCount > 0);
-    if (isRepeat) {
-      sequenceTask.counter.repeatCount = 0;
-    }
-    if (sequenceTask.targetCapTime > 0 && sequenceTask.progressCapTime >= sequenceTask.targetCapTime) {
-      sequenceTask.progressCapTime = 0;
-    }
-    compoSequence.SetActiveById(sequenceTask.id);
-    
-    let sequenceTaskTitle = sequenceTask.title;
-    alarmDurationTime = sequenceTask.targetTime;
-    
-    // get title from task if linked
-    if (sequenceTask.linkedTaskId) {
-      let linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
-      if (linkedTask) {
-        sequenceTaskTitle = linkedTask.title;
-      }
-    }
-    
-    // notify next task name
-    const notification = registration.showNotification(`${sequenceTaskTitle}`, { 
-      body: `${secondsToHMS(msToSeconds(sequenceTask.targetTime))} left`, 
-      iconAlarm,
-      tag: 'active-sequence-task',
-    });
-    
-  }
-  compoSequence.Commit();
-  await storeTask(tasks);
-  
-  startNewAlarm(alarmDurationTime, isSequenceTask);
-  
-}
-
 let canvas = new OffscreenCanvas(280, 5);
 let c = canvas.getContext('2d');
 let progress = 280;
 let clockInterval;
-
-function time(seconds) {
-  let now = new Date().getTime();
-  let end = now + seconds * 1000;
-  let mid = Math.floor((end - now) / 2);
-  startTimer(mid, end);
-  clearInterval(clockInterval);
-  oneTime.reset();
-  spawnNotification('Started', 'white', iconAlarm);
-  clockInterval = setInterval(() => startTimer(mid, end), 1000)
-}
 
 function spawnNotification(body, color, icon, requireInteraction = false, actions = []) {
   c.canvas.width = 280;
@@ -974,37 +926,6 @@ function spawnNotificationV2(notifId, body, color, icon, requireInteraction = fa
     renotify: true,
     requireInteraction: requireInteraction,
   });
-}
-
-
-let oneTime = OneTime();
-
-function OneTime() {
-  
-  let registeredKey = {}
-  
-  function watch(key, force) {
-    if (typeof(force) !== 'undefined') {
-      registeredKey[key] = force;
-      return force;
-    }
-    if (registeredKey[key]) {
-      return false;
-    } else {
-      registeredKey[key] = true
-      return true
-    }
-  }
-  
-  function reset() {
-    registeredKey = {};
-  }
-  
-  return {
-    watch,
-    reset,
-  };
-  
 }
 
 async function updateTime() {
