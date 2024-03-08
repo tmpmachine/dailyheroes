@@ -8,12 +8,12 @@ let uiSelection = (function() {
   
   function ReloadSelection() {
     let ids = compoSelection.GetAllItems();
-    // console.log(ids)
+    let isScrollToView = false;
     
     clearSelection();
     
     for (let id of ids) {
-      ui.FocusTaskElById(id);
+      ui.FocusTaskElById(id, isScrollToView);
     }
     
   }
