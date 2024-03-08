@@ -99,6 +99,7 @@ let pageDetail = (function() {
     
     // show mission path
     let missionPath = '';
+    let isMissionView =  true;
     let isTopPath = isTopMissionPath(item.id);
     if (isMissionView && isTopPath || IsShowTargetTimeOnly()) {
       ratioStr = '';
