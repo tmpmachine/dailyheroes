@@ -11,14 +11,19 @@
 .wg-TaskProgressBar {
 
     & {
-      height: 10px;
-      width: 70px;
-      display: grid;
-      position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    }
+    .label-overdrive {
+      font-size: 0.7rem;
     }
     .inner {
-        display: flex;
-        background: #696969;
+      height: 10px;
+      width: 70px;
+      position: relative;
+      display: flex;
+      background: #696969;
     }
     .progress {
       background: orange;

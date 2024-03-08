@@ -21,6 +21,8 @@ let compoSequence = (function() {
     GetIndexById,
     ResetSequenceTasksProgress,
     ResetRepeatCountById,
+    GetLowestCompletedCount,
+    IncrementCompletedCounterById,
   };
   
   let dataTemplate = {
@@ -43,6 +45,7 @@ let compoSequence = (function() {
       enabled: true,
       counter: {
         repeatCount: 0,
+        completed: 0,
       }
     }
   };
@@ -64,6 +67,7 @@ let compoSequence = (function() {
     for (let item of items) {
       item = GetById(item.id);
       item.counter.repeatCount = 0;
+      item.counter.completed = 0;
       item.progressCapTime = 0;
       item.progressTime = 0;
     }
@@ -106,6 +110,8 @@ let compoSequence = (function() {
   
   function addItem(title, durationTime, repeatCount, linkedTaskId, targetCapTime) {
     let id = __idGenerator.next(data.counter);
+    let lowestCompleteCount = GetLowestCompletedCount();
+    
     let item = {
       id,
       linkedTaskId,
@@ -117,6 +123,7 @@ let compoSequence = (function() {
       targetCapTime,
       counter: {
         repeatCount: 0,
+        completed: lowestCompleteCount,
       }
     };
     data.items.push(item);
@@ -275,6 +282,23 @@ let compoSequence = (function() {
   function GetByIndex(index) {
     let items = GetAll();
     return items[index];
+  }
+  
+  function GetLowestCompletedCount() {
+    let items = GetAll();
+    let lowestCompleteCount = items.reduce((min, obj) => (obj.counter.completed < min ? obj.counter.completed : min), Infinity);
+    return lowestCompleteCount;
+  }
+
+  function IncrementCompletedCounterById(id) {
+    let item = GetById(id);
+    if (!item) return;
+
+    if (typeof(item.counter?.completed) != 'undefined') {
+      item.counter.completed += 1;
+    } else {
+      item.counter.completed = 1;
+    }
   }
   
   function GetIndexById(id) {

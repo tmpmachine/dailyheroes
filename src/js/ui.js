@@ -841,6 +841,8 @@ let ui = (function () {
   	let items = compoSequence.GetAll();
     let docFrag = document.createDocumentFragment();
     
+    let lowestCompleteCount = compoSequence.GetLowestCompletedCount();
+
     for (let item of items) {
       
       let ratioTimeLeftStr = '';
@@ -919,6 +921,14 @@ let ui = (function () {
             let percentageStr = `${percentage}%`;
             progressEl.querySelector('.progress').style.width = percentageStr;
             progressEl.querySelector('.label').textContent = percentageStr;
+            
+            // overdrive level
+            let overdriveLevelStr = '';
+            if (item.counter.completed - lowestCompleteCount > 0) {
+              overdriveLevelStr = `Lv.${item.counter.completed - lowestCompleteCount}`;
+            }
+            progressEl.querySelector('.label-overdrive').textContent = overdriveLevelStr;
+            
           }
         } catch (e) {}      
       }

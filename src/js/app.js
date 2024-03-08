@@ -2000,6 +2000,9 @@ let app = (function () {
         
         // set next active sequence task
         if (changeTask) {
+          
+          compoSequence.IncrementCompletedCounterById(sequenceTask.id);
+          
           let nextItem = compoSequence.GetNext();
           compoSequence.SetActiveById(nextItem.id);  
           

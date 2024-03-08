@@ -223,6 +223,9 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   
   
   if (sequenceTask && changeTask) {
+
+    compoSequence.IncrementCompletedCounterById();
+
     let nextItem = compoSequence.GetNext();
     compoSequence.SetActiveById(nextItem.id);
     
