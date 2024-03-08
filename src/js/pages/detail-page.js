@@ -1,5 +1,7 @@
 let pageDetail = (function() {
   
+  let $ = document.querySelector.bind(document);
+
   let SELF = {
     OpenByTaskId,
   };
@@ -8,12 +10,15 @@ let pageDetail = (function() {
     viewStateUtil.Set('screens', ['task-detail']);
     
     taskDisplayTaskInfo(id);
-    
   }
   
   async function taskDisplayTaskInfo(id) {
     
-    let task = compoTask.GetById(id);
+    let activeTask = await compoTask.TaskGetActive();
+    let item = compoTask.GetById(id);
+    
+    let activeTimerDistance = await getActiveTimerDistance(); // minutes
+    let activeTimerDistanceTime = await getActiveTimerDistanceTime(); // milliseconds
     
     let liveProgress = 0;
     let liveProgressTime = 0;
@@ -25,11 +30,6 @@ let pageDetail = (function() {
     let durationTime = item.durationTime - item.progressTime - liveProgressTime;
     let progressMinutesLeft = msToMinutes(item.progressTime);
   
-    // get total ratio
-    if (typeof(item.ratio) == 'number') {
-      totalRatio += item.ratio;
-    }
-    
     // # set ratio time left string
     let ratioTimeLeftStr = '';
     let targetCapTimeStr = '';
@@ -196,25 +196,9 @@ let pageDetail = (function() {
     	  taskEl.stateList.add('--active');
     	}
   	}
-  	
-    if (isMissionView) {
-  	  if (isTopPath) {
-  	    taskEl.stateList.add('--is-mission');
-        el.querySelector('.container-navigate-mission').classList.remove('d-none');
-  	  } else {
-        el.querySelector('.container-create-sub').classList.remove('d-none');
-  	    let mission = compoMission.GetMissionById(item.id);
-        if (mission) {
-    	    taskEl.stateList.add('--is-mission');
-        }  
-  	  }
-    } else {
-	    let mission = compoMission.GetMissionById(item.id);
-      if (mission) {
-  	    taskEl.stateList.add('--is-mission');
-      }
-    }
-    
+
+    taskEl.stateList.add('--is-mission');
+    el.querySelector('.container-navigate-mission').classList.remove('d-none');
     
     if (lsdb.data.groups.find(x => x.id == item.id)) {
       el.querySelector('.container-navigate').classList.remove('d-none');
@@ -235,11 +219,8 @@ let pageDetail = (function() {
       viewStateUtil.Add('task', ['has-target'], el.querySelector('[data-view-group="task"]'));
     }
   	
-  	if (item.isArchived) {
-    	docFragCompleted.append(el);
-  	} else {
-  	  docFrag.append(el);
-  	}
+  	
+  	$('.page-TaskDetail .widget-task').append(el);
     
   }
   
