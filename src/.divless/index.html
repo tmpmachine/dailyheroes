@@ -245,7 +245,7 @@
             <!-- # widget task -->
             <!-- # widget-task.skin-default -->
             <!-- # widget-task.skin-compact -->
-            [ #tasklist .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
+            [ data-eid="widget-task" #tasklist .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
             [ .void-full]
             <div id="tasklist-completed" class="clickable" data-callback="handle-task-click"></div>
           </div>
@@ -419,7 +419,7 @@
         <!-- # task detail screen body -->
         [ .padding-container .page-TaskDetail
           
-           [ .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
+           [ data-eid="widget-task" .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
           
         ]
       

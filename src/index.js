@@ -3,6 +3,12 @@ window.$ = document.querySelector.bind(document);
 componentLoader.load([
   {
     urls: [
+      // "js/tests.js",
+      "js/utils/screen-state-util.js",
+    ]
+  },
+  {
+    urls: [
       "js/view-states.js",
       "js/dom-events/pip-events.js",
       "js/dom-events.js",

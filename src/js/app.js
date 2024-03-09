@@ -2410,24 +2410,9 @@ let app = (function () {
   }
   
   async function runTests() {
-    // return;
-    // let $$ = document.querySelectorAll.bind(document);
+    if (typeof(tests) == 'undefined') return;
     
-    // # change initial screens
-    // viewStateUtil.Set('screens', ['settings']);
-    // viewStateUtil.Set('screens', ['priority-mapper']);
-    
-    // ui.OpenOverview()
-    
-    /*
-    await waitUntil(() => {
-      return compoPriorityMapper;
-    });
-    ui.OpenPriorityMapper();
-    // */
-    
-    // await waitForElement('[data-role="edit"]');
-    // Array.from($$('[data-role="edit"]')).pop().click();
+    tests.Run();
   }
   
   function waitForElement(selector) {
