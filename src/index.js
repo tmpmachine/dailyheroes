@@ -5,6 +5,7 @@ componentLoader.load([
     urls: [
       // "js/tests.js",
       "js/utils/screen-state-util.js",
+      "js/web-components/task-drawer-webcom.js",
     ]
   },
   {

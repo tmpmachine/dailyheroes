@@ -3,6 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    TaskRefreshTaskCard: taskRefreshTaskCard,
     FocusTaskById: FocusTaskElById,
     FocusTaskElById,
     TaskDistributeProgressTaskFromForm,
@@ -205,11 +206,11 @@ let ui = (function () {
   }
   
   function ReloadETA(totalTargetCapTime) {
-    viewStateUtil.Remove('task-view-mode', ['has-ETA']);
+    viewStateUtil.Remove('active-task-info', ['has-ETA']);
     
     if (totalTargetCapTime <= 0 || !isViewModeMission()) return;
     
-    viewStateUtil.Add('task-view-mode', ['has-ETA']);
+    viewStateUtil.Add('active-task-info', ['has-ETA']);
     
     let now = new Date();
     let eta = new Date(now.getTime() + totalTargetCapTime);
@@ -1413,6 +1414,7 @@ let ui = (function () {
     initAudioSettings();
     refreshGlobalTimer();
     
+    screenStateUtil.TaskRestoreStates();
   }
   
   function initAudioSettings() {
@@ -1861,6 +1863,8 @@ let ui = (function () {
       if (task.targetTime > 0 || task.targetCapTime > 0) {
         viewStateUtil.Add('active-task-info', ['has-target'], el);
       }
+      
+      RefreshListSequenceByTaskId(task.id);
       
     } catch (e) {
       

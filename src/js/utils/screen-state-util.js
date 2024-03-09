@@ -4,11 +4,47 @@ let screenStateUtil = (function() {
   
   let SELF = {
     Navigate,
+    SaveState,
+    TaskRestoreStates,
   };
   
   let data = {
     items: []
   };
+  
+  function TaskWaitUntil(stateCheckCallback, delay = 100) {
+    return new Promise(resolve => {
+        let interval = window.setInterval(() => {
+        let shouldResolve = stateCheckCallback();
+        if (shouldResolve) {
+            window.clearInterval(interval);
+            resolve();
+        }
+        }, delay);
+    });
+  }
+  
+  async function TaskRestoreStates() {
+    if (lsdb.data.viewStates?.name !== '') {
+      
+      try {
+        
+        switch (lsdb.data.viewStates.name) {
+          case 'task-detail':
+            {
+              await TaskWaitUntil(() => typeof(pageDetail) != 'undefined');
+              
+              pageDetail.OpenByTaskId(lsdb.data.viewStates.data.taskId);
+            }
+            break;
+        }
+        
+      } catch (e) {
+        console.error(e);
+      }
+      
+    }
+  }
   
   function Navigate(screenName) {
     
@@ -40,8 +76,31 @@ let screenStateUtil = (function() {
     
     
     viewStateUtil.Set('screens', [screenName]);
+    
+    if (screenName == 'home') {
+      SaveState();
+    }
+    
   }
     
+  function SaveState(stateData) {
+    
+    let currentState = viewStateUtil.GetViewStates('screens');
+    let currentScreenViewName = currentState[0];
+    
+    switch (currentScreenViewName) {
+      case 'task-detail':
+        lsdb.data.viewStates = {
+          name: currentScreenViewName,
+          data: stateData,
+        };
+        break;
+      default:
+        lsdb.data.viewStates = {};
+    }
+    appData.Save();
+    
+  }
     
   function GetItemIndexById(id) {
     let items = GetAllItems();

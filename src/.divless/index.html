@@ -267,136 +267,8 @@
         <!-- empty gap for floating button -->
         [ {h:150px}] 
         
-        <!-- # widget active task -->
-        [ .wg-ActiveTask data-scope-id="2"
-
-          [ .d-flex .inner .sc-2 .flex-column .gap-half
-          [ .sub-inner .sc-2
-            
-            [ .pos-relative
-              <!-- # floating buttons -->
-              [
-                <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
-                  [s .icon-mate 'add' {fs:2.2rem}]
-                  [ .pos-absolute {b:6px}
-                    [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center {fs:0.5rem}]
-                  ]
-                </button>
-              ]
-            ]
-            
-            <!-- # progress bar -->
-            [ .flex-1 data-view-group="active-task-info" data-view-states="" .bg-white .drawer
-              
-              [ .d-flex .gap-half
-              
-                [ .wg-ActiveTaskProgressBar .d-flex .flex-column .gap-quarter
-                
-                  [ .d-flex .gap-quarter
-                    <div class="NzE2ODYyNQ-progress-bar-container">
-                      <div class="NzE2ODYyNQ-progress-bar">
-                        <div class="NzE2ODYyNQ-progress-bar-fill"></div>
-                        <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
-                      </div>
-                    </div>
-                    [small #txt-active-task-target-cap .task-target-cap-time]
-                  ]
-                  
-                  
-                  [ data-view-group="task-view-mode" data-view-name="has-ETA"
-                    [ .d-flex .flex-wrap .gap-quarter .align-items-center 
-                      <!-- # mission target ETA -->
-                      [small 
-                        [ .d-flex .gap-quarter .align-items-center
-                          [s 'ETA']
-                          [s #txt-target-eta .label-eta]
-                        ]
-                      ]
-                    ]
-                  ]
-                  
-                ]
-                
-                <!-- active task: task info -->
-                [ .d-flex .flex-column .gap-half .task-info
-                
-                  <section class="d-flex gap-quarter flex-wrap">
-                    [ .d-flex .flex-wrap .justify-content-between .gap-quarter 
-                      <!-- # active task info -->
-                      [
-                        [small #txt-active-task-name {fw:bold;word-break:break-word}] 
-                      ]
-                      
-                      <!-- # active time target time -->
-                      [small data-view-group="active-task-info" data-view-name="has-target"
-                        [ .d-flex .gap-quarter
-                          [ .obsoletes
-                            [mark #txt-active-task-target .task-target-time]  
-                          ]
-                          [s #txt-active-task-target-limit .obsoletes]
-                        ]
-                      ]
-                    ]
-                  
-                    <!-- # active task sequence info -->
-                    [ data-view-group="active-task-info" data-view-name="is-sequence"
-                      [small #txt-active-task-sequence-name {word-break:break-word;ft:italic}] 
-                    ]
-                  
-                    
-                    <!-- # open task button -->
-                    [ .d-flex .justify-content-between .obsoletes
-                      [button data-onclick="open-task-into-view" .bg-white .obsoletes
-                        [small .icon-mate 'open_in_new']
-                      ]
-                      
-                      <!-- # pip button-->
-                      [button data-onclick="open-pip" .bg-white data-view-group="platform" data-view-name="web" .obsoletes
-                        [small 'picture_in_picture' .icon-mate]
-                      ]
-                    ]
-                  </section>
-                
-                ]
-              
-              ]
-            
-            ] 
-            ]
-            <!-- #END progress bar -->
-            
-            <!-- # toggle active task timer -->
-            [ .d-flex .flex-column {gap:0.5rem} .obsoletes
-            
-              <div data-obj="stop-timer">
-                [ .d-grid {gap:0.35rem} {h:2.2rem}
-                  <button class='clickable btn-timer-control-stop d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='stop-timer'>
-                    [s .icon-mate 'stop']
-                  </button>
-                  <button class='clickable btn-timer-start btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
-                    [s .icon-mate 'play_arrow']
-                  </button>
-                  [small data-view-group="platform" data-view-name="web" '(Alt+S)' .text-center .obsoletes]
-                  <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
-                ]
-              </div>
-              
-            ]
-          
-          ]
-          
-          
-          [ .d-none
-            <div style="height:2px;"></div>
-            <div class="progress-bar-container">
-              <div class="progress-bar">
-                <div class="progress-bar-fill"></div>
-                <span class="progress-bar-text"><span id="percentage"></span></span>
-              </div>
-            </div>
-          ]
-          
-        ]
+        
+          <taskdrawer-v1></taskdrawer-v1>
         
         </section>
         
@@ -422,6 +294,8 @@
            [ data-eid="widget-task" .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
           
         ]
+        
+        <taskdrawer-v1></taskdrawer-v1>
       
       ]
       </section>
@@ -736,6 +610,142 @@
   
   
   <!-- # TEMPLATES -->
+  
+  <template id="taskdrawer-v1">
+    
+    <!-- # widget active task -->
+    [ .wg-ActiveTask data-scope-id="2"
+
+      [ .d-flex .inner .sc-2 .flex-column .gap-half
+      [ .sub-inner .sc-2
+        
+        [ .pos-relative
+          <!-- # floating buttons -->
+          [
+            <button class="clickable btn-add-task bg-white" data-callback="show-modal-add-task">
+              [s .icon-mate 'add' {fs:2.2rem}]
+              [ .pos-absolute {b:6px}
+                [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center {fs:0.5rem}]
+              ]
+            </button>
+          ]
+        ]
+        
+        <!-- # progress bar -->
+        [ .flex-1 data-view-group="active-task-info" data-view-states="" .bg-white .drawer
+          
+          [ .d-flex .gap-half
+          
+            [ .wg-ActiveTaskProgressBar .d-flex .flex-column .gap-quarter
+            
+              [ .d-flex .gap-quarter
+                <div class="NzE2ODYyNQ-progress-bar-container">
+                  <div class="NzE2ODYyNQ-progress-bar">
+                    <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+                    <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+                  </div>
+                </div>
+                [small #txt-active-task-target-cap .task-target-cap-time]
+              ]
+              
+              
+              [ data-view-group="active-task-info" data-view-name="has-ETA"
+                [ .d-flex .flex-wrap .gap-quarter .align-items-center 
+                  <!-- # mission target ETA -->
+                  [small 
+                    [ .d-flex .gap-quarter .align-items-center
+                      [s 'ETA']
+                      [s #txt-target-eta .label-eta]
+                    ]
+                  ]
+                ]
+              ]
+              
+            ]
+            
+            <!-- active task: task info -->
+            [ .d-flex .flex-column .gap-half .task-info
+            
+              <section class="d-flex gap-quarter flex-wrap">
+                [ .d-flex .flex-wrap .justify-content-between .gap-quarter 
+                  <!-- # active task info -->
+                  [
+                    [small #txt-active-task-name {fw:bold;word-break:break-word}] 
+                  ]
+                  
+                  <!-- # active time target time -->
+                  [small data-view-group="active-task-info" data-view-name="has-target"
+                    [ .d-flex .gap-quarter
+                      [ .obsoletes
+                        [mark #txt-active-task-target .task-target-time]  
+                      ]
+                      [s #txt-active-task-target-limit .obsoletes]
+                    ]
+                  ]
+                ]
+              
+                <!-- # active task sequence info -->
+                [ data-view-group="active-task-info" data-view-name="is-sequence"
+                  [small #txt-active-task-sequence-name {word-break:break-word;ft:italic}] 
+                ]
+              
+                
+                <!-- # open task button -->
+                [ .d-flex .justify-content-between .obsoletes
+                  [button data-onclick="open-task-into-view" .bg-white .obsoletes
+                    [small .icon-mate 'open_in_new']
+                  ]
+                  
+                  <!-- # pip button-->
+                  [button data-onclick="open-pip" .bg-white data-view-group="platform" data-view-name="web" .obsoletes
+                    [small 'picture_in_picture' .icon-mate]
+                  ]
+                ]
+              </section>
+            
+            ]
+          
+          ]
+        
+        ] 
+        ]
+        <!-- #END progress bar -->
+        
+        <!-- # toggle active task timer -->
+        [ .d-flex .flex-column {gap:0.5rem} .obsoletes
+        
+          <div data-obj="stop-timer">
+            [ .d-grid {gap:0.35rem} {h:2.2rem}
+              <button class='clickable btn-timer-control-stop d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='stop-timer'>
+                [s .icon-mate 'stop']
+              </button>
+              <button class='clickable btn-timer-start btn-timer-control-start d-flex align-items-center justify-content-center' style="gap:0.3rem" data-callback='start-or-restart-timer'>
+                [s .icon-mate 'play_arrow']
+              </button>
+              [small data-view-group="platform" data-view-name="web" '(Alt+S)' .text-center .obsoletes]
+              <button class='clickable d-none' data-callback='finish-timer'>Finish (F)</button>
+            ]
+          </div>
+          
+        ]
+      
+      ]
+      
+      
+      [ .d-none
+        <div style="height:2px;"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-bar-fill"></div>
+            <span class="progress-bar-text"><span id="percentage"></span></span>
+          </div>
+        </div>
+      ]
+      
+    ]
+    
+  </template>
+  
   
   <template id="tmp-pip-doc">
     <!-- # tmp-pip-doc -->

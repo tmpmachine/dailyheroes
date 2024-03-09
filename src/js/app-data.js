@@ -5,6 +5,8 @@ window.lsdb = new Lsdb(storageName, {
     viewMode: 'mission', // tasks, mission
     isCompactView: false,
     
+    viewStates: {},
+    
     start: null,
     history: 0,
     historyTime: 0,

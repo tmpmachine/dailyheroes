@@ -1891,8 +1891,10 @@ let app = (function () {
       }
     }
     
-    $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
-    $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+    try {
+      $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
+      $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+    } catch (e) {}
     
     ui.ReloadETA(totalTargetCapTime);
   }
@@ -2043,7 +2045,13 @@ let app = (function () {
       await chrome.runtime.sendMessage({message: 'stop'});
     }
     
-    app.TaskListTask();
+    // app.TaskListTask();
+    {
+      let tasks = compoTask.GetAll();
+      for (let task of tasks) {
+        ui.TaskRefreshTaskCard(task);
+      }
+    }
     
   }
   

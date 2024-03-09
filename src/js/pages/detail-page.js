@@ -5,10 +5,14 @@ let pageDetail = (function() {
   let SELF = {
     OpenByTaskId,
   };
-  
+    
   function OpenByTaskId(id) {
     screenStateUtil.Navigate('task-detail');
+    screenStateUtil.SaveState({
+      taskId: id,
+    });
     taskDisplayTaskInfo(id);
+    app.TaskRefreshMissionTargetETA();
   }
   
   async function taskDisplayTaskInfo(id) {
