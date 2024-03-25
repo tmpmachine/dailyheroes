@@ -1865,9 +1865,6 @@ let app = (function () {
     
     await setActiveTask();
     
-    // set mission target info 
-    TaskRefreshMissionTargetETA();
-    
     await ui.TaskReloadParentTarget();
    
   }

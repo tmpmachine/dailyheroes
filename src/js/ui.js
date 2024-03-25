@@ -369,6 +369,7 @@ let ui = (function () {
       appData.Save();
       
       taskRefreshTaskCard(task);
+      app.TaskRefreshMissionTargetETA();
       
     } catch (e) {
       console.error(e);
@@ -447,6 +448,9 @@ let ui = (function () {
     lsdb.save();
     ui.BuildBreadcrumbs();
     app.TaskListTask();
+    
+    // set mission target info 
+    app.TaskRefreshMissionTargetETA();
   }
   
   function resetActiveGroupId() {
