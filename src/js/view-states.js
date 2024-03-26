@@ -14,7 +14,7 @@ let viewStates = [
   // active task info
   {
     group: 'active-task-info',
-    states: [ 'has-target', 'is-sequence' ]
+    states: [ 'has-target', 'is-sequence', 'has-ETA' ]
   },
   // task item
   {
@@ -52,7 +52,7 @@ let viewStates = [
   {
     group: 'screens',
     states: [
-      'home', 'settings', 'trackers', 'priority-mapper', 'collections', 'by-threshold',
+      'home', 'settings', 'trackers', 'priority-mapper', 'collections', 'by-threshold', 'task-detail'
     ],
   },
   {

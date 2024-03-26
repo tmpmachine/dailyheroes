@@ -3,6 +3,13 @@ window.$ = document.querySelector.bind(document);
 componentLoader.load([
   {
     urls: [
+      // "js/tests.js",
+      "js/utils/screen-state-util.js",
+      "js/web-components/task-drawer-webcom.js",
+    ]
+  },
+  {
+    urls: [
       "js/view-states.js",
       "js/dom-events/pip-events.js",
       "js/dom-events.js",
@@ -92,6 +99,7 @@ componentLoader.load([
       "js/lib/drive-api.js",
       "js/components/gsi-chrome-component.js",
       "js/components/backup-component.js",
+      "js/pages/detail-page.js",
     ],
     callback: function() {
       

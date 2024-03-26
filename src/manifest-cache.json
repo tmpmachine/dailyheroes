@@ -1,4 +1,7 @@
 {
+  "pages": [
+    "js/pages/detail-page.js"
+  ],
   "components": [
     "js/components/clipboard-component.js",
     "js/components/input-explorer-component.js",
@@ -24,6 +27,13 @@
   "fonts": [
     "https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2"
   ],
+  "utils": [
+    "js/utils/view-state-util.js",
+    "js/utils/helper.js",
+    "js/utils/screen-state-util.js",
+    "modal-v2-utils.js",
+    "js/utils/uuidv4-util.js"
+  ],
   "etc": [
     "service.js",
     
@@ -38,11 +48,7 @@
     "js/dom-events/pip-events.js",
     "js/view-states.js",
     
-    "modal-v2-utils.js",
-    
-    "js/utils/view-state-util.js",
-    "js/utils/helper.js",
-    
+  
     "js/component-loader.js",
     "js/app-data.js",
     "js/app.js",
@@ -52,7 +58,6 @@
     "js/uis/ui-collection.js",
     "js/uis/ui-mission.js",
     "js/uis/ui-tracker.js",
-    "js/utils/uuidv4-util.js",
     
     "index.js",
     "js/web-components/modal-v2.js",

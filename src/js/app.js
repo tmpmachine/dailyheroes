@@ -1865,17 +1865,14 @@ let app = (function () {
     
     await setActiveTask();
     
-    // set mission target info 
-    TaskRefreshMissionTargetETA();
-    
     await ui.TaskReloadParentTarget();
    
   }
   
   async function TaskRefreshMissionTargetETA() {
-    
+
     if (!isViewModeMission()) return;
-    
+
     let totalTargetTime = 0;
     let totalTargetCapTime = 0;
     
@@ -1891,8 +1888,10 @@ let app = (function () {
       }
     }
     
-    $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
-    $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+    try {
+      $('#txt-total-target').textContent = helper.ToTimeString(totalTargetTime, 'hms');
+      $('#txt-total-target-cap').textContent = helper.ToTimeString(totalTargetCapTime, 'hms');
+    } catch (e) {}
     
     ui.ReloadETA(totalTargetCapTime);
   }
@@ -2043,7 +2042,13 @@ let app = (function () {
       await chrome.runtime.sendMessage({message: 'stop'});
     }
     
-    app.TaskListTask();
+    // app.TaskListTask();
+    {
+      let tasks = compoTask.GetAll();
+      for (let task of tasks) {
+        ui.TaskRefreshTaskCard(task);
+      }
+    }
     
   }
   
@@ -2318,7 +2323,12 @@ let app = (function () {
     ui.TaskSetActiveTaskInfo();
     ui.Init();
     updateUI();
-    await TaskListTask();
+    
+    // list task
+    {
+      await TaskListTask();
+      app.TaskRefreshMissionTargetETA();
+    }
     
     if (isViewModeMission()) {
       $('#tasklist-container').stateList.add('--view-mission');
@@ -2410,24 +2420,9 @@ let app = (function () {
   }
   
   async function runTests() {
-    // return;
-    // let $$ = document.querySelectorAll.bind(document);
+    if (typeof(tests) == 'undefined') return;
     
-    // # change initial screens
-    // viewStateUtil.Set('screens', ['settings']);
-    // viewStateUtil.Set('screens', ['priority-mapper']);
-    
-    // ui.OpenOverview()
-    
-    /*
-    await waitUntil(() => {
-      return compoPriorityMapper;
-    });
-    ui.OpenPriorityMapper();
-    // */
-    
-    // await waitForElement('[data-role="edit"]');
-    // Array.from($$('[data-role="edit"]')).pop().click();
+    tests.Run();
   }
   
   function waitForElement(selector) {
@@ -2585,6 +2580,7 @@ let app = (function () {
       case 'add-sub-timer': addSubTimer(id); break;
       case 'add-progress-minutes': await ui.TaskAddProgressManually(id); break;
       case 'set-target-time': await ui.TaskSetTargetTime(id); break;
+      case 'open': await pageDetail.OpenByTaskId(id); break;
       case 'set-active': switchActiveTask(parentEl, id); break;
       case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
       case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;

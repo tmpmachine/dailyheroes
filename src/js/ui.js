@@ -3,6 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
+    TaskRefreshTaskCard: taskRefreshTaskCard,
     FocusTaskById: FocusTaskElById,
     FocusTaskElById,
     TaskDistributeProgressTaskFromForm,
@@ -77,7 +78,6 @@ let ui = (function () {
   };
   
   function ToggleSearchFeature() {
-    console.log(1)
     viewStateUtil.Toggle('features', ['search-bar']);
   }
   
@@ -206,11 +206,11 @@ let ui = (function () {
   }
   
   function ReloadETA(totalTargetCapTime) {
-    viewStateUtil.Remove('task-view-mode', ['has-ETA']);
+    viewStateUtil.Remove('active-task-info', ['has-ETA']);
     
     if (totalTargetCapTime <= 0 || !isViewModeMission()) return;
     
-    viewStateUtil.Add('task-view-mode', ['has-ETA']);
+    viewStateUtil.Add('active-task-info', ['has-ETA']);
     
     let now = new Date();
     let eta = new Date(now.getTime() + totalTargetCapTime);
@@ -369,6 +369,7 @@ let ui = (function () {
       appData.Save();
       
       taskRefreshTaskCard(task);
+      app.TaskRefreshMissionTargetETA();
       
     } catch (e) {
       console.error(e);
@@ -447,6 +448,9 @@ let ui = (function () {
     lsdb.save();
     ui.BuildBreadcrumbs();
     app.TaskListTask();
+    
+    // set mission target info 
+    app.TaskRefreshMissionTargetETA();
   }
   
   function resetActiveGroupId() {
@@ -596,7 +600,7 @@ let ui = (function () {
     
     await appData.TaskStoreTask();
       
-    let taskEl = $(`#tasklist-container [data-obj="task"][data-id="${id}"]`);
+    let taskEl = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${id}"]`);
     viewStateUtil.Add('task', ['sequence-added'], taskEl);
     
     RefreshListSequenceByTaskId(data.prePickCollectionId);
@@ -771,8 +775,8 @@ let ui = (function () {
   function RefreshSequenceTaskById(id) {
     
     let item = app.GetTaskById(id);
-    let container = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
-    let taskEl = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"]`);
+    let container = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
+    let taskEl = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${item.id}"]`);
     
     if (!container) return;
     
@@ -814,7 +818,7 @@ let ui = (function () {
   }
   
   function RemoveElSequenceById(id, taskId) {
-    let container = $(`#tasklist-container [data-obj="task"][data-id="${taskId}"] [data-container="sequence-tasks"]`);
+    let container = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${taskId}"] [data-container="sequence-tasks"]`);
     if (!container) return;
     
     let seqEl = container.querySelector(`[data-kind="item-sequence-task"][data-id="${id}"]`);
@@ -833,8 +837,8 @@ let ui = (function () {
     }
     
     if (!container) {
-      container = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
-      taskEl = $(`#tasklist-container [data-obj="task"][data-id="${item.id}"]`);
+      container = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
+      taskEl = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${item.id}"]`);
     }
     
     if (!container) return;
@@ -1008,7 +1012,8 @@ let ui = (function () {
     let viewTarget = evt.target.closest('[data-view-target]').dataset.viewTarget;
     if (!viewTarget) return;
     
-    viewStateUtil.Set('screens', [viewTarget]);
+    screenStateUtil.Navigate(viewTarget);
+    // viewStateUtil.Set('screens', [viewTarget]);
   }
   
   function openPriorityMapperByParentId(id) {
@@ -1413,6 +1418,7 @@ let ui = (function () {
     initAudioSettings();
     refreshGlobalTimer();
     
+    screenStateUtil.TaskRestoreStates();
   }
   
   function initAudioSettings() {
@@ -1654,7 +1660,7 @@ let ui = (function () {
   }
   
   function initSimpleElementFilter() {
-    listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '#tasklist-container [data-obj="task"]');
+    listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '[data-eid="widget-task"] [data-obj="task"]');
   }
   
   function attachKeyboardShortcuts() {
@@ -1861,6 +1867,8 @@ let ui = (function () {
       if (task.targetTime > 0 || task.targetCapTime > 0) {
         viewStateUtil.Add('active-task-info', ['has-target'], el);
       }
+      
+      RefreshListSequenceByTaskId(task.id);
       
     } catch (e) {
       

@@ -21,7 +21,6 @@ let DOMEvents = (function() {
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'show-modal-add-sequence': () => ui.ShowModalAddSequence(),
       
-      'view-mission': () => ui.NavigateViewMission(),
       'view-tasks': () => ui.NavigateViewTask(),
       
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
@@ -119,6 +118,7 @@ let DOMEvents = (function() {
   	  'submit-mission-convert-task': (evt) => ui.TaskSubmitMissionConvertTask(evt),
   	},
   	onclick: {
+  	  'view-mission': () => ui.NavigateViewMission(),
   	  'edit-target-threshold': () => ui.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
