@@ -1870,9 +1870,9 @@ let app = (function () {
   }
   
   async function TaskRefreshMissionTargetETA() {
-    
+
     if (!isViewModeMission()) return;
-    
+
     let totalTargetTime = 0;
     let totalTargetCapTime = 0;
     
@@ -2323,7 +2323,12 @@ let app = (function () {
     ui.TaskSetActiveTaskInfo();
     ui.Init();
     updateUI();
-    await TaskListTask();
+    
+    // list task
+    {
+      await TaskListTask();
+      app.TaskRefreshMissionTargetETA();
+    }
     
     if (isViewModeMission()) {
       $('#tasklist-container').stateList.add('--view-mission');
