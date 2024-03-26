@@ -435,6 +435,7 @@ let ui = (function () {
   }
   
   function NavigateViewTask() {
+    viewStateUtil.Remove('active-task-info', ['has-ETA']);
     ChangeViewModeConfig('tasks');
     // resetActiveGroupId();
     lsdb.save();
