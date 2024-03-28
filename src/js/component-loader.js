@@ -1,5 +1,10 @@
 let componentLoader = (function() {
-
+  
+  let SELF = { 
+    WaitUntil,
+    load,
+  };
+  
   function loadComponents(components, index) {
     if (index >= 0 && components[index].callback) {
       components[index].callback();
@@ -10,6 +15,18 @@ let componentLoader = (function() {
         loadComponents(components, index);
       });
     }
+  }
+  
+  function WaitUntil(stateCheckCallback, delay = 100) {
+    return new Promise(resolve => {
+        let interval = window.setInterval(() => {
+        let shouldResolve = stateCheckCallback();
+        if (shouldResolve) {
+            window.clearInterval(interval);
+            resolve();
+        }
+        }, delay);
+    });
   }
   
   function requireExternalFiles(url) {
@@ -48,8 +65,6 @@ let componentLoader = (function() {
     loadComponents(components, loadIndex);
   }
   
-  return { 
-    load,
-  };
+  return SELF;
   
 })();

@@ -1,5 +1,10 @@
 let DOMEvents = (function() {
   
+  let SELF = {
+    Init,
+    InitLazy,
+  };
+  
   let eventsMap = {
     
   	clickable: {
@@ -18,7 +23,6 @@ let DOMEvents = (function() {
   	  'restore-from-cloud': () => compoBackup.TaskRestore(),
   	  
   	  
-  	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'show-modal-add-sequence': () => ui.ShowModalAddSequence(),
       
       'view-tasks': () => ui.NavigateViewTask(),
@@ -118,6 +122,7 @@ let DOMEvents = (function() {
   	  'submit-mission-convert-task': (evt) => ui.TaskSubmitMissionConvertTask(evt),
   	},
   	onclick: {
+  	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'view-mission': () => ui.NavigateViewMission(),
   	  'edit-target-threshold': () => ui.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
@@ -150,11 +155,11 @@ let DOMEvents = (function() {
   
   let listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
   
-  let listening = function(selector, dataKey, eventType, callbacks) {
-    let elements = document.querySelectorAll(selector);
+  let listening = function(selector, dataKey, eventType, callbacks, node = document) {
+    let elements = node.querySelectorAll(selector);
     for (let el of elements) {
       let callbackFunc = callbacks[el.dataset[dataKey]];
-      el.addEventListener(eventType, callbackFunc);
+      el?.addEventListener(eventType, callbackFunc);
     }
   };
   
@@ -170,8 +175,10 @@ let DOMEvents = (function() {
     listening('[data-onsubmit]', 'onsubmit', 'submit', eventsMap.onsubmit);
   }
   
-  return {
-    Init,
-  };
+  function InitLazy(containerEl) {
+    listening('[data-lazy-onclick]', 'lazyOnclick', 'click', eventsMap.onclick, containerEl);
+  }
+  
+  return SELF;
   
 })();
