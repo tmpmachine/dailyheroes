@@ -723,7 +723,7 @@ let ui = (function () {
 
   async function TaskSetActiveTaskInfo() {
     
-    $('#txt-active-task-name').textContent = '';
+    $('#txt-active-task-name')?.replaceChildren();
     
     let activeTask = await getActiveTask();
     if (!activeTask) return;
@@ -734,7 +734,7 @@ let ui = (function () {
       ratioTimeLeftStr = `${minutesToHoursAndMinutes(ratioTimeLeft.timeLeft)}`;
     }
     
-    $('#txt-active-task-name').innerHTML = `${activeTask.title} ${ratioTimeLeftStr}`;
+    $('#txt-active-task-name')?.replaceChildren(`${activeTask.title} ${ratioTimeLeftStr}`);
     
     // task target
     viewStateUtil.Remove('active-task-info', ['has-target', 'is-sequence']);
@@ -976,6 +976,9 @@ let ui = (function () {
     
     if (item.targetTime > 0 || item.targetCapTime > 0) {
       viewStateUtil.Add('task', ['has-target'], taskEl);
+    }
+    if (item.type == 'M') {
+      viewStateUtil.Add('task', ['collection-only'], taskEl);
     }
     
     if (isManageMode) {
