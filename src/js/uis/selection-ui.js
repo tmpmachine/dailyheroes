@@ -4,7 +4,15 @@ let uiSelection = (function() {
   
   let SELF = {
     ReloadSelection,
+    GetSingleSelection,
   };
+  
+  function GetSingleSelection() {
+    let ids = compoSelection.GetAllItems();
+    if (ids.length != 1) return null;
+    
+    return ids[0];
+  }
   
   function ReloadSelection() {
     let ids = compoSelection.GetAllItems();
