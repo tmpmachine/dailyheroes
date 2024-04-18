@@ -1,9 +1,12 @@
 .wg-TaskCard {
-  & {
+  .task-body-main {
     padding: 0.5rem;
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 1rem;
+  }
+  .task-target-cap-time {
+    font-weight: bold;
   }
   .btn-expand {
     border: 0;
@@ -33,7 +36,9 @@
 
 .wg-SequenceTask {
   .task-target-cap-time {
-     background: #d4d4d4; 
+     background: #d4d4d4;
+     color: black;
+     font-weight: normal;
   }
 }
 
