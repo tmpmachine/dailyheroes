@@ -375,18 +375,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
 }
 
 /* # task body */
-.btn-start, .btn-stop {
-  border-radius: 100%;
-  width: 50px;
-  height: 50px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #4eccff47;
-  border: 0;
-  color: white;
-  font-size: 1.7rem;
-}
 .btn-toggle-mission {
   border-radius: 100%;
   width: 50px;

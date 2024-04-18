@@ -3,7 +3,12 @@ let uiMission = (function() {
   let SELF = {
     ListGroup,
     OnChangeGroup,
+    ExpandToolbar,
   };
+  
+  function ExpandToolbar(id) {
+    viewStateUtil.Toggle('task', ['toolbarExpanded'], $(`._wgTaskList [data-id="${id}"]`));
+  }
   
   function ListGroup() {
     __refreshGroupList();

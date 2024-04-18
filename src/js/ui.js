@@ -960,8 +960,11 @@ let ui = (function () {
       }
     }
     
+    let taskElViewStates = {
+      manageMode: viewStateUtil.HasViewState('task', 'manage-sequence', taskEl),
+      toolbarExpanded: viewStateUtil.HasViewState('task', 'toolbarExpanded', taskEl),
+    };
     
-    let isManageMode = viewStateUtil.HasViewState('task', 'manage-sequence');
     viewStateUtil.RemoveAll('task', taskEl);
     
     let totalSequenceTargetTimeStr = '';
@@ -981,8 +984,11 @@ let ui = (function () {
       viewStateUtil.Add('task', ['collection-only'], taskEl);
     }
     
-    if (isManageMode) {
+    if (taskElViewStates.manageMode) {
       viewStateUtil.Add('task', ['manage-sequence'], taskEl);
+    }
+    if (taskElViewStates.toolbarExpanded) {
+      viewStateUtil.Add('task', ['toolbarExpanded'], taskEl);
     }
     
     if (taskEl && items.length > 0) {

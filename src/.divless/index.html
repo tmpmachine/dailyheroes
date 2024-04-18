@@ -245,7 +245,7 @@
             <!-- # widget task -->
             <!-- # widget-task.skin-default -->
             <!-- # widget-task.skin-compact -->
-            [ data-eid="widget-task" #tasklist .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
+            [ data-eid="widget-task" ._wgTaskList #tasklist .widget-task .skin-default data-onclick="handle-task-click" data-ondblclick="task-dblclick-handler"]
             [ .void-full]
             <div id="tasklist-completed" class="clickable" data-callback="handle-task-click"></div>
           </div>
@@ -617,97 +617,96 @@
     [ .wg-ActiveTask data-scope-id="2"
 
       [ .d-flex .inner .sc-2 .flex-column .gap-half
-      [ .sub-inner .sc-2
-        
-        [ .pos-relative
-          <!-- # floating buttons -->
-          [
-            <button class="btn-add-task bg-white" data-lazy-onclick="show-modal-add-task">
-              [s .icon-mate 'add' {fs:2.2rem}]
-              [ .pos-absolute {b:6px}
-                [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center {fs:0.5rem}]
-              ]
-            </button>
+        [ .sub-inner .sc-2
+          
+          [ .pos-relative
+            <!-- # floating buttons -->
+            [
+              <button class="btn-add-task bg-white" data-lazy-onclick="show-modal-add-task">
+                [s .icon-mate 'add' {fs:2.2rem}]
+                [ .pos-absolute {b:6px}
+                  [small data-view-group="platform" data-view-name="web" '(Alt+N)' .text-center {fs:0.5rem}]
+                ]
+              </button>
+            ]
           ]
-        ]
-        
-        <!-- # progress bar -->
-        [ .flex-1 data-view-group="active-task-info" data-view-states="" .bg-white .drawer
           
-          [ .d-flex .gap-half
-          
-            [ .wg-ActiveTaskProgressBar .d-flex .flex-column .gap-quarter
+          <!-- # progress bar -->
+          [ .flex-1 data-view-group="active-task-info" data-view-states="" .bg-white .drawer
             
-              [ .d-flex .gap-quarter
-                <div class="NzE2ODYyNQ-progress-bar-container">
-                  <div class="NzE2ODYyNQ-progress-bar">
-                    <div class="NzE2ODYyNQ-progress-bar-fill"></div>
-                    <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+            [ .d-flex .gap-half
+            
+              [ .wg-ActiveTaskProgressBar .d-flex .flex-column .gap-quarter
+              
+                [ .d-flex .gap-quarter
+                  <div class="NzE2ODYyNQ-progress-bar-container">
+                    <div class="NzE2ODYyNQ-progress-bar">
+                      <div class="NzE2ODYyNQ-progress-bar-fill"></div>
+                      <span class="NzE2ODYyNQ-progress-bar-text"><span id="txt-countdown">00:00:00</span></span>
+                    </div>
                   </div>
-                </div>
-                [small #txt-active-task-target-cap .task-target-cap-time]
-              ]
-              
-              
-              [ data-view-group="active-task-info" data-view-name="has-ETA"
-                [ .d-flex .flex-wrap .gap-quarter .align-items-center 
-                  <!-- # mission target ETA -->
-                  [small 
-                    [ .d-flex .gap-quarter .align-items-center
-                      [s 'ETA']
-                      [s #txt-target-eta .label-eta]
-                    ]
-                  ]
+                  [small #txt-active-task-target-cap .task-target-cap-time]
                 ]
-              ]
-              
-            ]
-            
-            <!-- active task: task info -->
-            [ .d-flex .flex-column .gap-half .task-info
-            
-              <section class="d-flex gap-quarter flex-wrap">
-                [ .d-flex .flex-wrap .justify-content-between .gap-quarter 
-                  <!-- # active task info -->
-                  [
-                    [small #txt-active-task-name {fw:bold;word-break:break-word}] 
-                  ]
-                  
-                  <!-- # active time target time -->
-                  [small data-view-group="active-task-info" data-view-name="has-target"
-                    [ .d-flex .gap-quarter
-                      [ .obsoletes
-                        [mark #txt-active-task-target .task-target-time]  
-                      ]
-                      [s #txt-active-task-target-limit .obsoletes]
-                    ]
-                  ]
-                ]
-              
-                <!-- # active task sequence info -->
-                [ data-view-group="active-task-info" data-view-name="is-sequence"
-                  [small #txt-active-task-sequence-name {word-break:break-word;ft:italic}] 
-                ]
-              
                 
-                <!-- # open task button -->
-                [ .d-flex .justify-content-between .obsoletes
-                  [button data-onclick="open-task-into-view" .bg-white .obsoletes
-                    [small .icon-mate 'open_in_new']
-                  ]
-                  
-                  <!-- # pip button-->
-                  [button data-onclick="open-pip" .bg-white data-view-group="platform" data-view-name="web" .obsoletes
-                    [small 'picture_in_picture' .icon-mate]
+                
+                [ data-view-group="active-task-info" data-view-name="has-ETA"
+                  [ .d-flex .flex-wrap .gap-quarter .align-items-center 
+                    <!-- # mission target ETA -->
+                    [small 
+                      [ .d-flex .gap-quarter .align-items-center
+                        [s 'ETA']
+                        [s #txt-target-eta .label-eta]
+                      ]
+                    ]
                   ]
                 ]
-              </section>
-            
+                
+              ]
+              
+              <!-- active task: task info -->
+              [ .d-flex .flex-column .gap-half .task-info
+              
+                <section class="d-flex gap-quarter flex-wrap">
+                  [ .d-flex .flex-wrap .justify-content-between .gap-quarter 
+                    <!-- # active task info -->
+                    [
+                      [small #txt-active-task-name {fw:bold;word-break:break-word}] 
+                    ]
+                    
+                    <!-- # active time target time -->
+                    [small data-view-group="active-task-info" data-view-name="has-target"
+                      [ .d-flex .gap-quarter
+                        [ .obsoletes
+                          [mark #txt-active-task-target .task-target-time]  
+                        ]
+                        [s #txt-active-task-target-limit .obsoletes]
+                      ]
+                    ]
+                  ]
+                
+                  <!-- # active task sequence info -->
+                  [ data-view-group="active-task-info" data-view-name="is-sequence"
+                    [small #txt-active-task-sequence-name {word-break:break-word;ft:italic}] 
+                  ]
+                
+                  
+                  <!-- # open task button -->
+                  [ .d-flex .justify-content-between .obsoletes
+                    [button data-onclick="open-task-into-view" .bg-white .obsoletes
+                      [small .icon-mate 'open_in_new']
+                    ]
+                    
+                    <!-- # pip button-->
+                    [button data-onclick="open-pip" .bg-white data-view-group="platform" data-view-name="web" .obsoletes
+                      [small 'picture_in_picture' .icon-mate]
+                    ]
+                  ]
+                </section>
+              
+              ]
+              
             ]
-          
-          ]
-        
-        ] 
+          ] 
         ]
         <!-- #END progress bar -->
         
@@ -818,7 +817,7 @@
       ]
   
   	  <!-- # task body -->
-  	  [ .task-body-main {padding:0.3rem 0.5rem;} {d:grid} {cols:1fr auto} {gap:1rem}
+  	  [ .task-body-main .wg-TaskCard
   	  
   	    <!-- # task top info -->
   	    [
@@ -885,12 +884,18 @@
       	    [ .d-flex .justify-content-end {gap:0.5rem}
               
       	      <!-- # start timer button -->
-              [ 
+              [ .d-flex .gap-half .align-items-center
+                [btn .btn-target data-role="set-target-time" title="Add target time" .icon-mate
+                  flag
+                ]
                 [btn .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
                   play_arrow
                 ]
                 [btn .btn-stop data-role="stop" data-group="active" title="Stop" .icon-mate
                   stop
+                ]
+                [btn .btn-expand data-role="expandToolbar" title="Expand" .icon-mate
+                  more_vert
                 ]
               ]
               
@@ -902,7 +907,7 @@
   	  ]
   	  
   	  <!-- # task toolbar -->
-  	  [ .container-task-toolbar
+  	  [ .container-task-toolbar data-view-group="task" data-view-name="toolbarExpanded"
 
     	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons" {p:0.5rem}]
         
@@ -925,17 +930,20 @@
   	  <!-- # sequence container -->
   	  [ data-view-group="task" data-view-name="sequence"
         <!-- # sequence toolbar -->
-        [ {p:0.5rem} .d-flex .flex-wrap .gap-half .justify-content-between
-          [ .d-flex .flex-wrap .gap-half
-            [btn '+ New' data-role="add-sequence-task"]
-            [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
-            [btn 'Reset repeat count' data-role="reset-count-active-seq"]
-            [btn 'Manage' data-role="manage-sequence"]
-          ]
-          [
-            [btn .btn-star .icon-mate 'refresh' title="Reset sequence" data-role="reset-sequence"]
+        [ data-view-group="task" data-view-name="toolbarExpanded"
+          [ {p:0.5rem} .d-flex .flex-wrap .gap-half .justify-content-between
+            [ .d-flex .flex-wrap .gap-half
+              [btn '+ New' data-role="add-sequence-task"]
+              [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
+              [btn 'Reset repeat count' data-role="reset-count-active-seq"]
+              [btn 'Manage' data-role="manage-sequence"]
+            ]
+            [
+              [btn .btn-star .icon-mate 'refresh' title="Reset sequence" data-role="reset-sequence"]
+            ]
           ]
         ]
+        <!-- # sequence list -->
         [ data-container="sequence-tasks" ]
   	  ]
       
@@ -1116,7 +1124,7 @@
           ]
           <button data-role='take-note' class="icon-mate d-none" data-group="active" title="Take a note">note_add</button>
           [btn 'more_time' data-role="add-progress-minutes" class="icon-mate" data-group="active not-running" title="Add progress manually"]
-          [btn 'flag' data-role="set-target-time" class="icon-mate" data-group="active not-running" title="Add target time"]
+          <!--[btn 'flag' data-role="set-target-time" class="icon-mate" data-group="active not-running" title="Add target time"]-->
           [ {p:0.2rem}]
           <!-- task action: edit -->
           [btn 'Edit' data-role="edit" class="icon-mate" data-group="not-running" title="Edit"]

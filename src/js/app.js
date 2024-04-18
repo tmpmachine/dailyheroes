@@ -2602,6 +2602,7 @@ let app = (function () {
       break;
       case 'take-note': showModalNote(id); break;
       case 'start': await StartTaskTimer(parentEl, id); break;
+      case 'expandToolbar': uiMission.ExpandToolbar(id); break;
       case 'track-target': TaskTrackTarget(id); break;
       case 'stop': await app.TaskStopActiveTask(); break;
         
