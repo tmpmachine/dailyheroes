@@ -1,4 +1,13 @@
 {
+  "uis": [
+    "js/ui.js",
+    "js/uis/ui-pip.js",
+    "js/uis/ui-target-trackers.js",
+    "js/uis/ui-collection.js",
+    "js/uis/ui-mission.js",
+    "js/uis/ui-tracker.js",
+    "js/uis/task-ui.js"
+  ],
   "pages": [
     "js/pages/detail-page.js"
   ],
@@ -52,12 +61,6 @@
     "js/component-loader.js",
     "js/app-data.js",
     "js/app.js",
-    "js/ui.js",
-    "js/uis/ui-pip.js",
-    "js/uis/ui-target-trackers.js",
-    "js/uis/ui-collection.js",
-    "js/uis/ui-mission.js",
-    "js/uis/ui-tracker.js",
     
     "index.js",
     "js/web-components/modal-v2.js",
