@@ -3,7 +3,7 @@ let ui = (function () {
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
-    TaskRefreshTaskCard: taskRefreshTaskCard,
+    RefreshTaskCardAsync,
     FocusTaskById: FocusTaskElById,
     FocusTaskElById,
     TaskDistributeProgressTaskFromForm,
@@ -23,7 +23,6 @@ let ui = (function () {
     AddSequenceTask,
     EditSequenceTask,
     OnSubmitSequenceTask,
-    OnSubmitTask,
     
     // groups
     Navigate,
@@ -98,7 +97,7 @@ let ui = (function () {
 		
     let task = compoTask.GetById(id);
     
-    let taskId = await app.AddTaskData({
+    let taskId = compoTask.AddTaskData({
       title: task.title,
       durationTime: task.durationTime,
       targetTime: task.targetTime,
@@ -368,7 +367,7 @@ let ui = (function () {
       await appData.TaskStoreTask(); 
       appData.Save();
       
-      taskRefreshTaskCard(task);
+      RefreshTaskCardAsync(task);
       app.TaskRefreshMissionTargetETA();
       
     } catch (e) {
@@ -703,7 +702,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    taskRefreshTaskCard(task);
+    RefreshTaskCardAsync(task);
     
     $('#task-modal').close();
   }
@@ -716,7 +715,7 @@ let ui = (function () {
 
     await appData.TaskStoreTask();
 
-    taskRefreshTaskCard(task);
+    RefreshTaskCardAsync(task);
     
     $('#task-modal').close();
   }
@@ -1837,57 +1836,7 @@ let ui = (function () {
     
   }
   
-  async function OnSubmitTask(ev) {
-  
-		ev.preventDefault();
-		
-    let form = ev.target;
-    
-    if (form.id.value.length > 0) {
-      
-      let task = await app.TaskUpdateTask(form);
-      
-      await appData.TaskStoreTask();
-      taskRefreshTaskCard(task);
-      form.reset();
-      
-      app.SyncGroupName(task.id, task.title, task.parentId);
-        
-    } else {
-      
-      let taskId = await app.TaskAddTask(form);
-      
-      if (isViewModeMission()) {
-        let missionData = compoMission.CreateItemMission(taskId);
-        compoMission.AddMission(missionData);
-        compoMission.Commit();
-  
-        appData.Save();
-      }
-      
-      // set as active task if none is active
-      let data = await window.service.GetData('start');
-      if (!data.start && taskId) {
-        await window.service.SetData({'activeTask': taskId});
-      }
-      await appData.TaskStoreTask();
-      await app.TaskListTask();
-    
-    
-      form.reset();
-      updateUI();
-      
-    }
-    
-    
-    app.TaskRefreshMissionTargetETA();
-    
-		let modal = document.querySelectorAll('#task-modal')[0].toggle();
-		modal.close();
-		
-  }
-  
-  function taskRefreshTaskCard(task) {
+  function RefreshTaskCardAsync(task) {
     
     try {
       

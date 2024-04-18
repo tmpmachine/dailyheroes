@@ -11,8 +11,6 @@ let compoTask = (function() {
     StartTimerByTaskId,
     ResetProgressById,
     TaskAddTotalProgressByTaskId,
-    
-    // sequence
     AddSequence,
     UpdateSequence,
     GetSequenceById,
@@ -21,11 +19,14 @@ let compoTask = (function() {
     TaskResetSequenceById,
     TaskResetSequenceCountByTaskId,
     TaskResetSequenceByTaskId,
-    
+    GetAllTasksAsync,
     TaskResetTasksTargetTime,
     GetTaskQuotaTimeById,
     TaskGetActive,
     GetFormattedData,
+    FilterTaskByTargetTime,
+    AddTaskAsync,
+    AddTaskData,
   };
   
   let dataModel = {
@@ -52,6 +53,154 @@ let compoTask = (function() {
       items: [],
     },
   };
+  
+  async function AddTaskAsync(form)  {
+    
+    if (form.title.value.trim().length == 0) {
+      return;
+    }
+    
+    let targetVal = form.durationTime.value;
+    if (isNumber(targetVal)) {
+      // set default to minutes
+      targetVal = `${targetVal}m`;
+    }
+  
+    let taskId;
+    try {
+      let parentId = form['parent-id'].value;
+      taskId = AddTaskData({
+        title: form.title.value,
+        durationTime: helper.ParseHmsToMs(targetVal),
+        targetTime: helper.ParseHmsToMs(form.targetTime.value),
+        targetCapTime: helper.ParseHmsToMs(form.targetCapTime.value),
+        parentId: parentId ? parentId : '',
+        type: form.taskType.value,
+      });
+      
+      if (parentId) {
+        let parentTask = await app.GetTaskById(parentId);
+        await checkAndCreateGroups(parentTask.title, parentId);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed.');    
+      return;
+    }
+    
+    return taskId;
+    
+  }
+  
+  function checkAndCreateGroups(title, id) {
+    let data = lsdb.data.groups.find(x => x.id == id);
+    if (data) return;
+    
+    let group = lsdb.new('groups', {
+      id,
+      name: title,
+      parentId: lsdb.data.activeGroupId,
+    });
+    lsdb.data.groups.push(group);
+    lsdb.save();
+  }
+  
+  function AddTaskData(inputData) {
+  
+    let id = generateUniqueId();
+    let data = {...lsdb.new('task', {
+      id,
+    }), ...inputData};
+    tasks.push(data);
+    
+    return id;
+  }
+  
+  async function GetAllTasksAsync(options) {
+    
+    // filter tasks
+    let items = await filterListTaskAsync(options.isMissionView);
+    
+    // sort tasks
+    if (options.isSortByTotalProgress) {
+      sortTaskByTotalProgressTimeAsc(items);
+    }
+    
+    return items;
+  }
+  
+  function filterListTaskAsync(isMissionView) {
+    let filteredTasks = [];
+        
+    if (isMissionView) {
+      // mission view
+      
+      filteredTasks = filterTaskByCollection();
+    } else {
+      // all task view
+      
+      if (app.IsShowTargetTimeOnly()) {
+        filteredTasks = FilterTaskByTargetTime();
+      } else {
+        filteredTasks = filterTaskByPath();
+      }     
+    }
+    
+    return filteredTasks;
+  }
+  
+  function FilterTaskByTargetTime() {
+    let targetThreshold = lsdb.data.targetThreshold;
+    let targetTimeThresholdMs = targetThreshold * 60 * 1000; // in minutes
+    return tasks.filter(x => x.targetTime > targetTimeThresholdMs && x.type != 'M');
+  }
+  
+  function filterTaskByPath() {
+    let filteredTasks = tasks.filter(x => x.type != 'M');
+    
+    if (lsdb.data.activeGroupId === '') {
+      filteredTasks = filteredTasks.filter(x => x.parentId == '' || !x.parentId);
+    } else {
+      filteredTasks = filteredTasks.filter(x => x.parentId == lsdb.data.activeGroupId);
+    }
+    
+    // sort by last starred
+    filteredTasks.sort((a,b) => {
+      if (typeof(b.lastStarredDate) == 'undefined') return -1;
+  
+      return a.lastStarredDate > b.lastStarredDate ? -1 : 1;
+    });
+      
+    return filteredTasks;
+  }
+  
+  function filterTaskByCollection() {
+    let filteredTasks = tasks;
+    
+    let missionIds = compoMission.GetMissions();
+      
+    // sort by last starred
+    missionIds.sort((a,b) => {
+      return a.createdDate > b.createdDate ? 1 : -1;
+    });
+    missionIds.sort((a,b) => {
+      let order = a.lastUpdatedDate > b.lastUpdatedDate ? -1 : 1;
+      
+      if (typeof(a.lastStarredDate) != 'number' && typeof(b.lastStarredDate) == 'number') {
+        return 1;
+      } else if (typeof(a.lastStarredDate) == 'number' && typeof(b.lastStarredDate) != 'number') {
+        return -1;
+      }
+      
+      return order;
+    });
+  
+    filteredTasks = missionIds.map(x => {
+      return tasks.find(task => task.id == x.id);
+    }).filter(x => typeof(x) == 'object');
+    
+    return filteredTasks;
+  }
   
   async function GetFormattedData(item) {
     
@@ -142,7 +291,7 @@ let compoTask = (function() {
     let missionPath = '';
     let isMissionView =  true;
     let isTopPath = isTopMissionPath(item.id);
-    if (isMissionView && isTopPath || IsShowTargetTimeOnly()) {
+    if (isMissionView && isTopPath || app.IsShowTargetTimeOnly()) {
       ratioStr = '';
       missionPath = getAndComputeMissionPath(item.parentId);
     }

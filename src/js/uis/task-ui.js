@@ -3,6 +3,7 @@ let uiTask = (function() {
   let SELF = {
     HandleTaskClick,
     SwitchActiveTask,
+    OnSubmitTask,
   };
   
   function getActionRole(el) {
@@ -62,7 +63,7 @@ let uiTask = (function() {
       case 'delete': app.TaskDeleteTask(id, parentEl); break;
       case 'set-ratio': taskSetTaskRatio(id); break;
       case 'add-label': TaskAddLabel(id); break;
-      case 'add-sub-timer': addSubTimer(id); break;
+      case 'add-sub-task': showModalSubTask(id); break;
       case 'add-progress-minutes': await ui.TaskAddProgressManually(id); break;
       case 'set-target-time': await ui.TaskSetTargetTime(id); break;
       case 'open': await pageDetail.OpenByTaskId(id); break;
@@ -236,7 +237,56 @@ let uiTask = (function() {
     }
   }
   
-  function addSubTimer(taskId) {
+  async function OnSubmitTask(ev) {
+  
+		ev.preventDefault();
+		
+    let form = ev.target;
+    
+    if (form.id.value.length > 0) {
+      
+      let task = await app.TaskUpdateTask(form);
+      
+      await appData.TaskStoreTask();
+      ui.RefreshTaskCardAsync(task);
+      form.reset();
+      
+      app.SyncGroupName(task.id, task.title, task.parentId);
+        
+    } else {
+      
+      let taskId = await compoTask.AddTaskAsync(form);
+      
+      if (isViewModeMission()) {
+        let missionData = compoMission.CreateItemMission(taskId);
+        compoMission.AddMission(missionData);
+        compoMission.Commit();
+  
+        appData.Save();
+      }
+      
+      // set as active task if none is active
+      let data = await window.service.GetData('start');
+      if (!data.start && taskId) {
+        await window.service.SetData({'activeTask': taskId});
+      }
+      await appData.TaskStoreTask();
+      await app.TaskListTask();
+    
+    
+      form.reset();
+      updateUI();
+      
+    }
+    
+    app.TaskRefreshMissionTargetETA();
+    
+		let modal = document.querySelectorAll('#task-modal')[0].toggle();
+		modal.close();
+		
+  }
+  
+  function showModalSubTask(taskId) {
     let modalData = {
       formData: {
         parentId: taskId,
