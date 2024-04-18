@@ -62,9 +62,9 @@ let pageDetail = (function() {
     el.querySelector('.container-navigate-mission').classList.remove('d-none');
     
     if (lsdb.data.groups.find(x => x.id == item.id)) {
-      el.querySelector('.container-navigate').classList.remove('d-none');
+      el.querySelector('._containerNavigate').classList.remove('d-none');
     } else {
-      el.querySelector('.container-create-sub').classList.remove('d-none');
+      el.querySelector('._containerCreateSub').classList.remove('d-none');
     }
   // 	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
   	
