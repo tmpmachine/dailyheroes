@@ -89,7 +89,7 @@ let DOMEvents = (function() {
   	},
   	
   	ondblclick: {
-  		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
+      'task-dblclick-handler': (evt) => compoTask.HandleTaskDblClick(evt),
   	  'handle-dblclick-task-overview': (evt) => app.HandleDblclickTaskOverview(evt),
   	},
   	

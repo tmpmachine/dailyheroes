@@ -950,24 +950,36 @@
         
     	  
     	  <!-- # time progress info : below card -->
-    	  [ {fs:0.7rem;} .d-flex .gap-half {bg:#232425} {p:0 8px;}
+    	  [ {fs:0.7rem;} .d-flex .gap-half .justify-content-between {bg:#232425} {p:0 8px;}
     	    
-    	    <!-- # timer info -->
-  	      [ data-view-group="task" data-view-name-not="sequence-mode" {p:10px 0 6px;}
-    	      [ .d-flex .gap-quarter
-              [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
+    	    [ .d-flex .gap-half
+      	    <!-- # timer info -->
+    	      [ data-view-group="task" data-view-name-not="sequence-mode" {p:10px 0 6px;}
+      	      [ .d-flex .gap-quarter
+                [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
+      	      ]
     	      ]
-  	      ]
-  	      
-          <!-- # target time left -->
-          [ data-view-group="task" data-view-name="has-target" {p:10px 0 6px;}
-            [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
-              [s .icon-mate 'flag']
-              [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time .sc-1]
-              [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time .sc-1]
-              [ data-slot="sequenceTargetTotalTime" data-slot-html .task-sequence-target-cap-time]
+    	      
+            <!-- # target time left -->
+            [ data-view-group="task" data-view-name="has-target" {p:10px 0 6px;}
+              [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
+                [s .icon-mate 'flag']
+                [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time .sc-1]
+                [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time .sc-1]
+                [ data-slot="sequenceTargetTotalTime" data-slot-html .task-sequence-target-cap-time]
+              ]
             ]
-          ]
+    	    ]
+    	    
+    	    <!-- # folder indicator -->
+    	    [ .d-flex .align-items-center
+    	      [ data-view-group="task" data-view-name="hasSubTask"
+    	        [btn .btn-navigate-sub data-role="navigate-sub"
+                [s .icon-mate 'folder']
+                [s .icon-mate 'chevron_right' .opacity-half]
+    	        ]
+    	      ]
+    	    ]
           
         ]
     	]
@@ -1152,12 +1164,6 @@
         [ data-view-group="task-view-mode" data-view-name="task filter-target"
           [ ._containerCreateSub .d-none .d-flex
             [btn data-role="add-sub-task" class="icon-mate" data-group="active" title="Create sub task" 'account_tree']
-          ]
-        ]
-        <!-- # sub task navigation -->
-        [ data-view-group="task-view-mode" data-view-name="task"
-          [ ._containerNavigate .d-flex .d-none
-            [btn data-role="navigate-sub" title='View sub missions' .icon-mate 'chevron_right']
           ]
         ]
       ]

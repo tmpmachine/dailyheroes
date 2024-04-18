@@ -27,6 +27,7 @@ let compoTask = (function() {
     FilterTaskByTargetTime,
     AddTaskAsync,
     AddTaskData,
+    HandleTaskDblClick,
   };
   
   let dataModel = {
@@ -53,6 +54,35 @@ let compoTask = (function() {
       items: [],
     },
   };
+  
+  async function HandleTaskDblClick(evt) {
+    let el = evt.target;
+    let parentEl = el.closest('[data-obj="task"]');
+    let id = parentEl.dataset.id;
+    
+    let seqEl = el.closest('[data-kind="item-sequence-task"]');
+    let seqId = seqEl ? seqEl.dataset.id : null;
+    
+    if (!seqEl) return;
+    
+    let task = compoTask.GetById(id);
+
+    compoSequence.Stash(task.sequenceTasks);
+    let item = compoSequence.GetById(seqId);
+    let linkedTask = compoTask.GetById(item.linkedTaskId);
+    compoSequence.Pop();
+    
+    if (linkedTask) {
+      EditTask(linkedTask.id).then(modalResponse => {
+        console.log(modalResponse);
+      });
+    } else {
+      ui.EditSequenceTask(id, item.id);      
+    }
+    
+    // await app.TaskNavigateToMission(linkedTask.id);
+    // ui.FocusTaskElById(linkedTask.id);
+  }
   
   async function AddTaskAsync(form)  {
     

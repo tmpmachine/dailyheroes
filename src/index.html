@@ -950,24 +950,36 @@
         
     	  
     	  <!-- # time progress info : below card -->
-    	  <div class="d-flex gap-half" style="font-size:0.7rem;background:#232425;padding:0 8px;">
+    	  <div class="d-flex gap-half justify-content-between" style="font-size:0.7rem;background:#232425;padding:0 8px;">
     	    
-    	    <!-- # timer info -->
-  	      <div data-view-group="task" data-view-name-not="sequence-mode" style="padding:10px 0 6px;">
-    	      <div class="d-flex gap-quarter">
-              <span class="icon-mate">timer</span>  <span data-slot="durationTimeStr"></span>   
+    	    <div class="d-flex gap-half">
+      	    <!-- # timer info -->
+    	      <div data-view-group="task" data-view-name-not="sequence-mode" style="padding:10px 0 6px;">
+      	      <div class="d-flex gap-quarter">
+                <span class="icon-mate">timer</span>  <span data-slot="durationTimeStr"></span>   
+      	      </div>
     	      </div>
-  	      </div>
-  	      
-          <!-- # target time left -->
-          <div data-view-group="task" data-view-name="has-target" style="padding:10px 0 6px;">
-            <div class="d-flex align-items-center gap-quarter" style="gap:0.2rem;">
-              <span class="icon-mate">flag</span>
-              <mark class="task-target-time sc-1" data-slot="ratioTimeLeftStr" data-slot-html></mark>
-              <span class="task-target-cap-time sc-1" data-slot="targetCapTimeStr" data-slot-html></span>
-              <div class="task-sequence-target-cap-time" data-slot="sequenceTargetTotalTime" data-slot-html></div>
+    	      
+            <!-- # target time left -->
+            <div data-view-group="task" data-view-name="has-target" style="padding:10px 0 6px;">
+              <div class="d-flex align-items-center gap-quarter" style="gap:0.2rem;">
+                <span class="icon-mate">flag</span>
+                <mark class="task-target-time sc-1" data-slot="ratioTimeLeftStr" data-slot-html></mark>
+                <span class="task-target-cap-time sc-1" data-slot="targetCapTimeStr" data-slot-html></span>
+                <div class="task-sequence-target-cap-time" data-slot="sequenceTargetTotalTime" data-slot-html></div>
+              </div>
             </div>
-          </div>
+    	    </div>
+    	    
+    	    <!-- # folder indicator -->
+    	    <div class="d-flex align-items-center">
+    	      <div data-view-group="task" data-view-name="hasSubTask">
+    	        <button class="btn-navigate-sub" data-role="navigate-sub">
+                <span class="icon-mate">folder</span>
+                <span class="icon-mate opacity-half">chevron_right</span>
+    	        </button>
+    	      </div>
+    	    </div>
           
         </div>
     	</div>
@@ -1152,12 +1164,6 @@
         <div data-view-group="task-view-mode" data-view-name="task filter-target">
           <div class="_containerCreateSub d-none d-flex">
             <button data-role="add-sub-task" class="icon-mate" data-group="active" title="Create sub task">account_tree</button>
-          </div>
-        </div>
-        <!-- # sub task navigation -->
-        <div data-view-group="task-view-mode" data-view-name="task">
-          <div class="_containerNavigate d-flex d-none">
-            <button class="icon-mate" data-role="navigate-sub" title='View sub missions'>chevron_right</button>
           </div>
         </div>
       </div>

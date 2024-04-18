@@ -7,7 +7,8 @@ let uiTask = (function() {
   };
   
   function getActionRole(el) {
-    return (el.matches('[data-role]') ? el.dataset.role : '');
+    let roleEl = el.closest('[data-role]');
+    return roleEl?.dataset.role;
   }
   
   async function HandleTaskClick(evt, el) {

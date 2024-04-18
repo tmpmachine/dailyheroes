@@ -926,7 +926,6 @@ let app = (function () {
     isCanNotify: false,
     
     Init,
-    HandleTaskDblClick,
     GetDataManager,
     ResetData,
     BackupData,
@@ -1567,17 +1566,16 @@ let app = (function () {
         }
       }
       
-      
+    	// # display sequence tasks
+    	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
+    	
       if (lsdb.data.groups.find(x => x.id == item.id)) {
-        el.querySelector('._containerNavigate').classList.remove('d-none');
+        viewStateUtil.Add('task', ['hasSubTask'], el.querySelector('[data-view-group="task"]'));
       } else {
         el.querySelector('._containerCreateSub').classList.remove('d-none');
       }
+      
     	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
-    	
-    	
-    	// # display sequence tasks
-    	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
     	
     	if (fillData.type == 'M') {
         viewStateUtil.Add('task', ['collection-only'], el.querySelector('[data-view-group="task"]'));
@@ -2215,35 +2213,6 @@ let app = (function () {
   
   function getActionRole(el) {
     return (el.matches('[data-role]') ? el.dataset.role : '');
-  }
-  
-  async function HandleTaskDblClick(evt) {
-    let el = evt.target;
-    let parentEl = el.closest('[data-obj="task"]');
-    let id = parentEl.dataset.id;
-    
-    let seqEl = el.closest('[data-kind="item-sequence-task"]');
-    let seqId = seqEl ? seqEl.dataset.id : null;
-    
-    if (!seqEl) return;
-    
-    let task = compoTask.GetById(id);
-
-    compoSequence.Stash(task.sequenceTasks);
-    let item = compoSequence.GetById(seqId);
-    let linkedTask = compoTask.GetById(item.linkedTaskId);
-    compoSequence.Pop();
-    
-    if (linkedTask) {
-      EditTask(linkedTask.id).then(modalResponse => {
-        console.log(modalResponse);
-      });
-    } else {
-      ui.EditSequenceTask(id, item.id);      
-    }
-    
-    // await app.TaskNavigateToMission(linkedTask.id);
-    // ui.FocusTaskElById(linkedTask.id);
   }
   
   async function HandleClickTaskOverview(evt) {

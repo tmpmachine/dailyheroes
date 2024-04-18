@@ -62,7 +62,7 @@ let pageDetail = (function() {
     el.querySelector('.container-navigate-mission').classList.remove('d-none');
     
     if (lsdb.data.groups.find(x => x.id == item.id)) {
-      el.querySelector('._containerNavigate').classList.remove('d-none');
+      viewStateUtil.Add('task', ['hasSubTask'], el.querySelector('[data-view-group="task"]'));
     } else {
       el.querySelector('._containerCreateSub').classList.remove('d-none');
     }

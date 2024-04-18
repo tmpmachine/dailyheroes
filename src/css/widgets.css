@@ -39,6 +39,9 @@
     color: white;
     font-size: 1.7rem;
   }
+  .btn-navigate-sub {
+    border: 0;
+  }
 }
 
 .widget-btn-danger {
