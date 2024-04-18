@@ -19,14 +19,13 @@ let viewStateUtil = (function() {
     viewStateMap: {}
   };
   
-  function HasViewState(viewGroupName, viewName) {
-    let viewStates = GetViewStates(viewGroupName);
+  function HasViewState(viewGroupName, viewName, el) {
+    let viewStates = GetViewStates(viewGroupName, el);
     
     return viewStates.includes(viewName);
   }
   
-  function GetViewStates(viewGroupName) {
-    let el = null;
+  function GetViewStates(viewGroupName, el) {
     let groupEl = GetViewGroupNode(viewGroupName, el);
     if (!groupEl) return [];
     
