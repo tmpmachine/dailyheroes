@@ -3,7 +3,7 @@ let screenStateUtil = (function() {
   let $ = document.querySelector.bind(document);
   
   let SELF = {
-    Navigate,
+    NavigateTo,
     SaveState,
     TaskRestoreStates,
   };
@@ -46,7 +46,7 @@ let screenStateUtil = (function() {
     }
   }
   
-  function Navigate(screenName) {
+  function NavigateTo(screenName) {
     
     let currentState = viewStateUtil.GetViewStates('screens');
     let currentScreenViewName = currentState[0];

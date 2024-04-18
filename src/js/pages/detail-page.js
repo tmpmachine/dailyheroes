@@ -7,7 +7,7 @@ let pageDetail = (function() {
   };
     
   function OpenByTaskId(id) {
-    screenStateUtil.Navigate('task-detail');
+    screenStateUtil.NavigateTo('task-detail');
     screenStateUtil.SaveState({
       taskId: id,
     });

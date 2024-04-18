@@ -189,7 +189,7 @@ let ui = (function () {
   
   function reloadTargetThreshold() {
     let targetThresholdMs = lsdb.data.targetThreshold * 60 * 1000;
-    $('#txt-target-threshold').textContent = helper.ToTimeString(targetThresholdMs, 'hms');
+    $('#txt-target-threshold')?.replaceChildren( helper.ToTimeString(targetThresholdMs, 'hms') );
   }
   
   function ReloadTaskOverviewById(id) {
@@ -1022,12 +1022,12 @@ let ui = (function () {
     let viewTarget = evt.target.closest('[data-view-target]').dataset.viewTarget;
     if (!viewTarget) return;
     
-    screenStateUtil.Navigate(viewTarget);
+    screenStateUtil.NavigateTo(viewTarget);
     // viewStateUtil.Set('screens', [viewTarget]);
   }
   
   function openPriorityMapperByParentId(id) {
-    viewStateUtil.Set('screens', ['priority-mapper']);
+    screenStateUtil.NavigateTo('priority-mapper');
     compoPriorityMapper.Stash(id);
     refreshListPriorityItems();
   }
@@ -1038,7 +1038,7 @@ let ui = (function () {
   }
   
   async function OpenOverview() {
-    viewStateUtil.Set('screens', ['by-threshold']);
+    screenStateUtil.NavigateTo('by-threshold');
     reloadTargetThreshold();
     
     await reloadTargetsOverview();
@@ -1251,12 +1251,12 @@ let ui = (function () {
     
   
     let docFrag = document.createDocumentFragment();
-    $('#list-tasks-by-threshold').innerHTML = '';
+    $('#list-tasks-by-threshold')?.replaceChildren();
     
     let level = 1;
     logTask(treeParentIds, level, docFrag);
     
-    $('#list-tasks-by-threshold').append(docFrag);
+    $('#list-tasks-by-threshold')?.append(docFrag);
   }
   
   function logTask(treeParentIds, level, docFrag) {
@@ -1345,7 +1345,7 @@ let ui = (function () {
     await appData.TaskStoreTask();
     
     app.TaskListTask();
-    viewStateUtil.Set('screens', ['home']);
+    screenStateUtil.NavigateTo('home');
   }
   
   function refreshListPriorityItems() {
@@ -1354,7 +1354,7 @@ let ui = (function () {
     let items = compoPriorityMapper.GetAll();
     
     let container = $('[data-container="list-priority-mapper"]');
-    container.innerHTML = '';
+    container?.replaceChildren();
     let docFrag = document.createDocumentFragment();
     
     let totalPriorityPoint = compoTask.GetTotalPriorityPointByParentTaskId(parentTaskId);
@@ -1383,7 +1383,7 @@ let ui = (function () {
       docFrag.append(el);
     }
     
-    container.append(docFrag);
+    container?.append(docFrag);
   }
   
   function UpdateViewModeState() {
