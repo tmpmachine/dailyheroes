@@ -1678,10 +1678,39 @@ let ui = (function () {
       ShowModalAddTask();
       return false;
     });
+    Mousetrap.bind('del', function(e) {
+      handleDeleteSelection();
+    });
+    Mousetrap.bind('backspace', function(e) {
+      handleBackspaceKey();
+    });
     
     // attach keyboard listeners
     window.addEventListener('keydown', keyHandler);
     window.addEventListener('keyup', keyHandler);
+  }
+  
+  function handleBackspaceKey() {
+    if (!viewStateUtil.HasViewState('task-view-mode', 'task')) return;
+    
+    let breadcrumbsBtns = Array.from($$('._wgBreadcrumbs button'));
+    if (breadcrumbsBtns.length < 2) return;
+    
+    // click previous path button
+    breadcrumbsBtns[breadcrumbsBtns.length-2].click();
+  }
+  
+  function handleDeleteSelection() {
+    let selectedTaskId = uiSelection.GetSingleSelection();
+    if (!selectedTaskId) return;
+    
+    let parentEl = $(`._wgTaskList [data-obj="task"][data-id="${selectedTaskId}"]`);
+    if (!parentEl) return;
+    
+    let isConfirm = window.confirm('Delete this task? This process cannot be undone.');
+    if (!isConfirm) return;
+    
+    app.TaskAddToMission(selectedTaskId, parentEl);
   }
   
   function OnePress() {
