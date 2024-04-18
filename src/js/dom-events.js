@@ -8,53 +8,33 @@ let DOMEvents = (function() {
   let eventsMap = {
     
   	clickable: {
-  	  
   	  'navigate-screen': (evt) => ui.NavigateScreen(evt),
-  	  
-  	  
   	  'turn-off-screen': () => ui.TaskTurnOffScreen(),
-  	  
-  	  // # settings data
   	  'reset-data': () => app.ResetData(),
   	  'backup-data': () => app.BackupData(),
   	  'restore-data': () => app.UploadBackupFile(),
   	  'authorize': () => compoGsiChrome.InitTokenClient(),
   	  'backup-to-cloud': () => compoBackup.TaskBackupAndUploadToCloud(),
   	  'restore-from-cloud': () => compoBackup.TaskRestore(),
-  	  
-  	  
   	  'show-modal-add-sequence': () => ui.ShowModalAddSequence(),
-      
       'view-tasks': () => ui.NavigateViewTask(),
-      
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
-  		
   		'stop-timer': () => app.TaskStopActiveTask(),
   		'start-or-restart-timer': () => app.TaskStartOrRestartTask(),
-  		
   		'finish-timer': () => finishTimer(),
-  		
-  	  
       'pick-audio': () => app.SetAlarmAudio(), 
       'remove-audio': () => app.TaskRemoveAlarmAudio(), 
       'test-audio': () => app.TaskPlayAlarmAudio(), 
       'stop-test-audio': () => app.StopTestAlarmAudio(), 
-      
       'change-global-preset-timer': () => ui.ChangeGlobalPresetTimer(),
-      
-      
-      // # trackers
       'new-tracker': () => uiTracker.NewItem(),
       'stop-tracker': () => uiTracker.StopTracker(),
       'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
-      
       'save-priority-mapper': () => ui.TaskSavePriorityMapper(),
   	},
   	
   	inputable: {
-  	  
   	  'handle-input-priority-slider': (evt) => ui.HandleInputPrioritySlider(evt),
-  	  
   	  'toggle-sort-by-progress': (evt) => {
   	    app.SetSortMode(evt);
   	    app.Commit();
@@ -86,12 +66,10 @@ let DOMEvents = (function() {
   	      loadSearch();
   	    }, 250);
   	  },
-  	  
   	},
   	
   	submittable: {
-  	  
-  	  'submit-task': (evt) => ui.OnSubmitTask(evt),
+  	  'submit-task': (evt) => uiTask.OnSubmitTask(evt),
   	  'submit-sequence-task': (evt) => ui.OnSubmitSequenceTask(evt),
   	  'add-note': (ev) => {
   	    ev.preventDefault();
@@ -100,27 +78,25 @@ let DOMEvents = (function() {
     		let modal = form.closest('.is-modal');
     		modal.close();
       },
-  	  
   	},
   	
-  	
-  	// # onchange
   	changeable: {
-  	  
   	  'on-mission-group-change': (evt) => uiMission.OnChangeGroup(evt),
-  	  
   	},
   	
   	oninput: {
   	  'handle-input-alarm-volume': (evt) => app.HandleInputAlarmVolume(evt),
   	},
+  	
   	ondblclick: {
   		'task-dblclick-handler': (evt) => app.HandleTaskDblClick(evt),
   	  'handle-dblclick-task-overview': (evt) => app.HandleDblclickTaskOverview(evt),
   	},
+  	
   	onsubmit: {
   	  'submit-mission-convert-task': (evt) => ui.TaskSubmitMissionConvertTask(evt),
   	},
+  	
   	onclick: {
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'view-mission': () => ui.NavigateViewMission(),
@@ -131,8 +107,7 @@ let DOMEvents = (function() {
   	  'open-pip': () => uiPiP.OpenPiP(),
   	  'reset-data': () => app.ResetData(),
   	  'reset-target-time': () => ui.ResetTargetTime(),
-  	  
-  	  'handle-task-click': (evt) => app.HandleTaskClick(evt, evt.target),
+  	  'handle-task-click': (evt) => uiTask.HandleTaskClick(evt, evt.target),
   	  'handle-click-task-overview': (evt) => app.HandleClickTaskOverview(evt),
   	  'open-overview': () => ui.OpenOverview(),
   	  'open-priority-mapper': () => ui.OpenPriorityMapper(),
@@ -151,7 +126,6 @@ let DOMEvents = (function() {
   	},
   	
   };
-  
   
   let listenOn=function(e,t,l){for(let n of document.querySelectorAll(e))n.addEventListener(t,l[n.dataset.callback])};
   

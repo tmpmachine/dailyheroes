@@ -799,178 +799,180 @@
     
   <template id="tmp-task">
     <!-- # container task -->
-    
-  	[ .wg-TaskCard .container-item data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" .pos-relative data-scope-id="1"
-  	  
-  	  [ .d-none
-  	    <!-- # add to mission button -->
-        [ data-view-group="task-view-mode" data-view-name="task"
-          [ .pos-absolute .container-task-mission-actions
-            [btn .btn-toggle-mission data-role="add-to-mission" title="Add to mission" .icon-mate
-              playlist_add
-            ]
-            [btn .btn-toggle-mission data-role="remove-mission" title="Remove from mission" .icon-mate
-              playlist_remove
+    [ .wg-TaskCard data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" data-scope-id="1" 
+      
+    	[ .container-item .pos-relative
+    	  
+    	  [ .d-none
+    	    <!-- # add to mission button -->
+          [ data-view-group="task-view-mode" data-view-name="task"
+            [ .pos-absolute .container-task-mission-actions
+              [btn .btn-toggle-mission data-role="add-to-mission" title="Add to mission" .icon-mate
+                playlist_add
+              ]
+              [btn .btn-toggle-mission data-role="remove-mission" title="Remove from mission" .icon-mate
+                playlist_remove
+              ]
             ]
           ]
         ]
-      ]
-  
-  	  <!-- # task body -->
-  	  [ .task-body-main
-  	  
-  	    <!-- # task top info -->
-  	    [
-  	    
-  	      <!-- # task info (title) -->
-      	  [ .d-flex .justify-content-between {gap:0.3rem}
-      	    [ .flex-1
-        	    [ data-slot="missionPath" data-slot-html .task-path]
-        	    [s .title data-slot="title"]
-      	    ]
-      	    [ .obsoletes
-        	    [ .d-none
-        	      <span data-slot="label"></span>
+    
+    	  <!-- # task body -->
+    	  [ .task-body-main
+    	  
+    	    <!-- # task top info -->
+    	    [
+    	    
+    	      <!-- # task info (title) -->
+        	  [ .d-flex .justify-content-between {gap:0.3rem}
+        	    [ .flex-1
+          	    [ data-slot="missionPath" data-slot-html .task-path]
+          	    [s .title data-slot="title"]
         	    ]
-              [ {fs:0.7rem}
-                <span data-slot="rankLabel"></span>
-                [s .label-finish-count]
-              ]
-      	    ]
-      	  ]
-      	  
-      	  [ .mb-m]
-      	  
-      	  <!-- # time progress info -->
-      	  [ {fs:0.7rem;} .d-flex .gap-half .obsoletes
-      	    
-            [ {flex:1} 
-              [s data-view-group="task" data-view-name-not="sequence-mode"
-            	  <span data-obj="progress" data-slot="progress"></span>
-            	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
-              ]
-          	  <span data-slot="totalProgressStr"></span>
-          	  [s data-view-group="task" data-view-name-not="sequence-mode"
-            	  --
-        	      <span data-slot="targetString"></span> 
+        	    [ .obsoletes
+          	    [ .d-none
+          	      <span data-slot="label"></span>
+          	    ]
+                [ {fs:0.7rem}
+                  <span data-slot="rankLabel"></span>
+                  [s .label-finish-count]
+                ]
+        	    ]
+        	  ]
+        	  
+        	  [ .mb-m]
+        	  
+        	  <!-- # time progress info -->
+        	  [ {fs:0.7rem;} .d-flex .gap-half .obsoletes
+        	    
+              [ {flex:1} 
+                [s data-view-group="task" data-view-name-not="sequence-mode"
+              	  <span data-obj="progress" data-slot="progress"></span>
+              	  <span data-obj="live-progress"></span> / <small data-slot="allocatedTimeString"></small>
+                ]
+            	  <span data-slot="totalProgressStr"></span>
+            	  [s data-view-group="task" data-view-name-not="sequence-mode"
+              	  --
+          	      <span data-slot="targetString"></span> 
+            	  ]
+        	      <span class="d-none" data-slot="completionPercentage"></span>
           	  ]
-      	      <span class="d-none" data-slot="completionPercentage"></span>
+          	  
+          	  [ .d-flex .flex-column 
+                <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
+          	  ]
+          	  
         	  ]
-        	  
-        	  [ .d-flex .flex-column 
-              <span data-slot="ratio" data-view-group="task-view-mode" data-view-name-not="filter-target"></span>
-        	  ]
+          
+        	  <!-- # task notes -->
+        	  <div style="margin-top:1rem;">
+        	    <div data-slot="note" data-template='#tmp-notes'></div>
+        	  </div>
         	  
       	  ]
-        
-      	  <!-- # task notes -->
-      	  <div style="margin-top:1rem;">
-      	    <div data-slot="note" data-template='#tmp-notes'></div>
-      	  </div>
       	  
+      	  [ .d-grid .align-items-center {gap:0.5rem}
+      	    
+      	    <!-- # collection save button (old) -->
+      	    [ data-view-group="features" data-view-name="interactive-sequence-task-pick"
+        	    [ .d-flex .justify-content-end .flex-column {gap:0.3rem}
+          	    [btn 'Add to sequence' data-role="add-to-sequence"]
+          	    [btn 'Move to sequence' data-role="move-to-sequence" data-view-group="task-view-mode" data-view-name="mission"]
+        	    ]
+      	    ]
+      	    
+      	    [ data-view-group="features" data-view-name-not="interactive-sequence-task-pick"
+        	    [ .d-flex .justify-content-end {gap:0.5rem}
+                
+        	      <!-- # start timer button -->
+                [ .d-flex .gap-half .align-items-center
+                  [btn .btn-target data-role="set-target-time" title="Add target time" .icon-mate
+                    flag
+                  ]
+                  [btn .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
+                    play_arrow
+                  ]
+                  [btn .btn-stop data-role="stop" data-group="active" title="Stop" .icon-mate
+                    stop
+                  ]
+                  [btn .btn-expand data-role="expandToolbar" title="Expand" .icon-mate
+                    more_vert
+                  ]
+                ]
+                
+        	    ]
+      	    ]
+      	    
+      	  ]
+    	  
     	  ]
     	  
-    	  [ .d-grid .align-items-center {gap:0.5rem}
-    	    
-    	    <!-- # collection save button (old) -->
-    	    [ data-view-group="features" data-view-name="interactive-sequence-task-pick"
-      	    [ .d-flex .justify-content-end .flex-column {gap:0.3rem}
-        	    [btn 'Add to sequence' data-role="add-to-sequence"]
-        	    [btn 'Move to sequence' data-role="move-to-sequence" data-view-group="task-view-mode" data-view-name="mission"]
-      	    ]
-    	    ]
-    	    
-    	    [ data-view-group="features" data-view-name-not="interactive-sequence-task-pick"
-      	    [ .d-flex .justify-content-end {gap:0.5rem}
-              
-      	      <!-- # start timer button -->
-              [ .d-flex .gap-half .align-items-center
-                [btn .btn-target data-role="set-target-time" title="Add target time" .icon-mate
-                  flag
-                ]
-                [btn .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
-                  play_arrow
-                ]
-                [btn .btn-stop data-role="stop" data-group="active" title="Stop" .icon-mate
-                  stop
-                ]
-                [btn .btn-expand data-role="expandToolbar" title="Expand" .icon-mate
-                  more_vert
-                ]
-              ]
-              
-      	    ]
-    	    ]
-    	    
-    	  ]
-  	  
-  	  ]
-  	  
-  	  <!-- # task toolbar -->
-  	  [ .container-task-toolbar data-view-group="task" data-view-name="toolbarExpanded"
-
-    	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons" {p:0.5rem}]
-        
-        <div data-obj="tracking-status" style="height:4px;"></div>
-      	
-      	[ .d-none
-        	<div class="NzA5ODc1NQ-progress-bar-container">
-            <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
-              <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+    	  <!-- # task toolbar -->
+    	  [ .container-task-toolbar data-view-group="task" data-view-name="toolbarExpanded"
+  
+      	  [ .d-flex .justify-content-between data-slot="" data-template="#tmp-mission-buttons" {p:0.5rem}]
+          
+          <div data-obj="tracking-status" style="height:4px;"></div>
+        	
+        	[ .d-none
+          	<div class="NzA5ODc1NQ-progress-bar-container">
+              <div class="NzA5ODc1NQ-progress-bar" data-role="progress-bar-container">
+                <div data-role="progress-bar" class="NzA5ODc1NQ-progress-bar-fill"></div>
+              </div>
             </div>
-          </div>
-      	]
-  	  ]
-  	  
-  	  <!-- # running task indicator -->
-    	<div class="task-progress-bar-container">
-        <div class="task-progress-bar"></div>
-      </div>
-      
-  	  <!-- # sequence container -->
-  	  [ data-view-group="task" data-view-name="sequence"
-        <!-- # sequence toolbar -->
-        [ data-view-group="task" data-view-name="toolbarExpanded"
-          [ {p:0.5rem} .d-flex .flex-wrap .gap-half .justify-content-between
-            [ .d-flex .flex-wrap .gap-half
-              [btn '+ New' data-role="add-sequence-task"]
-              [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
-              [btn 'Reset repeat count' data-role="reset-count-active-seq"]
-              [btn 'Manage' data-role="manage-sequence"]
-            ]
-            [
-              [btn .btn-star .icon-mate 'refresh' title="Reset sequence" data-role="reset-sequence"]
-            ]
-          ]
-        ]
-        <!-- # sequence list -->
-        [ data-container="sequence-tasks" ]
-  	  ]
-      
-  	  
-  	  <!-- # time progress info : below card -->
-  	  [ {fs:0.7rem;} .d-flex .gap-half {bg:#232425} {p:0 8px;}
-  	    
-  	    <!-- # timer info -->
-	      [ data-view-group="task" data-view-name-not="sequence-mode" {p:10px 0 6px;}
-  	      [ .d-flex .gap-quarter
-            [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
-  	      ]
-	      ]
-	      
-        <!-- # target time left -->
-        [ data-view-group="task" data-view-name="has-target" {p:10px 0 6px;}
-          [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
-            [s .icon-mate 'flag']
-            [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time .sc-1]
-            [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time .sc-1]
-            [ data-slot="sequenceTargetTotalTime" data-slot-html .task-sequence-target-cap-time]
-          ]
-        ]
+        	]
+    	  ]
+    	  
+    	  <!-- # running task indicator -->
+      	<div class="task-progress-bar-container">
+          <div class="task-progress-bar"></div>
+        </div>
         
-      ]
-      
-  	]
+    	  <!-- # sequence container -->
+    	  [ data-view-group="task" data-view-name="sequence"
+          <!-- # sequence toolbar -->
+          [ data-view-group="task" data-view-name="toolbarExpanded"
+            [ {p:0.5rem} .d-flex .flex-wrap .gap-half .justify-content-between
+              [ .d-flex .flex-wrap .gap-half
+                [btn '+ New' data-role="add-sequence-task"]
+                [btn 'Link a task' data-role="link-task-to-sequence-interactive-mode"]
+                [btn 'Reset repeat count' data-role="reset-count-active-seq"]
+                [btn 'Manage' data-role="manage-sequence"]
+              ]
+              [
+                [btn .btn-star .icon-mate 'refresh' title="Reset sequence" data-role="reset-sequence"]
+              ]
+            ]
+          ]
+          <!-- # sequence list -->
+          [ data-container="sequence-tasks" ]
+    	  ]
+        
+    	  
+    	  <!-- # time progress info : below card -->
+    	  [ {fs:0.7rem;} .d-flex .gap-half {bg:#232425} {p:0 8px;}
+    	    
+    	    <!-- # timer info -->
+  	      [ data-view-group="task" data-view-name-not="sequence-mode" {p:10px 0 6px;}
+    	      [ .d-flex .gap-quarter
+              [s .icon-mate 'timer']  [s data-slot="durationTimeStr"]   
+    	      ]
+  	      ]
+  	      
+          <!-- # target time left -->
+          [ data-view-group="task" data-view-name="has-target" {p:10px 0 6px;}
+            [ .d-flex .align-items-center {gap:0.2rem} .gap-quarter
+              [s .icon-mate 'flag']
+              [mark data-slot="ratioTimeLeftStr" data-slot-html .task-target-time .sc-1]
+              [s data-slot="targetCapTimeStr" data-slot-html .task-target-cap-time .sc-1]
+              [ data-slot="sequenceTargetTotalTime" data-slot-html .task-sequence-target-cap-time]
+            ]
+          ]
+          
+        ]
+    	]
+      [ .void .void-full]
+    ]
   </template>
   
   <template id="tmp-task-simple-v2">
