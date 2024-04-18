@@ -138,7 +138,7 @@ let uiTracker = (function() {
     let items = compoTracker.List();
     let activeItemId = compoTracker.GetActiveId();
     
-    $('#container-list-tracker').innerHTML = '';
+    $('#container-list-tracker')?.replaceChildren();
     let docFrag = document.createDocumentFragment();
     
     for (let item of items) {
@@ -163,7 +163,7 @@ let uiTracker = (function() {
       docFrag.append(el);
     }
     
-    $('#container-list-tracker').append(docFrag);
+    $('#container-list-tracker')?.append(docFrag);
     
   }
   
