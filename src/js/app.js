@@ -587,53 +587,12 @@ function getSumTaskTarget() {
   return total;
 }
 
-async function removeActiveTaskIfExists(id) {
-  let task = await compoTask.TaskGetActive();
-  if (task && id == task.id) {
-    await removeActiveTask();
-  }
-}
-
 function saveConfig() {
   lsdb.save();
 }
 
 function isViewModeMission() {
   return lsdb.data.viewMode == 'mission';
-}
-
-function deleteAllChildTasksByParentId(id) {
-  let ids =  tasks.map(x => {
-    if (x.parentId == id) {
-      return x.id;
-    } 
-    return null;
-  }).filter(x => x !== null);
-  
-  let totalDeletedProgressTime = 0;
-  for (let id of ids) {
-    let deleteIndex = tasks.findIndex(x => x.id == id);
-    totalDeletedProgressTime += tasks[deleteIndex].totalProgressTime;
-    tasks.splice(deleteIndex, 1);
-    
-    // delete group
-    {
-      let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
-      if (deleteIndex >= 0) {
-        lsdb.data.groups.splice(deleteIndex, 1);
-      }
-    }
-    // delete mission
-    {
-      let isExistsMission = compoMission.IsExistsMissionId(id);
-      if (isExistsMission) {
-        compoMission.RemoveMissionById(id);
-      }
-    }
-    
-    totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
-  }
-  return totalDeletedProgressTime;
 }
 
 
@@ -816,10 +775,6 @@ async function addNote(form) {
   partialUpdateTask('notes', task);
 }
 
-async function removeActiveTask() {
-  await window.service.RemoveData(['activeTask']);
-}
-
 async function getActiveTask() {
   return await compoTask.TaskGetActive();
 }
@@ -937,7 +892,6 @@ let app = (function () {
     getTaskById: GetTaskById,
     TaskUpdateTask,
     SyncGroupName,
-    TaskDeleteTask,
     TaskStarTask,
     
     AddProgressTimeToRootMission,
@@ -1036,7 +990,7 @@ let app = (function () {
           }]
         });
         
-      	ui.RefreshListSequenceByTaskId(task.id);
+      	uiTask.RefreshListSequenceByTaskId(task.id);
   
       });
       
@@ -1159,7 +1113,7 @@ let app = (function () {
     
     if (isTaskDeleted) {
       let isBypassConfirm = true;
-      await app.TaskDeleteTask(id, parentEl, isBypassConfirm);
+      await uiTask.DeleteAsync(id, parentEl, isBypassConfirm);
     }
     
   }
@@ -1567,7 +1521,7 @@ let app = (function () {
       }
       
     	// # display sequence tasks
-    	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
+    	uiTask.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
     	
       if (lsdb.data.groups.find(x => x.id == item.id)) {
         viewStateUtil.Add('task', ['hasSubTask'], el.querySelector('[data-view-group="task"]'));
@@ -2018,54 +1972,6 @@ let app = (function () {
     }
     
     return missionsTask;
-  }
-  
-  async function TaskDeleteTask(id, taskEl, isBypassConfirm = false) {
-  
-    if (!isBypassConfirm) {
-      let isConfirm = await ui.ShowConfirm();
-      if (!isConfirm) return; 
-      
-    }
-    
-    let totalDeletedProgressTime = 0;
-    
-    let deleteIndex = tasks.findIndex(x => x.id == id);
-    let parentTask = app.GetTaskById(tasks[deleteIndex].parentId);
-    totalDeletedProgressTime += tasks[deleteIndex].totalProgressTime;
-    tasks.splice(deleteIndex, 1);
-    
-    // delete group
-    {
-      let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
-      if (deleteIndex >= 0) {
-        lsdb.data.groups.splice(deleteIndex, 1);
-      }
-    }
-    
-    // delete mission
-    {
-      let isExistsMission = compoMission.GetMissionById(id);
-      if (isExistsMission) {
-        compoMission.RemoveMissionById(id);
-      }
-    }
-  
-    // delete child task recurisively
-    totalDeletedProgressTime += deleteAllChildTasksByParentId(id);
-    // console.log(totalDeletedProgressTime)
-    
-    // put total progress time of deleted tasks into the parent progress
-    if (parentTask) {
-      parentTask.totalProgressTime += totalDeletedProgressTime;
-    }
-    
-    await appData.TaskStoreTask();
-    lsdb.save();
-    
-    await removeActiveTaskIfExists(id);
-    taskEl.remove();
-    updateUI();
   }
   
   async function Init() {

@@ -22,7 +22,6 @@ let ui = (function () {
     ShowModalAddSequence,
     AddSequenceTask,
     EditSequenceTask,
-    OnSubmitSequenceTask,
     
     // groups
     Navigate,
@@ -42,7 +41,6 @@ let ui = (function () {
     TurnOnScreen,
     ChangeGlobalPresetTimer,
     
-    RefreshListSequenceByTaskId,
     RemoveElSequenceById,
     RefreshSequenceTaskById,
     TaskSetActiveTaskInfo,
@@ -86,7 +84,7 @@ let ui = (function () {
     
     await compoTask.TaskResetSequenceByTaskId(id);
     
-    RefreshListSequenceByTaskId(id);
+    uiTask.RefreshListSequenceByTaskId(id);
   }
   
   async function TaskSubmitMissionConvertTask(evt) {
@@ -483,10 +481,7 @@ let ui = (function () {
   }
   
   function getTaskElById(id) {
-    let el = $(`[data-obj="task"][data-id="${id}"]`);
-    if (!el) return null;
-    
-    return el;
+    return uiTask.GetTaskElById(id);
   }
   
   function FinishInteractiveSequencePick() {
@@ -603,7 +598,7 @@ let ui = (function () {
     let taskEl = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${id}"]`);
     viewStateUtil.Add('task', ['sequence-added'], taskEl);
     
-    RefreshListSequenceByTaskId(data.prePickCollectionId);
+    uiTask.RefreshListSequenceByTaskId(data.prePickCollectionId);
     
   }
   
@@ -614,7 +609,7 @@ let ui = (function () {
     
     compoTask.TaskResetSequenceById(taskId, seqId);
     
-    RefreshListSequenceByTaskId(taskId);
+    uiTask.RefreshListSequenceByTaskId(taskId);
   }
   
   async function OpenLinkedSequenceFromForm(evt) {
@@ -653,19 +648,7 @@ let ui = (function () {
   }
   
   function FocusTaskElById(id, isScroll = true) {
-    
-    let taskEl = getTaskElById(id);
-    if (!taskEl) return;
-    
-    taskEl.classList.add('focused');
-    
-    if (isScroll) {
-      const container = $('.container-app'); 
-      const targetElement = taskEl;
-      let navbarHeight = 50;
-      const scrollPosition = targetElement.offsetTop - container.offsetTop - navbarHeight;
-      container.scrollTop = scrollPosition;
-    }
+    uiSelection.FocusTaskElById(id, isScroll);
   }
   
   function DeleteSequenceFromForm(evt) {
@@ -676,7 +659,7 @@ let ui = (function () {
     compoTask.TaskDeleteSequenceById(taskId, seqId);
     
     $('#task-sequence-modal').close();
-    ui.RefreshListSequenceByTaskId(taskId);
+    uiTask.RefreshListSequenceByTaskId(taskId);
   }
   
   function DeleteTaskFromForm(evt) {
@@ -690,7 +673,7 @@ let ui = (function () {
       return;
     }
     
-    app.TaskDeleteTask(id, taskEl);
+    uiTask.DeleteAsync(id, taskEl);
     $('#task-modal').close();
   }
   
@@ -825,175 +808,6 @@ let ui = (function () {
     if (!seqEl) return;
     
     seqEl.remove();
-  }
-  
-  function RefreshListSequenceByTaskId(id, container) {
-    
-    let item = app.GetTaskById(id);
-    let taskEl = null;
-    
-    if (container) {
-      taskEl = container.closest('[data-obj="task"]');
-    }
-    
-    if (!container) {
-      container = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${item.id}"] [data-container="sequence-tasks"]`);
-      taskEl = $(`[data-eid="widget-task"] [data-obj="task"][data-id="${item.id}"]`);
-    }
-    
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    compoSequence.Stash(item.sequenceTasks);
-  	
-  	let activeId = compoSequence.GetActiveId();
-  	let items = compoSequence.GetAll();
-    let docFrag = document.createDocumentFragment();
-    
-    let lowestCompleteCount = compoSequence.GetLowestCompletedCount();
-
-    for (let item of items) {
-      
-      let ratioTimeLeftStr = '';
-      let targetCapTimeStr = '';
-      let linkedTaskPath = '';
-      
-      let linkedTask = null;
-      if  (item.linkedTaskId) {
-        linkedTask = compoTask.GetById(item.linkedTaskId);
-        if (linkedTask) {
-          ratioTimeLeftStr = `${ helper.ToTimeString(linkedTask.targetTime, 'hms') }`;
-          if (linkedTask.targetCapTime) {
-            targetCapTimeStr = `${ helper.ToTimeString(linkedTask.targetCapTime, 'hms') }`;
-          }
-          
-          // show mission path
-          linkedTaskPath = getAndComputeMissionPath(linkedTask.parentId);
-        }
-      } else {
-        if (item.targetCapTime > 0) {
-          let targetCapLimitStr = helper.ToTimeString(item.targetCapTime, 'hms');
-          // let targetCapProgressStr = helper.ToTimeString(item.progressCapTime, 'hms');
-          targetCapTimeStr = `${targetCapLimitStr}`;
-        }
-      }
-      
-      // time left info
-      let timeLeftStr = '';
-      
-      {
-        let timeLeft = Math.max(0, item.targetTime - item.progressTime);
-        timeLeftStr = helper.ToTimeString(timeLeft, 'hms');
-      }
-      
-      
-      let title = linkedTask ? linkedTask.title : item.title;
-      let repeatCountProgressLabel = '';
-      if (item.repeatCount > 0) {
-        repeatCountProgressLabel = `${item.counter.repeatCount}/${item.repeatCount}`;
-      }
-      
-      let el = window.templateSlot.fill({
-        data: {
-          title,
-          ratioTimeLeftStr,
-          targetCapTimeStr,
-          linkedTaskPath,
-          repeatCountProgressLabel,
-          targetTimeStr: secondsToHMS(msToSeconds(item.targetTime)), 
-          timeLeftStr: `${timeLeftStr} left`,
-        }, 
-        template: document.querySelector('#tmp-list-sequence-task').content.cloneNode(true), 
-      });
-      
-      if (linkedTask) {
-        el.querySelector('[data-kind="item-sequence-task"]').dataset.viewStates = 'linked-task';
-      }
-      el.querySelector('[data-kind="item-sequence-task"]').dataset.id = item.id;
-      el.querySelector('[data-kind="item-sequence-task"]').classList.toggle('is-active', (item.id == activeId));
-      
-      // progress bar
-      // if (item.targetCapTime > 0)
-      {
-        viewStateUtil.Add('sequence-item', ['track-progress'], el.firstElementChild);
-        try {
-          let progressEl = el.querySelector('.wg-TaskProgressBar');
-          if (progressEl) {
-            let percentage = 0;
-            
-            if (item.targetCapTime > 0) {
-              percentage = Math.min(100, Math.floor(item.progressCapTime / item.targetCapTime * 10000) / 100);
-            } else {
-              percentage = Math.min(100, Math.floor(item.progressTime / item.targetTime * 10000) / 100);
-            }
-            
-            let percentageStr = `${percentage}%`;
-            progressEl.querySelector('.progress').style.width = percentageStr;
-            progressEl.querySelector('.label').textContent = percentageStr;
-            
-            // overdrive level
-            let overdriveLevelStr = '';
-            if (item.counter.completed - lowestCompleteCount > 1) {
-              overdriveLevelStr = `Lv.${item.counter.completed - lowestCompleteCount - 1}`;
-            }
-            progressEl.querySelector('.label-overdrive').textContent = overdriveLevelStr;
-            
-          }
-        } catch (e) {}      
-      }
-      
-      docFrag.append(el);
-      
-    }
-    
-    container.append(docFrag);
-    
-    // count total sequence target 
-    let totalSequenceTargetTime = 0;
-    {
-      for (let item of items) {
-        if (item.targetCapTime > 0) {
-          totalSequenceTargetTime += Math.max(0, item.targetCapTime - item.progressCapTime);
-        }
-      }
-    }
-    
-    let taskElViewStates = {
-      manageMode: viewStateUtil.HasViewState('task', 'manage-sequence', taskEl),
-      toolbarExpanded: viewStateUtil.HasViewState('task', 'toolbarExpanded', taskEl),
-    };
-    
-    viewStateUtil.RemoveAll('task', taskEl);
-    
-    let totalSequenceTargetTimeStr = '';
-    
-    // total sequence target
-    if (totalSequenceTargetTime > 0) {
-      viewStateUtil.Add('task', ['has-target'], taskEl);
-      totalSequenceTargetTimeStr = `${helper.ToTimeString(totalSequenceTargetTime, 'hms')}`;
-    }
-    
-    taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = totalSequenceTargetTimeStr;
-    
-    if (item.targetTime > 0 || item.targetCapTime > 0) {
-      viewStateUtil.Add('task', ['has-target'], taskEl);
-    }
-    if (item.type == 'M') {
-      viewStateUtil.Add('task', ['collection-only'], taskEl);
-    }
-    
-    if (taskElViewStates.manageMode) {
-      viewStateUtil.Add('task', ['manage-sequence'], taskEl);
-    }
-    if (taskElViewStates.toolbarExpanded) {
-      viewStateUtil.Add('task', ['toolbarExpanded'], taskEl);
-    }
-    
-    if (taskEl && items.length > 0) {
-      viewStateUtil.Add('task', ['sequence', 'sequence-mode'], taskEl);
-    }
-    
   }
   
   function refreshGlobalTimer() {
@@ -1858,7 +1672,7 @@ let ui = (function () {
         viewStateUtil.Add('active-task-info', ['has-target'], el);
       }
       
-      RefreshListSequenceByTaskId(task.id);
+      uiTask.RefreshListSequenceByTaskId(task.id);
       
     } catch (e) {
       
@@ -1866,70 +1680,6 @@ let ui = (function () {
       
     }
     
-  }
-  
-  function OnSubmitSequenceTask(ev) {
-  
-		ev.preventDefault();
-		let form = ev.target;
-		
-		let id = form.id.value;
-		let taskId = form.taskId.value;
-		let title = form.title.value.trim();
-		let durationTime = 0;
-		let targetCapTime = 0;
-		
-		// duration time
-		{
-      let durationTimeInput = form.duration.value;
-      if (isNumber(durationTimeInput)) {
-        // set default to minutes
-        durationTimeInput = `${durationTimeInput}m`;
-      }
-      durationTime = parseHmsToMs(durationTimeInput);
-		}
-		
-		// target time
-		{
-      let targetCapTimeInput = form.targetCapTime.value;
-      if (isNumber(targetCapTimeInput)) {
-        // set default to minutes
-        targetCapTimeInput = `${targetCapTimeInput}m`;
-      }
-      targetCapTime = parseHmsToMs(targetCapTimeInput);
-		}
-    
-    // validate all input data  
-    if (durationTime <= 0) return;
-    
-    
-    // repeat data
-    let repeatCount = 0;
-    let repeatRestDurationTime = 0;
-    if (form.useRepeat.checked) {
-      repeatCount = parseInt(form.repeatCount.value);
-      repeatRestDurationTime = parseHmsToMs(form.repeatRestDurationTimeStr.value);
-    }
-		
-    let inputData = {
-      title,
-      durationTime,
-      targetCapTime,
-      repeatCount,
-      repeatRestDurationTime,
-    };
-    
-    if (ev.target.id.value.length > 0) {
-      compoTask.UpdateSequence(inputData, taskId, id);
-    } else {
-      compoTask.AddSequence(inputData, taskId);
-    }
-    
-		let modal = document.querySelectorAll('#task-sequence-modal')[0];
-		modal.close();
-		
-    RefreshListSequenceByTaskId(taskId);
-		
   }
   
   function AddSequenceTask(taskId) {

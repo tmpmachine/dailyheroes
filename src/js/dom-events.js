@@ -70,7 +70,7 @@ let DOMEvents = (function() {
   	
   	submittable: {
   	  'submit-task': (evt) => uiTask.OnSubmitTask(evt),
-  	  'submit-sequence-task': (evt) => ui.OnSubmitSequenceTask(evt),
+  	  'submit-sequence-task': (evt) => uiTask.OnSubmitSequenceTask(evt),
   	  'add-note': (ev) => {
   	    ev.preventDefault();
     		let form = ev.target;

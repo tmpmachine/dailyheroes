@@ -28,6 +28,9 @@ let compoTask = (function() {
     AddTaskAsync,
     AddTaskData,
     HandleTaskDblClick,
+    DeleteAllChildTasksByParentId,
+    RemoveActiveTaskIfExists,
+    RemoveActiveTaskData,
   };
   
   let dataModel = {
@@ -54,6 +57,52 @@ let compoTask = (function() {
       items: [],
     },
   };
+  
+  
+  function DeleteAllChildTasksByParentId(id) {
+    let ids =  tasks.map(x => {
+      if (x.parentId == id) {
+        return x.id;
+      } 
+      return null;
+    }).filter(x => x !== null);
+    
+    let totalDeletedProgressTime = 0;
+    for (let id of ids) {
+      let deleteIndex = tasks.findIndex(x => x.id == id);
+      totalDeletedProgressTime += tasks[deleteIndex].totalProgressTime;
+      tasks.splice(deleteIndex, 1);
+      
+      // delete group
+      {
+        let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
+        if (deleteIndex >= 0) {
+          lsdb.data.groups.splice(deleteIndex, 1);
+        }
+      }
+      // delete mission
+      {
+        let isExistsMission = compoMission.IsExistsMissionId(id);
+        if (isExistsMission) {
+          compoMission.RemoveMissionById(id);
+        }
+      }
+      
+      totalDeletedProgressTime += DeleteAllChildTasksByParentId(id);
+    }
+    return totalDeletedProgressTime;
+  }
+  
+  async function RemoveActiveTaskIfExists(id) {
+    let task = await TaskGetActive();
+    if (task && id == task.id) {
+      await RemoveActiveTaskData();
+    }
+  }
+  
+  async function RemoveActiveTaskData() {
+    await window.service.RemoveData(['activeTask']);
+  }
   
   async function HandleTaskDblClick(evt) {
     let el = evt.target;
@@ -602,7 +651,7 @@ let compoTask = (function() {
     
     await appData.TaskStoreTask();    
     
-    ui.RefreshListSequenceByTaskId(taskId);
+    uiTask.RefreshListSequenceByTaskId(taskId);
     
   }
   
@@ -619,7 +668,7 @@ let compoTask = (function() {
     
     await appData.TaskStoreTask();    
     
-    ui.RefreshListSequenceByTaskId(taskId);
+    uiTask.RefreshListSequenceByTaskId(taskId);
     
   }
   

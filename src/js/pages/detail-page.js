@@ -70,7 +70,7 @@ let pageDetail = (function() {
   	
   	
   	// # display sequence tasks
-  	ui.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
+  	uiTask.RefreshListSequenceByTaskId(item.id, el.querySelector('[data-container="sequence-tasks"]'));
   	
   	if (fillData.type == 'M') {
       viewStateUtil.Add('task', ['collection-only'], el.querySelector('[data-view-group="task"]'));
