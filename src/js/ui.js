@@ -16,7 +16,6 @@ let ui = (function () {
     ResetProgressSequenceFromForm,
     OpenLinkedSequenceFromForm,
     OpenLinkedSequenceInPriorityMapper,
-    DeleteTaskFromForm,
     DeleteSequenceFromForm,
     ShowModalAddTask,
     ShowModalAddSequence,
@@ -660,21 +659,6 @@ let ui = (function () {
     
     $('#task-sequence-modal').close();
     uiTask.RefreshListSequenceByTaskId(taskId);
-  }
-  
-  function DeleteTaskFromForm(evt) {
-    let form = evt.target.form;
-    let id = form.id.value;
-    
-    // console.log(id)
-    let taskEl = $(`[data-obj="task"][data-id="${id}"]`);
-    if (!taskEl) {
-      alert('failed');
-      return;
-    }
-    
-    uiTask.DeleteAsync(id, taskEl);
-    $('#task-modal').close();
   }
   
   async function TaskResetProgressTaskFromForm(evt) {
@@ -1519,13 +1503,20 @@ let ui = (function () {
     let selectedTaskId = uiSelection.GetSingleSelection();
     if (!selectedTaskId) return;
     
-    let parentEl = $(`._wgTaskList [data-obj="task"][data-id="${selectedTaskId}"]`);
-    if (!parentEl) return;
+    let itemEl = $(`._wgTaskList [data-obj="task"][data-id="${selectedTaskId}"]`);
+    if (!itemEl) return;
     
-    let isConfirm = window.confirm('Delete this task? This process cannot be undone.');
-    if (!isConfirm) return;
-    
-    app.TaskAddToMission(selectedTaskId, parentEl);
+    if (pageHome.IsTaskViewMode()) {
+      
+      uiTask.DeleteAsync(selectedTaskId);
+      itemEl.remove();
+      
+    } else {
+      let isConfirm = window.confirm('Delete this task? This process cannot be undone.');
+      if (!isConfirm) return;
+      
+      app.TaskAddToMission(selectedTaskId, itemEl);
+    }
   }
   
   function OnePress() {

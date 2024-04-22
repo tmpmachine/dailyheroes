@@ -419,7 +419,7 @@ let uiTask = (function() {
     lsdb.save();
     
     await compoTask.RemoveActiveTaskIfExists(id);
-    taskEl.remove();
+    taskEl?.remove();
   
   	// if tasklist is empty, remove parentId from groups
   	if ($$('._wgTaskList [data-obj="task"]').length == 0) {

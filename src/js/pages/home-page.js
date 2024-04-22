@@ -6,10 +6,15 @@ let pageHome = (function() {
     Render,
     StopTracker,
     RefreshTrackerOverlay,
+    IsTaskViewMode,
   };
   
   function Render() {
     RefreshTrackerOverlay();
+  }
+  
+  function IsTaskViewMode() {
+    return viewStateUtil.HasViewState('task-view-mode', 'task');
   }
   
   function StopTracker() {
