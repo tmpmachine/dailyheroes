@@ -822,6 +822,15 @@
     	  <!-- # task body -->
     	  <div class="task-body-main">
     	  
+    	    <!-- # star action -->
+  	      <div class="d-flex align-items-star">
+  	        <div data-view-group="task-view-mode" data-view-name-not="filter-target">
+              <button class="btn-star icon-mate" data-role="star-task" title="Star this task">
+                star
+              </button>
+            </div>
+          </div>
+    	  
     	    <!-- # task top info -->
     	    <div>
     	    
@@ -886,7 +895,7 @@
       	    <div data-view-group="features" data-view-name-not="interactive-sequence-task-pick">
         	    <div class="d-flex justify-content-end" style="gap:0.5rem;">
                 
-        	      <!-- # start timer button -->
+        	      <!-- # task quick actions -->
                 <div class="d-flex gap-half align-items-center">
                   <button class="btn-target icon-mate" data-role="set-target-time" title="Add target time">
                     flag
@@ -1105,9 +1114,6 @@
     <div class="d-inline-flex align-items-center gap-quarter">
       <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence">expand_less</button>
       <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence">expand_more</button>
-      <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-        <button class="btn-star icon-mate" data-role='star-task' title="Star this task">star</button>
-      </div> 
       <div class="d-flex">
         <button data-role="add-to-mission" class="icon-mate" title="Add to collection">playlist_add</button>
         <div data-view-group="task" data-view-name-not="collection-only">

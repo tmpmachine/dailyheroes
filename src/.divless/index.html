@@ -822,6 +822,15 @@
     	  <!-- # task body -->
     	  [ .task-body-main
     	  
+    	    <!-- # star action -->
+  	      [ .d-flex .align-items-star
+  	        [ data-view-group="task-view-mode" data-view-name-not="filter-target"
+              [btn .btn-star data-role="star-task" title="Star this task" .icon-mate
+                star
+              ]
+            ]
+          ]
+    	  
     	    <!-- # task top info -->
     	    [
     	    
@@ -886,7 +895,7 @@
       	    [ data-view-group="features" data-view-name-not="interactive-sequence-task-pick"
         	    [ .d-flex .justify-content-end {gap:0.5rem}
                 
-        	      <!-- # start timer button -->
+        	      <!-- # task quick actions -->
                 [ .d-flex .gap-half .align-items-center
                   [btn .btn-target data-role="set-target-time" title="Add target time" .icon-mate
                     flag
@@ -1105,9 +1114,6 @@
     [ .d-inline-flex .align-items-center .gap-quarter
       [button 'expand_less' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence"]
       [button 'expand_more' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence"]
-      [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-        [btn 'star' class="btn-star icon-mate" data-role='star-task' title="Star this task"]
-      ] 
       [ .d-flex 
         [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection"]
         [ data-view-group="task" data-view-name-not="collection-only"

@@ -13,7 +13,7 @@
   .task-body-main {
     padding: 0.5rem;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
     gap: 1rem;
   }
   .task-target-cap-time {
@@ -21,6 +21,16 @@
   }
   .btn-expand {
     border: 0;
+  }
+  .btn-star {
+    & {
+      border: 0;
+      opacity: 30%;
+      border-radius: 0.2em;
+    }
+    &.is-starred {
+      opacity: 100%;
+    }
   }
   .btn-target {
     border-radius: 100%;
