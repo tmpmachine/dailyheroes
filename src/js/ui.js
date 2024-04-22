@@ -1687,13 +1687,18 @@ let ui = (function () {
   }
   
   function handleBackspaceKey() {
-    if (!viewStateUtil.HasViewState('task-view-mode', 'task')) return;
-    
     let breadcrumbsBtns = Array.from($$('._wgBreadcrumbs button'));
-    if (breadcrumbsBtns.length < 2) return;
+    let isTaskViewMode = viewStateUtil.HasViewState('task-view-mode', 'task');
+    let hasBreadcrumbsBtns = ( isTaskViewMode && breadcrumbsBtns.length > 1 );
+    let screenNavBtnEl = $('._backNavBtn');
     
-    // click previous path button
-    breadcrumbsBtns[breadcrumbsBtns.length-2].click();
+    if (hasBreadcrumbsBtns) {
+      // click previous path button
+      breadcrumbsBtns[breadcrumbsBtns.length-2].click();
+    } else if (screenNavBtnEl) {
+      // go back to previous screen
+      screenNavBtnEl.click();
+    }
   }
   
   function handleDeleteSelection() {

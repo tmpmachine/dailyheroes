@@ -336,8 +336,9 @@
       <!-- # trackers screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="trackers">
         
+        <!-- # trackers nav header -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title
-          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
+          [btn .clickable ._backNavBtn data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Trackers' {fw:bold}]
         ]
 
@@ -364,7 +365,7 @@
       
         <!-- # Tasks By Threshold screen nav -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
-          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
+          [btn .clickable ._backNavBtn data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Targets Overview' {fw:bold}]
         ]
       
@@ -444,7 +445,7 @@
         
         <!-- # settings nav header -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title .pos-sticky .top-0 .z-index-1
-          [btn .clickable data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
+          [btn .clickable ._backNavBtn data-callback="navigate-screen" data-view-target="home" .icon-mate 'chevron_left' .btn-nav]
           [ 'Settings' {fw:bold}]
         ]
         
