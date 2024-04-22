@@ -1777,10 +1777,15 @@ let app = (function () {
       
       if (result.isConfirmed) {
         
+        let serviceDataKey = ['history', 'historyTime', 'start', 'activeTask'];
+        
         // clear app data
         lsdb.reset();
         localStorage.removeItem('alarm-audio-volume');
-        await app.TaskRemoveAlarmAudio()
+        await app.TaskRemoveAlarmAudio();
+        serviceDataKey.forEach(key => {
+          window.service.RemoveData(key);
+        });
         
         // clear tasks in browser extension storage
   	    tasks.length = 0;
