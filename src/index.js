@@ -17,12 +17,12 @@ componentLoader.load([
       "js/utils/view-state-util.js",
       "js/ui.js",
       "js/uis/selection-ui.js",
-      "js/uis/ui-pip.js",
+      "js/uis/pip-ui.js",
       "js/uis/task-ui.js",
-      "js/uis/ui-mission.js",
-      "js/uis/ui-collection.js",
-      "js/uis/ui-tracker.js",
-      "js/uis/ui-target-trackers.js",
+      "js/uis/mission-ui.js",
+      "js/uis/collection-ui.js",
+      "js/uis/tracker-ui.js",
+      "js/uis/target-trackers-ui.js",
       "js/lib/lsdb.js",
     ],
     callback: function() { 
@@ -59,7 +59,7 @@ componentLoader.load([
       
       // app components
       "js/components/clipboard-component.js",
-      "js/components/input-explorer-component.js",
+      "js/components/selection-component.js",
       "js/components/target-trackers-component.js",
       "js/components/task-component.js",
       "js/components/mission-component.js",
