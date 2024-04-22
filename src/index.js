@@ -6,6 +6,7 @@ componentLoader.load([
       // "js/tests.js",
       "js/utils/screen-state-util.js",
       "js/web-components/task-drawer-webcom.js",
+      "js/pages/home-page.js",
     ]
   },
   {

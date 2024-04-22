@@ -79,6 +79,9 @@ let screenStateUtil = (function() {
     
     if (screenName == 'home') {
       SaveState();
+      pageHome.Render();
+    } else if (screenName == 'trackers') {
+      uiTracker.RefreshItemList();
     }
     
   }

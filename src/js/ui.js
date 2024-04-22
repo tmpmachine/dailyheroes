@@ -313,7 +313,7 @@ let ui = (function () {
       
       // ui update
       app.TaskListTask();
-      uiTracker.RefreshItemList();
+      pageHome.RefreshTrackerOverlay();
       
     } catch (e) {
       console.error(e);
@@ -1421,9 +1421,6 @@ let ui = (function () {
     ui.UpdateViewModeState();
     uiMission.ListGroup();
     
-    // # trackers
-    uiTracker.Init();
-    
     initAudioSettings();
     refreshGlobalTimer();
     
@@ -2152,14 +2149,14 @@ let ui = (function () {
       
       if (!app.isPlatformAndroid) {
         let isConfirm = window.confirm('Are you sure?');
-        resolve(isConfirm)
+        resolve(isConfirm);
         return;
       } 
       
       confirmationPopup.style.display = "block";
       modalResolver = resolve;
       
-    })
+    });
   }
   
   confirmYesButton.addEventListener("click", () => {

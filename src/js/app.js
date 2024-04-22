@@ -2075,6 +2075,7 @@ let app = (function () {
     await app.ApplyProgressMadeOutsideApp();
     ui.TaskSetActiveTaskInfo();
     ui.Init();
+    pageHome.Render();
     updateUI();
     
     // list task

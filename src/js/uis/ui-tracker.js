@@ -3,11 +3,15 @@ let uiTracker = (function() {
   let $ = document.querySelector.bind(document);
   
   let SELF = {
-    Init,
     NewItem,
     RefreshItemList,
     HandleClickListTracker,
-    StopTracker,
+    GetData,
+  };
+  
+  let local = {
+    title: null,
+    totalTime: null,
   };
   
   let DOMActionEvents = {
@@ -16,15 +20,6 @@ let uiTracker = (function() {
     'delete': (itemData) => deleteById(itemData.id),
     'rename': (itemData) => renameById(itemData.id)
   };
-  
-  function StopTracker() {
-    compoTracker.UnsetActive();
-    compoTracker.Commit();
-    appSettings.Save();
-    
-    updateActiveTrackerOverlay();
-    RefreshItemList();
-  }
   
   function renameById(id) {
     
@@ -43,7 +38,6 @@ let uiTracker = (function() {
     appSettings.Save();
     
     RefreshItemList();
-    updateActiveTrackerOverlay();
   }
   
   function showTracker() {
@@ -77,7 +71,6 @@ let uiTracker = (function() {
     saveAppData();
     
     RefreshItemList();
-    updateActiveTrackerOverlay();
   }
   
   function deleteById(id) {
@@ -89,7 +82,6 @@ let uiTracker = (function() {
     appSettings.Save();
     
     RefreshItemList();
-    updateActiveTrackerOverlay();
   }
   
   function getItemDataByEvent(evt) {
@@ -115,22 +107,35 @@ let uiTracker = (function() {
     callbackFunc(itemData, evt);
   }
   
-  function Init() {
-    RefreshItemList();
-    updateActiveTrackerOverlay();
+  function GetData() {
+    let item = compoTracker.GetActive();
+    
+    if (item) {
+      local.title = item.title;
+      local.totalTime = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
+      
+      showTracker();
+    } else {
+      hideTracker();
+    }
+    
+    return {
+      title: local.title,
+      totalTime: local.totalTime,
+    };
   }
   
   function updateActiveTrackerOverlay() {
-    // check active tracker
     let item = compoTracker.GetActive();
-    if (!item) {
-      hideTracker();
-      return;
-    }
     
-    showTracker();
-    $('.tracker-overlay').querySelector('[data-slot="title"]').textContent = item.title;
-    $('.tracker-overlay').querySelector('[data-slot="progressTimeStr"]').textContent = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
+    if (item) {
+      local.title = item.title;
+      local.totalTime = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
+      
+      showTracker();
+    } else {
+      hideTracker();
+    }
   }
   
   function RefreshItemList() {

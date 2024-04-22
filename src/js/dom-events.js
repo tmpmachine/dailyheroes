@@ -28,7 +28,7 @@ let DOMEvents = (function() {
       'stop-test-audio': () => app.StopTestAlarmAudio(), 
       'change-global-preset-timer': () => ui.ChangeGlobalPresetTimer(),
       'new-tracker': () => uiTracker.NewItem(),
-      'stop-tracker': () => uiTracker.StopTracker(),
+      'stop-tracker': () => pageHome.StopTracker(),
       'handle-click-list-tracker': (evt) => uiTracker.HandleClickListTracker(evt),
       'save-priority-mapper': () => ui.TaskSavePriorityMapper(),
   	},

@@ -9,6 +9,7 @@
     "js/uis/task-ui.js"
   ],
   "pages": [
+    "js/pages/home-page.js",
     "js/pages/detail-page.js"
   ],
   "components": [
