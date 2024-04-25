@@ -2186,10 +2186,14 @@ let app = (function () {
   
   async function TaskUpdateTask(form) {
     let task = tasks.find(x => x.id == form.id.value);
+    let hmsParseOpt = {
+      defaultUnit: 'm'
+    };
+	  
     task.title = form.title.value;
-    task.durationTime = helper.ParseHmsToMs(form.durationTime.value);
-    task.targetTime = helper.ParseHmsToMs(form.targetTime.value);
-    task.targetCapTime = helper.ParseHmsToMs(form.targetCapTime.value);
+    task.durationTime = helper.ParseHmsToMs(form.durationTime.value, hmsParseOpt);
+    task.targetTime = helper.ParseHmsToMs(form.targetTime.value, hmsParseOpt);
+    task.targetCapTime = helper.ParseHmsToMs(form.targetCapTime.value, hmsParseOpt);
     task.finishCount = parseInt(form['finishCount'].value);
     task.finishCountProgress = parseInt(form['finishCount'].value);
     task.parentId = form['parent-id'].value;

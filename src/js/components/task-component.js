@@ -146,13 +146,18 @@ let compoTask = (function() {
     }
   
     let taskId;
+    let hmsParseOpt = {
+      defaultUnit: 'm'
+    };
+    
     try {
       let parentId = form['parent-id'].value;
+      
       taskId = AddTaskData({
         title: form.title.value,
-        durationTime: helper.ParseHmsToMs(targetVal),
-        targetTime: helper.ParseHmsToMs(form.targetTime.value),
-        targetCapTime: helper.ParseHmsToMs(form.targetCapTime.value),
+        durationTime: helper.ParseHmsToMs(targetVal, hmsParseOpt),
+        targetTime: helper.ParseHmsToMs(form.targetTime.value, hmsParseOpt),
+        targetCapTime: helper.ParseHmsToMs(form.targetCapTime.value, hmsParseOpt),
         parentId: parentId ? parentId : '',
         type: form.taskType.value,
       });

@@ -275,15 +275,11 @@ let ui = (function () {
     if (!userVal) return;
     
     let addedTime = 0;
-    
-    try {
-      addedTime = helper.ParseHmsToMs(userVal);
-    } catch (e) {
-      // default to minute
-      let parsedVal = parseInt(userVal);
-      parsedVal = isNaN(parsedVal) ? 0 : parsedVal;
-      addedTime = parsedVal * 60 * 1000;
-    }
+
+	  let hmsParseOpt = {
+      defaultUnit: 'm'
+    };
+    addedTime = helper.ParseHmsToMs(userVal, hmsParseOpt);
     
     try {
       task.progressTime += addedTime;
@@ -344,17 +340,7 @@ let ui = (function () {
     let inputTime = null;
     
     // parse input value
-    try {
-      inputTime = helper.ParseHmsToMs(userVal);
-    } catch (e) {
-      // default to minute
-      let parsedVal = parseInt(userVal);
-      if (!isNaN(parsedVal)) {
-        inputTime = parsedVal * 60 * 1000;
-      } else {
-        alert('Input format not recognized.');
-      }
-    }
+    inputTime = helper.ParseHmsToMs(userVal);
     
     if (inputTime === null) return;
     

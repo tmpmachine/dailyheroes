@@ -71,7 +71,7 @@ let helper = (function() {
     return (hours * 60) + minutes;
   }
   
-  function ParseHmsToMs(timeString) {
+  function ParseHmsToMs(timeString, hmsParseOpt) {
   
     if (!timeString) return 0;
   
@@ -98,6 +98,15 @@ let helper = (function() {
       return (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
       
     } catch (e) {
+      
+      if (hmsParseOpt?.defaultUnit == 'm') {
+        // default parse to minute
+        let parsedVal = parseInt(timeString);
+        if (!isNaN(parsedVal)) {
+          return parsedVal * 60 * 1000;
+        } 
+      }
+      
       throw e;
     }
     

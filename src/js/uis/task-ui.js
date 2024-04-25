@@ -366,13 +366,121 @@ let uiTask = (function() {
       case 'start-sub-task':
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
-      
-      default: 
-        compoSelection.ClearItems();
-        compoSelection.AddItem(id);
-        uiSelection.ReloadSelection();
+
+      default: toggleSelection(id);
     }
     
+  }
+  
+  function toggleSelection(id) {
+    if (!compoSelection.GetAllItems().includes(id)) {
+      compoSelection.ClearItems();
+      compoSelection.AddItem(id);
+    } else {
+      compoSelection.ClearItems();
+    }
+    uiSelection.ReloadSelection();
+  }
+  
+  async function setTargetTimeAsync(id) {
+    
+    let task = tasks.find(x => x.id == id);
+    if (!task) return;
+    
+    /*const { value: userVal } = await Swal.fire({
+      title: 'Set target time (HMS format)',
+      input: 'text',
+      inputValue: helper.ToTimeString(task.targetCapTime, 'hms'),
+      inputLabel: 'example : 10h5m20s, 1h, 15m, 30s',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
+    });*/
+    const userVal = await windog.prompt('Set target time (HMS format)', helper.ToTimeString(task.targetCapTime, 'hms'));
+    
+    if (!userVal) return;
+    
+    let inputTime = null;
+    
+    // parse input value
+	  let hmsParseOpt = {
+      defaultUnit: 'm'
+    };
+    inputTime = helper.ParseHmsToMs(userVal, hmsParseOpt);
+    
+    if (inputTime === null) return;
+    
+    try {
+      
+      task.targetCapTime = Math.max(0, inputTime);
+      
+      await appData.TaskStoreTask(); 
+      appData.Save();
+      
+      RefreshTaskCardAsync(task);
+      app.TaskRefreshMissionTargetETA();
+      
+    } catch (e) {
+      console.error(e);
+      alert('Failed');
+      return;
+    }
+    
+  }
+  
+  function RefreshTaskCardAsync(task) {
+    try {
+      
+      let el = $(`[data-obj="task"][data-id="${task.id}"]`);
+      if (!el) return;
+      
+      let ratioTimeLeftStr = task.targetTime > 0 ? helper.ToTimeString(task.targetTime, 'hms') : '';
+      let targetCapTimeStr = task.targetCapTime > 0 ? helper.ToTimeString(task.targetCapTime, 'hms') : '';
+      
+      el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
+      el.querySelector('[data-slot="title"]').textContent = task.title;
+      el.querySelector('[data-slot="ratioTimeLeftStr"].sc-1').textContent = ratioTimeLeftStr;
+      el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = targetCapTimeStr;
+      el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
+      
+      if (task.targetTime > 0 || task.targetCapTime > 0) {
+        viewStateUtil.Add('active-task-info', ['has-target'], el);
+      }
+      
+      RefreshListSequenceByTaskId(task.id);
+      
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function TaskResetProgressTaskFromForm(evt) {
+    let form = evt.target.form;
+    let id = form.id.value;
+    
+    let task = await compoTask.ResetProgressById(id); 
+
+    await appData.TaskStoreTask();
+
+    RefreshTaskCardAsync(task);
+    
+    $('#task-modal').close();
+  }
+  
+  async function TaskDistributeProgressTaskFromForm(evt) {
+    let form = evt.target.form;
+    let id = form.id.value;
+    
+    let task = await compoTask.ResetProgressById(id); 
+
+    await appData.TaskStoreTask();
+
+    RefreshTaskCardAsync(task);
+    
+    $('#task-modal').close();
   }
 
 	async function DeleteAsync(id, taskEl, isBypassConfirm = false) {
