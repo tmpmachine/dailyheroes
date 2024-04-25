@@ -1303,6 +1303,7 @@ let ui = (function () {
     
     BuildBreadcrumbs();
     compoSelection.ClearItems();
+    uiSelection.ReloadSelection();
   }
   
   function getActiveGroupId() {
@@ -1399,12 +1400,16 @@ let ui = (function () {
       
       uiTask.DeleteAsync(selectedTaskId);
       itemEl.remove();
+      compoSelection.ClearItems();
+      uiSelection.ReloadSelection();
       
-    } else {
+    } else if (pageHome.IsMissionViewMode()) {
       let isConfirm = window.confirm('Delete this task? This process cannot be undone.');
       if (!isConfirm) return;
       
       app.TaskAddToMission(selectedTaskId, itemEl);
+      compoSelection.ClearItems();
+      uiSelection.ReloadSelection();
     }
   }
   

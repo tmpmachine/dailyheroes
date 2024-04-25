@@ -7,6 +7,7 @@ let pageHome = (function() {
     StopTracker,
     RefreshTrackerOverlay,
     IsTaskViewMode,
+    IsMissionViewMode,
     IsVisible,
     ChangeViewMode,
   };
@@ -22,6 +23,9 @@ let pageHome = (function() {
       ChangeViewModeConfig('mission');
       app.TaskRefreshMissionTargetETA();
     }
+    
+    compoSelection.ClearItems();
+    uiSelection.ReloadSelection();
     
     lsdb.save();
     ui.BuildBreadcrumbs();
@@ -44,6 +48,10 @@ let pageHome = (function() {
   
   function IsTaskViewMode() {
     return viewStateUtil.HasViewState('task-view-mode', 'task');
+  }
+  
+  function IsMissionViewMode() {
+    return viewStateUtil.HasViewState('task-view-mode', 'mission');
   }
   
   function StopTracker() {
