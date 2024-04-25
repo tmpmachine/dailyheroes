@@ -114,29 +114,6 @@ let uiCollection = (function() {
     }
     
     container.append(docFrag);
-    
-    reloadSelectOptions();
-  }
-  
-  function reloadSelectOptions() {
-    let groups = compoMission.GetGroups();
-    let activeGroupId = compoMission.GetActiveGroupId();
-    
-    $('#in-sel-mission-group').innerHTML = '';
-    let docFrag = document.createDocumentFragment();
-    
-    for (let item of groups) {
-      let el = document.createElement('option');
-      el.textContent = item.title;
-      el.value = item.id;
-      docFrag.append(el);
-      
-      if (item.id == activeGroupId) {
-        el.selected = true;
-      }
-    }
-    
-    $('#in-sel-mission-group').append(docFrag);
   }
   
   async function NewItem() {

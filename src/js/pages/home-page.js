@@ -32,6 +32,27 @@ let pageHome = (function() {
     app.TaskListTask();
   }
   
+  function RefreshCollections() {
+    let groups = compoMission.GetGroups();
+    let activeGroupId = compoMission.GetActiveGroupId();
+    
+    $('._collectionOpts')?.replaceChildren();
+    let docFrag = document.createDocumentFragment();
+    
+    for (let item of groups) {
+      let el = document.createElement('option');
+      el.textContent = item.title;
+      el.value = item.id;
+      docFrag.append(el);
+      
+      if (item.id == activeGroupId) {
+        el.selected = true;
+      }
+    }
+    
+    $('._collectionOpts')?.append(docFrag);
+  }
+  
   function ChangeViewModeConfig(mode) {
     lsdb.data.topMostMissionPath = '';
     lsdb.data.viewMode = mode;
@@ -40,6 +61,7 @@ let pageHome = (function() {
   
   function Render() {
     RefreshTrackerOverlay();
+    RefreshCollections();
   }
   
   function IsVisible() {
