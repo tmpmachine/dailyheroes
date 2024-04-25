@@ -406,7 +406,10 @@ let uiTask = (function() {
     let inputTime = null;
     
     // parse input value
-    inputTime = helper.ParseHmsToMs(userVal);
+	  let hmsParseOpt = {
+      defaultUnit: 'm'
+    };
+    inputTime = helper.ParseHmsToMs(userVal, hmsParseOpt);
     
     if (inputTime === null) return;
     
