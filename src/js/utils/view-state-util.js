@@ -5,7 +5,6 @@ let viewStateUtil = (function() {
   let SELF = {
     GetViewGroupNode,
     Init,
-    
     Set: SetState,
     Toggle,
     GetViewStates,
@@ -124,6 +123,8 @@ let viewStateUtil = (function() {
   
   function Init(viewStateMap) {
     
+    let elContainer = document.createElement('style');
+    
     data.viewStateMap = viewStateMap;
     
     for (let map of viewStateMap) {
@@ -133,22 +134,19 @@ let viewStateUtil = (function() {
       
       let childViewEls = document.querySelectorAll(`[data-view-group="${groupName}"][data-view-states] [data-view-group="${groupName}"]`);
       
-      let elContainer = document.createElement('style');
-      elContainer.dataset.viewGroupControl = groupName;
-      
       if (map.states && map.states.length > 0) {
         let childViewSelectors = map.states.map(state => `[data-view-group~="${groupName}"][data-view-states~="${state}"] [data-view-group="${groupName}"][data-view-name~="${state}"]`)
-        elContainer.innerHTML = `${childViewSelectors.join(',')} { display: revert; }`;
+        elContainer.textContent += `${childViewSelectors.join(',')} { display: revert; }`;
       }
       
       if (map.inverseStates && map.inverseStates.length > 0) {
         let childViewSelectorsInverse = map.inverseStates.map(state => `[data-view-group~="${groupName}"][data-view-states~="${state}"] [data-view-group="${groupName}"][data-view-name-not~="${state}"]`)
-        elContainer.innerHTML += `${childViewSelectorsInverse.join(',')} { display: none; }`;
+        elContainer.textContent += `${childViewSelectorsInverse.join(',')} { display: none; }`;
       }
       
-      document.body.append(elContainer);
     }
     
+    document.head.append(elContainer);
     
   }
   
