@@ -80,10 +80,14 @@ let appSettings = (function() {
     SetComponentData,
     GetComponentData,
     GetNoRefComponentData,
+    ResetActiveGroup,
     TaskStoreTask,
     GetActiveTaskParentId,
   };
   
+  function ResetActiveGroup() {
+    lsdb.data.activeGroupId = '';  
+  }
   
   async function TaskStoreTask() {
     await window.service.SetData({ 
