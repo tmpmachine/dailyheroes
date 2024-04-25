@@ -1480,6 +1480,8 @@ let ui = (function () {
     Mousetrap.bind('del', function(e) {
       handleDeleteSelection();
     });
+    Mousetrap.bind(['p'], handlePKey, 'keydown');
+    Mousetrap.bind(['p'], handlePKey, 'keyup');
     Mousetrap.bind('backspace', function(e) {
       handleBackspaceKey();
     });
@@ -1504,13 +1506,29 @@ let ui = (function () {
     }
   }
   
-  function handleDeleteSelection() {
+  function handlePKey(evt) {
     let selectedTaskId = uiSelection.GetSingleSelection();
     if (!selectedTaskId) return;
     
     let itemEl = $(`._wgTaskList [data-obj="task"][data-id="${selectedTaskId}"]`);
     if (!itemEl) return;
     
+    if (onePress.watch(evt.type, evt.key)) {
+      if (itemEl.querySelector('._btnStart').offsetHeight) {
+        app.StartTaskTimer(itemEl, selectedTaskId);
+      } else {
+        app.TaskStopActiveTask();
+      }
+    }
+  }
+  
+  function handleDeleteSelection() {
+    let selectedTaskId = uiSelection.GetSingleSelection();
+    if (!selectedTaskId) return;
+    
+    let itemEl = $(`._wgTaskList [data-obj="task"][data-id="${selectedTaskId}"]`);
+    if (!itemEl) return;
+
     if (pageHome.IsTaskViewMode()) {
       
       uiTask.DeleteAsync(selectedTaskId);
