@@ -369,11 +369,20 @@ let uiTask = (function() {
       case 'start-sub-task':
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
-      
-      default: toggleSelection(id);
 
+      default: toggleSelection(id);
     }
     
+  }
+  
+  function toggleSelection(id) {
+    if (!compoSelection.GetAllItems().includes(id)) {
+      compoSelection.ClearItems();
+      compoSelection.AddItem(id);
+    } else {
+      compoSelection.ClearItems();
+    }
+    uiSelection.ReloadSelection();
   }
   
   async function setTargetTimeAsync(id) {
