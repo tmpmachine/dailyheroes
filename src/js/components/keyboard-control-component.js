@@ -20,8 +20,8 @@ let compoKeyboardControl = (function() {
       // console.log(key);
       keyLogged = true;
       
-      let isTaskViewMode = viewStateUtil.HasViewState('task-view-mode', 'task');
-      if (!isTaskViewMode) return;
+      let isPageHome = pageHome.IsVisible();
+      if (!isPageHome) return;
 
       evt.preventDefault();
       

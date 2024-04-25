@@ -7,10 +7,15 @@ let pageHome = (function() {
     StopTracker,
     RefreshTrackerOverlay,
     IsTaskViewMode,
+    IsVisible,
   };
   
   function Render() {
     RefreshTrackerOverlay();
+  }
+  
+  function IsVisible() {
+    return viewStateUtil.HasViewState('screens', 'home');
   }
   
   function IsTaskViewMode() {
