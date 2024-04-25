@@ -37,6 +37,8 @@ let uiSelection = (function() {
 			  container.scrollTop = elOffsetBottom - screenBottom;
 		  }
     }
+    
+    viewStateUtil.Add('taskFloatBar', ['quickAction']);
   }
   
   function getTaskElById(id) {
@@ -123,6 +125,7 @@ let uiSelection = (function() {
     for (let el of $$('[data-obj="task"].focused')) {
       el.classList.remove('focused');
     }
+    viewStateUtil.Remove('taskFloatBar', ['quickAction']);
   }
   
   return SELF;

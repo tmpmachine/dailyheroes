@@ -602,7 +602,7 @@
   <template id="taskdrawer-v1">
     
     <!-- # widget active task -->
-    [ .wg-ActiveTask data-scope-id="2" ._wgActiveTask
+    [ .wg-ActiveTask data-scope-id="2" ._wgActiveTask data-view-group="taskFloatBar" data-view-states=""
 
       [ .d-flex .inner .sc-2 .flex-column .gap-half
         [ .sub-inner .sc-2
@@ -637,8 +637,20 @@
             ]
           ]
           
+          <!-- $taskQuickActions # quick actions bar -->
+          <section data-view-group="taskFloatBar" data-view-name="quickAction">
+            
+            [ .wg-QuickActions .bg-white .drawer data-lazy-onclick="handle-click-quick-action"
+              [btn 'Edit' .chips-btn data-action="edit"]
+              [btn 'Add sequence' .chips-btn data-action="add-sequence"]
+              [btn 'Manage sequence' .chips-btn data-action="manage-sequence"]
+            ]
+            
+          <!-- $taskQuickActions -->
+          </section>
           
-          <!-- # progress bar -->
+          <!-- $taskInfoBar # active task info bar -->
+          <section data-view-group="taskFloatBar" data-view-name-not="quickAction">
           [ .flex-1 data-view-group="active-task-info" data-view-states="" .bg-white .drawer
             
             [ .d-flex .gap-half
@@ -714,6 +726,9 @@
               
             ]
           ] 
+          <!-- $taskInfoBar -->
+          </section>
+          
         ]
         <!-- #END progress bar -->
         

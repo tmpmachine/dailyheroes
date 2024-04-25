@@ -1,5 +1,6 @@
 {
   "uis": [
+    "js/uis/quick-action-ui.js",
     "js/ui.js",
     "js/uis/pip-ui.js",
     "js/uis/target-trackers-ui.js",

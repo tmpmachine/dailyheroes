@@ -5,6 +5,12 @@ let viewStates = [
       'dev'
     ]
   },
+  // bottom float bar
+  {
+    group: 'taskFloatBar',
+    states: [ 'quickAction' ],
+    inverseStates: [ 'quickAction' ]
+  },
   {
     group: 'sequence-item',
     states: [

@@ -21,6 +21,7 @@ componentLoader.load([
       "js/uis/pip-ui.js",
       "js/uis/task-ui.js",
       "js/uis/mission-ui.js",
+      "js/uis/quick-action-ui.js",
       "js/uis/collection-ui.js",
       "js/uis/tracker-ui.js",
       "js/uis/target-trackers-ui.js",

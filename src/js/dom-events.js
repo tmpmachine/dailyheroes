@@ -106,7 +106,7 @@ let DOMEvents = (function() {
   	  'open-pip': () => uiPiP.OpenPiP(),
   	  'reset-data': () => app.ResetData(),
   	  'reset-target-time': () => ui.ResetTargetTime(),
-  	  
+  	  'handle-click-quick-action': (evt) => uiQuickAction.HandleClick(evt),
   	  'handle-task-click': (evt) => uiTask.HandleTaskClick(evt, evt.target),
   	  'handle-click-task-overview': (evt) => app.HandleClickTaskOverview(evt),
   	  'open-overview': () => ui.OpenOverview(),
