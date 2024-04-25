@@ -1361,10 +1361,28 @@ let ui = (function () {
     Mousetrap.bind('backspace', function(e) {
       handleBackspaceKey();
     });
+    Mousetrap.bind('enter', function(e) {
+      handleEnterKey();
+    });
     
     // attach keyboard listeners
     window.addEventListener('keydown', keyHandler);
     window.addEventListener('keyup', keyHandler);
+  }
+  
+  function handleEnterKey() {
+    let isTaskViewMode = viewStateUtil.HasViewState('task-view-mode', 'task');
+    
+    if (!isTaskViewMode) return;
+    
+    let selectedTaskId = uiSelection.GetSingleSelection();
+    let itemEl = $(`._wgTaskList [data-obj="task"][data-id="${selectedTaskId}"]`);
+    if (!itemEl) return;
+    
+    let hasSubTask = viewStateUtil.HasViewState('task', 'hasSubTask', itemEl);
+    if (hasSubTask) {
+      uiTask.NavigateSubTaskAsync(selectedTaskId);  
+    }
   }
   
   function handleBackspaceKey() {

@@ -326,10 +326,7 @@ let uiTask = (function() {
         ui.FocusTaskById(id);
         
         break;
-      case 'navigate-sub':
-        ui.Navigate(id);
-        await app.TaskListTask();
-        break;
+      case 'navigate-sub': NavigateSubTaskAsync(id); break;
       case 'edit': app.EditTask(id); break;
       case 'create-mission': ui.CreateMissionFromTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
