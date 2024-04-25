@@ -49,6 +49,12 @@
     outline-offset: 3px;
     border-radius: 2px;
   }
+  .container-sequence {
+    background: #10101024;
+  }
+  &[data-view-states~="hasSubTask"] .container-item {
+    background: #8c6b3f;
+  }
   .container-item {
     background: var(--card-brushed-top);
     box-shadow: 0px 0px 0px 2px #bdbdbd;

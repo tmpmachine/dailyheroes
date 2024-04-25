@@ -388,11 +388,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
   font-size: 1.7rem;
 }
 
-/* # task toolbar */
-#tasklist .container-task-toolbar {
-  background: var(--card-brushed-bottom);
-}
-
 /* # view mode tabs */
 .container-view-mode button {
   background: none;
@@ -423,8 +418,7 @@ body[data-state~="--timer-running"] .task-progress-bar {
 
 /* # item sequence */
 .item-sequence.is-active {
-  background: #47474d;
-  /* background: var(--border-dark); */
+  background: #e6494524;
 }
 #tasklist [data-obj="task"][data-state~="--active"] .item-sequence.is-active {
   /*background: var(--text-light);*/

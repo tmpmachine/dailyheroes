@@ -10,13 +10,9 @@
 
 [data-obj="task"][data-state~="--untracked"] { background: lightgrey; }
 [data-obj="task"][data-state~="--untracked"] [data-obj="tracking-status"] { background: black; }
-#tasklist [data-obj="task"][data-state~="--active"] .task-body-main { 
-  background: var(--active-task-bg); 
-  /*background: linear-gradient(180deg, #ff8b8b, #ffca81); */
-}
 #tasklist [data-obj="task"]:not([data-state~="--active"]) .btn-start {
   background: #464646;
-  /*background: linear-gradient(180deg, #ff8b8b, #ffca81)*/
+  /* background: linear-gradient(180deg, #ff8b8b, #ffca81) */
 }
 
 [data-obj="task"]:not([data-state~="--is-mission"]) [data-role="remove-mission"],
