@@ -12,6 +12,9 @@ let uiTask = (function() {
 	  RefreshListSequenceByTaskId,
 	  DeleteTaskFromForm,
 	  GetTaskElById,
+	  RefreshTaskCardAsync,
+	  TaskResetProgressTaskFromForm,
+	  TaskDistributeProgressTaskFromForm,
   };
   
   function GetTaskElById(id) {
@@ -335,7 +338,7 @@ let uiTask = (function() {
       case 'add-label': TaskAddLabel(id); break;
       case 'add-sub-task': showModalSubTask(id); break;
       case 'add-progress-minutes': await ui.TaskAddProgressManually(id); break;
-      case 'set-target-time': await ui.TaskSetTargetTime(id); break;
+      case 'set-target-time': setTargetTimeAsync(id); break;
       case 'open': await pageDetail.OpenByTaskId(id); break;
       case 'set-active': SwitchActiveTask(parentEl, id); break;
       case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
@@ -366,20 +369,11 @@ let uiTask = (function() {
       case 'start-sub-task':
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
-
+      
       default: toggleSelection(id);
+
     }
     
-  }
-  
-  function toggleSelection(id) {
-    if (!compoSelection.GetAllItems().includes(id)) {
-      compoSelection.ClearItems();
-      compoSelection.AddItem(id);
-    } else {
-      compoSelection.ClearItems();
-    }
-    uiSelection.ReloadSelection();
   }
   
   async function setTargetTimeAsync(id) {
@@ -387,7 +381,7 @@ let uiTask = (function() {
     let task = tasks.find(x => x.id == id);
     if (!task) return;
     
-    /*const { value: userVal } = await Swal.fire({
+    const { value: userVal } = await Swal.fire({
       title: 'Set target time (HMS format)',
       input: 'text',
       inputValue: helper.ToTimeString(task.targetCapTime, 'hms'),
@@ -398,18 +392,14 @@ let uiTask = (function() {
           return 'You need to write something!';
         }
       }
-    });*/
-    const userVal = await windog.prompt('Set target time (HMS format)', helper.ToTimeString(task.targetCapTime, 'hms'));
+    });
     
     if (!userVal) return;
     
     let inputTime = null;
     
     // parse input value
-	  let hmsParseOpt = {
-      defaultUnit: 'm'
-    };
-    inputTime = helper.ParseHmsToMs(userVal, hmsParseOpt);
+    inputTime = helper.ParseHmsToMs(userVal);
     
     if (inputTime === null) return;
     
@@ -690,7 +680,7 @@ let uiTask = (function() {
       let task = await app.TaskUpdateTask(form);
       
       await appData.TaskStoreTask();
-      ui.RefreshTaskCardAsync(task);
+      RefreshTaskCardAsync(task);
       form.reset();
       
       app.SyncGroupName(task.id, task.title, task.parentId);

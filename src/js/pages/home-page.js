@@ -8,7 +8,31 @@ let pageHome = (function() {
     RefreshTrackerOverlay,
     IsTaskViewMode,
     IsVisible,
+    ChangeViewMode,
   };
+  
+  function ChangeViewMode(evt) {
+    let targetEl = evt.target;
+    let type = targetEl?.closest('[data-kind="control"]')?.dataset.type;
+    
+    if (type == 'task') {
+      viewStateUtil.Remove('active-task-info', ['has-ETA']);
+      ChangeViewModeConfig('tasks');
+    } else if (type == 'mission') {
+      ChangeViewModeConfig('mission');
+      app.TaskRefreshMissionTargetETA();
+    }
+    
+    lsdb.save();
+    ui.BuildBreadcrumbs();
+    app.TaskListTask();
+  }
+  
+  function ChangeViewModeConfig(mode) {
+    lsdb.data.topMostMissionPath = '';
+    lsdb.data.viewMode = mode;
+    ui.UpdateViewModeState();
+  }
   
   function Render() {
     RefreshTrackerOverlay();

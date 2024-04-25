@@ -17,7 +17,6 @@ let DOMEvents = (function() {
   	  'backup-to-cloud': () => compoBackup.TaskBackupAndUploadToCloud(),
   	  'restore-from-cloud': () => compoBackup.TaskRestore(),
   	  'show-modal-add-sequence': () => ui.ShowModalAddSequence(),
-      'view-tasks': () => ui.NavigateViewTask(),
   		'manage-tasks': () => $('#tasklist-container').stateList.toggle('--manage-mode'),
   		'stop-timer': () => app.TaskStopActiveTask(),
   		'start-or-restart-timer': () => app.TaskStartOrRestartTask(),
@@ -99,7 +98,7 @@ let DOMEvents = (function() {
   	
   	onclick: {
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
-  	  'view-mission': () => ui.NavigateViewMission(),
+  	  'change-view-mode': (evt) => pageHome.ChangeViewMode(evt),
   	  'edit-target-threshold': () => ui.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
@@ -117,8 +116,8 @@ let DOMEvents = (function() {
   	  'handle-click-list-collection': (evt) => uiCollection.HandleClickListContainer(evt),
   	  'open-linked-sequence-from-form': (evt) => ui.OpenLinkedSequenceFromForm(evt),
   	  'open-linked-sequence-priority-mapper': (evt) => ui.OpenLinkedSequenceInPriorityMapper(evt),
-  	  'reset-progress-task-from-form': (evt) => ui.TaskResetProgressTaskFromForm(evt),
-  	  'distribute-progress-task-from-form': (evt) => ui.TaskDistributeProgressTaskFromForm(evt),
+  	  'reset-progress-task-from-form': (evt) => uiTask.TaskResetProgressTaskFromForm(evt),
+  	  'distribute-progress-task-from-form': (evt) => uiTask.TaskDistributeProgressTaskFromForm(evt),
   	  'add-progress-from-form': (evt) => ui.TaskAddProgressFromForm(evt),
   	  'delete-task-from-form': (evt) => uiTask.DeleteTaskFromForm(evt),
   	  'reset-progress-sequence-from-form': (evt) => ui.ResetProgressSequenceFromForm(evt),

@@ -1159,7 +1159,7 @@ let app = (function () {
     ui.UpdateViewModeState();
     $('#labeled-by-showtarget').checked = app.IsShowTargetTimeOnly();
     
-    ui.ChangeViewModeConfig('tasks');
+    pageHome.ChangeViewModeConfig('tasks');
     ui.Navigate(task.parentId);
     
     app.Commit();
@@ -1753,7 +1753,7 @@ let app = (function () {
     {
       let tasks = compoTask.GetAll();
       for (let task of tasks) {
-        ui.RefreshTaskCardAsync(task);
+        uiTask.RefreshTaskCardAsync(task);
       }
     }
     

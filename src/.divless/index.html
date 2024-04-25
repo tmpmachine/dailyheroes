@@ -104,15 +104,15 @@
           
             [ .flex-1
               <!-- # widget tabs -->
-              [ .d-grid {cols:1fr 1fr auto} .container-view-mode .wg-Tab
-                [btn data-onclick="view-mission" data-id="mission"
+              [ .d-grid {cols:1fr 1fr auto} ._viewMode .container-view-mode .wg-Tab
+                [btn data-onclick="change-view-mode" data-kind="control" data-type="mission"
                   [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
                     [s .icon-mate 'list']
                     [s 'Missions']
                     [ .d-flex .tab-active-indicator]
                   ]
                 ]
-                [btn .clickable data-callback="view-tasks" data-id="task"
+                [btn data-onclick="change-view-mode" data-kind="control" data-type="task"
                   [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
                     My Tasks
                     [ .d-flex .tab-active-indicator]

@@ -104,15 +104,15 @@
           
             <div class="flex-1">
               <!-- # widget tabs -->
-              <div class="d-grid container-view-mode wg-Tab" style="grid-template-columns:1fr 1fr auto;">
-                <button data-onclick="view-mission" data-id="mission">
+              <div class="d-grid _viewMode container-view-mode wg-Tab" style="grid-template-columns:1fr 1fr auto;">
+                <button data-onclick="change-view-mode" data-kind="control" data-type="mission">
                   <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
                     <span class="icon-mate">list</span>
                     <span>Missions</span>
                     <div class="d-flex tab-active-indicator"></div>
                   </div>
                 </button>
-                <button class="clickable" data-callback="view-tasks" data-id="task">
+                <button data-onclick="change-view-mode" data-kind="control" data-type="task">
                   <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
                     My Tasks
                     <div class="d-flex tab-active-indicator"></div>
