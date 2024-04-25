@@ -13,6 +13,7 @@
     "js/pages/detail-page.js"
   ],
   "components": [
+    "js/components/keyboard-control-component.js",
     "js/components/clipboard-component.js",
     "js/components/selection-component.js",
     "js/components/target-trackers-component.js",

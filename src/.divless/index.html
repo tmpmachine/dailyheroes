@@ -43,8 +43,8 @@
 
     [ {max-width:100%;mw:400px;margin:auto;} .d-grid .h-100 .container-app-inner data-view-group="screens" data-view-states="home"
     
+      <section class="container-screen _containerScreenHome ov-auto pos-relative container-screen-home" data-view-group="screens" data-view-name="home">
       <!-- # screen : home -->
-      <section class="container-screen pos-relative container-screen-home" data-view-group="screens" data-view-name="home">
         
         <!-- # navigations-->
         [ .d-flex .justify-content-between .main-nav-bar .z-index-1 .top-0 .pos-sticky
@@ -257,8 +257,9 @@
         
       </section>
       
-      <!-- # task detail screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="task-detail">
+      <!-- # task detail screen -->
+      
       [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
     
         <!-- # task detail overlay background -->
@@ -282,8 +283,9 @@
       ]
       </section>
       
-      <!-- # collections screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="collections">
+      <!-- # collections screen -->
+      
       [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
       
         <!-- # overlay background -->
@@ -315,8 +317,8 @@
       </section>
         
       
-      <!-- # trackers screen -->
       <section class="container-screen" data-view-group="screens" data-view-name="trackers">
+      <!-- # trackers screen -->
         
         <!-- # trackers nav header -->
         [ .d-flex {gap:1rem} .align-items-center .container-screen-title
@@ -341,8 +343,9 @@
         
       </section>
       
-      <!-- # tasks by threshold screen -->
       <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="by-threshold">
+      <!-- # tasks by threshold screen -->
+      
       [ .d-grid .h-100 {rows:auto 1fr}
       
         <!-- # Tasks By Threshold screen nav -->
@@ -379,8 +382,9 @@
       ]
       </section>
       
-      <!-- # priority mapper screen -->
       <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="priority-mapper">
+      <!-- # priority mapper screen -->
+      
       [ .d-grid .h-100 {rows:auto 1fr}
       
         <!-- # overlay background -->
@@ -421,8 +425,9 @@
       ]
       </section>
       
-      <!-- # settings screen -->
       <section class="container-screen h-100 pos-relative" data-view-group="screens" data-view-name="settings">
+      <!-- # settings screen -->
+      
       [ .d-grid .h-100 {rows:auto 1fr} .pos-relative
         
         <!-- # settings nav header -->
@@ -597,7 +602,7 @@
   <template id="taskdrawer-v1">
     
     <!-- # widget active task -->
-    [ .wg-ActiveTask data-scope-id="2"
+    [ .wg-ActiveTask data-scope-id="2" ._wgActiveTask
 
       [ .d-flex .inner .sc-2 .flex-column .gap-half
         [ .sub-inner .sc-2

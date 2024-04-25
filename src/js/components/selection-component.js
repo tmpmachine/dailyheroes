@@ -5,12 +5,18 @@ let compoSelection = (function() {
   let SELF = {
     AddItem,
     ClearItems,
+    ReplaceItem,
     GetAllItems,
   };
   
   let local = {
     items: [],
   };
+  
+  function ReplaceItem(id) {
+    ClearItems();
+    AddItem(id);
+  }
   
   function AddItem(id) {
     let index = GetItemIndexById(id);

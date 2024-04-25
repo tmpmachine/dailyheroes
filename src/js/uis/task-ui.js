@@ -435,7 +435,7 @@ let uiTask = (function() {
   }
 	
   async function NavigateSubTaskAsync(id) {
-    ui.Navigate(id);
+    ui.NavigateBreadcrumbs(id);
     await app.TaskListTask();
   }
   

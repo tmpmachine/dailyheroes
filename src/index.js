@@ -57,7 +57,7 @@ componentLoader.load([
       "js/app-data.js",
       "js/utils/uuidv4-util.js",
       
-      // app components
+      "js/components/keyboard-control-component.js",
       "js/components/clipboard-component.js",
       "js/components/selection-component.js",
       "js/components/target-trackers-component.js",

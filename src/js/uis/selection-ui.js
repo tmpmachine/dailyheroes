@@ -1,5 +1,6 @@
 let uiSelection = (function() {
   
+  let $ = document.querySelector.bind(document);
   let $$ = document.querySelectorAll.bind(document);
   
   let SELF = {
@@ -20,12 +21,20 @@ let uiSelection = (function() {
     if (isScroll) {
       const container = $('._containerScreenHome'); 
       const targetElement = taskEl;
-      let navbarHeight = 50;
-      const scrollPosition = targetElement.offsetTop - container.offsetTop - navbarHeight;
-      let delta = container.scrollTop - scrollPosition;
+      let offsetNavbar = 14;
+      let offsetFloatBar = 42;
+      let navbarHeight = 35 + offsetNavbar;
+      let floatBarHeight = $('._wgActiveTask').offsetHeight + offsetFloatBar;
+      let elOffsetTop = targetElement.offsetTop;
+      let elOffsetBottom = targetElement.offsetTop + targetElement.offsetHeight;
+      let screenBottom = container.offsetHeight - floatBarHeight;
 	
-		  if (targetElement.offsetTop + 88 + 50 > container.offsetHeight) {
-			  container.scrollTop = (targetElement.offsetTop + 88 + 37 + 50)- container.offsetHeight;
+		  if (elOffsetBottom < container.scrollTop + container.offsetHeight - floatBarHeight) {
+		    if (elOffsetTop < container.scrollTop + navbarHeight) {
+			    container.scrollTop = elOffsetTop - navbarHeight;
+		    }
+		  } else {
+			  container.scrollTop = elOffsetBottom - screenBottom;
 		  }
     }
   }
@@ -108,7 +117,6 @@ let uiSelection = (function() {
     for (let id of ids) {
       ui.FocusTaskElById(id, isScrollToView);
     }
-    
   }
   
   function clearSelection() {

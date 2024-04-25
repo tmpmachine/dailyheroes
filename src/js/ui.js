@@ -23,6 +23,7 @@ let ui = (function () {
     EditSequenceTask,
     
     // groups
+    NavigateBreadcrumbs: Navigate,
     Navigate,
     BuildBreadcrumbs,
 
@@ -1212,6 +1213,7 @@ let ui = (function () {
     reloadCompactView();
     initSimpleElementFilter();
     attachKeyboardShortcuts();
+    compoKeyboardControl.Init();
     
     BuildBreadcrumbs();
     
@@ -1430,8 +1432,11 @@ let ui = (function () {
       }
     }
     lsdb.data.activeGroupId = id;
+
     lsdb.save();
+    
     BuildBreadcrumbs();
+    compoSelection.ClearItems();
   }
   
   function getActiveGroupId() {
@@ -1449,7 +1454,7 @@ let ui = (function () {
     await app.TaskListTask();
     
     let isScroll = false;
-    FocusTaskElById(activeGroupId, isScroll);
+    // FocusTaskElById(activeGroupId, isScroll);
   }
   
   function SetFocusEl(el) {
