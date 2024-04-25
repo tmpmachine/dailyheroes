@@ -644,3 +644,7 @@ body {
 
 /* view utils : views initial state */
 [data-view-name] { display: none; }
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}

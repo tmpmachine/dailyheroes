@@ -15,11 +15,11 @@ let uiCollection = (function() {
     'rename': (itemData) => renameById(itemData.id)
   };
   
-  function renameById(id) {
+  async function renameById(id) {
     
     let item = compoMission.GetGroupById(id);
     
-    let userVal = window.prompt('Collection title', item.title);
+    let userVal = await windog.prompt('Collection title', item.title);
     if (!userVal) return;
     
     let updatedItem = compoMission.UpdateGroupTitle(id, userVal);
@@ -42,14 +42,14 @@ let uiCollection = (function() {
     ReloadList();
   }
   
-  function deleteById(id) {
+  async function deleteById(id) {
 
     if (id == compoMission.GetActiveGroupId()) {
-      alert('Cannot delete active collection. Change active collection then try again.');
+      windog.alert('Cannot delete active collection. Change active collection then try again.');
       return;
     }
 
-    let isConfirm = window.confirm('Are you sure?');
+    let isConfirm = await windog.confirm('Are you sure?');
     if (!isConfirm) return;
     
     compoMission.DeleteGroupById(id);
@@ -139,9 +139,9 @@ let uiCollection = (function() {
     $('#in-sel-mission-group').append(docFrag);
   }
   
-  function NewItem() {
+  async function NewItem() {
     
-    let title = promptUser();
+    let title = await windog.prompt('Collection title');
     if (!title) return;
     
     compoMission.AddGroup(title);
@@ -153,10 +153,6 @@ let uiCollection = (function() {
   
   function __saveAppData() {
     lsdb.save();
-  }
-  
-  function promptUser(defaultValue = '') {
-    return window.prompt('Collection title', defaultValue);
   }
   
   return SELF;

@@ -597,7 +597,7 @@
   </div>
   
   
-  <!-- # TEMPLATES -->
+  <!-- $TEMPLATES # -->
   
   <template id="taskdrawer-v1">
     
@@ -1228,6 +1228,80 @@
       ]
     </div>
   </template>
+  <template id="tmp-dialog-alert">
+    [dialog .wg-Windog
+      <!-- ^# tmp-dialog-alert -->
+      [ .backdrop]
+      [ .wrapper
+        
+        [ .modal-header .justify-content-between .d-flex
+          [ .flex-1 .align-items-center .d-flex
+            [h2 '' .m-0 .heading]
+          ]
+        ]
+        
+        <form method="dialog" data-ref="form">
+          [ data-kind="message"]
+          [ .void .void-full]
+          [ .text-center
+            [btn 'Ok']
+          ]
+        </form>
+      ]
+    ]
+  </template>
+  <template id="tmp-dialog-prompt">
+    [dialog .wg-Windog
+      <!-- ^# tmp-dialog-alert -->
+      [ .backdrop]
+      [ .wrapper
+        
+        [ .modal-header .justify-content-between .d-flex
+          [ .flex-1 .align-items-center .d-flex
+            [h2 '' .m-0 .heading]
+          ]
+        ]
+        
+        <form method="dialog" data-ref="form">
+          [ data-kind="message"]
+          [ .void .void-half]
+          
+          [in type="text" data-kind="input" .input-style-default]
+          [ .void .void-full]
+          
+          [ .d-flex .justify-content-end .gap-full
+            [btn 'Ok' value="ok"]
+            [btn 'Cancel']
+          ]
+        </form>
+      ]
+    ]
+  </template>
+  <template id="tmp-dialog-confirm">
+    [dialog .wg-Windog
+      <!-- ^# tmp-dialog-confirm -->
+      [ .backdrop]
+      [ .wrapper
+      
+        [ .modal-header .justify-content-between .d-flex
+          [ .flex-1 .align-items-center .d-flex
+            [h2 '' .m-0 .heading]
+          ]
+        ]
+      
+        <form method="dialog" data-ref="form">
+          [ data-kind="message"]
+          [ .void .void-full]
+          [ .d-flex .justify-content-end .gap-full
+            [btn 'OK' value="ok"]
+            [btn 'Cancel']
+          ]
+        </form>
+      ]
+    ]
+  </template>
+  
+  <!-- $TEMPLATES -->
 
   <!-- # task modal -->
   <modal-v2 id="task-modal" data-view-group="form-task" data-view-states="add">

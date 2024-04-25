@@ -1,3 +1,48 @@
+.wg-QuickActions{
+  .chips-btn {
+    background: gainsboro;
+    border-radius: 1em;
+    padding: 0.5em 1em;
+  }
+}
+
+@keyframes fadein{
+  0%{
+    transform: scale(0.9);
+    opacity:0;
+  }
+  100%{
+    opacity:1;
+    transform: scale(1);
+  }
+}
+
+.wg-Windog {
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+  & {
+    padding: 0;
+    background: transparent;
+  }
+  .wrapper {
+    background: white;
+    position: relative;
+    padding: 1rem;
+  }
+  .backdrop {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+  button:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+  }
+}
+
 .wg-TaskCard {
   &.focused .container-item {
     outline: 3px solid #00ff2b;

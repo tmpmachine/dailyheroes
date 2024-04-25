@@ -21,11 +21,11 @@ let uiTracker = (function() {
     'rename': (itemData) => renameById(itemData.id)
   };
   
-  function renameById(id) {
+  async function renameById(id) {
     
     let item = compoTracker.GetById(id);
     
-    let userVal = window.prompt('Value', item.title);
+    let userVal = await windog.prompt('Rename', item.title);
     if (!userVal) return;
     
     let updatedItem = compoTracker.UpdateById(id, {
@@ -73,8 +73,8 @@ let uiTracker = (function() {
     RefreshItemList();
   }
   
-  function deleteById(id) {
-    let isConfirm = window.confirm('Are you sure?');
+  async function deleteById(id) {
+    let isConfirm = await windog.confirm('Are you sure?');
     if (!isConfirm) return;
     
     compoTracker.DeleteById(id);
@@ -172,9 +172,9 @@ let uiTracker = (function() {
     
   }
   
-  function NewItem() {
+  async function NewItem() {
     
-    let title = promptUser();
+    let title = await windog.prompt('Tracker title');
     if (!title) return;
     
     compoTracker.Add(title);
@@ -186,10 +186,6 @@ let uiTracker = (function() {
   
   function saveAppData() {
     lsdb.save();
-  }
-  
-  function promptUser(defaultValue = '') {
-    return window.prompt('Tracker title', defaultValue);
   }
   
   return SELF;

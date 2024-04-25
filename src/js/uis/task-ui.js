@@ -381,7 +381,7 @@ let uiTask = (function() {
     let task = tasks.find(x => x.id == id);
     if (!task) return;
     
-    const { value: userVal } = await Swal.fire({
+    /*const { value: userVal } = await Swal.fire({
       title: 'Set target time (HMS format)',
       input: 'text',
       inputValue: helper.ToTimeString(task.targetCapTime, 'hms'),
@@ -392,7 +392,8 @@ let uiTask = (function() {
           return 'You need to write something!';
         }
       }
-    });
+    });*/
+    const userVal = await windog.prompt('Set target time (HMS format)', helper.ToTimeString(task.targetCapTime, 'hms'));
     
     if (!userVal) return;
     
@@ -476,9 +477,8 @@ let uiTask = (function() {
 	async function DeleteAsync(id, taskEl, isBypassConfirm = false) {
   
     if (!isBypassConfirm) {
-      let isConfirm = await ui.ShowConfirm();
-      if (!isConfirm) return; 
-      
+      let isConfirm = await windog.confirm('Are you sure?');
+      if (!isConfirm) return;
     }
     
     let totalDeletedProgressTime = 0;

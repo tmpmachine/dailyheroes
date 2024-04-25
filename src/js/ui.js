@@ -63,7 +63,7 @@ let ui = (function () {
   }
   
   async function TaskConfirmResetTaskSequenceProgress(id) {
-    let isConfirm = await ui.ShowConfirm();
+    let isConfirm = await windog.confirm('Are you sure?');
     if (!isConfirm) return; 
     
     await compoTask.TaskResetSequenceByTaskId(id);
@@ -244,7 +244,7 @@ let ui = (function () {
     let task = tasks.find(x => x.id == id);
     if (!task) return;
     
-    const { value: userVal } = await Swal.fire({
+    /*const { value: userVal } = await Swal.fire({
       title: 'Add progress manually (HMS format)',
       input: 'text',
       inputLabel: 'example : 10h5m20s, 1h, 15m, 30s',
@@ -254,7 +254,8 @@ let ui = (function () {
           return 'You need to write something!';
         }
       }
-    });
+    });*/
+    const userVal = await windog.prompt('Add progress manually (HMS format)')
     
     if (!userVal) return;
     
@@ -329,7 +330,7 @@ let ui = (function () {
   
   async function ResetTargetTime() {
     
-    Swal.fire({
+    /*Swal.fire({
       title: 'Reset all tasks progress and target?',
       text: "You won't be able to revert this!",
       icon: 'warning',
@@ -352,8 +353,16 @@ let ui = (function () {
         'success',
       );
       
-    });
+    });*/
     
+    let isConfirm = await windog.confirm('Reset all tasks progress and target?');
+    if (!isConfirm) return;
+    
+    await compoTask.TaskResetTasksTargetTime(); 
+    await appData.TaskStoreTask();
+    await app.TaskListTask();  
+    
+    windog.alert('Successfully reset all tasks time target.');
   }
   
   function resetActiveGroupId() {
@@ -672,10 +681,10 @@ let ui = (function () {
     $('#txt-global-preset-timer').textContent = minutesToHoursAndMinutes( app.GetGlobalTimer() );
   }
   
-  function ChangeGlobalPresetTimer() {
+  async function ChangeGlobalPresetTimer() {
     let globalTimerStr = minutesToHoursAndMinutes( app.GetGlobalTimer() );
     
-    let userVal = window.prompt('Value', globalTimerStr);
+    let userVal = await windog.prompt('Task duration', globalTimerStr);
     if (!userVal) return;
     
     let parsedMinutes = parseHoursMinutesToMinutes(userVal);
@@ -1389,7 +1398,7 @@ let ui = (function () {
     }
   }
   
-  function handleDeleteSelection() {
+  async function handleDeleteSelection() {
     let selectedTaskId = uiSelection.GetSingleSelection();
     if (!selectedTaskId) return;
     
@@ -1398,13 +1407,12 @@ let ui = (function () {
 
     if (pageHome.IsTaskViewMode()) {
       
-      uiTask.DeleteAsync(selectedTaskId);
-      itemEl.remove();
+      uiTask.DeleteAsync(selectedTaskId, itemEl);
       compoSelection.ClearItems();
       uiSelection.ReloadSelection();
       
     } else if (pageHome.IsMissionViewMode()) {
-      let isConfirm = window.confirm('Delete this task? This process cannot be undone.');
+      let isConfirm = await windog.confirm('Delete this task? This process cannot be undone.');
       if (!isConfirm) return;
       
       app.TaskAddToMission(selectedTaskId, itemEl);

@@ -1765,7 +1765,7 @@ let app = (function () {
   
   async function ResetData() {
     
-    Swal.fire({
+    /*Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
       icon: 'warning',
@@ -1801,7 +1801,26 @@ let app = (function () {
         
       }
       
+    });*/
+    
+    let isConfirm = await windog.confirm('Are you sure? You won\'t be able to revert this!');
+    if (!isConfirm) return;
+    
+    let serviceDataKey = ['history', 'historyTime', 'start', 'activeTask'];
+    
+    // clear app data
+    lsdb.reset();
+    localStorage.removeItem('alarm-audio-volume');
+    await app.TaskRemoveAlarmAudio();
+    serviceDataKey.forEach(key => {
+      window.service.RemoveData(key);
     });
+    
+    // clear tasks in browser extension storage
+    tasks.length = 0;
+    await appData.TaskStoreTask();
+    
+    windog.alert('Your file has been deleted.');
     
   }
   
@@ -2106,7 +2125,7 @@ let app = (function () {
     if (!SELF.isPlatformWeb) return;
     
     if (!("Notification" in window)) {
-      alert("This browser does not support desktop notification");
+      window.alert("This browser does not support desktop notification");
     } else if (Notification.permission === "granted") {
       setAppNotificationFeature(true);
     } else if (Notification.permission !== "denied") {
