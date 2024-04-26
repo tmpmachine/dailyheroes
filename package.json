@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "divless": "divless watch"
+  },
+  "devDependencies": {
+    "@tmp7/divless-html-watcher": "1.0.1"
+  }
+}
