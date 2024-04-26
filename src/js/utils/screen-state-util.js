@@ -6,11 +6,18 @@ let screenStateUtil = (function() {
     NavigateTo,
     SaveState,
     TaskRestoreStates,
+    GetActiveScreenEl,
   };
   
   let data = {
     items: []
   };
+
+  function GetActiveScreenEl() {
+    let states = viewStateUtil.GetViewStates('screens');
+    let containerEl = viewStateUtil.GetViewGroupNode('screens');
+    return containerEl.querySelector(`[data-view-name="${states[0]}"]`);
+  }
   
   function TaskWaitUntil(stateCheckCallback, delay = 100) {
     return new Promise(resolve => {

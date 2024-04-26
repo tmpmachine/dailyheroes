@@ -38,7 +38,8 @@ let uiSelection = (function() {
 		  }
     }
     
-    viewStateUtil.Add('taskFloatBar', ['quickAction']);
+    let taskDrawerEl = screenStateUtil.GetActiveScreenEl()?.querySelector('._wgActiveTask')
+    viewStateUtil.Add('taskFloatBar', ['quickAction'], taskDrawerEl);
   }
   
   function getTaskElById(id) {
@@ -125,7 +126,9 @@ let uiSelection = (function() {
     for (let el of $$('[data-obj="task"].focused')) {
       el.classList.remove('focused');
     }
-    viewStateUtil.Remove('taskFloatBar', ['quickAction']);
+
+	  let taskDrawerEl = screenStateUtil.GetActiveScreenEl()?.querySelector('._wgActiveTask')
+    viewStateUtil.Remove('taskFloatBar', ['quickAction'], taskDrawerEl);
   }
   
   return SELF;
