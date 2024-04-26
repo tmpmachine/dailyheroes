@@ -379,7 +379,7 @@ let uiTask = (function() {
     } else {
       compoSelection.ClearItems();
     }
-    uiSelection.ReloadSelection();
+    uiSelection.RefreshSelection();
   }
   
   async function setTargetTimeAsync(id) {

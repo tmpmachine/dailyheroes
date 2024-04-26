@@ -5,7 +5,7 @@ let uiSelection = (function() {
   
   let SELF = {
     FocusTaskElById,
-    ReloadSelection,
+    RefreshSelection,
     GetSingleSelection,
     HighlightNext,
     HighlightPrev,
@@ -110,7 +110,7 @@ let uiSelection = (function() {
     return ids[0];
   }
   
-  function ReloadSelection() {
+  function RefreshSelection() {
     let ids = compoSelection.GetAllItems();
     let isScrollToView = false;
     

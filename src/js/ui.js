@@ -1312,7 +1312,7 @@ let ui = (function () {
     
     BuildBreadcrumbs();
     compoSelection.ClearItems();
-    uiSelection.ReloadSelection();
+    uiSelection.RefreshSelection();
   }
   
   function getActiveGroupId() {
@@ -1427,7 +1427,7 @@ let ui = (function () {
       
       uiTask.DeleteAsync(selectedTaskId, itemEl);
       compoSelection.ClearItems();
-      uiSelection.ReloadSelection();
+      uiSelection.RefreshSelection();
       
     } else if (pageHome.IsMissionViewMode()) {
       let isConfirm = await windog.confirm('Delete this task? This process cannot be undone.');
@@ -1435,7 +1435,7 @@ let ui = (function () {
       
       app.TaskAddToMission(selectedTaskId, itemEl);
       compoSelection.ClearItems();
-      uiSelection.ReloadSelection();
+      uiSelection.RefreshSelection();
     }
   }
   

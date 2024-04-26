@@ -25,7 +25,7 @@ let pageHome = (function() {
     }
     
     compoSelection.ClearItems();
-    uiSelection.ReloadSelection();
+    uiSelection.RefreshSelection();
     
     lsdb.save();
     ui.BuildBreadcrumbs();
