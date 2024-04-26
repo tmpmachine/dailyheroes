@@ -11,7 +11,7 @@ let uiQuickAction = (function() {
     if (!id) return;
     
     switch (action) {
-      case 'edit': app.EditTask(id); break;
+      case 'edit': uiTask.EditTask(id); break;
       case 'add-sequence': ui.AddSequenceTask(id); break;
       case 'manage-sequence': ui.ToggleManageSequenceByTaskId(id); break;
     }

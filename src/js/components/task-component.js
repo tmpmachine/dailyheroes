@@ -122,7 +122,7 @@ let compoTask = (function() {
     compoSequence.Pop();
     
     if (linkedTask) {
-      EditTask(linkedTask.id).then(modalResponse => {
+      uiTask.EditTask(linkedTask.id).then(modalResponse => {
         console.log(modalResponse);
       });
     } else {

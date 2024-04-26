@@ -15,6 +15,7 @@ let uiTask = (function() {
 	  RefreshTaskCardAsync,
 	  TaskResetProgressTaskFromForm,
 	  TaskDistributeProgressTaskFromForm,
+    EditTask,
   };
   
   function GetTaskElById(id) {
@@ -327,7 +328,7 @@ let uiTask = (function() {
         
         break;
       case 'navigate-sub': NavigateSubTaskAsync(id); break;
-      case 'edit': app.EditTask(id); break;
+      case 'edit': EditTask(id); break;
       case 'create-mission': ui.CreateMissionFromTask(id); break;
       case 'star-task': app.TaskStarTask(id); break;
       case 'delete': DeleteAsync(id, parentEl); break;
@@ -758,6 +759,26 @@ let uiTask = (function() {
     task.ratio = parseFloat(value);
     await appData.TaskStoreTask();
     app.TaskListTask();
+  }
+  
+  async function EditTask(taskId) {
+    let task = await app.getTaskById(taskId);
+    let {id, parentId, title, durationTime, targetTime, targetCapTime, finishCount, type} = task;
+    let modalData = {
+      readOnlyId: id,
+      formData: {
+        id,
+        title,
+        durationTime: helper.ToTimeString(durationTime, 'hms'),
+        targetTime: helper.ToTimeString(targetTime, 'hms'),
+        targetCapTime: helper.ToTimeString(targetCapTime, 'hms'),
+        finishCount,
+        parentId,
+        taskType: type,
+      }
+    };
+    
+    return ui.ShowModalAddTask(modalData);
   }
   
   return SELF;

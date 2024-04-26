@@ -874,7 +874,6 @@ let app = (function () {
     GetAlarmVolume,
     StopTestAlarmAudio,
     ApplyProgressMadeOutsideApp,
-    EditTask,
     isPlatformAndroid: ( typeof(MyApp) != 'undefined' ),
     isPlatformChromeExt: window.modeChromeExtension,
     isPlatformWeb: ( !window.modeChromeExtension && typeof(MyApp) == 'undefined' ),
@@ -2177,26 +2176,6 @@ let app = (function () {
     
     await app.TaskNavigateToMission(id); 
     ui.FocusTaskById(id);
-  }
-  
-  async function EditTask(taskId) {
-    let task = await app.getTaskById(taskId);
-    let {id, parentId, title, durationTime, targetTime, targetCapTime, finishCount, type} = task;
-    let modalData = {
-      readOnlyId: id,
-      formData: {
-        id,
-        title,
-        durationTime: helper.ToTimeString(durationTime, 'hms'),
-        targetTime: helper.ToTimeString(targetTime, 'hms'),
-        targetCapTime: helper.ToTimeString(targetCapTime, 'hms'),
-        finishCount,
-        parentId,
-        taskType: type,
-      }
-    };
-    
-    return ui.ShowModalAddTask(modalData);
   }
   
   function GetTaskById(id) {
