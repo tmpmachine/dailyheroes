@@ -63,8 +63,6 @@ let pageDetail = (function() {
     
     if (lsdb.data.groups.find(x => x.id == item.id)) {
       viewStateUtil.Add('task', ['hasSubTask'], el.querySelector('[data-view-group="task"]'));
-    } else {
-      el.querySelector('._containerCreateSub').classList.remove('d-none');
     }
   // 	el.querySelector('[data-role="progress-bar"]').style.width = percentageProgressTime+'%';
   	
