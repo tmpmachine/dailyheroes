@@ -499,7 +499,7 @@ let uiTask = (function() {
     tasks.splice(deleteIndex, 1);
     
     // delete group
-    {
+    if (pageHome.IsTaskViewMode()) {
       let deleteIndex = lsdb.data.groups.findIndex(x => x.id == id);
       if (deleteIndex >= 0) {
         lsdb.data.groups.splice(deleteIndex, 1);
@@ -530,7 +530,7 @@ let uiTask = (function() {
     taskEl?.remove();
   
   	// if tasklist is empty, remove parentId from groups
-  	if ($$('._wgTaskList [data-obj="task"]').length == 0) {
+  	if (pageHome.IsTaskViewMode() && $$('._wgTaskList [data-obj="task"]').length == 0) {
   		let deleteIndex = lsdb.data.groups.findIndex(x => x.id == parentTask.id);
   	    if (deleteIndex >= 0) {
   		    lsdb.data.groups.splice(deleteIndex, 1);
