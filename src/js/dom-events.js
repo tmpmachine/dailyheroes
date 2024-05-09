@@ -99,7 +99,7 @@ let DOMEvents = (function() {
   	onclick: {
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'change-view-mode': (evt) => pageHome.ChangeViewMode(evt),
-  	  'edit-target-threshold': () => ui.EditTargetThreshold(),
+  	  'edit-target-threshold': () => pageHome.EditTargetThreshold(),
   	  'toggle-compact-view': () => ui.ToggleCompactView(),
       'open-task-into-view': () => ui.TaskOpenTaskIntoView(),
   	  'handle-click-breadcrumbs': (evt) => ui.HandleClickBreadcrumbs(evt),

@@ -58,7 +58,7 @@
           <div class="d-flex" style="gap:0.3rem;">
           
             <!-- # nav : tasks by threshold -->
-            <button class="d-flex align-items-center" data-onclick="open-overview" style="gap:0.3rem;">
+            <button class="d-flex align-items-center obsoletes" data-onclick="open-overview" style="gap:0.3rem;">
               <span>Targets</span> <span class="icon-mate">flag</span>
             </button>
           
@@ -190,13 +190,17 @@
               </div>
               
               <div class="d-flex gap-quarter">
+                <!-- # target threshold filter -->
+                <button class="d-flex align-items-center btn-glass" data-onclick="edit-target-threshold" style="gap:0.3rem;">
+                  <small class="_targetThresholdStr"></small> <span class="icon-mate">filter_alt</span>
+                </button>
                 <!-- # nav : compact mode -->
-                <button class="d-flex align-items-center btn-glass" data-onclick="toggle-compact-view" style="gap:0.3rem;">
+                <button class="d-flex align-items-center btn-glass obsoletes" data-onclick="toggle-compact-view" style="gap:0.3rem;">
                   <span>Compact view</span> <span class="icon-mate">density_small</span>
                 </button>
                 <!-- # nav : priority mapper -->
                 <button class="d-flex align-items-center btn-glass" data-onclick="open-priority-mapper" style="gap:0.3rem;">
-                  <span>Priority Mapper</span> <span class="icon-mate">linear_scale</span>
+                  <span>Priority Mapper</span> <span class="icon-mate">tune</span>
                 </button>
               </div>
               

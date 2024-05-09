@@ -1335,6 +1335,7 @@ let app = (function () {
       }
       
       // # set ratio time left string
+      let targetRatioThreshold = lsdb.data.targetThreshold ?? 0;
       let ratioTimeLeftStr = '';
       let targetCapTimeStr = '';
       
@@ -1350,7 +1351,7 @@ let app = (function () {
           if (activeTask && activeTask.id == item.id) {
             targetTime = Math.max(0, targetTime - activeTimerDistanceTime);
           }
-          if (targetTime > 0) {
+          if (targetTime > 0 && targetTime > targetRatioThreshold) {
             ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(targetTime)) }`;
           }
         }
@@ -1385,7 +1386,7 @@ let app = (function () {
             console.error(e);
           }
           
-          if (targetTime > 0) {
+          if (targetTime > 0 && targetTime > targetRatioThreshold) {
             ratioTimeLeftStr = `${ secondsToHMS(msToSeconds(targetTime)) }`;
           }
           

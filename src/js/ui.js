@@ -49,7 +49,6 @@ let ui = (function () {
     ToggleCompactView,
     ReloadETA,
     ReloadTaskOverviewById,
-    EditTargetThreshold,
     reloadTargetThreshold,
     TaskAddProgressFromForm,
     CreateMissionFromTask,
@@ -148,24 +147,6 @@ let ui = (function () {
     let form = evt.target.closest('button').form;
     let id = form.id.value;
     await TaskAddProgressManually(id);
-  }
-  
-  function EditTargetThreshold() {
-    let userVal = window.prompt('Target threshold (hours minutes), example : 1h30m or 30m');
-    if (!userVal) return;
-    
-    try {
-      let val = parseHoursMinutesToMinutes(userVal);
-      if (typeof(val) != 'number') return;
-      
-      lsdb.data.targetThreshold = val;
-      appData.Save();
-      
-      reloadTargetsOverview();
-      reloadTargetThreshold();
-    } catch (err) {
-      console.error(err);
-    }
   }
   
   function reloadTargetThreshold() {

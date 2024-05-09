@@ -58,7 +58,7 @@
           [ .d-flex {gap:0.3rem}
           
             <!-- # nav : tasks by threshold -->
-            [btn .d-flex .align-items-center data-onclick="open-overview" style="gap:0.3rem;"
+            [btn .d-flex .align-items-center data-onclick="open-overview" style="gap:0.3rem;" .obsoletes
               [s 'Targets'] [s .icon-mate 'flag']
             ]
           
@@ -190,13 +190,17 @@
               ]
               
               [ .d-flex .gap-quarter
+                <!-- # target threshold filter -->
+                [btn .d-flex .align-items-center data-onclick="edit-target-threshold" style="gap:0.3rem;" .btn-glass
+                  [small ._targetThresholdStr] [s .icon-mate 'filter_alt']
+                ]
                 <!-- # nav : compact mode -->
-                [btn .d-flex .align-items-center data-onclick="toggle-compact-view" style="gap:0.3rem;" .btn-glass
+                [btn .d-flex .align-items-center data-onclick="toggle-compact-view" style="gap:0.3rem;" .btn-glass .obsoletes
                   [s 'Compact view'] [s .icon-mate 'density_small']
                 ]
                 <!-- # nav : priority mapper -->
                 [btn .d-flex .align-items-center data-onclick="open-priority-mapper" style="gap:0.3rem;" .btn-glass
-                  [s 'Priority Mapper'] [s .icon-mate 'linear_scale']
+                  [s 'Priority Mapper'] [s .icon-mate 'tune']
                 ]
               ]
               

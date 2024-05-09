@@ -10,7 +10,34 @@ let pageHome = (function() {
     IsMissionViewMode,
     IsVisible,
     ChangeViewMode,
+    EditTargetThreshold,
   };
+  
+  async function EditTargetThreshold() {
+    let targetVal = lsdb.data.targetThreshold ? helper.ToTimeString(lsdb.data.targetThreshold, 'hms') : '';
+    let userVal = await windog.prompt('Target threshold (hours minutes), example : 1h30m or 30m', targetVal);
+    if (!userVal) return;
+    
+    try {
+      let val = helper.ParseHmsToMs(userVal, {
+        defaultUnit: 'm',
+      });
+      if (typeof(val) != 'number') return;
+      
+      lsdb.data.targetThreshold = val;
+      appData.Save();
+      
+      app.TaskListTask();
+      refreshTargetThresholdBadge();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  
+  function refreshTargetThresholdBadge() {
+    let val = lsdb.data.targetThreshold ? helper.ToTimeString(lsdb.data.targetThreshold, 'hms') : '';
+    $('._targetThresholdStr')?.replaceChildren(val);
+  }
   
   function ChangeViewMode(evt) {
     let targetEl = evt.target;
@@ -62,6 +89,7 @@ let pageHome = (function() {
   function Render() {
     RefreshTrackerOverlay();
     RefreshCollections();
+    refreshTargetThresholdBadge();
   }
   
   function IsVisible() {
