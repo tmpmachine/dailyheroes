@@ -122,6 +122,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   
   let isUpdateCurrentActiveTask = true;
   let previousSequenceTaskTitle = null;
+  let previousSequenceTaskId = null;
   let changeTask = false;
   
   // set active next sequence task
@@ -131,6 +132,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   if (sequenceTask) {
     
     let linkedTask = null;
+    previousSequenceTaskId = sequenceTask.id;
     
     if (sequenceTask.linkedTaskId) {
       linkedTask = GetTaskById(tasks, sequenceTask.linkedTaskId);
@@ -257,6 +259,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   await storeTask(tasks);
   
   return {
+    previousSequenceTaskId,
     previousSequenceTaskTitle,
     repeatCountData,
     states: {
@@ -449,12 +452,15 @@ async function onAlarmEnded(alarm) {
   await chrome.storage.local.remove(['start']);
   
   let repeatCountData = null;
+  let previousSequenceTaskId = null;
   let previousSequenceTaskTitle = null;
+  let nextSequenceTaskId = null;
   let taskEndedStates = null;
   
   if (!data.isTakeBreak) {
     let updateResponse = await updateProgressActiveTask(distanceMinutes, distanceTime);
     repeatCountData = updateResponse.repeatCountData;
+    previousSequenceTaskId = updateResponse.previousSequenceTaskId;
     previousSequenceTaskTitle = updateResponse.previousSequenceTaskTitle;
     taskEndedStates = updateResponse.states;
   }
@@ -505,6 +511,7 @@ async function onAlarmEnded(alarm) {
       
       if (sequenceTask) {
         isSequenceTask = true;
+        nextSequenceTaskId = sequenceTask.id;
         sequenceTaskTitle = sequenceTask.title;
         alarmDurationTime = sequenceTask.targetTime; // set alarm to sequence task timer
         
@@ -579,7 +586,13 @@ async function onAlarmEnded(alarm) {
       notifBody = `Task : ${previousSequenceTaskTitle}\r\n`;
     }
     */
-    notifBody = `Next : ${sequenceTaskTitle} ${taskTargetTimeStr}`;
+    
+    let notifBodyLabel = 'Next:';
+    if (previousSequenceTaskId !== null && previousSequenceTaskId === nextSequenceTaskId) {
+      notifBodyLabel = 'Task:';
+    }
+    
+    notifBody = `${notifBodyLabel} ${sequenceTaskTitle} ${taskTargetTimeStr}`.trim();
     notifBody = notifBody.trim();
     
   } else {
@@ -594,9 +607,14 @@ async function onAlarmEnded(alarm) {
   
   
   if (isStartNext) {
+    let notifTitleLabel = 'Start next';
+    if (previousSequenceTaskId !== null && previousSequenceTaskId === nextSequenceTaskId) {
+      notifTitleLabel = 'Continue task';
+    }
+    
     actions.push({
       action: 'start-next-sequence',
-      title: `Start next ${alarmDurationTimeStr}`,
+      title: `${notifTitleLabel} ${alarmDurationTimeStr}`,
     });
   } else if (isRestartTask) {
     actions.push({
