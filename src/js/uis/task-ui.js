@@ -13,9 +13,11 @@ let uiTask = (function() {
 	  DeleteTaskFromForm,
 	  GetTaskElById,
 	  RefreshTaskCardAsync,
+	  RefreshMissionCardAsync,
 	  TaskResetProgressTaskFromForm,
 	  TaskDistributeProgressTaskFromForm,
     EditTask,
+    SetTaskCardState,
   };
   
   function GetTaskElById(id) {
@@ -103,7 +105,7 @@ let uiTask = (function() {
     RefreshListSequenceByTaskId(taskId);
   }
   
-  function RefreshListSequenceByTaskId(id, container) {
+  function RefreshListSequenceByTaskId(id, container, originTask) {
     
     let item = app.GetTaskById(id);
     let taskEl = null;
@@ -254,28 +256,21 @@ let uiTask = (function() {
     
     taskEl.querySelector('[data-slot="sequenceTargetTotalTime"]').textContent = totalSequenceTargetTimeStr;
     
-    if (item.targetTime > 0 || item.targetCapTime > 0) {
+    if ((originTask ?? item).targetTime > 0 || item.targetCapTime > 0) {
       viewStateUtil.Add('task', ['has-target'], taskEl);
-    }
-    if (item.type == 'M') {
-      viewStateUtil.Add('task', ['collection-only'], taskEl);
     }
     
     // restore task el states
-    if (taskElViewStates.manageMode) {
-      viewStateUtil.Add('task', ['manage-sequence'], taskEl);
-    }
-    if (taskElViewStates.toolbarExpanded) {
-      viewStateUtil.Add('task', ['toolbarExpanded'], taskEl);
-    }
-    if (taskElViewStates.hasSubTask) {
-      viewStateUtil.Add('task', ['hasSubTask'], taskEl);
-    }
     
-    
-    if (taskEl && items.length > 0) {
-      viewStateUtil.Add('task', ['sequence', 'sequence-mode'], taskEl);
-    }
+    let taskCardOpt = {
+      isMission: item.type == 'M',
+      isManageMode: taskElViewStates.manageMode,
+      isToolbarExpanded: taskElViewStates.toolbarExpanded,
+      hasSubTask: taskElViewStates.hasSubTask,
+      hasSequence: items.length > 0, 
+      hasTarget: item.targetTime > 0 || item.targetCapTime > 0,
+    };
+    uiTask.SetTaskCardState(taskCardOpt, taskEl);
     
   }
   
@@ -342,7 +337,9 @@ let uiTask = (function() {
       case 'remove-mission': app.TaskAddToMission(id, parentEl); break;
       case 'add-to-mission': app.TaskAddToMission(id, parentEl); break;
       case 'set-target': await ui.TaskSetTaskTarget(id); break;
-      case 'archive':
+      case 'archive': archiveMission(id); break;
+      case 'unarchive': await unarchiveMission(id); break;
+      /*case 'archive':
         let activeTask = await compoTask.TaskGetActive();
         if (activeTask && activeTask.id == id) {
           await TaskStopActiveTask();
@@ -350,8 +347,8 @@ let uiTask = (function() {
         await taskArchiveTask(id);
         await compoTask.RemoveActiveTaskIfExists(id);
         updateUI();
-      break;
-      case 'unarchive': await taskUnarchive(id); break;
+      break;*/
+      // case 'unarchive': await taskUnarchive(id); break;
       case 'restart': 
         await compoTask.ResetProgressById(id); 
         await appData.TaskStoreTask();
@@ -361,16 +358,42 @@ let uiTask = (function() {
       case 'start': await app.StartTaskTimer(parentEl, id); break;
       case 'expandToolbar': uiMission.ExpandToolbar(id); break;
       case 'stop': await app.TaskStopActiveTask(); break;
-        
+      case 'create-special-mission': createSpecialMissionAsync(id); break;
       // notes
       case 'rename-sub-task': renameNote(id, el); break;
       case 'start-sub-task':
         await fixMissingNoteId(id, el); await setSubTask(id, el); break;
       case 'delete-note': deleteNote(id, el); break;
-
+      
       default: toggleSelection(id);
     }
     
+  }
+  
+  function archiveMission(id) {
+    compoMission.MoveToArchive(id);
+    compoMission.Commit();
+    appData.Save();
+    app.TaskListTask();
+  }
+  
+  function unarchiveMission(id) {
+    compoMission.MoveToActive(id);
+    compoMission.Commit();
+    appData.Save();
+    app.TaskListTask();
+  }
+  
+  async function createSpecialMissionAsync(taskId) {
+    let { title, parentId, originId } = app.GetTaskById(taskId);
+    let modalData = {
+      formData: {
+        title,
+        originId: originId ?? taskId,
+        taskType: 'M',
+      }
+    };
+    ui.ShowModalAddTask(modalData);
   }
   
   function toggleSelection(id) {
@@ -432,17 +455,30 @@ let uiTask = (function() {
     
   }
   
-  function RefreshTaskCardAsync(task) {
+  function RefreshMissionCardAsync() {
     try {
       
       let el = $(`[data-obj="task"][data-id="${task.id}"]`);
       if (!el) return;
       
+      let data = {
+        title: task.title,
+      };
+      
+      if (isViewModeMission()) {
+        let mission = compoMission.GetMissionById(task.id);
+        if (mission && mission.kind == 'special') {
+          if (mission.alias) {
+            data.title = mission.alias;
+          }
+        }
+      }
+      
       let ratioTimeLeftStr = task.targetTime > 0 ? helper.ToTimeString(task.targetTime, 'hms') : '';
       let targetCapTimeStr = task.targetCapTime > 0 ? helper.ToTimeString(task.targetCapTime, 'hms') : '';
       
       el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
-      el.querySelector('[data-slot="title"]').textContent = task.title;
+      el.querySelector('[data-slot="title"]').textContent = data.title;
       el.querySelector('[data-slot="ratioTimeLeftStr"].sc-1').textContent = ratioTimeLeftStr;
       el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = targetCapTimeStr;
       el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
@@ -455,6 +491,73 @@ let uiTask = (function() {
       
     } catch (e) {
       console.error(e);
+    }
+  }
+  
+  function RefreshTaskCardAsync(task) {
+    try {
+      
+      let el = $(`[data-obj="task"][data-id="${task.id}"]`);
+      if (!el) return;
+      
+      let data = {
+        title: task.title,
+      };
+
+		  let originTask = task.originId ? app.GetTaskById(task.originId) : null;
+      let ratioTimeLeftStr = (originTask ?? task).targetTime > 0 ? helper.ToTimeString((originTask ?? task).targetTime, 'hms') : '';
+      let targetCapTimeStr = task.targetCapTime > 0 ? helper.ToTimeString(task.targetCapTime, 'hms') : '';
+      
+      el.querySelector('[data-slot="progress"]').textContent = helper.ToTimeString(task.progressTime, 'hms');
+      el.querySelector('[data-slot="title"]').textContent = data.title;
+      el.querySelector('[data-slot="ratioTimeLeftStr"].sc-1').textContent = ratioTimeLeftStr;
+      el.querySelector('[data-slot="targetCapTimeStr"].sc-1').textContent = targetCapTimeStr;
+      el.querySelector('[data-slot="durationTimeStr"]').textContent = helper.ToTimeString(task.durationTime, 'hms');
+      
+      let taskCardOpt = {
+        isArchived: compoMission.IsArchived(task.id),
+        hasTarget: (originTask ?? task).targetTime > 0 || task.targetCapTime > 0,
+      };
+      
+      RefreshListSequenceByTaskId(task.id, null, originTask);
+      SetTaskCardState(taskCardOpt, el);
+      
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  
+  function SetTaskCardState(opt, el) {
+    let {
+      isArchived,
+      isMission,
+      hasTarget,
+      hasSequence,
+      hasSubTask,
+      isToolbarExpanded,
+      isManageMode,
+    } = opt;
+    
+    if (isManageMode) {
+      viewStateUtil.Add('task', ['manage-sequence'], taskEl);
+    }
+    if (isToolbarExpanded) {
+      viewStateUtil.Add('task', ['toolbarExpanded'], taskEl);
+    }
+    if (isMission) {
+      viewStateUtil.Add('task', ['collection-only'], el);
+    }
+    if (hasSubTask) {
+      viewStateUtil.Add('task', ['hasSubTask'], el);
+    }
+    if (isArchived) {
+      viewStateUtil.Add('task', ['isArchived'], el);
+    }
+    if (hasTarget) {
+      viewStateUtil.Add('active-task-info', ['has-target'], el);
+    }
+    if (hasSequence) {
+      viewStateUtil.Add('task', ['sequence', 'sequence-mode'], el);
     }
   }
 
@@ -545,6 +648,7 @@ let uiTask = (function() {
   async function NavigateSubTaskAsync(id) {
     ui.NavigateBreadcrumbs(id);
     await app.TaskListTask();
+    pageHome.RefreshPriorityStateBadgeAsync();
   }
   
   async function setSubTask(id, el) {
@@ -658,23 +762,23 @@ let uiTask = (function() {
         ui.updateTaskProgressBar(activeTask.id, false);
         await window.service.SetData({'activeTask': id});
         disableAllActive();
-        taskEl.stateList.add('--active');
+        taskEl?.stateList.add('--active');
         await ui.updateTaskProgressBar(id);
         
         let data = await window.service.GetData('start');
         if (data.start) {
-          taskEl.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
-          taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
+          taskEl?.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
+          taskEl?.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
         }
       }
     } else {
-      taskEl.stateList.add('--active');
+      taskEl?.stateList.add('--active');
       await window.service.SetData({'activeTask': id});
       await window.service.SetData({'tasks': tasks});
       let data = await window.service.GetData('start');
       if (data.start) {
-        taskEl.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
-        taskEl.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
+        taskEl?.querySelector('[data-role="progress-bar"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
+        taskEl?.querySelector('[data-role="progress-bar-container"]').classList.toggle('NzA5ODc1NQ-progress-bar-fill--animated', true);
       }
     }
   }
@@ -697,11 +801,18 @@ let uiTask = (function() {
         
     } else {
       
-      let taskId = await compoTask.AddTaskAsync(form);
-      
-      if (isViewModeMission()) {
+      let task = await compoTask.AddTaskAsync(form);
+      let { id: taskId, type, originId } = task;
+		
+      if (type == 'M') {
         let missionData = compoMission.CreateItemMission(taskId);
-        compoMission.AddMission(missionData);
+        
+        if (originId) {
+          compoMission.AddActiveMission(missionData);
+        } else {
+          compoMission.AddMission(missionData);
+        }
+        
         compoMission.Commit();
   
         appData.Save();

@@ -5,7 +5,12 @@ let helper = (function() {
     ParseHoursMinutesToMinutes,
     ToTimeString,
     ClearObjectReference,
+    SortDesceding,
   };
+  
+  function SortDesceding(items, key) {
+    items?.sort((a, b) => a[key] < b[key] ? 1 : -1);
+  }
   
   function ClearObjectReference(data) {
     return JSON.parse(JSON.stringify(data));

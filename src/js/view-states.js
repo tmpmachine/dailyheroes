@@ -25,8 +25,8 @@ let viewStates = [
   // task item
   {
     group: 'task',
-    states: ['sequence', 'manage-sequence', 'sequence-added', 'collection-only', 'has-target', 'is-collection', 'toolbarExpanded', 'hasSubTask'],
-    inverseStates: ['sequence', 'manage-sequence', 'collection-only', 'sequence-added', 'sequence-mode', 'is-collection', 'hasSubTask']
+    states: ['sequence', 'manage-sequence', 'sequence-added', 'collection-only', 'has-target', 'is-collection', 'toolbarExpanded', 'hasSubTask', 'isArchived'],
+    inverseStates: ['sequence', 'manage-sequence', 'collection-only', 'sequence-added', 'sequence-mode', 'is-collection', 'hasSubTask', 'isArchived']
   },
   // task lists
   {
@@ -64,7 +64,7 @@ let viewStates = [
   {
     group: 'platform',
     states: [
-      'web',
+      'web', 'ext'
     ],
   },
   // form task

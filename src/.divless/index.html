@@ -16,6 +16,7 @@
   <link href="css/style.css" rel="stylesheet"/>
   <link href="css/widgets.css" rel="stylesheet"/>
   <link href="css/app.css" rel="stylesheet"/>
+  <link href="css/elements.css" rel="stylesheet"/>
   
   <!--<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />-->
   <style>
@@ -25,8 +26,8 @@
       font-family: 'Material Symbols Outlined';
       font-style: normal;
       font-weight: 400;
-      src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');
-      /*src: url(fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2) format('woff2');*/
+      /*src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');*/
+      src: url(fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2) format('woff2');
     }
   
   </style>
@@ -62,6 +63,13 @@
               [s 'Targets'] [s .icon-mate 'flag']
             ]
           
+            <!-- # alarms -->
+            [ data-view-group="platform" data-view-name="ext"
+              [btn .clickable .d-flex .align-items-center {gap:0.3rem} data-callback="set-alarm" .btn-border-0
+              Alarms [s .icon-mate 'alarm']
+              ]
+            ]
+
             <!-- # tracker timer -->
             [btn .clickable .d-flex .align-items-center {gap:0.3rem} data-callback="navigate-screen" data-view-target="trackers" .btn-border-0
               Trackers [s .icon-mate 'timer']
@@ -95,7 +103,8 @@
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
           
-          [ .d-flex
+          [ .d-flex .wg-TopNavBar
+            <!-- ^# top nav bar -->
             
             <!-- # search feature toggler -->
             [ .d-flex .align-items-center .p-half
@@ -103,18 +112,19 @@
             ]
           
             [ .flex-1
-              <!-- # widget tabs -->
+              <!-- # mission/task view -->
               [ .d-grid {cols:1fr 1fr auto} ._viewMode .container-view-mode .wg-Tab
                 [btn data-onclick="change-view-mode" data-kind="control" data-type="mission"
                   [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
-                    [s .icon-mate 'list']
-                    [s 'Missions']
+                    [s .icon-mate 'task_alt']
+                    [s 'Tasks']
                     [ .d-flex .tab-active-indicator]
                   ]
                 ]
                 [btn data-onclick="change-view-mode" data-kind="control" data-type="task"
                   [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
-                    My Tasks
+                    [s .icon-mate 'folder']
+                    [s 'Library']
                     [ .d-flex .tab-active-indicator]
                   ]
                 ]
@@ -122,7 +132,6 @@
             ]
             
           ]
-          
           
         [ data-view-group="features" data-view-name="search-bar"
           [ .d-flex .justify-content-between .gap-half .align-items-center .p-half
@@ -140,14 +149,37 @@
             [ .void-full]
           ]
         ]
-      
+        
         [ .p-half
         
           <!-- # mission collection -->
           [ data-view-group="task-view-mode" data-view-name="mission"
             
+            <!-- # mission group tab -->
+            [ .d-grid {cols:1fr 1fr} .wg-Tab data-onclick="change-quest-view" ._questViewTab
+              [btn data-target="active" .is-active
+                [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
+                  [s 'Active']
+                  [ .d-flex .tab-active-indicator]
+                ]
+              ]
+              [btn data-target="available" .obsoletes
+                [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
+                  Available
+                  [ .d-flex .tab-active-indicator]
+                ]
+              ]
+              [btn data-target="archive"
+                [ .d-flex .align-items-center {gap:0.5rem} .justify-content-center
+                  Archive
+                  [ .d-flex .tab-active-indicator]
+                ]
+              ]
+            ]
+            [ .void .void-half]
 
-            [ .d-grid {gap:0.3rem} {cols:1fr auto} .align-items-center
+            <!-- # collections -->
+            [ .d-grid {gap:0.3rem} {cols:1fr auto} .align-items-center .obsoletes
               
               [ .ov-auto
                 [s .txt 'Collection'] [sel #in-sel-mission-group ._collectionOpts .changeable data-callback='on-mission-group-change']
@@ -159,8 +191,9 @@
                 [btn data-onclick="new-collection" .icon-mate 'add' .btn-glass .obsoletes]
                 [btn 'Manage Collection' data-callback="navigate-screen" data-view-target="collections" .clickable .btn-glass]
               ]
-              
-            ][ .mb-m]
+              [ .void .void-half]
+            ]
+            
           ]
           
           <!-- # filter by target time -->
@@ -190,6 +223,12 @@
               ]
               
               [ .d-flex .gap-quarter
+                
+                <!-- # priority state label -->
+                [ .d-flex .align-items-center .px-half
+                  [l ._priorityState]
+                ]
+              
                 <!-- # target threshold filter -->
                 [btn .d-flex .align-items-center data-onclick="edit-target-threshold" style="gap:0.3rem;" .btn-glass
                   [small ._targetThresholdStr] [s .icon-mate 'filter_alt']
@@ -416,6 +455,16 @@
             [ .void-half]
             [ .void-half]
             
+            <!-- ROP state -->
+            [
+              Mark configuration as
+              [sel ._inROPConfigState
+                [opt value='' 'Not set']
+                [opt value=".D" 'Draft']
+                [opt value=".F" 'Final']
+              ]
+            ]
+            
             <!-- # priority mapper items container -->
             [ .d-flex .justify-content-end
               [small 'ROP (Ratio Of Priority)' {fw:bold}]
@@ -603,6 +652,34 @@
   
   <!-- $TEMPLATES # -->
   
+  <template id="tmp-qs-result-item">
+    [ data-kind="item" .d-flex .gap-half .flex-column .item
+      <!-- ^# tmp-qs-result-item -->
+      
+      [ .d-flex .justify-content-between .gap-half
+        [ .d-flex .flex-column .gap-quarter
+          [ data-slot="title"]
+          [small
+            [mark data-slot="ratioTimeLeftStr"]
+          ]
+        ]
+        <!-- # qs actions -->
+        [ .d-flex .gap-quarter .align-items-start
+          [btn data-action="take-mission" formmethod="dialog"
+            [ .icon-mate 'play_arrow']
+          ]
+          [btn data-action="unarchive" type="button"
+            [ .icon-mate 'add']
+          ]
+        ]
+      ]
+    ]
+  </template>
+  
+  <template id="tmp-fever-bock">
+    [ ._block .block]
+  </template>
+  
   <template id="taskdrawer-v1">
     
     <!-- # widget active task -->
@@ -620,12 +697,19 @@
                   [ .d-grid {gap:0.25rem}
                     [ .d-flex {gap:0.3rem} .justify-content-between 
                       [ .d-inline-flex {gap:0.3rem}
+                        [ ._feverBar .wg-FeverBar]
+                        <!--
                         [ data-slot="title" .word-break-all]
                         [ data-slot="progressTimeStr"]
+                        -->
                       ]
                       [
                         [btn 'close' .icon-mate .clickable data-callback="stop-tracker" {font-size: 0.7rem;padding: 2px 6px;}]
                       ]
+                    ]
+                    <!-- # fever meter -->
+                    [ .fever-meter
+                      [ ._feverMeter .progress]
                     ]
                   ]
                 ]      
@@ -785,6 +869,7 @@
         [small data-slot="progressTimeStr"]
       ]
       [ .d-flex .justify-content-end {gap:0.3em}
+        [btn 'Target' data-action="set-target"]
         [btn 'Rename' data-action="rename"]
         [btn 'Delete' data-action="delete"]
         [btn 'Overlay' data-action="set"]
@@ -825,7 +910,7 @@
     
   <template id="tmp-task">
     [ .wg-TaskCard data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" data-scope-id="1" 
-      <!-- # tmp-task -->
+      <!-- ^# tmp-task -->
       
     	[ .container-item .pos-relative
     	  
@@ -847,10 +932,17 @@
     	  [ .task-body-main
     	  
     	    <!-- # star action -->
-  	      [ .d-flex .align-items-star
-  	        [ data-view-group="task-view-mode" data-view-name-not="filter-target"
-              [btn .btn-star data-role="star-task" title="Star this task" .icon-mate
-                star
+  	      [ .d-flex .align-items-start .flex-column
+  	        [ data-view-group="task" data-view-name-not="isArchived"
+    	        [ data-view-group="task-view-mode" data-view-name-not="filter-target"
+                [btn .btn-star data-role="star-task" title="Star this task" .icon-mate
+                  star
+                ]
+              ]
+            ]
+            [ 
+              [btn .btn-star data-role="create-special-mission" .icon-mate
+                add
               ]
             ]
           ]
@@ -924,8 +1016,10 @@
                   [btn .btn-target data-role="set-target-time" title="Add target time" .icon-mate
                     flag
                   ]
-                  [btn ._btnStart .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
-                    play_arrow
+                  [ data-view-group="task" data-view-name-not="isArchived"
+                    [btn ._btnStart .btn-start data-role="start" data-group="active not-running" title="Start" .icon-mate
+                      play_arrow
+                    ]
                   ]
                   [btn ._btnStop .btn-stop data-role="stop" data-group="active" title="Stop" .icon-mate
                     stop
@@ -1008,6 +1102,14 @@
     	    
     	    <!-- # folder indicator -->
     	    [ .d-flex .align-items-center
+    	      [ data-view-group="task" data-view-name="collection-only"
+    	        [btn .btn-navigate-sub data-role="unarchive" data-view-group="task" data-view-name="isArchived"
+                [s .icon-mate 'unarchive' .opacity-half]
+    	        ]
+    	        [btn .btn-navigate-sub data-role="archive" data-view-group="task" data-view-name-not="isArchived"
+                [s .icon-mate 'archive' .opacity-half]
+    	        ]
+    	      ]
     	      [ data-view-group="task" data-view-name-not="hasSubTask collection-only"
     	        [btn .btn-navigate-sub data-role="add-sub-task"
                 [s .icon-mate 'add' .opacity-half]
@@ -1144,7 +1246,7 @@
       [button 'expand_less' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence"]
       [button 'expand_more' class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence"]
       [ .d-flex 
-        [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection"]
+        [btn 'playlist_add' data-role="add-to-mission" class="icon-mate" title="Add to collection" .obsoletes]
         [ data-view-group="task" data-view-name-not="collection-only"
           [btn 'playlist_remove' data-role="remove-mission" .bg-danger .icon-mate title="Remove from collection"]
         ]
@@ -1269,6 +1371,33 @@
       ]
     ]
   </template>
+  <template id="tmp-dialog-quick-search">
+    [dialog .wg-Windog
+      <!-- ^# tmp-dialog-quick-search -->
+      [ .backdrop]
+      [ .wrapper
+        
+        [ .modal-header .justify-content-between .d-flex
+          [ .flex-1 .align-items-center .d-flex
+            [h2 '' .m-0 .heading]
+          ]
+        ]
+        
+        [ .wg-QuickSearch
+          <form method="dialog" data-ref="form">
+            [ .d-grid
+              [in type="search" placeholder="Search mission title"]
+            ]
+            [ .void .void-half]
+            
+            <!-- # quick search result -->
+            [ ._quickSearchResult data-lazy-onclick="handle-click-qs-result"]
+          </form>
+        ]
+        
+      ]
+    ]
+  </template>
   <template id="tmp-dialog-prompt">
     [dialog .wg-Windog
       <!-- ^# tmp-dialog-alert -->
@@ -1359,6 +1488,7 @@
             
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskType"/>
+            <input type="hidden" name="originId"/>
             
             [ .d-grid {gap:0.5rem} .form-card-inner
               
@@ -1744,7 +1874,6 @@
   <script src="js/lib/statelist@v1.0.2.min.js"></script>
   <script src="js/lib/templateslot.min.js"></script>
   
-  <script src="js/component-loader.js"></script>
   <script src="index.js" type="module"></script>
   
   <script src="pwa-cacher.js"></script>

@@ -4,7 +4,7 @@ let compoMission = (function() {
   
   let SELF = {
     Init,
-    
+    GetMissionByTaskId,
     GetActiveGroup,
     GetActiveGroupId,
     GetGroups,
@@ -15,28 +15,57 @@ let compoMission = (function() {
     GetMissionById,
     SetActiveGroupById,
     Commit,
-    
-    // # group
+    MoveToArchive,
+    MoveToActive,
     AddGroup,
     DeleteGroupById,
     UpdateGroupTitle,
-    
-    // # mission
     AddMission,
     CreateItemMission,
     RemoveMissionById,
-    
+    GetMissionsAllGroup,
+    IsArchived,
+    AddActiveMission,
   };
   
   const defaultGroupId = '#0';
   let data = {
     missionGroup: [{
-      id: defaultGroupId,
-      title: 'To do',
+      id: '#0',
+      title: 'Active',
+      missionIds: [],
+    }, {
+      id: '#1',
+      title: 'Archive',
       missionIds: [],
     }],
     activeGroupId: defaultGroupId,
   };
+  
+  
+  function IsArchived(id) {
+    let item = GetMissionById(id, '#1');
+    return item ? true : false;
+  }
+  
+  function MoveToArchive(id) {
+    let item = GetMissionById(id, '#0');
+    let targetGroup = GetGroupById('#1'); // archive group
+    if (!item || !targetGroup) return;
+    
+    delete item.lastStarredDate;
+    let delItem = RemoveMissionById(id, '#0');
+    targetGroup.missionIds.push(item);
+  }
+  
+  function MoveToActive(id) {
+    let item = GetMissionById(id, '#1');
+    let targetGroup = GetGroupById('#0'); // archive group
+    if (!item || !targetGroup) return;
+    
+    let delItem = RemoveMissionById(id, '#1');
+    targetGroup.missionIds.push(item);
+  }
   
   function AddGroup(title) {
     let id = generateId();
@@ -119,9 +148,19 @@ let compoMission = (function() {
     group.missionIds.push(item);
   }
   
+  function AddActiveMission(item) {
+    let group = GetGroupById('#0');
+    if (group == null) return false;
+    group.missionIds.push(item);
+  }
+  
   function GetMissions() {
     let group = GetActiveGroup();
     return group.missionIds;
+  }
+  
+  function GetMissionsAllGroup() {
+    let groups = GetGroups();
   }
   
   function Init() {
@@ -171,10 +210,9 @@ let compoMission = (function() {
     commitData();
   }
     
-  function RemoveMissionById(id) {
-    let activeGroupId = GetActiveGroupId();
-    let isSuccess = removeMissionByIdFromGroup(id, activeGroupId);
-    return isSuccess;
+  function RemoveMissionById(id, groupId) {
+    let delItem = removeMissionByIdFromGroup(id, groupId ?? GetActiveGroupId());
+    return delItem;
   }
   
   function GetGroups() {
@@ -199,9 +237,15 @@ let compoMission = (function() {
     return isExists;
   }
   
-  function GetMissionById(id) {
+  function GetMissionById(id, groupId = null) {
+    let group = groupId ? GetGroupById(groupId) : GetActiveGroup();
+    let mission = group?.missionIds.find(item => item.id == id);
+    return mission;
+  }
+  
+  function GetMissionByTaskId(id) {
     let group = GetActiveGroup();
-    let mission = group.missionIds.find(item => item.id == id);
+    let mission = group.missionIds.find(item => item.taskId == id);
     return mission;
   }
   
@@ -217,15 +261,15 @@ let compoMission = (function() {
     let group = GetGroupById(groupId);
     if (group == null) {
       console.log('group not found');
-      return false;
+      return null;
     }
     
     let delIndex = group.missionIds.findIndex(x => x.id == missionId);
-    if (delIndex < 0) return false;
+    if (delIndex < 0) return null;
     
-    group.missionIds.splice(delIndex, 1);
+    let delItems = group.missionIds.splice(delIndex, 1);
 
-    return true;
+    return delItems.length > 0 ? delItems.pop() : null;
   }
 
     

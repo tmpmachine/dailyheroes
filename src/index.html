@@ -16,6 +16,7 @@
   <link href="css/style.css" rel="stylesheet"/>
   <link href="css/widgets.css" rel="stylesheet"/>
   <link href="css/app.css" rel="stylesheet"/>
+  <link href="css/elements.css" rel="stylesheet"/>
   
   <!--<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />-->
   <style>
@@ -25,8 +26,8 @@
       font-family: 'Material Symbols Outlined';
       font-style: normal;
       font-weight: 400;
-      src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');
-      /*src: url(fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2) format('woff2');*/
+      /*src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v153/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');*/
+      src: url(fonts/MaterialSymbolsRounded[FILL,GRAD,opsz,wght].woff2) format('woff2');
     }
   
   </style>
@@ -62,6 +63,13 @@
               <span>Targets</span> <span class="icon-mate">flag</span>
             </button>
           
+            <!-- # alarms -->
+            <div data-view-group="platform" data-view-name="ext">
+              <button class="clickable d-flex align-items-center btn-border-0" data-callback="set-alarm" style="gap:0.3rem;">
+              Alarms <span class="icon-mate">alarm</span>
+              </button>
+            </div>
+
             <!-- # tracker timer -->
             <button class="clickable d-flex align-items-center btn-border-0" data-callback="navigate-screen" data-view-target="trackers" style="gap:0.3rem;">
               Trackers <span class="icon-mate">timer</span>
@@ -95,7 +103,8 @@
         <!-- # container task view mode-->
         <section data-view-group="task-view-mode" data-view-states="task" class="container-task-view">
           
-          <div class="d-flex">
+          <div class="d-flex wg-TopNavBar">
+            <!-- ^# top nav bar -->
             
             <!-- # search feature toggler -->
             <div class="d-flex align-items-center p-half">
@@ -103,18 +112,19 @@
             </div>
           
             <div class="flex-1">
-              <!-- # widget tabs -->
+              <!-- # mission/task view -->
               <div class="d-grid _viewMode container-view-mode wg-Tab" style="grid-template-columns:1fr 1fr auto;">
                 <button data-onclick="change-view-mode" data-kind="control" data-type="mission">
                   <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
-                    <span class="icon-mate">list</span>
-                    <span>Missions</span>
+                    <span class="icon-mate">task_alt</span>
+                    <span>Tasks</span>
                     <div class="d-flex tab-active-indicator"></div>
                   </div>
                 </button>
                 <button data-onclick="change-view-mode" data-kind="control" data-type="task">
                   <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
-                    My Tasks
+                    <span class="icon-mate">folder</span>
+                    <span>Library</span>
                     <div class="d-flex tab-active-indicator"></div>
                   </div>
                 </button>
@@ -122,7 +132,6 @@
             </div>
             
           </div>
-          
           
         <div data-view-group="features" data-view-name="search-bar">
           <div class="d-flex justify-content-between gap-half align-items-center p-half">
@@ -140,14 +149,37 @@
             <div class="void-full"></div>
           </div>
         </div>
-      
+        
         <div class="p-half">
         
           <!-- # mission collection -->
           <div data-view-group="task-view-mode" data-view-name="mission">
             
+            <!-- # mission group tab -->
+            <div class="d-grid wg-Tab _questViewTab" data-onclick="change-quest-view" style="grid-template-columns:1fr 1fr;">
+              <button class="is-active" data-target="active">
+                <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                  <span>Active</span>
+                  <div class="d-flex tab-active-indicator"></div>
+                </div>
+              </button>
+              <button class="obsoletes" data-target="available">
+                <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                  Available
+                  <div class="d-flex tab-active-indicator"></div>
+                </div>
+              </button>
+              <button data-target="archive">
+                <div class="d-flex align-items-center justify-content-center" style="gap:0.5rem;">
+                  Archive
+                  <div class="d-flex tab-active-indicator"></div>
+                </div>
+              </button>
+            </div>
+            <div class="void void-half"></div>
 
-            <div class="d-grid align-items-center" style="gap:0.3rem;grid-template-columns:1fr auto;">
+            <!-- # collections -->
+            <div class="d-grid align-items-center obsoletes" style="gap:0.3rem;grid-template-columns:1fr auto;">
               
               <div class="ov-auto">
                 <span class="txt">Collection</span> <select id="in-sel-mission-group" class="_collectionOpts changeable" data-callback='on-mission-group-change'></select>
@@ -159,8 +191,9 @@
                 <button class="icon-mate btn-glass obsoletes" data-onclick="new-collection">add</button>
                 <button class="clickable btn-glass" data-callback="navigate-screen" data-view-target="collections">Manage Collection</button>
               </div>
-              
-            </div><div class="mb-m"></div>
+              <div class="void void-half"></div>
+            </div>
+            
           </div>
           
           <!-- # filter by target time -->
@@ -190,6 +223,12 @@
               </div>
               
               <div class="d-flex gap-quarter">
+                
+                <!-- # priority state label -->
+                <div class="d-flex align-items-center px-half">
+                  <label class="_priorityState"></label>
+                </div>
+              
                 <!-- # target threshold filter -->
                 <button class="d-flex align-items-center btn-glass" data-onclick="edit-target-threshold" style="gap:0.3rem;">
                   <small class="_targetThresholdStr"></small> <span class="icon-mate">filter_alt</span>
@@ -416,6 +455,16 @@
             <div class="void-half"></div>
             <div class="void-half"></div>
             
+            <!-- ROP state -->
+            <div>
+              Mark configuration as
+              <select class="_inROPConfigState">
+                <option value=''>Not set</option>
+                <option value=".D">Draft</option>
+                <option value=".F">Final</option>
+              </select>
+            </div>
+            
             <!-- # priority mapper items container -->
             <div class="d-flex justify-content-end">
               <small style="font-weight:bold;">ROP (Ratio Of Priority)</small>
@@ -603,6 +652,34 @@
   
   <!-- $TEMPLATES # -->
   
+  <template id="tmp-qs-result-item">
+    <div class="d-flex gap-half flex-column item" data-kind="item">
+      <!-- ^# tmp-qs-result-item -->
+      
+      <div class="d-flex justify-content-between gap-half">
+        <div class="d-flex flex-column gap-quarter">
+          <div data-slot="title"></div>
+          <small>
+            <mark data-slot="ratioTimeLeftStr"></mark>
+          </small>
+        </div>
+        <!-- # qs actions -->
+        <div class="d-flex gap-quarter align-items-start">
+          <button data-action="take-mission" formmethod="dialog">
+            <div class="icon-mate">play_arrow</div>
+          </button>
+          <button data-action="unarchive" type="button">
+            <div class="icon-mate">add</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <template id="tmp-fever-bock">
+    <div class="_block block"></div>
+  </template>
+  
   <template id="taskdrawer-v1">
     
     <!-- # widget active task -->
@@ -620,12 +697,19 @@
                   <div class="d-grid" style="gap:0.25rem;">
                     <div class="d-flex justify-content-between" style="gap:0.3rem;">
                       <div class="d-inline-flex" style="gap:0.3rem;">
+                        <div class="_feverBar wg-FeverBar"></div>
+                        <!--
                         <div class="word-break-all" data-slot="title"></div>
                         <div data-slot="progressTimeStr"></div>
+                        -->
                       </div>
                       <div>
                         <button class="icon-mate clickable" data-callback="stop-tracker" style="font-size: 0.7rem;padding: 2px 6px;">close</button>
                       </div>
+                    </div>
+                    <!-- # fever meter -->
+                    <div class="fever-meter">
+                      <div class="_feverMeter progress"></div>
                     </div>
                   </div>
                 </div>      
@@ -785,6 +869,7 @@
         <small data-slot="progressTimeStr"></small>
       </div>
       <div class="d-flex justify-content-end" style="gap:0.3em;">
+        <button data-action="set-target">Target</button>
         <button data-action="rename">Rename</button>
         <button data-action="delete">Delete</button>
         <button data-action="set">Overlay</button>
@@ -825,7 +910,7 @@
     
   <template id="tmp-task">
     <div class="wg-TaskCard" data-obj="task" data-id="" data-kind="task" data-view-group="task" data-view-states="" data-scope-id="1">
-      <!-- # tmp-task -->
+      <!-- ^# tmp-task -->
       
     	<div class="container-item pos-relative">
     	  
@@ -847,10 +932,17 @@
     	  <div class="task-body-main">
     	  
     	    <!-- # star action -->
-  	      <div class="d-flex align-items-star">
-  	        <div data-view-group="task-view-mode" data-view-name-not="filter-target">
-              <button class="btn-star icon-mate" data-role="star-task" title="Star this task">
-                star
+  	      <div class="d-flex align-items-start flex-column">
+  	        <div data-view-group="task" data-view-name-not="isArchived">
+    	        <div data-view-group="task-view-mode" data-view-name-not="filter-target">
+                <button class="btn-star icon-mate" data-role="star-task" title="Star this task">
+                  star
+                </button>
+              </div>
+            </div>
+            <div>
+              <button class="btn-star icon-mate" data-role="create-special-mission">
+                add
               </button>
             </div>
           </div>
@@ -924,9 +1016,11 @@
                   <button class="btn-target icon-mate" data-role="set-target-time" title="Add target time">
                     flag
                   </button>
-                  <button class="_btnStart btn-start icon-mate" data-role="start" data-group="active not-running" title="Start">
-                    play_arrow
-                  </button>
+                  <div data-view-group="task" data-view-name-not="isArchived">
+                    <button class="_btnStart btn-start icon-mate" data-role="start" data-group="active not-running" title="Start">
+                      play_arrow
+                    </button>
+                  </div>
                   <button class="_btnStop btn-stop icon-mate" data-role="stop" data-group="active" title="Stop">
                     stop
                   </button>
@@ -1008,6 +1102,14 @@
     	    
     	    <!-- # folder indicator -->
     	    <div class="d-flex align-items-center">
+    	      <div data-view-group="task" data-view-name="collection-only">
+    	        <button class="btn-navigate-sub" data-role="unarchive" data-view-group="task" data-view-name="isArchived">
+                <span class="icon-mate opacity-half">unarchive</span>
+    	        </button>
+    	        <button class="btn-navigate-sub" data-role="archive" data-view-group="task" data-view-name-not="isArchived">
+                <span class="icon-mate opacity-half">archive</span>
+    	        </button>
+    	      </div>
     	      <div data-view-group="task" data-view-name-not="hasSubTask collection-only">
     	        <button class="btn-navigate-sub" data-role="add-sub-task">
                 <span class="icon-mate opacity-half">add</span>
@@ -1144,7 +1246,7 @@
       <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand less sequence task" data-view-group="task" data-view-name="sequence">expand_less</button>
       <button class="icon-mate" data-role="toggle-expand-sequence-task" title="Expand sequence task" data-view-group="task" data-view-name-not="sequence">expand_more</button>
       <div class="d-flex">
-        <button data-role="add-to-mission" class="icon-mate" title="Add to collection">playlist_add</button>
+        <button class="obsoletes" data-role="add-to-mission" class="icon-mate" title="Add to collection">playlist_add</button>
         <div data-view-group="task" data-view-name-not="collection-only">
           <button class="bg-danger icon-mate" data-role="remove-mission" title="Remove from collection">playlist_remove</button>
         </div>
@@ -1269,6 +1371,33 @@
       </div>
     </dialog>
   </template>
+  <template id="tmp-dialog-quick-search">
+    <dialog class="wg-Windog">
+      <!-- ^# tmp-dialog-quick-search -->
+      <div class="backdrop"></div>
+      <div class="wrapper">
+        
+        <div class="modal-header justify-content-between d-flex">
+          <div class="flex-1 align-items-center d-flex">
+            <h2 class="m-0 heading"></h2>
+          </div>
+        </div>
+        
+        <div class="wg-QuickSearch">
+          <form method="dialog" data-ref="form">
+            <div class="d-grid">
+              <input type="search" placeholder="Search mission title"/>
+            </div>
+            <div class="void void-half"></div>
+            
+            <!-- # quick search result -->
+            <div class="_quickSearchResult" data-lazy-onclick="handle-click-qs-result"></div>
+          </form>
+        </div>
+        
+      </div>
+    </dialog>
+  </template>
   <template id="tmp-dialog-prompt">
     <dialog class="wg-Windog">
       <!-- ^# tmp-dialog-alert -->
@@ -1359,6 +1488,7 @@
             
             <input type="hidden" name="id"/>
             <input type="hidden" name="taskType"/>
+            <input type="hidden" name="originId"/>
             
             <div class="d-grid form-card-inner" style="gap:0.5rem;">
               
@@ -1744,7 +1874,6 @@
   <script src="js/lib/statelist@v1.0.2.min.js"></script>
   <script src="js/lib/templateslot.min.js"></script>
   
-  <script src="js/component-loader.js"></script>
   <script src="index.js" type="module"></script>
   
   <script src="pwa-cacher.js"></script>

@@ -3,7 +3,7 @@ let uiTracker = (function() {
   let $ = document.querySelector.bind(document);
   
   let SELF = {
-    NewItem,
+    NewItem: Create,
     RefreshItemList,
     HandleClickListTracker,
     GetData,
@@ -12,13 +12,15 @@ let uiTracker = (function() {
   let local = {
     title: null,
     totalTime: null,
+    targetTime: 0,
   };
   
   let DOMActionEvents = {
     'toggle-active': (itemData) => toggleActiveById(itemData.id),
     'set': (itemData) => setActiveById(itemData.id),
     'delete': (itemData) => deleteById(itemData.id),
-    'rename': (itemData) => renameById(itemData.id)
+    'rename': (itemData) => renameById(itemData.id),
+    'set-target': (itemData) => setTarget(itemData.id),
   };
   
   async function renameById(id) {
@@ -30,6 +32,30 @@ let uiTracker = (function() {
     
     let updatedItem = compoTracker.UpdateById(id, {
       title: userVal,
+    });
+    
+    if (!updatedItem) return;
+    
+    compoTracker.Commit();
+    appSettings.Save();
+    
+    RefreshItemList();
+  }
+  
+  async function setTarget(id) {
+    
+    let item = compoTracker.GetById(id);
+    let defaultVal = helper.ToTimeString(item.targetTime, 'hms');
+    
+    let userVal = await windog.prompt('Target (in HMS format)', defaultVal);
+    if (!userVal) return;
+    
+    let parsedVal = helper.ParseHmsToMs(userVal, {
+      defaultUnit: 'm',
+    });
+    
+    let updatedItem = compoTracker.UpdateById(id, {
+      targetTime: parsedVal,
     });
     
     if (!updatedItem) return;
@@ -113,6 +139,7 @@ let uiTracker = (function() {
     if (item) {
       local.title = item.title;
       local.totalTime = minutesToHoursAndMinutes(msToMinutes(item.progressTime));
+      local.targetTime = item.targetTime;
       
       showTracker();
     } else {
@@ -121,7 +148,9 @@ let uiTracker = (function() {
     
     return {
       title: local.title,
-      totalTime: local.totalTime,
+      progressTimeStr: local.totalTime,
+      progressTime: item?.progressTime,
+      targetTime: local.targetTime,
     };
   }
   
@@ -138,13 +167,18 @@ let uiTracker = (function() {
     }
   }
   
+  // # list
   function RefreshItemList() {
 
-    let items = compoTracker.List();
+    let items = compoTracker.ListRO();
     let activeItemId = compoTracker.GetActiveId();
+    
+    helper.SortDesceding(items, 'createdDate');
     
     $('#container-list-tracker')?.replaceChildren();
     let docFrag = document.createDocumentFragment();
+    
+    items.sort()
     
     for (let item of items) {
       let el = window.templateSlot.fill({
@@ -172,7 +206,7 @@ let uiTracker = (function() {
     
   }
   
-  async function NewItem() {
+  async function Create() {
     
     let title = await windog.prompt('Tracker title');
     if (!title) return;

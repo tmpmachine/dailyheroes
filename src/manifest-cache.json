@@ -7,6 +7,8 @@
     "js/uis/collection-ui.js",
     "js/uis/mission-ui.js",
     "js/uis/tracker-ui.js",
+    "js/uis/quest-ui.js",
+    "js/uis/quick-search-ui.js",
     "js/uis/task-ui.js"
   ],
   "pages": [
@@ -14,7 +16,11 @@
     "js/pages/detail-page.js"
   ],
   "components": [
+    "js/components/alarm-component.js",
+    "js/components/priority-state-component.js",
     "js/components/keyboard-control-component.js",
+    "js/components/timer-component.js",
+    "js/components/quick-search-component.js",
     "js/components/clipboard-component.js",
     "js/components/selection-component.js",
     "js/components/target-trackers-component.js",
@@ -62,7 +68,8 @@
     "js/view-states.js",
     
   
-    "js/component-loader.js",
+    "js/utils/wait.js",
+    "js/script-loader.js",
     "js/app-data.js",
     "js/app.js",
     
@@ -73,6 +80,7 @@
     "css/app.css",
     "css/widgets.css",
     "css/theme.css",
+    "css/elements.css",
     "css/style.css"
   ],
   "root": [

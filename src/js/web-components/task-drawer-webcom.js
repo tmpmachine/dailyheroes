@@ -15,7 +15,7 @@
     connectedCallback() { }
     
     async taskInitListeners() {
-      await componentLoader.WaitUntil(() => typeof(DOMEvents) != 'undefined');
+      await wait.Until(() => typeof(DOMEvents) != 'undefined');
       DOMEvents.InitLazy(this);
     }
     

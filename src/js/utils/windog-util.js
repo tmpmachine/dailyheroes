@@ -6,6 +6,9 @@ let windog = (function() {
     alert,
     confirm,
     prompt,
+    quickSearch: async (userOptions) => await showDialogAsync(dialogOptions.quickSearch, {
+      initCallback: userOptions.initCallback,
+    }),
   };
   
   let local = {
@@ -22,12 +25,19 @@ let windog = (function() {
     },
     confirm: {
       templateId: 'tmp-dialog-confirm',
-      onResolve: (resolve, dialogEl) => handleConfirmDialog(resolve, dialogEl),
+      onResolve: (resolve, evt) => handleConfirmDialog(resolve, evt.target),
     },
     prompt: {
       defaultValue: null,
       templateId: 'tmp-dialog-prompt',
-      onResolve: (resolve, dialogEl) => handlePromptDialog(resolve, dialogEl),
+      onResolve: (resolve, evt) => handlePromptDialog(resolve, evt.target),
+    },
+    quickSearch: {
+      templateId: 'tmp-dialog-quick-search',
+      onResolve: (resolve, evt) => {
+        resolve();
+        uiQuickSearch.HandleCloseModal(evt);
+      }
     },
   };
   
@@ -98,6 +108,7 @@ let windog = (function() {
       
       document.body.append(el);
       dialogEl.showModal();
+      userOptions.initCallback?.(dialogEl);
     });
   }
   
@@ -106,7 +117,7 @@ let windog = (function() {
     let dialogEl = evt.target;
     
     dialogEl.remove();
-    dialogItem.onResolve(dialogItem.resolver.resolve, dialogEl);
+    dialogItem.onResolve(dialogItem.resolver.resolve, evt);
     
     let nextDialog = local.dialogQueueResolver.pop();
     nextDialog?.resolve();

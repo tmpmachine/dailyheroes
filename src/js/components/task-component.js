@@ -152,28 +152,29 @@ let compoTask = (function() {
     
     try {
       let parentId = form['parent-id'].value;
-      
-      taskId = AddTaskData({
+      let originId = form.originId?.value;
+      let formData = {
+        originId: ( originId?.trim().length > 0 ? originId : null ),
         title: form.title.value,
         durationTime: helper.ParseHmsToMs(targetVal, hmsParseOpt),
         targetTime: helper.ParseHmsToMs(form.targetTime.value, hmsParseOpt),
         targetCapTime: helper.ParseHmsToMs(form.targetCapTime.value, hmsParseOpt),
         parentId: parentId ? parentId : '',
         type: form.taskType.value,
-      });
+      };
+      
+      let task = AddTaskData(formData);
       
       if (parentId) {
         let parentTask = await app.GetTaskById(parentId);
         await checkAndCreateGroups(parentTask.title, parentId);
       }
+      return task;
     } catch (e) {
       console.error(e);
-      alert('Failed.');    
-      return;
+      windog.alert('Failed.');    
     }
-    
-    return taskId;
-    
+    return null;
   }
   
   function checkAndCreateGroups(title, id) {
@@ -197,7 +198,7 @@ let compoTask = (function() {
     }), ...inputData};
     tasks.push(data);
     
-    return id;
+    return data;
   }
   
   async function GetAllTasksAsync(options) {
@@ -279,10 +280,11 @@ let compoTask = (function() {
       return order;
     });
   
-    filteredTasks = missionIds.map(x => {
-      return tasks.find(task => task.id == x.id);
+    filteredTasks = missionIds.map(mission => {
+      let itemTask = tasks.find(task => task.id == mission.id);
+      return itemTask;
     }).filter(x => typeof(x) == 'object');
-    
+
     return filteredTasks;
   }
   
@@ -471,16 +473,18 @@ let compoTask = (function() {
   async function TaskAddTotalProgressByTaskId(id, addedTime) {
     let task = GetById(id);
     if (!task) return;
-  
+
+    let originTask = app.GetTaskById(activeTask.originId);
+    
     if (typeof(task.totalProgressTime) == 'undefined') {
       task.totalProgressTime = 0;  
     }
     task.totalProgressTime += addedTime;
     task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
       
-    await taskApplyNecessaryTaskUpdates(task, addedTime);
+    await taskApplyNecessaryTaskUpdates(task, addedTime, originTask);
       
-    app.AddProgressTimeToRootMission(task.parentId, addedTime);
+    app.AddProgressTimeToRootMission((originTask ?? task).parentId, addedTime);
   }
 
   async function TaskResetTasksTargetTime() {

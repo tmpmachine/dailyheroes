@@ -7,7 +7,7 @@ let compoTracker = (function() {
     Init,
     GetActive,
     GetActiveId,
-    List,
+    ListRO,
     GetAll,
     GetById,
     SetActiveById,
@@ -31,17 +31,21 @@ let compoTracker = (function() {
       {
         id: '',
         title: '',
+        targetTime: 0,
         progressTime: 0,
         isActive: false,
+        createdDate: milliseconds,
       }
     */
   };
   
   let dataModel = {
     version: 2,
-    items: {
+    item: {
+      ver: 2,
       id: '',
       title: '',
+      targetTime: 0,
       progressTime: 0,
       isActive: false,
     }
@@ -67,15 +71,17 @@ let compoTracker = (function() {
   
   function Add(title) {
     let id = uuidV4Util.Generate();
-    let group = {
+    let item = {
       id,
       title,
+      targetTime: 0,
       progressTime: 0,
       isActive: false,
+      createdDate: new Date().getTime(),
     };
-    data.items.push(group);
+    data.items.push(item);
     
-    return group;
+    return item;
   }
   
   function SetActiveById(id) {
@@ -152,12 +158,12 @@ let compoTracker = (function() {
     return null;
   }
     
-  function List() {
-    return data.items;
+  function ListRO() {
+    return helper.ClearObjectReference(GetAll());
   }
   
   function GetAll() {
-    return List();
+    return data.items;
   }
   
   function GetActive() {

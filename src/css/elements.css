@@ -1,0 +1,17 @@
+._priorityState {
+    &::after {
+        content: '';
+        height: 10px;
+        aspect-ratio: 1/1;
+        border-radius: 1rem;
+        display: inline-block;    
+    }
+    /* draft */
+    &.\.D::after {
+        background: yellow;
+    }
+    /* final */
+    &.\.F:after {
+        background: #31de38;
+    }
+}

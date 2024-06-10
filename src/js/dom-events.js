@@ -8,6 +8,7 @@ let DOMEvents = (function() {
   let eventsMap = {
     
   	clickable: {
+		'set-alarm': () => compoAlarm.Set(),
   	  'navigate-screen': (evt) => ui.NavigateScreen(evt),
   	  'turn-off-screen': () => ui.TaskTurnOffScreen(),
   	  'reset-data': () => app.ResetData(),
@@ -97,6 +98,7 @@ let DOMEvents = (function() {
   	},
   	
   	onclick: {
+  	  'change-quest-view': (evt) => pageHome.ChangeQuestView(evt),
   	  'show-modal-add-task': () => ui.ShowModalAddTask(),
   	  'change-view-mode': (evt) => pageHome.ChangeViewMode(evt),
   	  'edit-target-threshold': () => pageHome.EditTargetThreshold(),
@@ -149,8 +151,8 @@ let DOMEvents = (function() {
     listening('[data-onsubmit]', 'onsubmit', 'submit', eventsMap.onsubmit);
   }
   
-  function InitLazy(containerEl) {
-    listening('[data-lazy-onclick]', 'lazyOnclick', 'click', eventsMap.onclick, containerEl);
+  function InitLazy(containerEl, customEventsMap) {
+    listening('[data-lazy-onclick]', 'lazyOnclick', 'click', customEventsMap ?? eventsMap.onclick, containerEl);
   }
   
   return SELF;

@@ -78,7 +78,7 @@ let ui = (function () {
 		
     let task = compoTask.GetById(id);
     
-    let taskId = compoTask.AddTaskData({
+    let { id: taskId } = compoTask.AddTaskData({
       title: task.title,
       durationTime: task.durationTime,
       targetTime: task.targetTime,
@@ -170,7 +170,7 @@ let ui = (function () {
   function ReloadETA(totalTargetCapTime) {
     viewStateUtil.Remove('active-task-info', ['has-ETA']);
     
-    if (totalTargetCapTime <= 0 || !isViewModeMission()) return;
+    if (totalTargetCapTime <= 0) return;
     
     viewStateUtil.Add('active-task-info', ['has-ETA']);
     
@@ -224,7 +224,9 @@ let ui = (function () {
     
     let task = tasks.find(x => x.id == id);
     if (!task) return;
-    
+
+	let originTask = app.GetTaskById(task.originId);
+	  
     /*const { value: userVal } = await Swal.fire({
       title: 'Add progress manually (HMS format)',
       input: 'text',
@@ -261,7 +263,7 @@ let ui = (function () {
       task.progressTime = Math.max(0, task.progressTime);
       task.totalProgressTime = Math.max(0, task.totalProgressTime);
       
-      await taskApplyNecessaryTaskUpdates(task, addedTime);
+      await taskApplyNecessaryTaskUpdates(task, addedTime, originTask);
       
       app.AddProgressTimeToRootMission(task.parentId, addedTime);
       
@@ -691,6 +693,15 @@ let ui = (function () {
     screenStateUtil.NavigateTo('priority-mapper');
     compoPriorityMapper.Stash(id);
     refreshListPriorityItems();
+    
+    // priority state
+    let priorityState = compoPriorityState.GetPriorityState();
+    let ropStateEl = $('._inROPConfigState');
+    
+    ropStateEl.value = '';
+    if (priorityState !== null && ropStateEl) {
+      ropStateEl.value = priorityState;
+    }
   }
   
   function OpenPriorityMapper() {
@@ -1002,8 +1013,14 @@ let ui = (function () {
       }, id);
     }
     
+    // priority state
+    compoPriorityState.Save();
+    
+    compoPriorityState.Commit();
     compoPriorityMapper.Commit();
+    
     await appData.TaskStoreTask();
+    appData.Save();
     
     app.TaskListTask();
     screenStateUtil.NavigateTo('home');
@@ -1309,8 +1326,9 @@ let ui = (function () {
     
     Navigate(evt.target.dataset.id);
     await app.TaskListTask();
+    pageHome.RefreshPriorityStateBadgeAsync();
     
-    let isScroll = false;
+    // let isScroll = false;
     // FocusTaskElById(activeGroupId, isScroll);
   }
   
@@ -1329,10 +1347,20 @@ let ui = (function () {
     listenAndToggleVisibility('#node-filter-box', '[data-slot="title"]', 'd-none', '[data-eid="widget-task"] [data-obj="task"]');
   }
   
-  function attachKeyboardShortcuts() {
-    Mousetrap.bind('alt+n', function(e) {
+  function handleAltN() {
+    let isHomeView = pageHome.IsMissionViewMode();
+    let id = pageHome.GetSelectedTaskId();
+    if (isHomeView && id) {
+      ui.AddSequenceTask(id);
+    } else {
       ShowModalAddTask();
-      return false;
+    }
+  }
+  
+  function attachKeyboardShortcuts() {
+    Mousetrap.bind('alt+n', () => handleAltN());
+    Mousetrap.bind('ctrl+q', () => {
+      uiQuickSearch.OpenModal();
     });
     Mousetrap.bind('del', function(e) {
       handleDeleteSelection();
@@ -1344,6 +1372,16 @@ let ui = (function () {
     });
     Mousetrap.bind('enter', function(e) {
       handleEnterKey();
+    });
+    Mousetrap.bind('ctrl+enter', function(e) {
+      pageHome.EditSelectedTask();
+    });
+    Mousetrap.bind('alt+m', () => {
+      let isHomeView = pageHome.IsMissionViewMode();
+      let id = pageHome.GetSelectedTaskId();
+      if (isHomeView && id) {
+        ui.ToggleManageSequenceByTaskId(id);
+      }
     });
     
     // attach keyboard listeners
@@ -1414,7 +1452,16 @@ let ui = (function () {
       let isConfirm = await windog.confirm('Delete this task? This process cannot be undone.');
       if (!isConfirm) return;
       
-      app.TaskAddToMission(selectedTaskId, itemEl);
+      // app.TaskAddToMission(selectedTaskId, itemEl);
+      compoMission.RemoveMissionById(selectedTaskId);
+      compoMission.Commit();
+      appData.Save();
+    
+      let isBypassConfirm = true;
+      let parentEl = null;
+      await uiTask.DeleteAsync(selectedTaskId, itemEl, isBypassConfirm);
+    
+      app.TaskRefreshMissionTargetETA();
       compoSelection.ClearItems();
       uiSelection.RefreshSelection();
     }

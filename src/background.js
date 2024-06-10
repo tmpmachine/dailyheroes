@@ -9,6 +9,7 @@ chrome.alarms.onAlarm.addListener(alarmHandler);
 
 self.addEventListener("notificationclick", handleNotificationClick, false);
 
+// # notif click
 async function handleNotificationClick(event) {
   event.notification.close();
   switch (event.action) {
@@ -119,7 +120,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   let activeTask = tasks.find(x => x.id == data.activeTask);
   if (!activeTask) return;
   
-  
+  let originTask = GetTaskById(tasks, activeTask.originId);
   let isUpdateCurrentActiveTask = true;
   let previousSequenceTaskTitle = null;
   let previousSequenceTaskId = null;
@@ -145,7 +146,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
 
         isUpdateCurrentActiveTask = false;
         linkedTask.totalProgressTime += distanceTime;
-        await taskApplyNecessaryTaskUpdates(linkedTask, distanceTime, tasks);
+        await taskApplyNecessaryTaskUpdates(linkedTask, distanceTime, null, tasks);
       }
     }
   
@@ -208,9 +209,12 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     
     
   }
+
+  let isPreviouslyHasTargetCap = false;
+  let isTaskTimeCapExceeded = false;
   
   if (isUpdateCurrentActiveTask) {
-    
+    isPreviouslyHasTargetCap = activeTask.targetCapTime > 0;
     activeTask.progressTime += distanceTime;
     // activeTask.targetCapTime = addOrInitNumber(activeTask.targetCapTime, -1 * distanceTime);
     
@@ -220,9 +224,12 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
     activeTask.totalProgressTime += distanceTime;
     
     // apply target time balancing
-    await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, tasks);
+    await taskApplyNecessaryTaskUpdates(activeTask, distanceTime, originTask, tasks);
+
+    if (isPreviouslyHasTargetCap && activeTask.targetCapTime === 0) {
+      isTaskTimeCapExceeded = true;
+    }
   }
-  
   
   if (sequenceTask && changeTask) {
 
@@ -259,6 +266,7 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   await storeTask(tasks);
   
   return {
+    isTaskTimeCapExceeded,
     previousSequenceTaskId,
     previousSequenceTaskTitle,
     repeatCountData,
@@ -271,11 +279,11 @@ async function updateProgressActiveTask(addedMinutes, distanceTime) {
   };
 }
 
-async function taskApplyNecessaryTaskUpdates(task, distanceTime, tasks) {
+async function taskApplyNecessaryTaskUpdates(task, distanceTime, originTask, tasks) {
   // update all parent target time
-  await taskApplyAllParentTargetTime(task.parentId, distanceTime, tasks);
+  await taskApplyAllParentTargetTime((originTask ?? task).parentId, distanceTime, tasks);
   // apply target time balancing
-  await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
+  await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, originTask, tasks);
 }
 
 function GetTaskById(tasks, id) {
@@ -285,18 +293,24 @@ function GetTaskById(tasks, id) {
 async function taskApplyAllParentTargetTime(parentId, distanceTime, tasks) {
   let task = GetTaskById(tasks, parentId);
   while (task) {
-    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, tasks);
+    await TaskApplyTargetTimeBalanceInGroup(task, distanceTime, null, tasks);
     task = GetTaskById(tasks, task.parentId);
   }
 }
 
-async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, tasks) {
+async function TaskApplyTargetTimeBalanceInGroup(task, addedTime, originTask, tasks) {
   try {
-      let excessTime = task.targetTime - addedTime;
-      if (excessTime < 0 && task.ratio > 0) {
-        await applyTargetTimeBalanceInGroup(task, Math.abs(excessTime), tasks);
+      let excessTime = (originTask ?? task).targetTime - addedTime;
+      if (excessTime < 0 && (originTask ?? task).ratio > 0) {
+        await applyTargetTimeBalanceInGroup((originTask ?? task), Math.abs(excessTime), tasks);
       }
-      task.targetTime = Math.max(0, task.targetTime - addedTime);
+      
+      // reduce parent task target time by progress
+      if (originTask) {
+        originTask.targetTime = Math.max(0, originTask.targetTime - addedTime);
+      } else {
+        task.targetTime = Math.max(0, task.targetTime - addedTime);
+      }
       task.targetCapTime = Math.max(0, addOrInitNumber(task.targetCapTime, -1 * addedTime));
     } catch (e) {
       console.error(e);
@@ -403,12 +417,21 @@ async function setStopAlarmIcon() {
   chrome.action.setIcon({ path: iconAlarm });
 }
 
+// # alarm (on trigger)
 async function alarmHandler(alarm) {
   switch (alarm.name) {
+    case 'stop-alarm':
+      spawnNotification('Alarm ringing', 'limegreen', iconAlarm, true);
+      playAudio('audio.html');
+      stopAudioAfter('audio.html');
+      break;
     case 'clock':
       updateTime();
       break;
     case 'halfway':
+      spawnNotification('Halfway there!', 'limegreen', iconAlarm, false);
+      break;
+    case 'stop':
       spawnNotification('Halfway there!', 'limegreen', iconAlarm, false);
       break;
     case 'main':
@@ -430,6 +453,7 @@ async function alarmHandler(alarm) {
   }
 }
 
+// # alarm callback, # timer
 async function onAlarmEnded(alarm) {
   
   let data = await chrome.storage.local.get(['history', 'start', 'activeTask', 'lastActiveId', 'isTakeBreak']);
@@ -456,6 +480,7 @@ async function onAlarmEnded(alarm) {
   let previousSequenceTaskTitle = null;
   let nextSequenceTaskId = null;
   let taskEndedStates = null;
+  let isTaskTimeCapExceeded = false;
   
   if (!data.isTakeBreak) {
     let updateResponse = await updateProgressActiveTask(distanceMinutes, distanceTime);
@@ -463,6 +488,7 @@ async function onAlarmEnded(alarm) {
     previousSequenceTaskId = updateResponse.previousSequenceTaskId;
     previousSequenceTaskTitle = updateResponse.previousSequenceTaskTitle;
     taskEndedStates = updateResponse.states;
+    isTaskTimeCapExceeded = updateResponse.isTaskTimeCapExceeded;
   }
 
 
@@ -631,7 +657,19 @@ async function onAlarmEnded(alarm) {
   // spawn notif
   await TaskClearNotif();
   let requireInteraction = true;
-  spawnNotificationV2(notifTitle, notifBody, 'limegreen', iconAlarm, requireInteraction, actions, tag);
+  
+  // notif: task progress time cap ended
+  if (isTaskTimeCapExceeded) {
+    spawnNotificationV2('Task ended', 'Task completed', 'limegreen', iconAlarm, requireInteraction, [
+      {
+        action: 'open-app',
+        title: 'Close',
+      }
+    ], 'task-ended');
+  } else {
+    spawnNotificationV2(notifTitle, notifBody, 'limegreen', iconAlarm, requireInteraction, actions, tag);
+  }
+  
   
   // play alarm audio
   playAudio('audio.html');
@@ -644,6 +682,7 @@ async function onAlarmEnded(alarm) {
 
 chrome.runtime.onMessage.addListener(messageHandler);
 
+// # message
 function messageHandler(request, sender, sendResponse) {
   if (request.message === 'start-timer') {
     clearPersistentNotif();
@@ -651,7 +690,15 @@ function messageHandler(request, sender, sendResponse) {
 
   } else if (request.message === 'stop') {
     chrome.action.setIcon({ path: iconAlarm });
+  } else if (request.message === 'create-stop-tasks-alarm') {
+    CreateStopTaskAlarm_(request.data.when);
   }
+}
+
+async function CreateStopTaskAlarm_(when) {
+  await chrome.alarms.create('stop-alarm', {
+      when,
+  });
 }
 
 async function TaskClearNotif() {

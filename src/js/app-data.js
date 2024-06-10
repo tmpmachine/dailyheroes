@@ -3,6 +3,7 @@ let storageName = 'appdata-NzkwMTI0NA';
 window.lsdb = new Lsdb(storageName, {
   root: {
     viewMode: 'mission', // tasks, mission
+    questView: 'active',
     isCompactView: false,
     
     viewStates: {},
@@ -38,6 +39,7 @@ window.lsdb = new Lsdb(storageName, {
     components: {
       compoGsiChrome: {},
       compoTargetTrackers: {},
+      compoPriorityState: {},
     },
     
   },
@@ -48,6 +50,7 @@ window.lsdb = new Lsdb(storageName, {
   },
   task: {
     id: '',
+    originId: null,
     progress: 0,
     progressTime: 0,
     totalProgressTime: 0,

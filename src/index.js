@@ -1,124 +1,138 @@
+import { loadScripts } from './js/script-loader.js';
+import { wait } from './js/utils/wait.js';
+
 window.$ = document.querySelector.bind(document);
+window.wait = wait;
 
-componentLoader.load([
-  {
-    urls: [
-      // "js/tests.js",
-      "js/utils/screen-state-util.js",
-      "js/web-components/task-drawer-webcom.js",
-      "js/utils/windog-util.js",
-      "js/pages/home-page.js",
-    ]
-  },
-  {
-    urls: [
-      "js/view-states.js",
-      "js/dom-events/pip-events.js",
-      "js/dom-events.js",
-      "js/utils/view-state-util.js",
-      "js/ui.js",
-      "js/uis/selection-ui.js",
-      "js/uis/pip-ui.js",
-      "js/uis/task-ui.js",
-      "js/uis/mission-ui.js",
-      "js/uis/quick-action-ui.js",
-      "js/uis/collection-ui.js",
-      "js/uis/tracker-ui.js",
-      "js/uis/target-trackers-ui.js",
-      "js/lib/lsdb.js",
-    ],
-    callback: function() { 
-      
-      viewStateUtil.Init(viewStates); 
-      DOMEvents.Init();
-      
-      // check build mode
-      if (!window.location.href.includes('https://dailyheroes.web.app/')) {
-        viewStateUtil.Toggle('build', ['dev']);
-      }
-      
-      // platform checking
-      window.modeChromeExtension = false;
-      try {
-        if (chrome.storage.local.get) {
-          window.modeChromeExtension = true;
+(function() {
+
+  loadScripts([
+    {
+      urls: [
+        // "js/tests.js",
+        "js/utils/screen-state-util.js",
+        "js/web-components/task-drawer-webcom.js",
+        "js/utils/windog-util.js",
+        "js/pages/home-page.js",
+      ]
+    },
+    {
+      urls: [
+        "js/view-states.js",
+        "js/dom-events/pip-events.js",
+        "js/dom-events.js",
+        "js/utils/view-state-util.js",
+        "js/ui.js",
+        "js/uis/selection-ui.js",
+        "js/uis/pip-ui.js",
+        "js/uis/task-ui.js",
+        "js/uis/mission-ui.js",
+        "js/uis/quick-action-ui.js",
+        "js/uis/collection-ui.js",
+        "js/uis/tracker-ui.js",
+        "js/uis/target-trackers-ui.js",
+        "js/uis/quest-ui.js",
+        "js/lib/lsdb.js",
+      ],
+      callback: function() { 
+        
+        viewStateUtil.Init(viewStates); 
+        DOMEvents.Init();
+        
+        // check build mode
+        if (!window.location.href.includes('https://dailyheroes.web.app/')) {
+          viewStateUtil.Toggle('build', ['dev']);
         }
-      } catch (e) {}
-      
-      if (window.modeChromeExtension) {
-        window.service = window.serviceChrome;
-      } else {
-        viewStateUtil.Toggle('platform', ['web']);
-      }
-
+        
+        // platform checking
+        window.modeChromeExtension = false;
+        try {
+          if (chrome.storage.local.get) {
+            window.modeChromeExtension = true;
+          }
+        } catch (e) {}
+        
+        if (window.modeChromeExtension) {
+          window.service = window.serviceChrome;
+          viewStateUtil.Set('platform', ['ext']);
+        } else {
+          viewStateUtil.Set('platform', ['web']);
+        }
+  
+      },
     },
-  },
-  {
-    urls: [
-      "js/utils/helper.js",
-      "js/app-data.js",
-      "js/utils/uuidv4-util.js",
-      
-      "js/components/keyboard-control-component.js",
-      "js/components/clipboard-component.js",
-      "js/components/selection-component.js",
-      "js/components/target-trackers-component.js",
-      "js/components/task-component.js",
-      "js/components/mission-component.js",
-      "js/components/tracker-component.js",
-      "js/components/sequence-component.js",
-    ],
-    callback: function() { 
-      
+    {
+      urls: [
+        "js/utils/helper.js",
+        "js/app-data.js",
+        "js/utils/uuidv4-util.js",
+        "js/components/keyboard-control-component.js",
+        "js/components/clipboard-component.js",
+        "js/components/selection-component.js",
+        "js/components/target-trackers-component.js",
+        "js/components/task-component.js",
+        "js/components/mission-component.js",
+        "js/components/tracker-component.js",
+        "js/components/sequence-component.js",
+        "js/components/timer-component.js",
+      ],
+      callback: function() { 
+        
+      },
     },
-  },
-  {
-    urls: [
-      "js/lib/sortable@1.15.1.min.js",
-      "js/app.js",
-    ],
-    callback: function() {
-      
-      if (!window.modeChromeExtension) {
-        initServiceWorker();
-      }
-      
-      // init app
-      app.Init();
-      
+    {
+      urls: [
+        "js/lib/sortable@1.15.1.min.js",
+        "js/app.js",
+      ],
+      callback: function() {
+        
+        if (!window.modeChromeExtension) {
+          initServiceWorker();
+        }
+        
+        // init app
+        app.Init();
+        
+      },
     },
-  },
-  {
-    urls: [
-      "js/components/priority-mapper-component.js",
-    ],
-  },
-  {
-    urls: [
-      "js/lib/idb-keyval@6.js",
-    ]
-  },
-  {
-    urls: [
-      "js/lib/drive-api.js",
-      "js/components/gsi-chrome-component.js",
-      "js/components/backup-component.js",
-      "js/pages/detail-page.js",
-    ],
-    callback: function() {
-      
-      if (app.isPlatformWeb) {
-        componentLoader.load([{
-            urls: [
-              'https://accounts.google.com/gsi/client',
-            ]
-          },
-        ]);
+    {
+      urls: [
+        "js/components/priority-mapper-component.js",
+        "js/components/quick-search-component.js",
+        "js/components/priority-state-component.js",
+        "js/uis/quick-search-ui.js",
+      ],
+    },
+    {
+      urls: [
+        "js/lib/idb-keyval@6.js",
+      ]
+    },
+    {
+      urls: [
+        "js/lib/drive-api.js",
+        "js/components/gsi-chrome-component.js",
+        "js/components/backup-component.js",
+        "js/pages/detail-page.js",
+        "js/components/alarm-component.js",
+      ],
+      callback: function() {
+        
+        if (app.isPlatformWeb) {
+          loadScripts([{
+              urls: [
+                'https://accounts.google.com/gsi/client',
+              ]
+            },
+          ]);
+        }
+              
       }
-            
     }
-  }
-]);
+  ]);
+  
+})();
 
 
 // service worker handler

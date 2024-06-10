@@ -388,18 +388,6 @@ body[data-state~="--timer-running"] .task-progress-bar {
   font-size: 1.7rem;
 }
 
-/* # view mode tabs */
-.container-view-mode button {
-  background: none;
-  border: 3px solid #00000000;
-  padding: 10px 10px 6px;
-  text-transform: uppercase;
-}
-.container-view-mode button:not(.is-active) {
-  opacity: 0.6;
-  background: hsl(224 11% 13% / 1);
-}
-
 
 /* # breadcrumbs */
 .container-breadcrumbs button {
@@ -501,28 +489,12 @@ body {
 }
 
 /* # task view */
-.container-view-mode button:not(.is-active),
 .container-breadcrumbs, 
 .container-task-view .txt {
   color: white;
 }
 .container-task-view, .container-screen-home {
   background: #2c2f37;
-}
-.container-view-mode button.is-active {
-  background: hsl(224deg 14% 32.59%);
-  color: white;
-}
-.container-view-mode button.is-active .tab-active-indicator::after {
-    background: white;
-}
-.container-view-mode button .tab-active-indicator::after {
-    content: '';
-    aspect-ratio: 1;
-    height: 6px;
-    display: inline-block;
-    border-radius: 100%;
-    /* margin-top: 6px; */
 }
 
 
