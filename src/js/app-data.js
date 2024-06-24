@@ -17,7 +17,6 @@ window.lsdb = new Lsdb(storageName, {
     globalTimer: 7, 
     targetThreshold: 10,
     
-    
     isFilterTaskByTargetTime: false,
     isSortByTotalProgress: false,
     
@@ -37,9 +36,9 @@ window.lsdb = new Lsdb(storageName, {
     compoTracker: {},
     
     components: {
-      compoGsiChrome: {},
-      compoTargetTrackers: {},
-      compoPriorityState: {},
+      compoGsiChrome: null,
+      compoTargetTrackers: null,
+      compoPriorityState: null,
     },
     
   },
@@ -111,7 +110,7 @@ let appSettings = (function() {
   }
   
   function SetComponentData(componentKey, noReferenceData) {
-    if (!lsdb.data.components[componentKey]) return false;
+    if (typeof(lsdb.data.components[componentKey]) == 'undefined') return false;
     
     lsdb.data.components[componentKey] = noReferenceData;
     return true;

@@ -25,7 +25,7 @@ let compoPriorityState = (function() {
   */
   
   function Init(noReferenceData) {
-    if (Object.keys(noReferenceData).length == 0) return;
+    if (!noReferenceData || Object.keys(noReferenceData).length == 0) return;
     
     for (let key in noReferenceData) {
       if (typeof(data[key]) != 'undefined') {
