@@ -16,6 +16,7 @@ let pageHome = (function() {
     EditSelectedTask,
     GetSelectedTaskId,
     RefreshPriorityStateBadgeAsync,
+    RefreshAlarmBadge_,
   };
   
   function EditSelectedTask() {
@@ -166,6 +167,24 @@ let pageHome = (function() {
     RefreshQuestViewTab();
     refreshTargetThresholdBadge();
     RefreshPriorityStateBadgeAsync();
+    RefreshAlarmBadge_();
+  }
+
+  async function RefreshAlarmBadge_() {
+    if (!window.modeChromeExtension) return;
+
+    $('._badgeAlarm')?.replaceChildren();
+
+    let alarm = await chrome.alarms.get('stop-alarm');
+    if (!alarm) return;
+
+    let minutesLeft = convertMsToMinutes(alarm.scheduledTime - Date.now());
+    $('._badgeAlarm')?.replaceChildren(`${minutesLeft}m`);
+  }
+
+  function convertMsToMinutes(ms) {
+    const minutes = Math.floor(ms / 60000);
+    return minutes;
   }
   
   function IsVisible() {
