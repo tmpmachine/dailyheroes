@@ -13,6 +13,7 @@
   <link rel="manifest" href="manifest.json"/>
   
   <link href="css/theme.css" rel="stylesheet"/>
+  <link href="css/default.css" rel="stylesheet"/>
   <link href="css/style.css" rel="stylesheet"/>
   <link href="css/widgets.css" rel="stylesheet"/>
   <link href="css/app.css" rel="stylesheet"/>
@@ -63,10 +64,12 @@
               <span>Targets</span> <span class="icon-mate">flag</span>
             </button>
           
-            <!-- # alarms -->
+            <!-- # alarm -->
             <div data-view-group="platform" data-view-name="ext">
               <button class="clickable d-flex align-items-center btn-border-0" data-callback="set-alarm" style="gap:0.3rem;">
-              Alarms <span class="icon-mate">alarm</span>
+                <small class="_badgeAlarm def-badge-alarm"></small>
+                <span>Alarms</span>
+                <span class="icon-mate">alarm</span>
               </button>
             </div>
 
